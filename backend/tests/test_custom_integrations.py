@@ -133,7 +133,7 @@ def test_install_is_off_until_turned_on_and_runs_nothing_before(client, reposito
     admin(c)
     installed = install(c, repository, token="secret-token")
     assert installed["enabled"] is False and installed["loaded"] is False and installed["has_token"]
-    assert not (settings.runtime_root / "integrations/hello/.git").exists()
+    assert not (settings.runtime_root / "run/integrations/hello/.git").exists()
     row = db.get(Integration, "custom:hello")
     assert "secret-token" not in str(row.config) and "secret-token" not in row.encrypted_secret
     assert custom_admin.unseal(row) == "secret-token"
@@ -297,7 +297,7 @@ def test_update_keeps_keys_and_token_then_remove_takes_everything(client, reposi
     assert custom.tools("general")["hello_ping"][1] == "Ping, version two."
 
     assert c.delete("/api/v1/admin/custom-integrations/hello").status_code == 200
-    assert not (settings.runtime_root / "integrations/hello").exists()
+    assert not (settings.runtime_root / "run/integrations/hello").exists()
     assert not (settings.runtime_root / "run/custom/hello").exists()
     assert db.get(Integration, "custom:hello") is None
     assert c.post("/api/v1/custom/hello/note", json={"url": "https://x.test"}).status_code == 404
@@ -325,3 +325,18 @@ def test_the_documented_example_works(client):
         c.post("/api/v1/custom/hello/keep", json={"url": "nope"}).json()["detail"]["code"]
         == "HELLO_NOT_A_LINK"
     )
+
+
+def test_installs_where_the_app_may_write(client, repository):
+    """Docker's /state is not writable by the app, only the folders the entrypoint prepares (run/…)."""
+    c, db = client
+    admin(c)
+    root = settings.runtime_root
+    (root / "run").mkdir(parents=True, exist_ok=True)
+    root.chmod(0o550)
+    try:
+        installed = install(c, repository)
+        assert installed["manifest"]["id"] == "hello"
+        assert (root / "run/integrations/hello/integration.py").is_file()
+    finally:
+        root.chmod(0o750)

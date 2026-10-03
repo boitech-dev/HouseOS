@@ -1406,23 +1406,23 @@ a commit, and off until turned on. docs/CUSTOM-INTEGRATIONS.md is the guide.
 
 - [`code_root()`](../backend/houseos/custom.py#L55)
   Where installed integrations live (one folder each); replaced only by an install or update.
-- [`state_root()`](../backend/houseos/custom.py#L60)
-- [`problem(status, code, message)`](../backend/houseos/custom.py#L64)
-- [`class Share`](../backend/houseos/custom.py#L70)
+- [`state_root()`](../backend/houseos/custom.py#L62)
+- [`problem(status, code, message)`](../backend/houseos/custom.py#L66)
+- [`class Share`](../backend/houseos/custom.py#L72)
   A button on Capture for shared text matching `match` (a regular expression JavaScript and
-- [`class Parts`](../backend/houseos/custom.py#L82)
-- [`class Loaded`](../backend/houseos/custom.py#L97)
-- [`class HomeAssistant`](../backend/houseos/custom.py#L106)
+- [`class Parts`](../backend/houseos/custom.py#L84)
+- [`class Loaded`](../backend/houseos/custom.py#L99)
+- [`class HomeAssistant`](../backend/houseos/custom.py#L108)
   The house's Home Assistant, as HouseOS already uses it: only the entities an administrator
   Method: `__init__(self, db)`
   Method: `states(self)`
   Method: `state(self, entity_id)`
   Method: `exposed(self, entity_id)`
   Method: `call(self, domain, service, data, timeout=10)`
-- [`house_db()`](../backend/houseos/custom.py#L145)
+- [`house_db()`](../backend/houseos/custom.py#L147)
   The house's database session, as the app itself gets it (with its overrides).
-- [`signed_in(request: Request, db=Depends(house_db))`](../backend/houseos/custom.py#L155)
-- [`class House`](../backend/houseos/custom.py#L159)
+- [`signed_in(request: Request, db=Depends(house_db))`](../backend/houseos/custom.py#L157)
+- [`class House`](../backend/houseos/custom.py#L161)
   What HouseOS gives an integration. Dependencies go in FastAPI routes; the rest are plain
   Method: `__init__(self, integration_id)`
   Method: `key_only(self, request: Request, db=Depends(house_db))`
@@ -1432,51 +1432,51 @@ a commit, and off until turned on. docs/CUSTOM-INTEGRATIONS.md is the guide.
   Method: `record(self, db, event, payload, actor=None)`
   Method: `ask_first(self, actor, db, action, data, label, preview)`
   Method: `problem(status, code, message)`
-- [`keys_file(integration_id)`](../backend/houseos/custom.py#L213)
-- [`keys(integration_id)`](../backend/houseos/custom.py#L219)
-- [`digest(key)`](../backend/houseos/custom.py#L226)
-- [`bearer(request)`](../backend/houseos/custom.py#L230)
-- [`key_actor(integration_id, db, key)`](../backend/houseos/custom.py#L235)
-- [`create_key(integration_id, name, actor)`](../backend/houseos/custom.py#L248)
-- [`remove_key(integration_id, key_id)`](../backend/houseos/custom.py#L262)
-- [`public_keys(integration_id)`](../backend/houseos/custom.py#L267)
-- [`read_manifest(folder: Path)`](../backend/houseos/custom.py#L272)
+- [`keys_file(integration_id)`](../backend/houseos/custom.py#L215)
+- [`keys(integration_id)`](../backend/houseos/custom.py#L221)
+- [`digest(key)`](../backend/houseos/custom.py#L228)
+- [`bearer(request)`](../backend/houseos/custom.py#L232)
+- [`key_actor(integration_id, db, key)`](../backend/houseos/custom.py#L237)
+- [`create_key(integration_id, name, actor)`](../backend/houseos/custom.py#L250)
+- [`remove_key(integration_id, key_id)`](../backend/houseos/custom.py#L264)
+- [`public_keys(integration_id)`](../backend/houseos/custom.py#L269)
+- [`read_manifest(folder: Path)`](../backend/houseos/custom.py#L274)
   The manifest, checked; raises ValueError with a sentence.
-- [`forget_modules(integration_id)`](../backend/houseos/custom.py#L292)
-- [`check_parts(integration_id, parts)`](../backend/houseos/custom.py#L298)
-- [`load(integration_id)`](../backend/houseos/custom.py#L313)
+- [`forget_modules(integration_id)`](../backend/houseos/custom.py#L294)
+- [`check_parts(integration_id, parts)`](../backend/houseos/custom.py#L300)
+- [`load(integration_id)`](../backend/houseos/custom.py#L315)
   Import an installed integration and serve it. Returns None, or why it didn't load.
-- [`unload(integration_id)`](../backend/houseos/custom.py#L345)
-- [`installed(db)`](../backend/houseos/custom.py#L352)
-- [`start(db)`](../backend/houseos/custom.py#L357)
+- [`unload(integration_id)`](../backend/houseos/custom.py#L347)
+- [`installed(db)`](../backend/houseos/custom.py#L354)
+- [`start(db)`](../backend/houseos/custom.py#L359)
   At startup: load every integration that is turned on.
-- [`class Dispatch`](../backend/houseos/custom.py#L365)
+- [`class Dispatch`](../backend/houseos/custom.py#L367)
   /api/v1/custom/<id>/… → that integration's own app, while it is loaded.
   Method: `__init__(self)`
   Method: `__call__(self, scope, receive, send)`
-- [`key_route(path)`](../backend/houseos/custom.py#L389)
+- [`key_route(path)`](../backend/houseos/custom.py#L391)
   Whether this /api/v1/custom path is one its integration opens to keys (Origin skipped).
-- [`tools(context)`](../backend/houseos/custom.py#L400)
+- [`tools(context)`](../backend/houseos/custom.py#L402)
   The tools turned-on integrations add to this bundle of Nox's.
-- [`confirm(row, actor, db)`](../backend/houseos/custom.py#L409)
+- [`confirm(row, actor, db)`](../backend/houseos/custom.py#L411)
   A confirmed card from House.ask_first: run the integration's handler once.
-- [`shares(actor: Actor=Depends(require_actor))`](../backend/houseos/custom.py#L428)
+- [`shares(actor: Actor=Depends(require_actor))`](../backend/houseos/custom.py#L430)
   Capture's buttons for shared links, from the integrations turned on.
   HTTP: `router.get('/shares')`
-- [`card(loaded, actor, db)`](../backend/houseos/custom.py#L439)
-- [`describe(integration_id, row, actor, db)`](../backend/houseos/custom.py#L453)
-- [`class Enabled`](../backend/houseos/custom.py#L478)
-- [`class KeyName`](../backend/houseos/custom.py#L482)
-- [`list_installed(actor: Actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/custom.py#L490)
+- [`card(loaded, actor, db)`](../backend/houseos/custom.py#L441)
+- [`describe(integration_id, row, actor, db)`](../backend/houseos/custom.py#L455)
+- [`class Enabled`](../backend/houseos/custom.py#L480)
+- [`class KeyName`](../backend/houseos/custom.py#L484)
+- [`list_installed(actor: Actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/custom.py#L492)
   HTTP: `admin.get('')`
-- [`row_or_404(db, integration_id)`](../backend/houseos/custom.py#L494)
-- [`set_enabled(integration_id: str, body: Enabled, actor: Actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/custom.py#L502)
+- [`row_or_404(db, integration_id)`](../backend/houseos/custom.py#L496)
+- [`set_enabled(integration_id: str, body: Enabled, actor: Actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/custom.py#L504)
   HTTP: `admin.put('/{integration_id}/enabled')`
-- [`new_key(integration_id: str, body: KeyName, actor: Actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/custom.py#L516)
+- [`new_key(integration_id: str, body: KeyName, actor: Actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/custom.py#L518)
   HTTP: `admin.post('/{integration_id}/keys')`
-- [`delete_key(integration_id: str, key_id: str, actor: Actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/custom.py#L525)
+- [`delete_key(integration_id: str, key_id: str, actor: Actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/custom.py#L527)
   HTTP: `admin.delete('/{integration_id}/keys/{key_id}')`
-- [`remove_files(integration_id)`](../backend/houseos/custom.py#L533)
+- [`remove_files(integration_id)`](../backend/houseos/custom.py#L535)
 
 ## custom_admin
 
