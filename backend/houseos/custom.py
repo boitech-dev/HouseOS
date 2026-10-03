@@ -128,20 +128,17 @@ class HomeAssistant:
         except HTTPException:
             return False
 
-    def call(self, domain, service, data, timeout=10):
+    def call(self, domain, service, data, timeout=10, response=False):
+        """A service call. With response=True, what the service answers (Home Assistant's
+        service_response, e.g. a TV's own reply to a command)."""
         if not re.fullmatch(r"[a-z0-9_]{1,60}", domain) or not re.fullmatch(r"[a-z0-9_]{1,60}", service):
             raise problem(422, "CUSTOM_HA_SERVICE", "That isn't a Home Assistant service name.")
         entity = (data or {}).get("entity_id")
         if entity and not self.exposed(entity):
             raise problem(403, "HOME_NOT_EXPOSED", "HouseOS isn't allowed to control this device.")
-        return self._home.ha(
-            self.base,
-            self.headers,
-            f"/api/services/{domain}/{service}",
-            method="POST",
-            payload=data,
-            timeout=timeout,
-        )
+        path = f"/api/services/{domain}/{service}" + ("?return_response" if response else "")
+        reply = self._home.ha(self.base, self.headers, path, method="POST", payload=data, timeout=timeout)
+        return (reply or {}).get("service_response") if response else reply
 
 
 def house_db():
