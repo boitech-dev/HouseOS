@@ -340,3 +340,27 @@ def test_installs_where_the_app_may_write(client, repository):
         assert (root / "run/integrations/hello/integration.py").is_file()
     finally:
         root.chmod(0o750)
+
+
+def test_home_assistant_calls_stay_within_what_houseos_may_see(monkeypatch):
+    from houseos import home
+
+    calls = []
+
+    def ha(base, headers, path, method="GET", payload=None, timeout=5):
+        calls.append((path, payload))
+        return {"changed_states": [], "service_response": {"media_player.tv": {"state": "Screen Saver"}}}
+
+    monkeypatch.setattr(
+        home, "connection", lambda db: ("http://ha", {}, {"curated": True, "shown": ["media_player.tv"]})
+    )
+    monkeypatch.setattr(home, "ha", ha)
+    assistant = custom.House("hello").home_assistant(None)
+    answer = assistant.call(
+        "webostv", "command", {"entity_id": "media_player.tv", "command": "x"}, response=True
+    )
+    assert answer == {"media_player.tv": {"state": "Screen Saver"}}
+    assert calls[-1][0] == "/api/services/webostv/command?return_response"
+    with pytest.raises(Exception) as hidden:
+        assistant.call("media_player", "turn_on", {"entity_id": "media_player.other"})
+    assert hidden.value.status_code == 403 and len(calls) == 1

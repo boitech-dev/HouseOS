@@ -108,7 +108,7 @@ This is the stable surface; rely on nothing else in HouseOS.
 | `Depends(house.key_or_signed_in)` | One of its keys when the request sends one, else the sign-in. For key routes. |
 | `Depends(house.key_only)` | One of its keys, never a sign-in (a helper's routes). |
 | `house.allowed(actor, *permissions)` | Admins, or anyone with one of these permissions; else 403. |
-| `house.home_assistant(db)` | `.states()`, `.state(id)`, `.exposed(id)`, `.call(domain, service, data)`; only the entities HouseOS may see (Smart home). |
+| `house.home_assistant(db)` | `.states()`, `.state(id)`, `.exposed(id)`, `.call(domain, service, data, response=False)` (`response=True` returns the service's answer); only the entities HouseOS may see (Smart home). |
 | `house.record(db, event, payload, actor)` | A line in the activity diary (`custom.<id>.<event>`); no private content. |
 | `house.ask_first(actor, db, action, data, label, preview)` | A Nox confirmation card. |
 | `house.problem(status, code, message)` | An error with a sentence a person can act on. |
