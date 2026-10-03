@@ -1,6 +1,8 @@
 // Test-only session reuse. Never export this protected runtime state into the repo.
 const fs = require("node:fs");
-const path = "/opt/houseos/state/frontend/browser-test-session.json";
+// Where this install keeps its state (HOUSEOS_STATE; a native install's default otherwise).
+const STATE = process.env.HOUSEOS_STATE || "/opt/houseos/state";
+const path = STATE + "/frontend/browser-test-session.json";
 // The release the app announces (src/whats_new.ts), and preferences for someone who has seen
 // every welcome: the welcomes would cover the pages in every test (onboarding.cjs shows them).
 const RELEASE = fs
@@ -34,7 +36,7 @@ module.exports = async function signIn(context, base) {
   let data = { username: "visualtest", password: "Test-only-HouseOS-2046" };
   if (status.setup_required) {
     const line = fs
-      .readFileSync("/opt/houseos/state/test.env", "utf8")
+      .readFileSync(STATE + "/test.env", "utf8")
       .split("\n")
       .find((x) => x.startsWith("HOUSEOS_BOOTSTRAP_TOKEN="));
     data = {

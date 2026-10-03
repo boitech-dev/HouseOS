@@ -143,7 +143,7 @@ def test_file_acl_confirmations_and_symlinks(file_app):
 
 def test_real_tusd_resume_finalize(file_app, monkeypatch):
     client, db, (alice, bob, _), root, app = file_app
-    binary = Path("/opt/houseos/state/bin/tusd")
+    binary = Path(os.environ.get("HOUSEOS_STATE", "/opt/houseos/state")) / "bin/tusd"
     if not binary.exists():
         pytest.skip("App-private tusd binary unavailable")
     with socket.socket() as sock:

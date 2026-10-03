@@ -47,8 +47,10 @@ const assert = require("node:assert/strict");
   await page.getByRole("button", { name: "Add an event", exact: true }).click();
   const dialog = page.getByRole("dialog");
   await dialog.getByLabel("Title", { exact: true }).fill("UI test event");
-  await dialog.getByLabel(/^Starts · /).fill("2026-09-25T18:00");
-  await dialog.getByLabel(/^Ends · /).fill("2026-09-25T19:00");
+  // Tomorrow: a fixed date drops out of the calendar's upcoming view once it has passed.
+  const day = new Date(Date.now() + 864e5).toISOString().slice(0, 10);
+  await dialog.getByLabel(/^Starts · /).fill(day + "T18:00");
+  await dialog.getByLabel(/^Ends · /).fill(day + "T19:00");
   await dialog.getByRole("button", { name: "Save", exact: true }).click();
   await page
     .getByRole("button", { name: /UI test event/ })
