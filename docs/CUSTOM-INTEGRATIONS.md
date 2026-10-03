@@ -74,6 +74,10 @@ def setup(house):
     return Parts(router=router, key_routes=("/keep",), shares=[Share("keep", "Keep it", r"^https?://", "/keep")])
 ```
 
+Request models defined inside `setup()` (like `Link` above) need their type hints evaluated:
+don't put `from __future__ import annotations` in the entry file, or FastAPI reads the body as a
+query parameter and answers 422.
+
 Python's standard library and what HouseOS itself uses (FastAPI, pydantic, httpx, SQLAlchemy…)
 are available; an integration can't install other packages.
 
