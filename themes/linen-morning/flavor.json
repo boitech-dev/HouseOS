@@ -1,0 +1,83 @@
+{
+  "$description": "Kinari: the house titles' names, in the voice of a quiet room. English and French (tu).",
+  "title.dj.name": {
+    "en": "Keeper of the bell",
+    "fr": "Gardien de la cloche"
+  },
+  "title.explorer.name": {
+    "en": "Mountain walker",
+    "fr": "Marcheur des monts"
+  },
+  "title.night_owl.name": {
+    "en": "Moon viewer",
+    "fr": "Qui regarde la lune"
+  },
+  "title.early_bird.name": {
+    "en": "First light",
+    "fr": "Première lueur"
+  },
+  "title.weekend.name": {
+    "en": "Slow tea",
+    "fr": "Thé sans hâte"
+  },
+  "title.genre_guardian.name": {
+    "en": "{genre}, kept with care",
+    "fr": "{genre}, gardé avec soin"
+  },
+  "title.broken_record.name": {
+    "en": "The same stone, turned",
+    "fr": "La même pierre, retournée"
+  },
+  "title.marathon.name": {
+    "en": "Long sitting",
+    "fr": "Longue assise"
+  },
+  "title.radio_host.name": {
+    "en": "Voice of the house",
+    "fr": "Voix de la maison"
+  },
+  "title.task_hero.name": {
+    "en": "Sweeper of the path",
+    "fr": "Balayeur du chemin"
+  },
+  "title.grocery_runner.name": {
+    "en": "Market walker",
+    "fr": "Marcheur du marché"
+  },
+  "title.planner.name": {
+    "en": "Keeper of days",
+    "fr": "Gardien des jours"
+  },
+  "title.wall_poet.name": {
+    "en": "Brush on the wall",
+    "fr": "Pinceau du mur"
+  },
+  "title.courier.name": {
+    "en": "Carrier of letters",
+    "fr": "Porteur de lettres"
+  },
+  "title.curator.name": {
+    "en": "One branch, well placed",
+    "fr": "Une branche bien posée"
+  },
+  "title.high_scorer.name": {
+    "en": "Full gourd",
+    "fr": "Gourde pleine"
+  },
+  "title.collector.name": {
+    "en": "Shell gatherer",
+    "fr": "Chercheur de coquillages"
+  },
+  "title.game_hopper.name": {
+    "en": "Spinning top",
+    "fr": "Toupie"
+  },
+  "title.console_hopper.name": {
+    "en": "Many doors",
+    "fr": "Mille portes"
+  },
+  "title.romhacker.name": {
+    "en": "Old iron key",
+    "fr": "Vieille clé de fer"
+  }
+}

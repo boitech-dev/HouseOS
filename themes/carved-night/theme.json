@@ -1,0 +1,324 @@
+{
+  "$schema": "../_schema/theme.schema.json",
+  "id": "carved-night",
+  "schema": 1,
+  "version": 2,
+  "names": {
+    "en": "Legacy",
+    "fr": "Legacy"
+  },
+  "description": {
+    "en": "The haunted manor under the moon, by candlelight.",
+    "fr": "Le manoir hanté sous la lune, à la bougie."
+  },
+  "schemes": [
+    "dark"
+  ],
+  "density": "comfortable",
+  "identity": "pixel",
+  "fonts": {
+    "display": "Jacquard 12",
+    "body": "Alegreya Sans",
+    "mono": "IBM Plex Mono"
+  },
+  "parts": {
+    "header": "banner",
+    "panel": "card",
+    "dock": "flush",
+    "nowbar": "floating"
+  },
+  "slots": {
+    "home.hero.backdrop": {
+      "image": "art/hero.png",
+      "rendering": "pixel",
+      "fit": "cover"
+    },
+    "page.backdrop": {
+      "image": "art/sky.png",
+      "rendering": "pixel",
+      "fit": "cover"
+    },
+    "status.backdrop": {
+      "image": "art/roofline.png",
+      "rendering": "pixel",
+      "fit": "cover"
+    },
+    "auth.crest": {
+      "image": "art/crest.png",
+      "rendering": "pixel",
+      "fit": "contain"
+    },
+    "watch.tv.bezel": {
+      "image": "art/tv.png",
+      "rendering": "pixel",
+      "fit": "contain"
+    },
+    "space.room.scene": {
+      "image": "art/bedroom.png",
+      "rendering": "pixel",
+      "fit": "cover"
+    },
+    "state.empty": {
+      "image": "art/ghost.png",
+      "rendering": "pixel",
+      "fit": "contain"
+    },
+    "rail.surface": {
+      "image": "art/column.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 24
+    },
+    "deck.surface": {
+      "image": "art/deck-frame.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 15
+    },
+    "header.banner": {
+      "image": "art/banner-hall.png",
+      "rendering": "pixel",
+      "fit": "cover",
+      "rooms": {
+        "listen": "art/banner-parlour.png",
+        "party": "art/banner-parlour.png",
+        "watch": "art/banner-screening.png",
+        "house": "art/banner-kitchen.png",
+        "inbox": "art/banner-kitchen.png",
+        "files": "art/banner-library.png",
+        "games": "art/banner-attic.png",
+        "control": "art/banner-cellar.png",
+        "smart-home": "art/banner-cellar.png",
+        "me": "art/banner-bedroom.png"
+      }
+    },
+    "sheet.surface": {
+      "image": "art/sheet-frame.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 18
+    },
+    "panel.surface": {
+      "image": "art/panel-frame.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 12
+    },
+    "nowbar.surface": {
+      "image": "art/nowbar-frame.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 12
+    }
+  },
+  "layers": [
+    {
+      "image": "art/clouds.png",
+      "where": "page",
+      "fit": "repeat-x",
+      "anchor": "top",
+      "scale": 3,
+      "drift": [
+        -4,
+        0
+      ],
+      "opacity": 0.9
+    },
+    {
+      "image": "art/manor.png",
+      "where": "page",
+      "anchor": "bottom-right",
+      "frames": {
+        "count": 32,
+        "fps": 2
+      },
+      "depth": 0.06,
+      "fit": "natural",
+      "scale": 3
+    },
+    {
+      "image": "art/near.png",
+      "where": "page",
+      "anchor": "bottom-left",
+      "frames": {
+        "count": 8,
+        "fps": 2
+      },
+      "depth": 0.12,
+      "fit": "natural",
+      "scale": 3
+    },
+    {
+      "image": "art/bat.png",
+      "where": "page",
+      "anchor": "left",
+      "frames": {
+        "count": 2,
+        "fps": 6
+      },
+      "cross": {
+        "seconds": 14,
+        "every": 61,
+        "from": "left"
+      },
+      "fit": "natural",
+      "scale": 3
+    },
+    {
+      "image": "art/star.png",
+      "where": "hero",
+      "anchor": "top",
+      "cross": {
+        "seconds": 2,
+        "every": 83,
+        "from": "right"
+      },
+      "fit": "natural",
+      "scale": 3
+    },
+    {
+      "image": "art/owl.png",
+      "where": "hero",
+      "anchor": "bottom-right",
+      "frames": {
+        "count": 16,
+        "fps": 4
+      },
+      "fit": "natural",
+      "scale": 3,
+      "poke": {
+        "image": "art/owl-poke.png",
+        "frames": {
+          "count": 10,
+          "fps": 10
+        },
+        "burst": {
+          "image": "art/bit-feather.png",
+          "count": 3
+        }
+      }
+    },
+    {
+      "image": "art/candle-table.png",
+      "where": "rail-foot",
+      "anchor": "bottom",
+      "frames": {
+        "count": 8,
+        "fps": 6
+      },
+      "fit": "natural",
+      "scale": 3,
+      "poke": {
+        "image": "art/candle-table-poke.png",
+        "frames": {
+          "count": 6,
+          "fps": 10
+        },
+        "burst": {
+          "image": "art/bit-spark.png",
+          "count": 4
+        }
+      }
+    },
+    {
+      "image": "art/status-life.png",
+      "where": "status",
+      "anchor": "top",
+      "frames": {
+        "count": 16,
+        "fps": 4
+      },
+      "fit": "natural",
+      "scale": 3,
+      "poke": {
+        "image": "art/status-poke.png",
+        "frames": {
+          "count": 8,
+          "fps": 8
+        }
+      }
+    },
+    {
+      "image": "art/sconces.png",
+      "where": "header",
+      "anchor": "top",
+      "frames": {
+        "count": 4,
+        "fps": 5
+      },
+      "fit": "natural",
+      "scale": 3
+    },
+    {
+      "image": "art/portrait.png",
+      "where": "header",
+      "anchor": "top",
+      "frames": {
+        "count": 16,
+        "fps": 3
+      },
+      "rooms": [
+        "ask",
+        "space",
+        "listen",
+        "party",
+        "files"
+      ],
+      "fit": "natural",
+      "scale": 3,
+      "poke": {
+        "image": "art/portrait-poke.png",
+        "frames": {
+          "count": 8,
+          "fps": 8
+        }
+      }
+    },
+    {
+      "image": "art/curtain.png",
+      "where": "header",
+      "anchor": "top",
+      "frames": {
+        "count": 24,
+        "fps": 3
+      },
+      "rooms": [
+        "me"
+      ],
+      "fit": "natural",
+      "scale": 3,
+      "poke": {
+        "image": "art/curtain-poke.png",
+        "frames": {
+          "count": 8,
+          "fps": 9
+        }
+      }
+    },
+    {
+      "image": "art/deck-flame.png",
+      "where": "deck",
+      "anchor": "bottom-right",
+      "frames": {
+        "count": 4,
+        "fps": 5
+      },
+      "playing": true,
+      "fit": "natural",
+      "scale": 3,
+      "poke": {
+        "image": "art/deck-flame-poke.png",
+        "frames": {
+          "count": 6,
+          "fps": 8
+        },
+        "burst": {
+          "image": "art/bit-smoke.png",
+          "count": 2
+        }
+      }
+    }
+  ],
+  "author": "HouseOS",
+  "license": "MIT"
+}

@@ -1,0 +1,260 @@
+/* Smart home (smarthome.tsx): layout, and each device's kind colour (the theme's chart colours).
+   Everything else comes from the design system. */
+@layer rooms {
+  /* ---------- the page: the TV remote above the rooms; beside them, sticky, on a wide screen ---------- */
+  .smart-home,
+  .smart-home__main {
+    display: grid;
+    gap: var(--space-6);
+    align-items: start;
+    min-width: 0;
+  }
+  .smart-home__remote {
+    min-width: 0;
+    padding: var(--space-4);
+    border: var(--mat-surface-border);
+    border-radius: var(--mat-surface-radius);
+    background: var(--mat-surface-bg) var(--mat-surface-texture);
+  }
+  @media (min-width: 1232px) {
+    .smart-home[data-remote] {
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 340px);
+    }
+    .smart-home[data-remote] > .smart-home__main {
+      grid-area: 1 / 1;
+    }
+    .smart-home[data-remote] > .smart-home__remote {
+      grid-area: 1 / 2;
+      position: sticky;
+      top: calc(var(--shell-top) + var(--space-4));
+      max-height: calc(100dvh - var(--shell-top) - var(--shell-bottom) - var(--space-6));
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+  }
+  .smart-quick {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .smart-quick > h2 {
+    margin: 0;
+  }
+  .smart-quick__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .smart-quick__item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  /* ---------- rooms (favourites first): rows of cards, each as wide as its devices need, so a
+     big room lays its devices side by side instead of towering over a small one; a very big
+     room takes the whole row ---------- */
+  .smart-home__rooms {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .smart-home__rooms > .smart-room {
+    /* 300 px for one device, 200 px more for each other one, up to three side by side */
+    flex: var(--devices, 1) 1 min(100%, calc(min(var(--devices, 1), 3) * 200px + 100px));
+  }
+  .smart-home__rooms > .smart-room[data-full] {
+    flex-basis: 100%;
+  }
+  .smart-room {
+    display: grid;
+    gap: var(--space-3);
+    min-width: 0;
+    padding: var(--space-4);
+    border: var(--mat-surface-border);
+    border-radius: var(--mat-surface-radius);
+    background: var(--mat-surface-bg) var(--mat-surface-texture);
+  }
+  .smart-room[data-favorites] {
+    border-color: var(--c-accent-border);
+  }
+  .smart-room__head {
+    /* the height of its small button, so a room with "All lights off" lines up with one without */
+    min-height: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+  }
+  .smart-room__head > h2,
+  .smart-room__head > h3 {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+    margin: 0 auto 0 0;
+    overflow-wrap: anywhere;
+  }
+  .smart-room__grid {
+    display: grid;
+    /* 240 px: a TV's five playback buttons fit on one line */
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+    gap: var(--space-3);
+    align-items: start;
+  }
+
+  /* ---------- a device ---------- */
+  .smart-device {
+    --kind: var(--c-fg-muted);
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+    min-width: 0;
+    padding: var(--space-3);
+    border: var(--mat-raised-border);
+    border-radius: var(--mat-raised-radius);
+    background: var(--mat-raised-bg);
+    transition: border-color var(--dur-base) var(--ease-standard);
+  }
+  .smart-device[data-on] {
+    border-color: color-mix(in srgb, var(--kind) 60%, transparent);
+  }
+  .smart-device[data-lit] {
+    border-color: var(--kind);
+    box-shadow: var(--elev-2);
+  }
+  .smart-device[data-offline] {
+    opacity: 0.6;
+  }
+  .smart-device__head {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: start;
+    gap: var(--space-2);
+  }
+  .smart-device__icon {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-control);
+    background: color-mix(in srgb, var(--kind) 14%, transparent);
+    color: var(--kind);
+  }
+  .smart-device__title {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .smart-device__title small,
+  .smart-device__note,
+  .smart-device__changed {
+    color: var(--c-fg-muted);
+    font: var(--text-caption);
+  }
+  .smart-device__star[data-on] {
+    color: var(--c-accent-fg);
+  }
+  .smart-device__changed {
+    display: none;
+  }
+  .smart-device:hover .smart-device__changed,
+  .smart-device[data-peek] .smart-device__changed {
+    display: block;
+  }
+  .smart-device__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  .smart-device__level {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 0 var(--space-2);
+  }
+  .smart-device__volume {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-2);
+  }
+  .smart-device__volume > .ds-slider {
+    flex: 1;
+    min-width: 0;
+  }
+  .smart-device__thermostat {
+    justify-content: space-between;
+  }
+
+  .smart-home__kinds {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+  }
+  .smart-home__kinds dt {
+    font: var(--text-label);
+  }
+  .smart-home__kinds dd {
+    margin: 0;
+    color: var(--c-fg-muted);
+    font: var(--text-body-s);
+  }
+
+  /* ---------- choosing what shows ---------- */
+  .smart-chooser {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .smart-pick {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .smart-pick > li[data-muted] {
+    opacity: 0.6;
+  }
+  .smart-pick__name {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .smart-pick__name .ds-icon {
+    margin-top: var(--space-1);
+    color: var(--kind);
+  }
+  .smart-pick__name > span {
+    display: grid;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .smart-pick__name small {
+    color: var(--c-fg-muted);
+    font: var(--text-caption);
+  }
+  .smart-chooser__bar {
+    position: sticky;
+    bottom: calc(var(--shell-bottom) + var(--space-2));
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border: var(--mat-raised-border);
+    border-radius: var(--mat-raised-radius);
+    background: var(--mat-raised-bg);
+    box-shadow: var(--elev-2);
+  }
+  .smart-chooser__bar > :first-child {
+    margin-right: auto;
+  }
+  .smart-closer {
+    display: grid;
+    gap: var(--space-4);
+  }
+}

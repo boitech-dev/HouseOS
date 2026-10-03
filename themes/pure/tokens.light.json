@@ -1,0 +1,365 @@
+{
+  "$description": "Pure, the negative: cream paper and black ink; primary buttons are black blocks.",
+  "seed": {
+    "$type": "color",
+    "neutral": {
+      "$value": "oklch(0.55 0.012 85)"
+    },
+    "accent": {
+      "$value": "oklch(0.2 0.004 85)"
+    },
+    "success": {
+      "$value": "oklch(0.5 0.05 165)"
+    },
+    "warning": {
+      "$value": "oklch(0.58 0.09 75)"
+    },
+    "danger": {
+      "$value": "oklch(0.52 0.1 40)"
+    },
+    "info": {
+      "$value": "oklch(0.5 0.06 245)"
+    },
+    "private": {
+      "$value": "oklch(0.5 0.06 305)"
+    }
+  },
+  "color": {
+    "$type": "color",
+    "bg": {
+      "canvas": {
+        "$value": "#eee8db"
+      },
+      "surface": {
+        "$value": "#f2ede3"
+      },
+      "raised": {
+        "$value": "#f6f2ea"
+      },
+      "overlay": {
+        "$value": "#f3eee4"
+      },
+      "sunken": {
+        "$value": "#f8f5ef"
+      },
+      "inverse": {
+        "$value": "#12110f"
+      },
+      "hover": {
+        "$value": "#e3dccd"
+      },
+      "pressed": {
+        "$value": "#d6cebc"
+      },
+      "selected": {
+        "$value": "#d4ccb9"
+      },
+      "current": {
+        "$value": "#12110f"
+      }
+    },
+    "fg": {
+      "default": {
+        "$value": "#12110f"
+      },
+      "muted": {
+        "$value": "#403d37"
+      },
+      "subtle": {
+        "$value": "#55514a"
+      },
+      "placeholder": {
+        "$value": "#68645b"
+      },
+      "disabled": {
+        "$value": "#aaa396"
+      },
+      "inverse": {
+        "$value": "#eee8db"
+      },
+      "on-accent": {
+        "$value": "#f3eee3"
+      },
+      "link": {
+        "$value": "#12110f"
+      },
+      "current": {
+        "$value": "#eee8db"
+      }
+    },
+    "border": {
+      "subtle": {
+        "$value": "#d8d0bf"
+      },
+      "default": {
+        "$value": "#bdb4a2"
+      },
+      "strong": {
+        "$value": "#6e685d"
+      }
+    },
+    "focus-ring": {
+      "$value": "#12110f"
+    },
+    "accent": {
+      "solid": {
+        "$value": "#12110f"
+      },
+      "solid-hover": {
+        "$value": "#2c2a26"
+      },
+      "soft": {
+        "$value": "#e5dfd1"
+      },
+      "fg": {
+        "$value": "#12110f"
+      },
+      "border": {
+        "$value": "#12110f"
+      }
+    },
+    "paper": {
+      "bg": {
+        "$value": "#f8f5ef"
+      },
+      "fg": {
+        "$value": "#12110f"
+      },
+      "muted": {
+        "$value": "#4a463e"
+      }
+    },
+    "scrim": {
+      "$value": "alpha(#2a2721, 45%)"
+    },
+    "media-scrim": {
+      "$value": "alpha(#000000, 66%)"
+    },
+    "shadow": {
+      "$value": "#3a3326"
+    },
+    "sprite": {
+      "outline": {
+        "$value": "#eee8db"
+      },
+      "dark": {
+        "$value": "#d9d2c3"
+      },
+      "mid-dark": {
+        "$value": "#8f887b"
+      },
+      "mid": {
+        "$value": "#8f887b"
+      },
+      "mist": {
+        "$value": "#4f4b44"
+      },
+      "light": {
+        "$value": "#12110f"
+      },
+      "light-dim": {
+        "$value": "#4f4b44"
+      },
+      "accent": {
+        "$value": "#12110f"
+      },
+      "accent-hi": {
+        "$value": "#12110f"
+      },
+      "accent-deep": {
+        "$value": "#4f4b44"
+      },
+      "familiar": {
+        "$value": "#12110f"
+      },
+      "familiar-mid": {
+        "$value": "#4f4b44"
+      },
+      "familiar-deep": {
+        "$value": "#8f887b"
+      },
+      "good": {
+        "$value": "{color.success.solid}"
+      },
+      "alert": {
+        "$value": "{color.danger.solid}"
+      },
+      "paper": {
+        "$value": "#12110f"
+      },
+      "ink": {
+        "$value": "#eee8db"
+      }
+    },
+    "scene": {
+      "night-0": {
+        "$value": "#eee8db"
+      },
+      "night-1": {
+        "$value": "#e3dccd"
+      },
+      "night-2": {
+        "$value": "#d2c9b6"
+      },
+      "line": {
+        "$value": "#a39a88"
+      },
+      "line-hi": {
+        "$value": "#6e685d"
+      },
+      "mist": {
+        "$value": "#4f4b44"
+      },
+      "cream": {
+        "$value": "#6a5f4c"
+      },
+      "ember": {
+        "$value": "#12110f"
+      },
+      "ember-hi": {
+        "$value": "#12110f"
+      },
+      "ember-deep": {
+        "$value": "#4f4b44"
+      },
+      "lilac": {
+        "$value": "#4f4b44"
+      },
+      "moss": {
+        "$value": "#4f4b44"
+      }
+    },
+    "room": {
+      "home": {
+        "$value": "#5f5544"
+      },
+      "listen": {
+        "$value": "#5f5544"
+      },
+      "watch": {
+        "$value": "#5f5544"
+      },
+      "house": {
+        "$value": "#5f5544"
+      },
+      "files": {
+        "$value": "#5f5544"
+      },
+      "ask": {
+        "$value": "#5f5544"
+      },
+      "me": {
+        "$value": "#5f5544"
+      },
+      "control": {
+        "$value": "#5f5544"
+      },
+      "smart-home": {
+        "$value": "#5f5544"
+      },
+      "inbox": {
+        "$value": "#5f5544"
+      },
+      "space": {
+        "$value": "#5f5544"
+      },
+      "party": {
+        "$value": "#5f5544"
+      },
+      "games": {
+        "$value": "#5f5544"
+      }
+    },
+    "person": {
+      "1": {
+        "$value": "oklch(0.22 0.02 85)"
+      },
+      "2": {
+        "$value": "oklch(0.32 0.02 250)"
+      },
+      "3": {
+        "$value": "oklch(0.42 0.02 85)"
+      },
+      "4": {
+        "$value": "oklch(0.52 0.02 250)"
+      },
+      "5": {
+        "$value": "oklch(0.27 0.02 250)"
+      },
+      "6": {
+        "$value": "oklch(0.37 0.02 85)"
+      },
+      "7": {
+        "$value": "oklch(0.47 0.02 250)"
+      },
+      "8": {
+        "$value": "oklch(0.56 0.02 85)"
+      }
+    },
+    "data": {
+      "1": {
+        "$value": "#12110f"
+      },
+      "2": {
+        "$value": "#6a5f4c"
+      },
+      "3": {
+        "$value": "#7f776a"
+      },
+      "4": {
+        "$value": "#80683f"
+      },
+      "5": {
+        "$value": "#4a4640"
+      },
+      "6": {
+        "$value": "#3a332a"
+      },
+      "7": {
+        "$value": "#5c5347"
+      },
+      "8": {
+        "$value": "#2b2926"
+      }
+    }
+  },
+  "elev": {
+    "$type": "shadow",
+    "3": {
+      "$value": "0 0 0 1px alpha({color.shadow}, 12%)"
+    },
+    "4": {
+      "$value": "0 0 0 1px alpha({color.shadow}, 12%)"
+    }
+  },
+  "part": {
+    "page": {
+      "scrim": {
+        "$value": "alpha(#eee8db, 84%)"
+      }
+    },
+    "status": {
+      "bg": {
+        "$value": "{color.bg.canvas}"
+      }
+    },
+    "rail": {
+      "bg": {
+        "$value": "{color.bg.canvas}"
+      },
+      "ink-shadow": {
+        "$value": "0 0 6px #eee8db, 0 0 2px #eee8db"
+      }
+    },
+    "dock": {
+      "bg": {
+        "$value": "{color.bg.canvas}"
+      }
+    },
+    "nowbar": {
+      "bg": {
+        "$value": "#f6f2ea"
+      }
+    }
+  }
+}

@@ -1,0 +1,654 @@
+/* Controls (controls.tsx). Tokens only; states are data-* attributes. */
+@layer components {
+  .ds-icon {
+    flex: none;
+    width: var(--icon-m);
+    height: var(--icon-m);
+    stroke-width: var(--icon-stroke);
+  }
+  .ds-icon[data-size="s"] {
+    width: var(--icon-s);
+    height: var(--icon-s);
+  }
+  .ds-icon[data-size="l"] {
+    width: var(--icon-l);
+    height: var(--icon-l);
+  }
+
+  /* ---------- buttons ---------- */
+  .ds-button {
+    --btn-h: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: var(--btn-h);
+    min-width: var(--btn-h);
+    padding: 0 var(--space-4);
+    border: var(--border-default) solid transparent;
+    border-radius: var(--radius-control);
+    background: var(--part-control-bg);
+    color: var(--c-fg-default);
+    font: var(--text-action);
+    letter-spacing: var(--text-action-tracking);
+    text-transform: var(--text-action-case);
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color var(--dur-fast) var(--ease-standard),
+      border-color var(--dur-fast) var(--ease-standard),
+      color var(--dur-fast) var(--ease-standard);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .ds-button[data-size="s"] {
+    --btn-h: 40px;
+    padding: 0 var(--space-3);
+  }
+  .ds-button[data-size="l"] {
+    --btn-h: 52px;
+    padding: 0 var(--space-5);
+  }
+  .ds-button[data-icon-only] {
+    padding: 0;
+  }
+  .ds-button[data-wide] {
+    width: 100%;
+  }
+  .ds-button__label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* A theme's gloss or bevel (part.control: a gradient over a colour) stays on hover and press:
+     only the colour underneath changes. */
+  .ds-button[data-variant="secondary"] {
+    border-color: var(--c-border-default);
+    box-shadow: var(--part-control-shadow);
+  }
+  .ds-button[data-variant="secondary"]:hover {
+    background-color: var(--c-bg-hover);
+  }
+  .ds-button[data-variant="primary"] {
+    background: var(--part-control-primary-bg);
+    box-shadow: var(--part-control-primary-shadow);
+    color: var(--c-fg-on-accent);
+  }
+  .ds-button[data-variant="primary"]:hover {
+    background-color: var(--c-accent-solid-hover);
+  }
+  .ds-button[data-variant="quiet"] {
+    background: var(--pv-quiet-fill, transparent); /* the page sets it (shell.css), not the chrome */
+  }
+  .ds-button[data-variant="quiet"]:hover {
+    background: var(--c-bg-hover);
+  }
+  .ds-button[data-variant="danger"] {
+    background: var(--c-danger-soft);
+    border-color: var(--c-danger-border);
+    color: var(--c-danger-fg);
+  }
+  .ds-button[data-variant="link"] {
+    min-width: 0;
+    padding: 0;
+    background: transparent;
+    color: var(--c-fg-link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .ds-button:active:not(:disabled) {
+    background-color: var(--c-bg-pressed);
+  }
+  .ds-button[data-variant="primary"]:active:not(:disabled) {
+    background-color: var(--c-accent-solid);
+  }
+  .ds-button[aria-pressed="true"] {
+    background: var(--c-bg-selected);
+    border-color: var(--c-accent-border);
+    color: var(--c-fg-default);
+  }
+  /* A heart that's on is a red, filled heart, never a selected box (every theme). */
+  .ds-button[aria-pressed="true"]:has(> .lucide-heart) {
+    background: transparent;
+    border-color: transparent;
+  }
+  .ds-button[aria-pressed="true"] > .lucide-heart {
+    color: var(--c-danger-solid);
+    fill: currentColor;
+  }
+  .ds-button:disabled {
+    cursor: not-allowed;
+    color: var(--c-fg-disabled);
+  }
+  .ds-button[data-variant="primary"]:disabled {
+    background: var(--c-bg-raised);
+  }
+  .ds-button[data-busy] {
+    cursor: progress;
+  }
+
+  .ds-spinner {
+    display: inline-block;
+    flex: none;
+    width: var(--icon-s);
+    height: var(--icon-s);
+    border: var(--border-strong) solid currentColor;
+    border-right-color: transparent;
+    border-radius: var(--radius-full);
+    animation: ds-spin var(--dur-slower) linear infinite;
+  }
+  @keyframes ds-spin {
+    to {
+      rotate: 1turn;
+    }
+  }
+
+  /* ---------- fields ---------- */
+  /* Paired fields keep their controls level when one has a longer hint. */
+  .ds-field {
+    display: grid;
+    align-content: start;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+  .ds-field__label {
+    font: var(--text-label);
+    letter-spacing: var(--text-label-tracking);
+    text-transform: var(--text-label-case);
+    color: var(--c-fg-muted);
+  }
+  .ds-field__hint {
+    margin: 0;
+    font: var(--text-caption);
+    color: var(--c-fg-subtle);
+  }
+  .ds-field__error {
+    display: flex;
+    gap: var(--space-1);
+    align-items: center;
+    margin: 0;
+    font: var(--text-body-s);
+    color: var(--c-danger-fg);
+  }
+  .ds-input {
+    width: 100%;
+    min-height: 44px;
+    padding: var(--space-2) var(--space-3);
+    border: var(--mat-sunken-border);
+    border-radius: var(--mat-sunken-radius);
+    background: var(--mat-sunken-bg);
+    box-shadow: var(--mat-sunken-shadow);
+    color: var(--c-fg-default);
+    font: var(--text-body-m);
+  }
+  .ds-input::placeholder {
+    color: var(--c-fg-placeholder);
+  }
+  .ds-input:disabled {
+    color: var(--c-fg-disabled);
+  }
+  .ds-field[data-invalid] .ds-input {
+    border-color: var(--c-danger-border);
+  }
+  .ds-textarea {
+    min-height: 88px; /* three lines in any theme's face */
+    resize: vertical;
+  }
+  .ds-select {
+    position: relative;
+    display: block;
+  }
+  .ds-select select {
+    appearance: none;
+    padding-right: var(--space-7);
+    cursor: pointer;
+  }
+  .ds-select .ds-icon {
+    position: absolute;
+    right: var(--space-3);
+    top: 50%;
+    translate: 0 -50%;
+    pointer-events: none;
+    color: var(--c-fg-muted);
+  }
+  .ds-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+  .ds-search > .ds-icon {
+    position: absolute;
+    left: var(--space-3);
+    color: var(--c-fg-muted);
+    pointer-events: none;
+  }
+  .ds-search .ds-input {
+    padding-left: var(--space-7);
+    padding-right: var(--space-7);
+  }
+  .ds-search .ds-input::-webkit-search-cancel-button {
+    display: none;
+  }
+  .ds-search__clear {
+    position: absolute;
+    right: var(--space-1);
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: transparent;
+    color: var(--c-fg-muted);
+    cursor: pointer;
+  }
+
+  /* ---------- switch, checkbox, radio ---------- */
+  .ds-switch,
+  .ds-check {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    min-height: 44px;
+    padding-block: var(--space-2);
+  }
+  .ds-switch label,
+  .ds-check label {
+    display: grid;
+    gap: var(--space-1);
+    cursor: pointer;
+  }
+  /* A bare tick (a row's checkbox) still takes a 44px tap: its label covers the area around it. */
+  .ds-check[data-bare] {
+    position: relative;
+    min-height: 0;
+    padding: 0;
+  }
+  .ds-check[data-bare] label {
+    position: absolute;
+    inset: -11px;
+  }
+  /* The box itself stays on top: a tap on it is a tap on it. */
+  .ds-check[data-bare] input {
+    position: relative;
+    z-index: var(--z-raised);
+  }
+  .ds-check input {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    margin: 0;
+    accent-color: var(--c-accent-solid);
+    cursor: pointer;
+  }
+  .ds-switch input {
+    appearance: none;
+    flex: none;
+    position: relative;
+    width: 44px;
+    height: 26px;
+    margin: 0;
+    border: var(--border-default) solid var(--c-border-strong);
+    border-radius: var(--radius-full);
+    background: var(--mat-sunken-bg);
+    cursor: pointer;
+    transition: background-color var(--dur-fast) var(--ease-standard);
+  }
+  .ds-switch input::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: var(--radius-full);
+    background: var(--c-fg-muted);
+    transition: translate var(--dur-fast) var(--ease-standard);
+  }
+  .ds-switch input:checked {
+    border-color: var(--c-accent-solid);
+    background: var(--c-accent-solid);
+  }
+  .ds-switch input:checked::after {
+    translate: 18px 0;
+    background: var(--c-fg-on-accent);
+  }
+  .ds-switch[data-disabled] {
+    color: var(--c-fg-disabled);
+  }
+
+  .ds-secret {
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-1);
+  }
+  .ds-secret > .ds-input {
+    flex: 1;
+    width: 0;
+  }
+  .ds-input[data-masked] {
+    -webkit-text-security: disc;
+  }
+  .ds-segmented {
+    display: inline-flex;
+    max-width: 100%;
+    padding: var(--space-1);
+    gap: var(--space-1);
+    border-radius: calc(var(--radius-control) + var(--space-1));
+    background: var(--mat-sunken-bg);
+    /* Every choice stays in sight: a narrow screen wraps them rather than hiding one. */
+    flex-wrap: wrap;
+  }
+  /* Wrapped onto two rows, the choices share each row evenly (no orphan on its own). */
+  .ds-segmented label {
+    display: inline-flex;
+    flex: 1 1 auto;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 40px;
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-control);
+    color: var(--c-fg-muted);
+    font: var(--text-action);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .ds-segmented input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .ds-segmented label:hover {
+    color: var(--c-fg-default);
+  }
+  .ds-segmented label[data-selected] {
+    background: var(--mat-raised-bg);
+    box-shadow: var(--mat-raised-shadow);
+    color: var(--c-fg-default);
+  }
+  .ds-segmented label:has(input:focus-visible) {
+    outline: var(--border-strong) solid var(--c-focus-ring);
+    outline-offset: 1px;
+  }
+
+  /* ---------- slider ---------- */
+  .ds-slider {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: var(--space-1) var(--space-3);
+    min-width: 0;
+  }
+  .ds-slider .ds-field__label {
+    grid-column: 1 / -1;
+  }
+  .ds-slider[data-icon] {
+    grid-template-columns: auto 1fr auto;
+    gap: var(--space-1) var(--space-2);
+  }
+  .ds-slider > .ds-icon {
+    color: var(--c-fg-muted);
+  }
+  .ds-slider input {
+    appearance: none;
+    width: 100%;
+    height: 44px;
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+  .ds-slider input::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: var(--radius-full);
+    background:
+      var(--part-meter-pattern),
+      linear-gradient(
+        to right,
+        var(--c-accent-solid) calc(var(--value) * 100%),
+        var(--part-meter-track) 0
+      );
+  }
+  .ds-slider input::-moz-range-track {
+    height: 6px;
+    border-radius: var(--radius-full);
+    background:
+      var(--part-meter-pattern),
+      linear-gradient(
+        to right,
+        var(--c-accent-solid) calc(var(--value) * 100%),
+        var(--part-meter-track) 0
+      );
+  }
+  .ds-slider input::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    margin-top: -7px;
+    border: var(--border-strong) solid var(--c-bg-canvas);
+    border-radius: var(--part-meter-thumb-radius);
+    background: var(--part-meter-thumb);
+  }
+  .ds-slider input::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border: var(--border-strong) solid var(--c-bg-canvas);
+    border-radius: var(--part-meter-thumb-radius);
+    background: var(--part-meter-thumb);
+  }
+  .ds-slider output {
+    font: var(--text-numeric);
+    color: var(--c-fg-muted);
+    min-width: 4ch;
+    text-align: end;
+  }
+
+  /* ---------- colour (a light's, not the theme's) ---------- */
+  .ds-color {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .ds-color__swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+  .ds-color__swatch,
+  .ds-color__other {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: var(--border-hairline) solid var(--c-border-default);
+    border-radius: var(--radius-full);
+    background: var(--swatch);
+    cursor: pointer;
+  }
+  .ds-color__swatch[aria-pressed="true"] {
+    outline: var(--border-strong) solid var(--c-fg-default);
+    outline-offset: 2px;
+  }
+  .ds-color__swatch:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+  .ds-color__other {
+    background: var(--c-bg-surface);
+    color: var(--c-fg-muted);
+  }
+  .ds-color__other input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .ds-colorinput {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: 44px;
+    cursor: pointer;
+  }
+  .ds-colorinput__swatch {
+    flex: none;
+    width: 36px;
+    height: 36px;
+    border: var(--border-hairline) solid var(--c-border-strong);
+    border-radius: var(--radius-control);
+    background: var(--swatch);
+  }
+  .ds-colorinput__text {
+    display: grid;
+    min-width: 0;
+  }
+  .ds-colorinput__text small {
+    color: var(--c-fg-muted);
+    font: var(--text-caption);
+  }
+  .ds-colorinput input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .ds-colorinput:focus-within .ds-colorinput__swatch {
+    outline: var(--border-strong) solid var(--c-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .ds-swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+  .ds-swatches__one {
+    position: relative;
+    display: grid;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+  }
+  .ds-swatches__one input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .ds-swatches__one span {
+    border: var(--border-hairline) solid var(--c-border-strong);
+    border-radius: var(--radius-control);
+    background: var(--swatch);
+  }
+  .ds-swatches__one input:checked + span {
+    outline: var(--border-strong) solid var(--c-fg-default);
+    outline-offset: 2px;
+  }
+  .ds-swatches__one input:focus-visible + span {
+    outline: var(--border-strong) solid var(--c-focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* ---------- chips ---------- */
+  .ds-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .ds-chip {
+    display: inline-flex;
+    align-items: stretch;
+    max-width: 100%;
+    border: var(--border-hairline) solid var(--c-border-default);
+    border-radius: var(--radius-chip);
+    background: var(--pv-quiet-fill, transparent);
+    color: var(--c-fg-default);
+    font: var(--text-action);
+  }
+  .ds-chip__main {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: 36px;
+    min-width: 0;
+    padding: 0 var(--space-3);
+    border: 0;
+    border-radius: inherit;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+  }
+  button.ds-chip__main {
+    min-height: 40px;
+    cursor: pointer;
+  }
+  button.ds-chip__main:hover {
+    background: var(--c-bg-hover);
+  }
+  .ds-chip__label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ds-chip__count {
+    color: var(--c-fg-muted);
+    font: var(--text-numeric);
+  }
+  /* Chosen is unmistakable in every theme: filled with the accent, with a tick (the pair the
+     theme checks for primary buttons). */
+  .ds-chip[data-selected] {
+    border-color: var(--c-accent-solid);
+    background: var(--c-accent-solid);
+    color: var(--c-fg-on-accent);
+  }
+  .ds-chip[data-selected] .ds-chip__count {
+    color: inherit;
+  }
+  .ds-chip[data-selected] button.ds-chip__main:hover {
+    background: var(--c-accent-solid-hover);
+  }
+  .ds-chip[data-kind="tag"],
+  .ds-chip[data-kind="count"] {
+    border-color: transparent;
+    background: var(--c-bg-raised);
+    color: var(--c-fg-muted);
+  }
+  .ds-chip[data-kind="person"] {
+    border-color: color-mix(in srgb, var(--tone, var(--c-border-default)) 60%, transparent);
+  }
+  .ds-chip[data-kind="person"]::before {
+    content: "";
+    align-self: center;
+    width: 8px;
+    height: 8px;
+    margin-left: var(--space-3);
+    border-radius: var(--radius-full);
+    background: var(--tone, var(--c-fg-muted));
+  }
+  .ds-chip[data-kind="person"] .ds-chip__main {
+    padding-left: var(--space-2);
+  }
+  .ds-chip__remove {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    border: 0;
+    border-left: var(--border-hairline) solid var(--c-border-subtle);
+    border-radius: 0 var(--radius-chip) var(--radius-chip) 0;
+    background: transparent;
+    color: var(--c-fg-muted);
+    cursor: pointer;
+  }
+  .ds-chip__remove:hover {
+    color: var(--c-fg-default);
+    background: var(--c-bg-hover);
+  }
+}

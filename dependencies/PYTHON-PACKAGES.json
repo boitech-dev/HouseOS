@@ -1,0 +1,614 @@
+[
+  {
+    "name": "aiofiles",
+    "version": "25.1.0",
+    "file": "aiofiles-25.1.0-py3-none-any.whl",
+    "license": [
+      "Apache-2.0"
+    ]
+  },
+  {
+    "name": "aiohappyeyeballs",
+    "version": "2.7.1",
+    "file": "aiohappyeyeballs-2.7.1-py3-none-any.whl",
+    "license": [
+      "PSF-2.0"
+    ]
+  },
+  {
+    "name": "aiohttp",
+    "version": "3.14.3",
+    "file": "aiohttp-3.14.3-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+    "license": [
+      "Apache-2.0 AND MIT"
+    ]
+  },
+  {
+    "name": "aiosignal",
+    "version": "1.4.0",
+    "file": "aiosignal-1.4.0-py3-none-any.whl",
+    "license": [
+      "Apache 2.0"
+    ]
+  },
+  {
+    "name": "alembic",
+    "version": "1.20.0",
+    "file": "alembic-1.20.0-py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "androidtvremote2",
+    "version": "0.3.2",
+    "file": "androidtvremote2-0.3.2-py3-none-any.whl",
+    "license": [
+      "Apache-2.0"
+    ]
+  },
+  {
+    "name": "annotated-doc",
+    "version": "0.0.5",
+    "file": "annotated_doc-0.0.5-py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "annotated-types",
+    "version": "0.8.0",
+    "file": "annotated_types-0.8.0-py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "anthropic",
+    "version": "0.125.0",
+    "file": "anthropic-0.125.0-py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "anyio",
+    "version": "4.15.1",
+    "file": "anyio-4.15.1-py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "argon2-cffi",
+    "version": "25.1.0",
+    "file": "argon2_cffi-25.1.0-py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "argon2-cffi-bindings",
+    "version": "26.1.0",
+    "file": "argon2_cffi_bindings-26.1.0-cp310-abi3-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "attrs",
+    "version": "26.1.0",
+    "file": "attrs-26.1.0-py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "bgutil-ytdlp-pot-provider",
+    "version": "2.0.0",
+    "file": "bgutil_ytdlp_pot_provider-2.0.0-py3-none-any.whl",
+    "license": []
+  },
+  {
+    "name": "casttube",
+    "version": "0.2.1",
+    "file": "casttube-0.2.1-py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "certifi",
+    "version": "2026.7.22",
+    "file": "certifi-2026.7.22-py3-none-any.whl",
+    "license": [
+      "MPL-2.0"
+    ]
+  },
+  {
+    "name": "cffi",
+    "version": "2.1.1",
+    "file": "cffi-2.1.1-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+    "license": [
+      "MIT-0"
+    ]
+  },
+  {
+    "name": "charset-normalizer",
+    "version": "3.5.1",
+    "file": "charset_normalizer-3.5.1-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "click",
+    "version": "8.5.0",
+    "file": "click-8.5.0-py3-none-any.whl",
+    "license": [
+      "BSD-3-Clause"
+    ]
+  },
+  {
+    "name": "cryptography",
+    "version": "50.0.1",
+    "file": "cryptography-50.0.1-cp311-abi3-manylinux_2_34_x86_64.whl",
+    "license": [
+      "Apache-2.0 OR BSD-3-Clause"
+    ]
+  },
+  {
+    "name": "distro",
+    "version": "1.9.0",
+    "file": "distro-1.9.0-py3-none-any.whl",
+    "license": [
+      "Apache License, Version 2.0"
+    ]
+  },
+  {
+    "name": "docstring_parser",
+    "version": "0.18.0",
+    "file": "docstring_parser-0.18.0-py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "fastapi",
+    "version": "0.141.1",
+    "file": "fastapi-0.141.1-py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "frozenlist",
+    "version": "1.8.0",
+    "file": "frozenlist-1.8.0-cp313-cp313-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl",
+    "license": [
+      "Apache-2.0"
+    ]
+  },
+  {
+    "name": "greenlet",
+    "version": "3.5.6",
+    "file": "greenlet-3.5.6-cp313-cp313-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl",
+    "license": [
+      "MIT AND PSF-2.0"
+    ]
+  },
+  {
+    "name": "h11",
+    "version": "0.16.0",
+    "file": "h11-0.16.0-py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "http_ece",
+    "version": "1.2.1",
+    "file": "http_ece-1.2.1-py2.py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "httpcore",
+    "version": "1.0.9",
+    "file": "httpcore-1.0.9-py3-none-any.whl",
+    "license": [
+      "BSD-3-Clause"
+    ]
+  },
+  {
+    "name": "httptools",
+    "version": "0.8.0",
+    "file": "httptools-0.8.0-cp313-cp313-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "httpx",
+    "version": "0.28.1",
+    "file": "httpx-0.28.1-py3-none-any.whl",
+    "license": [
+      "BSD-3-Clause"
+    ]
+  },
+  {
+    "name": "idna",
+    "version": "3.20",
+    "file": "idna-3.20-py3-none-any.whl",
+    "license": [
+      "BSD-3-Clause"
+    ]
+  },
+  {
+    "name": "ifaddr",
+    "version": "0.2.0",
+    "file": "ifaddr-0.2.0-py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "iniconfig",
+    "version": "2.3.0",
+    "file": "iniconfig-2.3.0-py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "jiter",
+    "version": "0.17.0",
+    "file": "jiter-0.17.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "Mako",
+    "version": "1.4.1",
+    "file": "mako-1.4.1-py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "MarkupSafe",
+    "version": "3.0.3",
+    "file": "markupsafe-3.0.3-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+    "license": [
+      "BSD-3-Clause"
+    ]
+  },
+  {
+    "name": "multidict",
+    "version": "6.9.0",
+    "file": "multidict-6.9.0-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+    "license": [
+      "Apache License 2.0"
+    ]
+  },
+  {
+    "name": "openai",
+    "version": "2.54.0",
+    "file": "openai-2.54.0-py3-none-any.whl",
+    "license": [
+      "Apache-2.0"
+    ]
+  },
+  {
+    "name": "packaging",
+    "version": "26.3",
+    "file": "packaging-26.3-py3-none-any.whl",
+    "license": [
+      "Apache-2.0 OR BSD-2-Clause"
+    ]
+  },
+  {
+    "name": "pillow",
+    "version": "12.3.0",
+    "file": "pillow-12.3.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+    "license": [
+      "MIT-CMU"
+    ]
+  },
+  {
+    "name": "pluggy",
+    "version": "1.6.0",
+    "file": "pluggy-1.6.0-py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "propcache",
+    "version": "0.5.4",
+    "file": "propcache-0.5.4-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+    "license": [
+      "Apache-2.0"
+    ]
+  },
+  {
+    "name": "protobuf",
+    "version": "7.36.2",
+    "file": "protobuf-7.36.2-cp310-abi3-manylinux2014_x86_64.whl",
+    "license": [
+      "3-Clause BSD License"
+    ]
+  },
+  {
+    "name": "pwdlib",
+    "version": "0.3.1",
+    "file": "pwdlib-0.3.1-py3-none-any.whl",
+    "license": []
+  },
+  {
+    "name": "py-vapid",
+    "version": "1.9.4",
+    "file": "py_vapid-1.9.4-py2.py3-none-any.whl",
+    "license": [
+      "MPL-2.0"
+    ]
+  },
+  {
+    "name": "PyChromecast",
+    "version": "14.0.10",
+    "file": "pychromecast-14.0.10-py2.py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "pycparser",
+    "version": "3.0",
+    "file": "pycparser-3.0-py3-none-any.whl",
+    "license": [
+      "BSD-3-Clause"
+    ]
+  },
+  {
+    "name": "pydantic",
+    "version": "2.13.5",
+    "file": "pydantic-2.13.5-py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "pydantic-settings",
+    "version": "2.15.0",
+    "file": "pydantic_settings-2.15.0-py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "pydantic_core",
+    "version": "2.46.5",
+    "file": "pydantic_core-2.46.5-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "Pygments",
+    "version": "2.21.0",
+    "file": "pygments-2.21.0-py3-none-any.whl",
+    "license": [
+      "BSD-2-Clause"
+    ]
+  },
+  {
+    "name": "PyMySQL",
+    "version": "1.2.3",
+    "file": "pymysql-1.2.3-py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "pytest",
+    "version": "9.1.1",
+    "file": "pytest-9.1.1-py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "python-dateutil",
+    "version": "2.9.0.post0",
+    "file": "python_dateutil-2.9.0.post0-py2.py3-none-any.whl",
+    "license": [
+      "Dual License"
+    ]
+  },
+  {
+    "name": "python-dotenv",
+    "version": "1.2.3",
+    "file": "python_dotenv-1.2.3-py3-none-any.whl",
+    "license": [
+      "BSD-3-Clause"
+    ]
+  },
+  {
+    "name": "python-multipart",
+    "version": "0.0.32",
+    "file": "python_multipart-0.0.32-py3-none-any.whl",
+    "license": [
+      "Apache-2.0"
+    ]
+  },
+  {
+    "name": "pywebpush",
+    "version": "2.5.0",
+    "file": "pywebpush-2.5.0-py3-none-any.whl",
+    "license": [
+      "MPL-2.0"
+    ]
+  },
+  {
+    "name": "PyYAML",
+    "version": "6.0.3",
+    "file": "pyyaml-6.0.3-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "qrcode",
+    "version": "8.2",
+    "file": "qrcode-8.2-py3-none-any.whl",
+    "license": [
+      "BSD"
+    ]
+  },
+  {
+    "name": "requests",
+    "version": "2.34.2",
+    "file": "requests-2.34.2-py3-none-any.whl",
+    "license": [
+      "Apache-2.0"
+    ]
+  },
+  {
+    "name": "ruff",
+    "version": "0.16.8",
+    "file": "ruff-0.16.8-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "six",
+    "version": "1.17.0",
+    "file": "six-1.17.0-py2.py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "sniffio",
+    "version": "1.3.1",
+    "file": "sniffio-1.3.1-py3-none-any.whl",
+    "license": [
+      "MIT OR Apache-2.0\r"
+    ]
+  },
+  {
+    "name": "SQLAlchemy",
+    "version": "2.0.54",
+    "file": "sqlalchemy-2.0.54-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "starlette",
+    "version": "1.6.0",
+    "file": "starlette-1.6.0-py3-none-any.whl",
+    "license": [
+      "BSD-3-Clause"
+    ]
+  },
+  {
+    "name": "tqdm",
+    "version": "4.70.1",
+    "file": "tqdm-4.70.1-py3-none-any.whl",
+    "license": [
+      "MPL-2.0 AND MIT"
+    ]
+  },
+  {
+    "name": "typing-inspection",
+    "version": "0.4.4",
+    "file": "typing_inspection-0.4.4-py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "typing_extensions",
+    "version": "4.16.0",
+    "file": "typing_extensions-4.16.0-py3-none-any.whl",
+    "license": [
+      "PSF-2.0"
+    ]
+  },
+  {
+    "name": "urllib3",
+    "version": "2.8.0",
+    "file": "urllib3-2.8.0-py3-none-any.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "uvicorn",
+    "version": "0.53.0",
+    "file": "uvicorn-0.53.0-py3-none-any.whl",
+    "license": [
+      "BSD-3-Clause"
+    ]
+  },
+  {
+    "name": "uvloop",
+    "version": "0.22.1",
+    "file": "uvloop-0.22.1-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+    "license": [
+      "MIT License"
+    ]
+  },
+  {
+    "name": "watchfiles",
+    "version": "1.2.0",
+    "file": "watchfiles-1.2.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "websockets",
+    "version": "17.1",
+    "file": "websockets-17.1-cp313-cp313-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl",
+    "license": [
+      "BSD-3-Clause"
+    ]
+  },
+  {
+    "name": "yarl",
+    "version": "1.25.1",
+    "file": "yarl-1.25.1-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+    "license": [
+      "Apache-2.0"
+    ]
+  },
+  {
+    "name": "yt-dlp",
+    "version": "2026.8.19",
+    "file": "yt_dlp-2026.8.19-py3-none-any.whl",
+    "license": [
+      "Unlicense"
+    ]
+  },
+  {
+    "name": "yt-dlp-ejs",
+    "version": "0.8.0",
+    "file": "yt_dlp_ejs-0.8.0-py3-none-any.whl",
+    "license": [
+      "Unlicense AND MIT AND ISC"
+    ]
+  },
+  {
+    "name": "zeroconf",
+    "version": "0.151.3",
+    "file": "zeroconf-0.151.3-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+    "license": [
+      "LGPL-2.1-or-later"
+    ]
+  }
+]

@@ -1,0 +1,11 @@
+# Voice typing on an NVIDIA graphics card (needs the NVIDIA Container Toolkit on the host).
+# `./houseos.sh gpu on` (or Control Room → Services) adds it to COMPOSE_FILE in .env:
+#   COMPOSE_FILE=docker-compose.yml:compose.gpu.yml
+services:
+  voice:
+    build: { context: ., dockerfile: docker/Dockerfile, target: voice-gpu }
+    image: houseos-voice-gpu:1.0
+    deploy:
+      resources:
+        reservations:
+          devices: [{ driver: nvidia, count: 1, capabilities: [gpu] }]

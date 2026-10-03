@@ -1,0 +1,8 @@
+[Unit]
+Description=Update the HouseOS AI helpers when an admin asks (Control Room → AI)
+[Path]
+PathExists=/opt/houseos/state/run/bridge-update-claude
+PathExists=/opt/houseos/state/run/bridge-update-codex
+Unit=houseos-bridge-update.service
+[Install]
+WantedBy=paths.target

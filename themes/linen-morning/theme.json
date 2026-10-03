@@ -1,0 +1,199 @@
+{
+  "$schema": "../_schema/theme.schema.json",
+  "id": "linen-morning",
+  "schema": 1,
+  "version": 2,
+  "names": {
+    "en": "Kinari",
+    "fr": "Kinari"
+  },
+  "description": {
+    "en": "A quiet Japanese room: washi, walnut, sumi ink.",
+    "fr": "Une pièce japonaise calme : washi, noyer, encre sumi."
+  },
+  "schemes": [
+    "light"
+  ],
+  "density": "airy",
+  "identity": "line",
+  "fonts": {
+    "display": "Shippori Mincho",
+    "body": "Zen Kaku Gothic New",
+    "mono": "M PLUS 1 Code"
+  },
+  "parts": {
+    "header": "banner",
+    "panel": "card",
+    "dock": "flush",
+    "nowbar": "floating"
+  },
+  "slots": {
+    "home.hero.backdrop": {
+      "image": "art/hero-mountains.webp",
+      "rendering": "smooth",
+      "fit": "cover"
+    },
+    "auth.crest": {
+      "image": "art/crest.webp",
+      "rendering": "smooth",
+      "fit": "contain"
+    },
+    "status.backdrop": {
+      "image": "art/status-heri.webp",
+      "rendering": "smooth",
+      "fit": "cover",
+      "anchor": "bottom"
+    },
+    "rail.surface": {
+      "image": "art/rail-shoji.webp",
+      "rendering": "smooth",
+      "fit": "cover",
+      "anchor": "top"
+    },
+    "dock.surface": {
+      "image": "art/dock-heri.webp",
+      "rendering": "smooth",
+      "fit": "cover",
+      "anchor": "top"
+    },
+    "deck.surface": {
+      "image": "art/deck-kraft.webp",
+      "rendering": "smooth",
+      "fit": "slice",
+      "slice": 40
+    },
+    "state.empty": {
+      "image": "art/empty-stone.webp",
+      "rendering": "smooth",
+      "fit": "contain"
+    },
+    "watch.tv.bezel": {
+      "image": "art/tv-walnut.webp",
+      "rendering": "smooth",
+      "fit": "contain"
+    },
+    "space.room.scene": {
+      "image": "art/space-tatami.webp",
+      "rendering": "smooth",
+      "fit": "cover"
+    },
+    "header.banner": {
+      "image": "art/banner-home.webp",
+      "rendering": "smooth",
+      "fit": "cover",
+      "rooms": {
+        "listen": "art/banner-listen.webp",
+        "watch": "art/banner-watch.webp",
+        "house": "art/banner-house.webp",
+        "files": "art/banner-files.webp",
+        "ask": "art/banner-ask.webp",
+        "me": "art/banner-me.webp",
+        "control": "art/banner-control.webp",
+        "smart-home": "art/banner-smart-home.webp",
+        "inbox": "art/banner-inbox.webp",
+        "space": "art/banner-space.webp",
+        "party": "art/banner-party.webp",
+        "games": "art/banner-games.webp"
+      }
+    }
+  },
+  "layers": [
+    {
+      "image": "art/leaf-shadow.webp",
+      "where": "page",
+      "fit": "repeat",
+      "anchor": "top-right",
+      "blend": "multiply",
+      "rendering": "smooth",
+      "opacity": 0.32,
+      "drift": [
+        -2,
+        0
+      ],
+      "depth": 0.25,
+      "rooms": [
+        "home"
+      ]
+    },
+    {
+      "image": "art/mist.webp",
+      "where": "hero",
+      "fit": "repeat-x",
+      "anchor": "top",
+      "rendering": "smooth",
+      "opacity": 0.9,
+      "drift": [
+        6,
+        0
+      ]
+    },
+    {
+      "image": "art/geese.webp",
+      "where": "hero",
+      "fit": "natural",
+      "anchor": "top-right",
+      "rendering": "smooth",
+      "cross": {
+        "seconds": 38,
+        "every": 200,
+        "from": "right"
+      },
+      "frames": {
+        "count": 4,
+        "fps": 3
+      }
+    },
+    {
+      "image": "art/leaf-fall.webp",
+      "where": "hero",
+      "fit": "natural",
+      "anchor": "top-right",
+      "rendering": "smooth",
+      "cross": {
+        "seconds": 12,
+        "every": 150,
+        "from": "top"
+      },
+      "frames": {
+        "count": 8,
+        "fps": 4
+      }
+    },
+    {
+      "image": "art/incense.webp",
+      "where": "deck",
+      "fit": "natural",
+      "anchor": "bottom-right",
+      "rendering": "smooth",
+      "frames": {
+        "count": 8,
+        "fps": 3
+      },
+      "playing": true,
+      "opacity": 0.8,
+      "poke": {
+        "frames": {
+          "count": 10,
+          "fps": 7
+        },
+        "image": "art/incense-puff.webp"
+      }
+    },
+    {
+      "image": "art/scroll-foot.webp",
+      "where": "rail-foot",
+      "fit": "natural",
+      "anchor": "bottom",
+      "rendering": "smooth",
+      "poke": {
+        "frames": {
+          "count": 11,
+          "fps": 10
+        },
+        "image": "art/scroll-sway.webp"
+      }
+    }
+  ],
+  "author": "HouseOS",
+  "license": "MIT"
+}

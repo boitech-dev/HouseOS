@@ -1,0 +1,28 @@
+{
+  "id": "base",
+  "schema": 1,
+  "version": 1,
+  "names": {
+    "en": "Base",
+    "fr": "Base"
+  },
+  "description": {
+    "en": "The root every theme builds on: every token, nothing added (Pure replaces it in the pickers).",
+    "fr": "La base de chaque thème : tous les jetons, rien d’ajouté (Pur la remplace dans les choix)."
+  },
+  "schemes": [
+    "dark",
+    "light"
+  ],
+  "density": "comfortable",
+  "identity": "line",
+  "fonts": {
+    "display": "system",
+    "body": "system",
+    "mono": "system"
+  },
+  "slots": {},
+  "author": "HouseOS",
+  "license": "MIT",
+  "hidden": true
+}

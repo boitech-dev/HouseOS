@@ -1,0 +1,87 @@
+{
+  "$description": "The Vampire's Keep: the house titles as a vampire hunter's feats; levels counted in hearts. English and French (tu).",
+  "title.dj.name": {
+    "en": "Master of the organ",
+    "fr": "Maître de l’orgue"
+  },
+  "title.explorer.name": {
+    "en": "Torchbearer",
+    "fr": "Porte-flambeau"
+  },
+  "title.night_owl.name": {
+    "en": "Child of the night",
+    "fr": "Enfant de la nuit"
+  },
+  "title.early_bird.name": {
+    "en": "Up before the dawn",
+    "fr": "Debout avant l’aube"
+  },
+  "title.weekend.name": {
+    "en": "Keeper of the feast",
+    "fr": "Hôte du festin"
+  },
+  "title.genre_guardian.name": {
+    "en": "Sentinel of {genre}",
+    "fr": "Sentinelle · {genre}"
+  },
+  "title.broken_record.name": {
+    "en": "The same hymn again",
+    "fr": "Encore le même hymne"
+  },
+  "title.marathon.name": {
+    "en": "Until the last candle",
+    "fr": "Jusqu’à la dernière bougie"
+  },
+  "title.radio_host.name": {
+    "en": "Bell ringer",
+    "fr": "Sonneur de cloches"
+  },
+  "title.task_hero.name": {
+    "en": "Monster slayer",
+    "fr": "Tueur de monstres"
+  },
+  "title.grocery_runner.name": {
+    "en": "Found the roast in the wall",
+    "fr": "A trouvé le rôti du mur"
+  },
+  "title.planner.name": {
+    "en": "Keeper of the grimoire",
+    "fr": "Gardien du grimoire"
+  },
+  "title.wall_poet.name": {
+    "en": "Scribe of the crypt",
+    "fr": "Scribe de la crypte"
+  },
+  "title.courier.name": {
+    "en": "Swift as a thrown dagger",
+    "fr": "Vif comme une dague"
+  },
+  "title.curator.name": {
+    "en": "Holder of every key",
+    "fr": "Porteur de toutes les clés"
+  },
+  "title.high_scorer.name": {
+    "en": "Crowned in the great hall",
+    "fr": "Couronné au château"
+  },
+  "title.collector.name": {
+    "en": "Collector of hearts",
+    "fr": "Collectionneur de cœurs"
+  },
+  "title.game_hopper.name": {
+    "en": "Wanderer of the halls",
+    "fr": "Rôdeur des couloirs"
+  },
+  "title.console_hopper.name": {
+    "en": "Crossed every realm",
+    "fr": "A franchi chaque royaume"
+  },
+  "title.romhacker.name": {
+    "en": "Alchemist of the crystal",
+    "fr": "Alchimiste du cristal"
+  },
+  "title.star.mark": {
+    "en": "♥",
+    "fr": "♥"
+  }
+}

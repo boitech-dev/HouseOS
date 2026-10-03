@@ -1,0 +1,373 @@
+/* Me (me.tsx) and the Control Room (control.tsx): layout, the theme cards (each drawn in its own
+   theme through .ds-scope), and the usage chart. Everything else from the design system. */
+@layer rooms {
+  .me-stack {
+    display: grid;
+    gap: var(--space-3);
+  }
+  .me-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+    gap: var(--space-3);
+  }
+  .me-row .ds-input {
+    min-width: 0;
+  }
+  .me-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .me-filters > * {
+    flex: 1 1 10rem;
+  }
+  .me-fieldset {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .me-fieldset > legend {
+    padding-bottom: var(--space-2);
+    font: var(--text-label);
+    letter-spacing: var(--text-label-tracking);
+  }
+
+  /* ---------- the overview ---------- */
+  .me-overview {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .me-overview__who {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .me-overview__who h2 {
+    margin: 0;
+  }
+
+  /* ---------- themes: cards drawn in themselves ---------- */
+  .me-themes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(208px, 1fr));
+    grid-auto-rows: 1fr; /* every card the size of the tallest */
+    gap: var(--space-3);
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .me-themes > .ds-check {
+    position: relative;
+    display: block;
+    min-height: 0;
+    padding: 0;
+  }
+  /* The radio sits inside the card, level with its swatches. */
+  .me-themes > .ds-check > input {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+    z-index: var(--z-raised);
+  }
+  .me-themes > .ds-check > label {
+    display: block;
+    height: 100%;
+  }
+  .me-themes > .ds-check:has(input:checked) .me-theme {
+    outline: var(--border-strong) solid var(--c-accent-border);
+    outline-offset: var(--space-1);
+  }
+  .me-themes > .ds-check:has(input:focus-visible) .me-theme {
+    outline: var(--border-strong) solid var(--c-focus-ring);
+    outline-offset: var(--space-1);
+  }
+  /* A card: the theme's own ground and letters, its app in miniature on top. */
+  .me-theme.ds-scope {
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+    justify-items: center;
+    gap: var(--space-1);
+    height: 100%;
+    padding: var(--space-2) var(--space-2) var(--space-3);
+    cursor: pointer;
+  }
+  .me-theme__look {
+    display: block;
+    justify-self: stretch;
+    margin-bottom: var(--space-1);
+  }
+  .me-theme__name {
+    justify-self: stretch;
+    font: var(--text-title-s);
+    font-family: var(--font-display);
+    text-wrap: balance; /* a long name on two even lines, never cut */
+  }
+  .me-theme__about {
+    justify-self: stretch;
+    align-self: start; /* its own two lines, not the card's leftover height */
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    color: var(--c-fg-muted);
+    font: var(--text-caption);
+  }
+  .me-avatars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .me-avatars > legend {
+    padding-bottom: var(--space-2);
+    font: var(--text-label);
+    letter-spacing: var(--text-label-tracking);
+  }
+  /* Each avatar is a tile that is the radio itself: the native circle stays for the keyboard
+     and screen readers, out of sight; the ring shows the choice and the focus. */
+  .me-avatars > .ds-check {
+    position: relative;
+    min-height: 0;
+    padding: 0;
+  }
+  .me-avatars > .ds-check > input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .me-avatars > .ds-check > label {
+    display: grid;
+    place-items: center;
+    min-width: 52px;
+    min-height: 52px;
+    padding: var(--space-1);
+    border: var(--border-default) solid var(--c-border-subtle);
+    border-radius: var(--radius-control);
+  }
+  .me-avatars > .ds-check > label:hover {
+    background: var(--c-bg-hover);
+  }
+  .me-avatars > .ds-check:has(input:checked) > label {
+    border-color: var(--c-accent-border);
+    outline: var(--border-strong) solid var(--c-accent-border);
+    background: var(--c-bg-selected);
+  }
+  .me-avatars > .ds-check:has(input:focus-visible) > label {
+    outline: var(--border-strong) solid var(--c-focus-ring);
+    outline-offset: var(--space-1);
+  }
+
+  /* ---------- figures, the usage chart and tables ---------- */
+  .me-figures {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--space-3);
+  }
+  .me-figure {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-3) var(--space-4);
+    border: var(--mat-raised-border);
+    border-radius: var(--mat-raised-radius);
+    background: var(--mat-raised-bg);
+  }
+  /* Bars at most 40 px wide from the left, on a baseline, with the scale beside them. */
+  .me-chart {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: var(--space-2);
+  }
+  .me-chart small {
+    color: var(--c-fg-subtle);
+    font: var(--text-caption);
+  }
+  .me-chart__axis {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    height: 110px;
+  }
+  .me-chart__axis > small {
+    translate: 0 -50%;
+  }
+  .me-chart__axis > small:last-child {
+    translate: 0 50%;
+  }
+  .me-chart__scroll {
+    overflow-x: auto;
+  }
+  .me-chart__bars,
+  .me-chart__dates {
+    display: flex;
+    gap: var(--space-1);
+    width: max-content;
+    min-width: 100%;
+  }
+  .me-chart__bars {
+    align-items: flex-end;
+    height: 110px;
+    border-bottom: var(--border-default) solid var(--c-border-default);
+  }
+  .me-chart__bars > span,
+  .me-chart__dates > small {
+    flex: 1 0 24px;
+    max-width: 40px;
+  }
+  .me-chart__bars > span {
+    height: max(var(--value) * 110px, var(--space-1) / 2);
+    border-radius: var(--radius-control) var(--radius-control) 0 0;
+    background: var(--c-accent-solid);
+  }
+  .me-chart__dates > small {
+    padding-top: var(--space-1);
+    text-align: center;
+  }
+  .me-table {
+    overflow-x: auto;
+  }
+  .me-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font: var(--text-body-s);
+  }
+  .me-table th,
+  .me-table td {
+    padding: var(--space-2) var(--space-3);
+    border-bottom: var(--border-hairline) solid var(--c-border-subtle);
+    text-align: start;
+    white-space: nowrap;
+  }
+  .me-table th {
+    color: var(--c-fg-muted);
+    font: var(--text-label);
+  }
+}
+
+/* ---------- the Control Room (control.tsx) ---------- */
+@layer rooms {
+  .control-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr));
+    gap: var(--space-3);
+  }
+  .control-summary,
+  .control-link {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+  }
+  .control-link code,
+  .control-code {
+    font: var(--text-numeric);
+    overflow-wrap: anywhere;
+  }
+  .control-steps {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding-left: var(--space-5);
+    color: var(--c-fg-muted);
+    font: var(--text-body-s);
+  }
+  .control-invite {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--space-4);
+    padding: var(--space-4);
+  }
+  .control-invite > img {
+    width: 180px;
+    border-radius: var(--radius-control);
+  }
+  .control-invite > .me-stack {
+    flex: 1 1 16rem;
+  }
+  .control-operation {
+    padding: var(--space-3);
+  }
+  /* The Control Room's overview: what needs you beside recent problems, then every place. */
+  /* The own-agent card (Control Room → Themes): numbered steps and the prompt to copy. */
+  .control-kit__steps {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding-inline-start: var(--space-5);
+  }
+  .control-kit__prompt {
+    margin: 0;
+    padding: var(--space-3);
+    border-radius: var(--radius-control);
+    background: var(--c-bg-sunken);
+    font: var(--text-numeric);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    user-select: all;
+  }
+  .control-attention {
+    display: grid;
+    gap: var(--space-5);
+    align-items: start;
+  }
+  @media (min-width: 1232px) {
+    .control-attention {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .control-map {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .control-map__group {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+  }
+  .control-map__group > h3 {
+    margin: 0;
+  }
+  .control-log__icon {
+    display: inline-grid;
+    place-items: center;
+    color: var(--c-fg-muted);
+  }
+  .control-log__icon[data-care="needs"] {
+    color: var(--c-danger-fg);
+  }
+  .control-log__icon[data-care="handled"] {
+    color: var(--c-success-fg);
+  }
+  /* Appearance: "Make it yours" first, with the theme worn drawn small beside it. */
+  .me-make {
+    display: grid;
+    gap: var(--space-4);
+    align-items: center;
+    padding: var(--space-5);
+    border: var(--mat-surface-border);
+    border-radius: var(--mat-surface-radius);
+    background: linear-gradient(135deg, var(--c-accent-soft), transparent 70%), var(--mat-surface-bg);
+  }
+  .me-make__words {
+    display: grid;
+    gap: var(--space-3);
+  }
+  .me-make__preview {
+    max-width: 100%;
+    overflow: hidden;
+  }
+  @media (min-width: 900px) {
+    .me-make {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+  }
+}

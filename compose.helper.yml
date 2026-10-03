@@ -1,0 +1,17 @@
+# Control Room buttons for update, backup, GPU voice and own address (optional).
+# `./houseos.sh buttons on` adds this file; `./houseos.sh buttons off` removes it.
+#
+# The helper can start and stop containers on this computer (it holds the Docker socket),
+# which is as powerful as being its administrator. It is kept narrow: it only runs the fixed
+# actions of houseos.sh, and only when the app asks with a note signed by the house's own key,
+# which the parts of HouseOS that touch the internet (downloads, sound, AI clients) never hold.
+services:
+  helper:
+    build: { context: ., dockerfile: docker/Dockerfile, target: helper }
+    image: houseos-helper:1.0
+    pull_policy: build
+    restart: unless-stopped
+    network_mode: none   # talks to Docker through the socket only
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - houseos-state:/state

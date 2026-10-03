@@ -1,0 +1,34 @@
+# REFERENCE ONLY: adapt all paths, users, runtime IDs and bind addresses before installation.
+[Unit]
+Description=HouseOS local YouTube client attestation
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+DynamicUser=yes
+WorkingDirectory=/opt/houseos/state/bgutil-2.0.0/server
+ExecStart=/usr/bin/node build/main.js --host 127.0.0.1 --port 4416
+Restart=on-failure
+RestartSec=10
+# Upstream debug/error output can contain tokens or provider context.
+StandardOutput=null
+StandardError=null
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+ProtectSystem=strict
+ProtectHome=tmpfs
+BindReadOnlyPaths=/opt/houseos/state/bgutil-2.0.0/server
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+LockPersonality=yes
+LimitCORE=0
+MemoryMax=512M
+TasksMax=64
+
+[Install]
+WantedBy=multi-user.target

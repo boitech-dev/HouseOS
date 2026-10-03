@@ -1,0 +1,87 @@
+{
+  "$description": "Legacy: the house titles named after the manor's things. English and French (tu).",
+  "title.dj.name": {
+    "en": "Gramophone keeper",
+    "fr": "Gardien du gramophone"
+  },
+  "title.explorer.name": {
+    "en": "Lantern bearer",
+    "fr": "Porteur de lanterne"
+  },
+  "title.night_owl.name": {
+    "en": "Owl of the attic",
+    "fr": "Chouette du grenier"
+  },
+  "title.early_bird.name": {
+    "en": "Rooster on the roof",
+    "fr": "Coq sur le toit"
+  },
+  "title.weekend.name": {
+    "en": "Sunday teacup",
+    "fr": "Tasse du dimanche"
+  },
+  "title.genre_guardian.name": {
+    "en": "Gargoyle of {genre}",
+    "fr": "Gargouille gardant {genre}"
+  },
+  "title.broken_record.name": {
+    "en": "Cracked record",
+    "fr": "Disque fêlé"
+  },
+  "title.marathon.name": {
+    "en": "Keeper of the hourglass",
+    "fr": "Gardien du sablier"
+  },
+  "title.radio_host.name": {
+    "en": "Voice in the wireless",
+    "fr": "Voix du vieux poste"
+  },
+  "title.task_hero.name": {
+    "en": "Ghost who tidies up",
+    "fr": "Fantôme qui range"
+  },
+  "title.grocery_runner.name": {
+    "en": "Basket to the market",
+    "fr": "Panier du marché"
+  },
+  "title.planner.name": {
+    "en": "Quill of the almanac",
+    "fr": "Plume de l’almanach"
+  },
+  "title.wall_poet.name": {
+    "en": "Poet of the hallway",
+    "fr": "Poète du couloir"
+  },
+  "title.courier.name": {
+    "en": "Wax-seal courier",
+    "fr": "Courrier à la cire"
+  },
+  "title.curator.name": {
+    "en": "Keeper of the gallery",
+    "fr": "Gardien de la galerie"
+  },
+  "title.high_scorer.name": {
+    "en": "Golden goblet",
+    "fr": "Coupe dorée"
+  },
+  "title.collector.name": {
+    "en": "Keeper of the keys",
+    "fr": "Gardien des clés"
+  },
+  "title.game_hopper.name": {
+    "en": "Roller of old dice",
+    "fr": "Lanceur de vieux dés"
+  },
+  "title.console_hopper.name": {
+    "en": "Crystal ball gazer",
+    "fr": "Liseur de boule de cristal"
+  },
+  "title.romhacker.name": {
+    "en": "Potion tinkerer",
+    "fr": "Bricoleur de potions"
+  },
+  "title.star.mark": {
+    "en": "✦",
+    "fr": "✦"
+  }
+}

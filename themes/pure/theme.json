@@ -1,0 +1,267 @@
+{
+  "$schema": "../_schema/theme.schema.json",
+  "id": "pure",
+  "schema": 1,
+  "version": 1,
+  "names": {
+    "en": "Pure",
+    "fr": "Pur"
+  },
+  "description": {
+    "en": "Architecture of light: black concrete, white light.",
+    "fr": "Une architecture de lumière : béton noir, lumière blanche."
+  },
+  "schemes": [
+    "dark",
+    "light"
+  ],
+  "density": "airy",
+  "identity": "line",
+  "rooms": "unified",
+  "fonts": {
+    "display": "Archivo",
+    "body": "Instrument Sans",
+    "mono": "Fragment Mono"
+  },
+  "parts": {
+    "header": "banner",
+    "panel": "outlined",
+    "dock": "flush",
+    "nowbar": "docked"
+  },
+  "slots": {
+    "home.hero.backdrop": {
+      "image": "art/hero-stair.webp",
+      "rendering": "smooth",
+      "fit": "cover",
+      "schemes": {
+        "light": "art/hero-stair-light.webp"
+      }
+    },
+    "page.backdrop": {
+      "image": "art/page-wall.webp",
+      "rendering": "smooth",
+      "fit": "cover",
+      "anchor": "top",
+      "schemes": {
+        "light": "art/page-wall-light.webp"
+      }
+    },
+    "header.banner": {
+      "image": "art/banner-default.webp",
+      "rendering": "smooth",
+      "fit": "cover",
+      "rooms": {
+        "listen": {
+          "dark": "art/banner-listen.webp",
+          "light": "art/banner-listen-light.webp"
+        },
+        "watch": {
+          "dark": "art/banner-watch.webp",
+          "light": "art/banner-watch-light.webp"
+        },
+        "house": {
+          "dark": "art/banner-house.webp",
+          "light": "art/banner-house-light.webp"
+        },
+        "files": {
+          "dark": "art/banner-files.webp",
+          "light": "art/banner-files-light.webp"
+        },
+        "games": {
+          "dark": "art/banner-games.webp",
+          "light": "art/banner-games-light.webp"
+        },
+        "me": {
+          "dark": "art/banner-me.webp",
+          "light": "art/banner-me-light.webp"
+        },
+        "control": {
+          "dark": "art/banner-control.webp",
+          "light": "art/banner-control-light.webp"
+        },
+        "smart-home": {
+          "dark": "art/banner-smart-home.webp",
+          "light": "art/banner-smart-home-light.webp"
+        },
+        "inbox": {
+          "dark": "art/banner-inbox.webp",
+          "light": "art/banner-inbox-light.webp"
+        },
+        "party": {
+          "dark": "art/banner-party.webp",
+          "light": "art/banner-party-light.webp"
+        },
+        "ask": {
+          "dark": "art/banner-ask.webp",
+          "light": "art/banner-ask-light.webp"
+        },
+        "space": {
+          "dark": "art/banner-me.webp",
+          "light": "art/banner-me-light.webp"
+        }
+      },
+      "schemes": {
+        "light": "art/banner-default-light.webp"
+      }
+    },
+    "auth.crest": {
+      "image": "art/crest-opening.webp",
+      "rendering": "smooth",
+      "fit": "contain",
+      "schemes": {
+        "light": "art/crest-opening-light.webp"
+      }
+    },
+    "state.empty": {
+      "image": "art/empty-sill.webp",
+      "rendering": "smooth",
+      "fit": "contain",
+      "schemes": {
+        "light": "art/empty-sill-light.webp"
+      }
+    },
+    "watch.tv.bezel": {
+      "image": "art/tv-niche.webp",
+      "rendering": "smooth",
+      "fit": "contain"
+    },
+    "space.room.scene": {
+      "image": "art/room-bench.webp",
+      "rendering": "smooth",
+      "fit": "cover",
+      "schemes": {
+        "light": "art/room-bench-light.webp"
+      }
+    },
+    "deck.surface": {
+      "image": "art/frame-drawing.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 16
+    },
+    "sheet.surface": {
+      "image": "art/frame-drawing.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 16
+    }
+  },
+  "layers": [
+    {
+      "image": "art/mote-page.png",
+      "where": "page",
+      "fit": "natural",
+      "rendering": "smooth",
+      "opacity": 0.9,
+      "schemes": [
+        "dark"
+      ],
+      "particles": {
+        "count": 18,
+        "motion": "float",
+        "seconds": 26
+      }
+    },
+    {
+      "image": "art/mote-ink.png",
+      "where": "page",
+      "fit": "natural",
+      "rendering": "smooth",
+      "opacity": 0.6,
+      "schemes": [
+        "light"
+      ],
+      "particles": {
+        "count": 18,
+        "motion": "float",
+        "seconds": 26
+      }
+    },
+    {
+      "image": "art/grain.png",
+      "where": "page",
+      "fit": "repeat",
+      "rendering": "pixel",
+      "opacity": 0.05,
+      "above": true
+    },
+    {
+      "image": "art/seam-roof.webp",
+      "where": "status",
+      "fit": "cover",
+      "anchor": "top",
+      "rendering": "smooth"
+    },
+    {
+      "image": "art/foot-slit.webp",
+      "where": "rail-foot",
+      "fit": "natural",
+      "anchor": "bottom",
+      "rendering": "smooth",
+      "schemes": [
+        "dark"
+      ],
+      "poke": {
+        "image": "art/foot-slit-cloud.webp",
+        "frames": {
+          "count": 8,
+          "fps": 9
+        }
+      }
+    },
+    {
+      "image": "art/foot-slit-light.webp",
+      "where": "rail-foot",
+      "fit": "natural",
+      "anchor": "bottom",
+      "rendering": "smooth",
+      "schemes": [
+        "light"
+      ],
+      "poke": {
+        "image": "art/foot-slit-light-cloud.webp",
+        "frames": {
+          "count": 8,
+          "fps": 9
+        }
+      }
+    },
+    {
+      "image": "art/seam-rail.webp",
+      "where": "rail",
+      "fit": "natural",
+      "anchor": "right",
+      "rendering": "smooth"
+    },
+    {
+      "image": "art/mote.png",
+      "where": "hero",
+      "fit": "natural",
+      "rendering": "smooth",
+      "opacity": 0.6,
+      "schemes": [
+        "dark"
+      ],
+      "particles": {
+        "count": 10,
+        "motion": "float",
+        "seconds": 18
+      }
+    },
+    {
+      "image": "art/deck-blade.webp",
+      "where": "deck",
+      "fit": "repeat",
+      "rendering": "smooth",
+      "opacity": 0.14,
+      "playing": true,
+      "drift": [
+        5,
+        0
+      ]
+    }
+  ],
+  "author": "HouseOS",
+  "license": "CC-BY-4.0"
+}

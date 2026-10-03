@@ -1,0 +1,87 @@
+{
+  "$description": "Pocket Hatchling's words: only the house titles' names, sticker-book style. French says tu.",
+  "title.dj.name": {
+    "en": "Mixtape maker",
+    "fr": "Pro de la mixtape"
+  },
+  "title.explorer.name": {
+    "en": "Balloon wanderer",
+    "fr": "Balade en montgolfière"
+  },
+  "title.night_owl.name": {
+    "en": "Up past lights-out",
+    "fr": "Debout après l’extinction"
+  },
+  "title.early_bird.name": {
+    "en": "First to hatch",
+    "fr": "Première éclosion"
+  },
+  "title.weekend.name": {
+    "en": "Ice-cream weekend",
+    "fr": "Week-end glace"
+  },
+  "title.genre_guardian.name": {
+    "en": "Fan club of {genre}",
+    "fr": "Fan-club · {genre}"
+  },
+  "title.broken_record.name": {
+    "en": "Same song, again!",
+    "fr": "Encore la même !"
+  },
+  "title.marathon.name": {
+    "en": "Never-sleep pet",
+    "fr": "Zéro dodo"
+  },
+  "title.radio_host.name": {
+    "en": "Antenna twitcher",
+    "fr": "Antenne en alerte"
+  },
+  "title.task_hero.name": {
+    "en": "Sparkle sweeper",
+    "fr": "Coup de balai magique"
+  },
+  "title.grocery_runner.name": {
+    "en": "Strawberry fetcher",
+    "fr": "Cueillette de fraises"
+  },
+  "title.planner.name": {
+    "en": "Alarm setter",
+    "fr": "Réglé comme un réveil"
+  },
+  "title.wall_poet.name": {
+    "en": "Sticker poet",
+    "fr": "Poésie en autocollants"
+  },
+  "title.courier.name": {
+    "en": "Love-letter courier",
+    "fr": "Mots doux express"
+  },
+  "title.curator.name": {
+    "en": "Keeper of favourites",
+    "fr": "Trésor des favoris"
+  },
+  "title.high_scorer.name": {
+    "en": "Top of the high scores",
+    "fr": "En tête des records"
+  },
+  "title.collector.name": {
+    "en": "Shiny collector",
+    "fr": "Collection brillante"
+  },
+  "title.game_hopper.name": {
+    "en": "Hop-hop gamer",
+    "fr": "Saute-mouton des jeux"
+  },
+  "title.console_hopper.name": {
+    "en": "Every-console pal",
+    "fr": "Toutes les consoles"
+  },
+  "title.romhacker.name": {
+    "en": "Cartridge tinkerer",
+    "fr": "Bidouille de cartouche"
+  },
+  "title.star.mark": {
+    "en": "♥",
+    "fr": "♥"
+  }
+}

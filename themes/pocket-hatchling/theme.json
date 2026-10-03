@@ -1,0 +1,329 @@
+{
+  "$schema": "../_schema/theme.schema.json",
+  "id": "pocket-hatchling",
+  "schema": 1,
+  "version": 3,
+  "names": {
+    "en": "Pocket Hatchling",
+    "fr": "Éclosion de poche"
+  },
+  "description": {
+    "en": "A keychain pet on a glittery handmade homepage.",
+    "fr": "Un animal de poche sur une page perso pailletée."
+  },
+  "schemes": [
+    "light"
+  ],
+  "density": "comfortable",
+  "identity": "pixel",
+  "fonts": {
+    "display": "DynaPuff",
+    "body": "Nunito",
+    "mono": "Pixelify Sans"
+  },
+  "slots": {
+    "status.backdrop": {
+      "image": "art/status.png",
+      "rendering": "pixel",
+      "fit": "cover"
+    },
+    "home.hero.backdrop": {
+      "image": "art/hero.png",
+      "rendering": "pixel",
+      "fit": "cover"
+    },
+    "auth.crest": {
+      "image": "art/crest.png",
+      "rendering": "pixel",
+      "fit": "contain"
+    },
+    "watch.tv.bezel": {
+      "image": "art/tv.png",
+      "rendering": "pixel",
+      "fit": "contain"
+    },
+    "space.room.scene": {
+      "image": "art/room.png",
+      "rendering": "pixel",
+      "fit": "cover"
+    },
+    "state.empty": {
+      "image": "art/asleep.png",
+      "rendering": "pixel",
+      "fit": "contain"
+    },
+    "deck.surface": {
+      "image": "art/lcd-frame.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 48
+    },
+    "sheet.surface": {
+      "image": "art/sheet-corner.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 32
+    },
+    "panel.surface": {
+      "image": "art/panel-frame.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 16
+    },
+    "header.banner": {
+      "image": "art/banner.png",
+      "rendering": "pixel",
+      "fit": "cover",
+      "rooms": {
+        "listen": "art/banner-listen.png",
+        "watch": "art/banner-watch.png",
+        "games": "art/banner-games.png",
+        "house": "art/banner-house.png",
+        "files": "art/banner-files.png",
+        "inbox": "art/banner-inbox.png",
+        "me": "art/banner-me.png",
+        "space": "art/banner-space.png",
+        "smart-home": "art/banner-smart-home.png",
+        "party": "art/banner-party.png",
+        "control": "art/banner-control.png",
+        "ask": "art/banner-ask.png"
+      }
+    }
+  },
+  "layers": [
+    {
+      "image": "art/tile.png",
+      "where": "page",
+      "fit": "repeat",
+      "scale": 2,
+      "drift": [
+        4,
+        3
+      ],
+      "rooms": [
+        "home",
+        "listen",
+        "watch",
+        "house",
+        "files",
+        "ask",
+        "me",
+        "smart-home",
+        "inbox",
+        "space",
+        "party",
+        "games"
+      ]
+    },
+    {
+      "image": "art/twinkle.png",
+      "where": "page",
+      "fit": "natural",
+      "scale": 2,
+      "particles": {
+        "count": 16,
+        "motion": "twinkle",
+        "seconds": 4
+      },
+      "rooms": [
+        "home",
+        "listen",
+        "watch",
+        "house",
+        "files",
+        "ask",
+        "me",
+        "smart-home",
+        "inbox",
+        "space",
+        "party",
+        "games"
+      ]
+    },
+    {
+      "image": "art/floaty.png",
+      "where": "page",
+      "fit": "natural",
+      "scale": 2,
+      "particles": {
+        "count": 6,
+        "motion": "rise",
+        "seconds": 18
+      },
+      "rooms": [
+        "home",
+        "listen",
+        "watch",
+        "house",
+        "files",
+        "ask",
+        "me",
+        "smart-home",
+        "inbox",
+        "space",
+        "party",
+        "games"
+      ]
+    },
+    {
+      "image": "art/shooting-star.png",
+      "where": "page",
+      "fit": "natural",
+      "scale": 2,
+      "anchor": "top-left",
+      "cross": {
+        "seconds": 5,
+        "every": 70,
+        "from": "left"
+      }
+    },
+    {
+      "image": "art/walker.png",
+      "where": "status",
+      "fit": "natural",
+      "scale": 2,
+      "anchor": "top-left",
+      "frames": {
+        "count": 4,
+        "fps": 4
+      },
+      "cross": {
+        "seconds": 14,
+        "every": 60,
+        "from": "left"
+      }
+    },
+    {
+      "image": "art/sky.png",
+      "where": "hero",
+      "fit": "repeat-x",
+      "scale": 2,
+      "anchor": "top",
+      "under": true
+    },
+    {
+      "image": "art/egg.png",
+      "where": "hero",
+      "fit": "natural",
+      "scale": 2,
+      "anchor": "bottom-right",
+      "frames": {
+        "count": 16,
+        "fps": 2
+      },
+      "poke": {
+        "image": "art/egg-poke.png",
+        "frames": {
+          "count": 8,
+          "fps": 11
+        },
+        "burst": {
+          "image": "art/heart.png",
+          "count": 8
+        }
+      }
+    },
+    {
+      "image": "art/star.png",
+      "where": "hero",
+      "fit": "natural",
+      "scale": 2,
+      "anchor": "top-right",
+      "poke": {
+        "image": "art/star-spin.png",
+        "frames": {
+          "count": 8,
+          "fps": 14
+        },
+        "burst": {
+          "image": "art/twinkle.png",
+          "count": 6
+        }
+      }
+    },
+    {
+      "image": "art/shrine.png",
+      "where": "rail-foot",
+      "fit": "natural",
+      "scale": 2,
+      "anchor": "bottom",
+      "poke": {
+        "image": "art/shrine-poke.png",
+        "frames": {
+          "count": 8,
+          "fps": 10
+        }
+      }
+    },
+    {
+      "image": "art/sprout.png",
+      "where": "deck",
+      "fit": "natural",
+      "scale": 2,
+      "anchor": "top",
+      "frames": {
+        "count": 2,
+        "fps": 3
+      },
+      "playing": true,
+      "poke": {
+        "image": "art/sprout-poke.png",
+        "frames": {
+          "count": 6,
+          "fps": 10
+        },
+        "burst": {
+          "image": "art/leaf.png",
+          "count": 5
+        }
+      }
+    },
+    {
+      "image": "art/dance.png",
+      "where": "deck",
+      "fit": "natural",
+      "scale": 2,
+      "anchor": "bottom-right",
+      "frames": {
+        "count": 4,
+        "fps": 4
+      },
+      "playing": true,
+      "rooms": [
+        "listen"
+      ],
+      "poke": {
+        "image": "art/dance-poke.png",
+        "frames": {
+          "count": 6,
+          "fps": 10
+        },
+        "burst": {
+          "image": "art/note.png",
+          "count": 6
+        }
+      }
+    },
+    {
+      "image": "art/heart.png",
+      "where": "deck",
+      "fit": "natural",
+      "scale": 2,
+      "playing": true,
+      "opacity": 0.6,
+      "particles": {
+        "count": 4,
+        "motion": "float",
+        "seconds": 9
+      }
+    }
+  ],
+  "parts": {
+    "header": "banner",
+    "panel": "card",
+    "dock": "floating",
+    "nowbar": "floating"
+  },
+  "author": "HouseOS theme studio (art by code, original)",
+  "license": "MIT"
+}

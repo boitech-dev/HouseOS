@@ -1,0 +1,87 @@
+{
+  "$description": "Pure: the house titles, named for light, stairs and concrete. English and French (tu).",
+  "title.dj.name": {
+    "en": "The resonant room",
+    "fr": "La salle qui résonne"
+  },
+  "title.explorer.name": {
+    "en": "Every stair climbed",
+    "fr": "Toutes les marches"
+  },
+  "title.night_owl.name": {
+    "en": "After the last light",
+    "fr": "Après la dernière lueur"
+  },
+  "title.early_bird.name": {
+    "en": "First light",
+    "fr": "Première lumière"
+  },
+  "title.weekend.name": {
+    "en": "Long shadows",
+    "fr": "Les ombres longues"
+  },
+  "title.genre_guardian.name": {
+    "en": "Keeper of {genre}",
+    "fr": "Gardien du genre {genre}"
+  },
+  "title.broken_record.name": {
+    "en": "One note, again",
+    "fr": "Une seule note, encore"
+  },
+  "title.marathon.name": {
+    "en": "The long corridor",
+    "fr": "Le long couloir"
+  },
+  "title.radio_host.name": {
+    "en": "Voice in the hall",
+    "fr": "La voix dans le hall"
+  },
+  "title.task_hero.name": {
+    "en": "Square and plumb",
+    "fr": "D’équerre et d’aplomb"
+  },
+  "title.grocery_runner.name": {
+    "en": "Keeper of the larder",
+    "fr": "Gardien du garde-manger"
+  },
+  "title.planner.name": {
+    "en": "On the grid",
+    "fr": "Sur la trame"
+  },
+  "title.wall_poet.name": {
+    "en": "Words on concrete",
+    "fr": "Des mots sur le béton"
+  },
+  "title.courier.name": {
+    "en": "Through the opening",
+    "fr": "Par l’ouverture"
+  },
+  "title.curator.name": {
+    "en": "The gallery wall",
+    "fr": "Le mur de la galerie"
+  },
+  "title.high_scorer.name": {
+    "en": "Top of the stairs",
+    "fr": "En haut de l’escalier"
+  },
+  "title.collector.name": {
+    "en": "A full shelf",
+    "fr": "L’étagère pleine"
+  },
+  "title.game_hopper.name": {
+    "en": "Room to room",
+    "fr": "De pièce en pièce"
+  },
+  "title.console_hopper.name": {
+    "en": "Every doorway",
+    "fr": "Chaque embrasure"
+  },
+  "title.romhacker.name": {
+    "en": "Rebuilt by hand",
+    "fr": "Rebâti à la main"
+  },
+  "title.star.mark": {
+    "en": "■",
+    "fr": "■"
+  }
+}

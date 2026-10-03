@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "A HouseOS theme's pixel glyphs (sprites.json)",
+  "description": "Optional: the pieces a theme redraws by id (_schema/sprites.ids.json), drawn in every theme whatever its identity. Each glyph is rows of letters, one letter per pixel ('.' is empty), 16 × 16 at most; the palette maps each letter to a color.sprite token, so the theme's colours paint it.",
+  "type": "object",
+  "required": ["palette", "glyphs"],
+  "properties": {
+    "$description": { "type": "string" },
+    "palette": {
+      "type": "object",
+      "propertyNames": { "pattern": "^[^.]$" },
+      "additionalProperties": { "type": "string", "pattern": "^[a-z0-9-]+$", "description": "A color.sprite.<name> token." }
+    },
+    "glyphs": {
+      "type": "object",
+      "additionalProperties": { "type": "array", "minItems": 1, "maxItems": 16, "items": { "type": "string", "maxLength": 16 } }
+    }
+  },
+  "additionalProperties": false
+}

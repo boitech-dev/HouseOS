@@ -1,0 +1,240 @@
+{
+  "$schema": "../_schema/theme.schema.json",
+  "id": "modular",
+  "schema": 1,
+  "version": 1,
+  "names": {
+    "en": "Modular",
+    "fr": "Modulaire"
+  },
+  "description": {
+    "en": "Swiss modular type: squares, circles, one red.",
+    "fr": "Typo modulaire suisse : carrés, cercles, un rouge."
+  },
+  "schemes": [
+    "light",
+    "dark"
+  ],
+  "density": "comfortable",
+  "identity": "line",
+  "fonts": {
+    "display": "Jersey 15",
+    "body": "Schibsted Grotesk",
+    "mono": "Space Mono"
+  },
+  "slots": {
+    "home.hero.backdrop": {
+      "image": "art/hero.svg",
+      "rendering": "smooth",
+      "fit": "cover",
+      "schemes": {
+        "dark": "art/hero-dark.svg"
+      }
+    },
+    "auth.crest": {
+      "image": "art/crest.svg",
+      "rendering": "smooth",
+      "fit": "contain",
+      "schemes": {
+        "dark": "art/crest-dark.svg"
+      }
+    },
+    "state.empty": {
+      "image": "art/empty.svg",
+      "rendering": "smooth",
+      "fit": "contain",
+      "schemes": {
+        "dark": "art/empty-dark.svg"
+      }
+    },
+    "space.room.scene": {
+      "image": "art/space-room.svg",
+      "rendering": "smooth",
+      "fit": "cover",
+      "schemes": {
+        "dark": "art/space-room-dark.svg"
+      }
+    },
+    "watch.tv.bezel": {
+      "image": "art/tv-bezel.svg",
+      "rendering": "smooth",
+      "fit": "contain",
+      "schemes": {
+        "dark": "art/tv-bezel-dark.svg"
+      }
+    },
+    "header.banner": {
+      "image": "art/banner-home.svg",
+      "rendering": "smooth",
+      "fit": "cover",
+      "anchor": "top",
+      "schemes": {
+        "dark": "art/banner-home-dark.svg"
+      },
+      "rooms": {
+        "listen": {
+          "light": "art/banner-listen.svg",
+          "dark": "art/banner-listen-dark.svg"
+        },
+        "watch": {
+          "light": "art/banner-watch.svg",
+          "dark": "art/banner-watch-dark.svg"
+        },
+        "games": {
+          "light": "art/banner-games.svg",
+          "dark": "art/banner-games-dark.svg"
+        },
+        "house": {
+          "light": "art/banner-house.svg",
+          "dark": "art/banner-house-dark.svg"
+        },
+        "files": {
+          "light": "art/banner-files.svg",
+          "dark": "art/banner-files-dark.svg"
+        },
+        "ask": {
+          "light": "art/banner-ask.svg",
+          "dark": "art/banner-ask-dark.svg"
+        },
+        "me": {
+          "light": "art/banner-me.svg",
+          "dark": "art/banner-me-dark.svg"
+        },
+        "control": {
+          "light": "art/banner-control.svg",
+          "dark": "art/banner-control-dark.svg"
+        },
+        "smart-home": {
+          "light": "art/banner-smart-home.svg",
+          "dark": "art/banner-smart-home-dark.svg"
+        },
+        "inbox": {
+          "light": "art/banner-inbox.svg",
+          "dark": "art/banner-inbox-dark.svg"
+        },
+        "space": {
+          "light": "art/banner-space.svg",
+          "dark": "art/banner-space-dark.svg"
+        },
+        "party": {
+          "light": "art/banner-party.svg",
+          "dark": "art/banner-party-dark.svg"
+        }
+      }
+    },
+    "deck.surface": {
+      "image": "art/deck.svg",
+      "rendering": "smooth",
+      "fit": "slice",
+      "slice": 16,
+      "schemes": {
+        "dark": "art/deck-dark.svg"
+      }
+    }
+  },
+  "author": "HouseOS",
+  "license": "CC-BY-4.0",
+  "rooms": "unified",
+  "parts": {
+    "header": "banner",
+    "panel": "card",
+    "dock": "flush",
+    "nowbar": "docked"
+  },
+  "layers": [
+    {
+      "image": "art/grid.svg",
+      "where": "page",
+      "fit": "repeat",
+      "rendering": "smooth",
+      "opacity": 0.55,
+      "drift": [
+        0.4,
+        0
+      ]
+    },
+    {
+      "image": "art/spectrum.svg",
+      "where": "deck",
+      "fit": "repeat-x",
+      "rendering": "smooth",
+      "anchor": "bottom",
+      "drift": [
+        -16,
+        0
+      ],
+      "playing": true
+    },
+    {
+      "image": "art/ruler.svg",
+      "where": "status",
+      "fit": "repeat-x",
+      "rendering": "smooth",
+      "anchor": "left",
+      "opacity": 0.8
+    },
+    {
+      "image": "art/walker.svg",
+      "where": "status",
+      "fit": "natural",
+      "rendering": "smooth",
+      "anchor": "top-left",
+      "cross": {
+        "seconds": 30,
+        "every": 180,
+        "from": "left"
+      }
+    },
+    {
+      "image": "art/rail-foot.svg",
+      "where": "rail-foot",
+      "fit": "natural",
+      "rendering": "smooth",
+      "anchor": "bottom-left",
+      "poke": {
+        "image": "art/rail-foot-shuffle.svg",
+        "frames": {
+          "count": 10,
+          "fps": 16
+        },
+        "stay": "random"
+      }
+    },
+    {
+      "image": "art/deck-module.svg",
+      "where": "deck",
+      "fit": "natural",
+      "rendering": "smooth",
+      "anchor": "top-left",
+      "schemes": [
+        "light"
+      ],
+      "poke": {
+        "image": "art/deck-module-flip.svg",
+        "frames": {
+          "count": 6,
+          "fps": 10
+        },
+        "stay": "random"
+      }
+    },
+    {
+      "image": "art/deck-module-dark.svg",
+      "where": "deck",
+      "fit": "natural",
+      "rendering": "smooth",
+      "anchor": "top-left",
+      "schemes": [
+        "dark"
+      ],
+      "poke": {
+        "image": "art/deck-module-flip-dark.svg",
+        "frames": {
+          "count": 6,
+          "fps": 10
+        },
+        "stay": "random"
+      }
+    }
+  ]
+}

@@ -1,0 +1,2064 @@
+{
+  "$description": "Curated OFL-1.1 families for HouseOS themes, each checked against the Fontsource API (exists, licence OFL, subsets include latin-ext) on 2026-09-26 (the last twelve on 2026-09-27); kb_400 is the latin + latin-ext woff2 size of weight 400 normal (budget: fonts/ ≤ 800 KB per theme), axes lists variable axes beyond wght/ital.",
+  "fonts": [
+    {
+      "family": "Jacquard 12",
+      "fontsource": "jacquard-12",
+      "category": "display",
+      "class": "pixel blackletter",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400
+      ],
+      "italic": false,
+      "variable": false,
+      "kb_400": 34,
+      "character": "Bundled. A jacquard-loom blackletter drawn on a 12-unit pixel grid: gothic, woven, crisp at multiples of 12 px.",
+      "pairs_with": [
+        "Alegreya Sans",
+        "IBM Plex Mono"
+      ],
+      "avoid": "Any size that is not a multiple of 12; anything longer than a title; all-caps runs."
+    },
+    {
+      "family": "Alegreya Sans",
+      "fontsource": "alegreya-sans",
+      "category": "sans-serif",
+      "class": "humanist sans",
+      "roles": [
+        "body"
+      ],
+      "weights": [
+        400,
+        500,
+        700,
+        800
+      ],
+      "italic": true,
+      "variable": false,
+      "kb_400": 45,
+      "character": "Bundled. A calligraphic humanist sans with real italics and small x-height; bookish, warm, never corporate.",
+      "pairs_with": [
+        "Alegreya",
+        "Jacquard 12",
+        "Fraunces",
+        "Cinzel"
+      ],
+      "avoid": "Weights under 400 on dark grounds; tight tracking."
+    },
+    {
+      "family": "IBM Plex Mono",
+      "fontsource": "ibm-plex-mono",
+      "category": "monospace",
+      "class": "grotesque mono",
+      "roles": [
+        "mono"
+      ],
+      "weights": [
+        400,
+        500,
+        600
+      ],
+      "italic": true,
+      "variable": false,
+      "kb_400": 28,
+      "character": "Bundled. Engineered, slightly mechanical mono with a friendly italic; reads as instrument panel, not hacker cliché.",
+      "pairs_with": [
+        "Alegreya Sans",
+        "IBM Plex Sans Condensed",
+        "Newsreader"
+      ],
+      "avoid": "Using it for body copy to look 'technical'."
+    },
+    {
+      "family": "Source Sans 3",
+      "fontsource": "source-sans-3",
+      "category": "sans-serif",
+      "class": "humanist sans",
+      "roles": [
+        "body"
+      ],
+      "weights": [
+        400,
+        600,
+        700
+      ],
+      "italic": true,
+      "variable": true,
+      "kb_400": 49,
+      "character": "Adobe's workhorse humanist: calm, open counters, excellent French diacritics; the quiet body under a loud display.",
+      "pairs_with": [
+        "Fraunces",
+        "Bodoni Moda",
+        "Big Shoulders Display"
+      ],
+      "avoid": "Pairing it with another neutral sans; it needs a characterful partner."
+    },
+    {
+      "family": "Fira Sans",
+      "fontsource": "fira-sans",
+      "category": "sans-serif",
+      "class": "humanist sans",
+      "roles": [
+        "body"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "italic": true,
+      "variable": false,
+      "kb_400": 70,
+      "character": "Built for small phone screens (Firefox OS): sturdy, slightly technical humanist with a big family.",
+      "pairs_with": [
+        "Zilla Slab",
+        "Fraunces",
+        "Unbounded"
+      ],
+      "avoid": "Hairline weights; it is heavy per weight (≈70 KB), budget files."
+    },
+    {
+      "family": "Atkinson Hyperlegible Next",
+      "fontsource": "atkinson-hyperlegible-next",
+      "category": "sans-serif",
+      "class": "legibility sans",
+      "roles": [
+        "body"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "italic": true,
+      "variable": true,
+      "kb_400": 19,
+      "character": "Braille Institute's legibility face, expanded: distinct Il1, 0O, exaggerated forms; odd in a good, honest way.",
+      "pairs_with": [
+        "Fraunces",
+        "Gloock",
+        "Young Serif",
+        "Shrikhand"
+      ],
+      "avoid": "Display sizes: its quirks become clumsy above ~32 px."
+    },
+    {
+      "family": "Atkinson Hyperlegible",
+      "fontsource": "atkinson-hyperlegible",
+      "category": "sans-serif",
+      "class": "legibility sans",
+      "roles": [
+        "body"
+      ],
+      "weights": [
+        400,
+        700
+      ],
+      "italic": true,
+      "variable": false,
+      "kb_400": 27,
+      "character": "The original two-weight Atkinson: blunt, friendly, unmistakable letterforms for low-vision readers.",
+      "pairs_with": [
+        "Fraunces",
+        "Bungee",
+        "DM Serif Display"
+      ],
+      "avoid": "Needing a 500/600 step: use Atkinson Hyperlegible Next instead."
+    },
+    {
+      "family": "Lexend",
+      "fontsource": "lexend",
+      "category": "sans-serif",
+      "class": "legibility sans",
+      "roles": [
+        "body",
+        "display"
+      ],
+      "weights": [
+        300,
+        400,
+        500,
+        600,
+        700
+      ],
+      "italic": false,
+      "variable": true,
+      "kb_400": 28,
+      "character": "Geometric-leaning sans tuned for reading fluency (wide spacing); clean but not sterile at heavy weights.",
+      "pairs_with": [
+        "Gloock",
+        "Instrument Serif",
+        "Grenze Gotisch"
+      ],
+      "avoid": "Pairing with a geometric display: two circles-and-lines faces flatten each other."
+    },
+    {
+      "family": "Andika",
+      "fontsource": "andika",
+      "category": "sans-serif",
+      "class": "legibility sans",
+      "roles": [
+        "body"
+      ],
+      "weights": [
+        400,
+        700
+      ],
+      "italic": true,
+      "variable": false,
+      "kb_400": 101,
+      "character": "SIL's face for beginning readers: single-storey a, clear shapes; school-primer warmth, huge language coverage.",
+      "pairs_with": [
+        "Alfa Slab One",
+        "Caveat Brush",
+        "Cinzel"
+      ],
+      "avoid": "Weight budget (≈100 KB per weight); only 400/700 exist."
+    },
+    {
+      "family": "Inclusive Sans",
+      "fontsource": "inclusive-sans",
+      "category": "sans-serif",
+      "class": "legibility sans",
+      "roles": [
+        "body"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "italic": true,
+      "variable": true,
+      "kb_400": 21,
+      "character": "Olivia King's accessible sans: humanist warmth with legibility quirks, contemporary without being startup-shiny.",
+      "pairs_with": [
+        "Young Serif",
+        "Gloock",
+        "Shrikhand"
+      ],
+      "avoid": "Weights under 400."
+    },
+    {
+      "family": "Bricolage Grotesque",
+      "fontsource": "bricolage-grotesque",
+      "category": "sans-serif",
+      "class": "grotesque",
+      "roles": [
+        "display",
+        "body"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700,
+        800
+      ],
+      "italic": false,
+      "variable": true,
+      "axes": [
+        "opsz",
+        "wdth",
+        "wght"
+      ],
+      "kb_400": 33,
+      "character": "Ink-trapped French grotesque with optical sizes and width: tight and punchy large, open small; poster energy.",
+      "pairs_with": [
+        "Newsreader",
+        "Martian Mono",
+        "Instrument Serif"
+      ],
+      "avoid": "Its narrow width at text size; keep opsz automatic."
+    },
+    {
+      "family": "Familjen Grotesk",
+      "fontsource": "familjen-grotesk",
+      "category": "sans-serif",
+      "class": "grotesque",
+      "roles": [
+        "display",
+        "body"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "italic": true,
+      "variable": true,
+      "kb_400": 22,
+      "character": "Scandinavian grotesque with idiosyncratic curves (the g, the y): household, a little odd, very human.",
+      "pairs_with": [
+        "Newsreader",
+        "Courier Prime",
+        "Fraunces"
+      ],
+      "avoid": "Using it with another quirky sans."
+    },
+    {
+      "family": "Schibsted Grotesk",
+      "fontsource": "schibsted-grotesk",
+      "category": "sans-serif",
+      "class": "grotesque",
+      "roles": [
+        "body",
+        "display"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700,
+        800
+      ],
+      "italic": true,
+      "variable": true,
+      "kb_400": 36,
+      "character": "Newsroom grotesque from a Norwegian media house: compact, sturdy, confident in headlines and lists.",
+      "pairs_with": [
+        "Newsreader",
+        "Old Standard TT",
+        "Libre Caslon Text"
+      ],
+      "avoid": "Light weights; it wants to be set 400–800."
+    },
+    {
+      "family": "Instrument Sans",
+      "fontsource": "instrument-sans",
+      "category": "sans-serif",
+      "class": "grotesque",
+      "roles": [
+        "body"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "italic": true,
+      "variable": true,
+      "axes": [
+        "ital",
+        "wdth",
+        "wght"
+      ],
+      "kb_400": 24,
+      "character": "Crisp, slightly condensed neo-grotesque with a width axis; precise, editorial, gallery-label cool.",
+      "pairs_with": [
+        "Instrument Serif",
+        "Bodoni Moda",
+        "Martian Mono"
+      ],
+      "avoid": "Using it alone: it is neutral enough to read as 'default'."
+    },
+    {
+      "family": "Libre Franklin",
+      "fontsource": "libre-franklin",
+      "category": "sans-serif",
+      "class": "american gothic",
+      "roles": [
+        "body",
+        "display"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700,
+        800,
+        900
+      ],
+      "italic": true,
+      "variable": true,
+      "kb_400": 30,
+      "character": "Revival of Franklin Gothic: American newspaper and signage grotesque, blunt at black weight, plain at 400.",
+      "pairs_with": [
+        "Libre Caslon Text",
+        "Old Standard TT",
+        "Courier Prime"
+      ],
+      "avoid": "Thin weights (100–300): out of character."
+    },
+    {
+      "family": "Archivo",
+      "fontsource": "archivo",
+      "category": "sans-serif",
+      "class": "grotesque",
+      "roles": [
+        "body",
+        "display"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700,
+        800,
+        900
+      ],
+      "italic": true,
+      "variable": true,
+      "axes": [
+        "ital",
+        "wdth",
+        "wght"
+      ],
+      "kb_400": 28,
+      "character": "Grotesque with a width axis from condensed to expanded: one family can give a tall narrow display and a calm body.",
+      "pairs_with": [
+        "Besley",
+        "Space Mono",
+        "Old Standard TT"
+      ],
+      "avoid": "Mixing more than two widths in one theme."
+    },
+    {
+      "family": "Mona Sans",
+      "fontsource": "mona-sans",
+      "category": "sans-serif",
+      "class": "grotesque",
+      "roles": [
+        "body",
+        "display"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700,
+        800
+      ],
+      "italic": true,
+      "variable": true,
+      "axes": [
+        "ital",
+        "wdth",
+        "wght"
+      ],
+      "kb_400": 30,
+      "character": "GitHub's strong grotesque with a width axis; industrial, square-shouldered at wide/black.",
+      "pairs_with": [
+        "Xanh Mono",
+        "Instrument Serif",
+        "JetBrains Mono"
+      ],
+      "avoid": "Its wide black at small sizes; developer-conference clichés."
+    },
+    {
+      "family": "Jost",
+      "fontsource": "jost",
+      "category": "sans-serif",
+      "class": "geometric sans",
+      "roles": [
+        "body",
+        "display"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "italic": true,
+      "variable": true,
+      "kb_400": 16,
+      "character": "Futura's open-source cousin: 1920s geometric, Bauhaus posters, métro lettering; pointed apexes, round o.",
+      "pairs_with": [
+        "Bodoni Moda",
+        "Cormorant Garamond",
+        "Courier Prime"
+      ],
+      "avoid": "Long paragraphs at 300; very tight tracking."
+    },
+    {
+      "family": "Josefin Sans",
+      "fontsource": "josefin-sans",
+      "category": "sans-serif",
+      "class": "geometric sans",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        300,
+        400,
+        600,
+        700
+      ],
+      "italic": true,
+      "variable": true,
+      "kb_400": 22,
+      "character": "Vintage geometric with a tiny x-height and wide caps: Art Deco, Scandinavian 1930s, elegant but short.",
+      "pairs_with": [
+        "Libre Caslon Text",
+        "Source Sans 3",
+        "Vollkorn"
+      ],
+      "avoid": "Body text: its x-height is too small for reading."
+    },
+    {
+      "family": "Syne",
+      "fontsource": "syne",
+      "category": "sans-serif",
+      "class": "geometric grotesque",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        500,
+        600,
+        700,
+        800
+      ],
+      "italic": false,
+      "variable": true,
+      "kb_400": 19,
+      "character": "Art-centre face that widens dramatically with weight; avant-garde, loud at 800, oddly cute at 500.",
+      "pairs_with": [
+        "Inclusive Sans",
+        "Space Mono",
+        "Fraunces"
+      ],
+      "avoid": "Body and controls; mid weights at small sizes."
+    },
+    {
+      "family": "Fraunces",
+      "fontsource": "fraunces",
+      "category": "serif",
+      "class": "soft old-style",
+      "roles": [
+        "display",
+        "body"
+      ],
+      "weights": [
+        400,
+        600,
+        700,
+        900
+      ],
+      "italic": true,
+      "variable": true,
+      "axes": [
+        "SOFT",
+        "WONK",
+        "ital",
+        "opsz",
+        "wght"
+      ],
+      "kb_400": 35,
+      "character": "Wonky 'Old Style Soft' with optical size and SOFT/WONK axes: warm, literary, a little mischievous, 1970s book jackets.",
+      "pairs_with": [
+        "Atkinson Hyperlegible Next",
+        "Source Sans 3",
+        "Familjen Grotesk"
+      ],
+      "avoid": "Its WONK axis and SOFT 100 at body sizes; the 9pt opsz at display."
+    },
+    {
+      "family": "EB Garamond",
+      "fontsource": "eb-garamond",
+      "category": "serif",
+      "class": "garalde",
+      "roles": [
+        "body",
+        "display"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "italic": true,
+      "variable": true,
+      "kb_400": 81,
+      "character": "Claude Garamont's 16th-century roman, faithfully revived: French humanist book text, true italics, old-style figures.",
+      "pairs_with": [
+        "Cinzel",
+        "Josefin Sans",
+        "IBM Plex Mono"
+      ],
+      "avoid": "Small UI text on dark grounds (thin hairlines); ≈80 KB per weight."
+    },
+    {
+      "family": "Cormorant Garamond",
+      "fontsource": "cormorant-garamond",
+      "category": "serif",
+      "class": "garalde display",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "italic": true,
+      "variable": true,
+      "kb_400": 43,
+      "character": "High-contrast, sharp display Garamond: luxurious, cold, fashion-magazine; beautiful large, brittle small.",
+      "pairs_with": [
+        "Jost",
+        "Source Sans 3",
+        "Instrument Sans"
+      ],
+      "avoid": "Anything below 24 px; weight 300 on screens."
+    },
+    {
+      "family": "Libre Caslon Text",
+      "fontsource": "libre-caslon-text",
+      "category": "serif",
+      "class": "transitional/garalde",
+      "roles": [
+        "body",
+        "display"
+      ],
+      "weights": [
+        400,
+        700
+      ],
+      "italic": true,
+      "variable": false,
+      "kb_400": 39,
+      "character": "Caslon for screens: 18th-century English print, pamphlets, almanacs; slightly heavy, trustworthy, bookish.",
+      "pairs_with": [
+        "Libre Franklin",
+        "Josefin Sans",
+        "Courier Prime"
+      ],
+      "avoid": "Needing more than 400/700."
+    },
+    {
+      "family": "Newsreader",
+      "fontsource": "newsreader",
+      "category": "serif",
+      "class": "transitional",
+      "roles": [
+        "body",
+        "display"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "italic": true,
+      "variable": true,
+      "axes": [
+        "ital",
+        "opsz",
+        "wght"
+      ],
+      "kb_400": 37,
+      "character": "Production Type's screen-news serif with optical sizes: calm reading, crisp headlines, a Sunday paper.",
+      "pairs_with": [
+        "Bricolage Grotesque",
+        "Schibsted Grotesk",
+        "Familjen Grotesk"
+      ],
+      "avoid": "Light weights on dark grounds."
+    },
+    {
+      "family": "Spectral",
+      "fontsource": "spectral",
+      "category": "serif",
+      "class": "transitional",
+      "roles": [
+        "body"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "italic": true,
+      "variable": false,
+      "kb_400": 42,
+      "character": "Production Type's quiet screen serif: sharp wedges, long lines, restrained, a museum catalogue.",
+      "pairs_with": [
+        "Jost",
+        "Big Shoulders Display",
+        "Martian Mono"
+      ],
+      "avoid": "Heavy display use; it is a text face."
+    },
+    {
+      "family": "Alegreya",
+      "fontsource": "alegreya",
+      "category": "serif",
+      "class": "calligraphic old-style",
+      "roles": [
+        "body",
+        "display"
+      ],
+      "weights": [
+        400,
+        500,
+        700,
+        800
+      ],
+      "italic": true,
+      "variable": true,
+      "kb_400": 43,
+      "character": "Dynamic, calligraphic literary serif designed with Alegreya Sans: a superfamily with the bundled body.",
+      "pairs_with": [
+        "Alegreya Sans",
+        "Cinzel",
+        "IBM Plex Mono"
+      ],
+      "avoid": "Mixing it with another serif."
+    },
+    {
+      "family": "Vollkorn",
+      "fontsource": "vollkorn",
+      "category": "serif",
+      "class": "old-style",
+      "roles": [
+        "body",
+        "display"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700,
+        900
+      ],
+      "italic": true,
+      "variable": true,
+      "kb_400": 47,
+      "character": "'Wholemeal' serif: dark, robust, rustic; black weight looks like woodcut almanac titles.",
+      "pairs_with": [
+        "Josefin Sans",
+        "Barlow Condensed",
+        "Courier Prime"
+      ],
+      "avoid": "Light-on-dark small sizes at 400 look heavy; loosen line height."
+    },
+    {
+      "family": "Brygada 1918",
+      "fontsource": "brygada-1918",
+      "category": "serif",
+      "class": "old-style revival",
+      "roles": [
+        "body",
+        "display"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "italic": true,
+      "variable": true,
+      "kb_400": 32,
+      "character": "Revival of a 1918 Polish state-print face: interwar Central Europe, stamps, banknotes, civic warmth.",
+      "pairs_with": [
+        "Big Shoulders Display",
+        "Jost",
+        "Overpass Mono"
+      ],
+      "avoid": "Using it to fake 'medieval'; it is 20th-century."
+    },
+    {
+      "family": "Instrument Serif",
+      "fontsource": "instrument-serif",
+      "category": "serif",
+      "class": "condensed display serif",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400
+      ],
+      "italic": true,
+      "variable": false,
+      "kb_400": 33,
+      "character": "Condensed, high-contrast display serif with a lovely italic: gallery walls, perfume labels, restraint.",
+      "pairs_with": [
+        "Instrument Sans",
+        "Lexend",
+        "Martian Mono"
+      ],
+      "avoid": "Body or labels; bold (none exists, never fake it)."
+    },
+    {
+      "family": "Young Serif",
+      "fontsource": "young-serif",
+      "category": "serif",
+      "class": "heavy old-style display",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400
+      ],
+      "italic": false,
+      "variable": false,
+      "kb_400": 44,
+      "character": "Heavy 1970s old-style: rounded wedges, soft blackness; cookbooks, record sleeves, warm kitchens.",
+      "pairs_with": [
+        "Inclusive Sans",
+        "Atkinson Hyperlegible Next",
+        "Courier Prime"
+      ],
+      "avoid": "Small sizes; pairing with Fraunces (same era, one too many)."
+    },
+    {
+      "family": "Gloock",
+      "fontsource": "gloock",
+      "category": "serif",
+      "class": "high-contrast display serif",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400
+      ],
+      "italic": false,
+      "variable": false,
+      "kb_400": 41,
+      "character": "Dramatic, ink-trapped high-contrast serif: nightclub posters, literary magazines, sharp elegance.",
+      "pairs_with": [
+        "Lexend",
+        "Inclusive Sans",
+        "JetBrains Mono"
+      ],
+      "avoid": "Anything under 24 px; its hairlines vanish."
+    },
+    {
+      "family": "Bitter",
+      "fontsource": "bitter",
+      "category": "serif",
+      "class": "slab",
+      "roles": [
+        "body",
+        "display"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700,
+        800
+      ],
+      "italic": true,
+      "variable": true,
+      "kb_400": 36,
+      "character": "Contemporary slab made for screens: sturdy, low contrast, very readable; typewriter-adjacent without cosplay.",
+      "pairs_with": [
+        "Big Shoulders Display",
+        "Source Sans 3",
+        "Space Mono"
+      ],
+      "avoid": "Weights under 400; pairing with another slab."
+    },
+    {
+      "family": "Zilla Slab",
+      "fontsource": "zilla-slab",
+      "category": "serif",
+      "class": "slab",
+      "roles": [
+        "body",
+        "display"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "italic": true,
+      "variable": false,
+      "kb_400": 45,
+      "character": "Mozilla's slab: squarish, bookish-techy, a little cheeky in its italics.",
+      "pairs_with": [
+        "Fira Sans",
+        "Syne",
+        "Space Mono"
+      ],
+      "avoid": "Mixing with Bitter or Besley."
+    },
+    {
+      "family": "Besley",
+      "fontsource": "besley",
+      "category": "serif",
+      "class": "clarendon",
+      "roles": [
+        "display",
+        "body"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700,
+        900
+      ],
+      "italic": true,
+      "variable": true,
+      "kb_400": 28,
+      "character": "Clarendon revival: bracketed slabs, ball terminals, Victorian posters and seed packets, warm and assertive.",
+      "pairs_with": [
+        "Archivo",
+        "Source Sans 3",
+        "Courier Prime"
+      ],
+      "avoid": "Italic for long text; tight line height at body."
+    },
+    {
+      "family": "Alfa Slab One",
+      "fontsource": "alfa-slab-one",
+      "category": "display",
+      "class": "fat slab display",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400
+      ],
+      "italic": false,
+      "variable": false,
+      "kb_400": 39,
+      "character": "Single heavy slab: circus bills, wanted posters, ticket booths; loud and happy.",
+      "pairs_with": [
+        "Andika",
+        "Source Sans 3",
+        "Space Mono"
+      ],
+      "avoid": "Anything but short titles; all-caps runs over 3 words."
+    },
+    {
+      "family": "Bodoni Moda",
+      "fontsource": "bodoni-moda",
+      "category": "serif",
+      "class": "didone",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700,
+        900
+      ],
+      "italic": true,
+      "variable": true,
+      "axes": [
+        "ital",
+        "opsz",
+        "wght"
+      ],
+      "kb_400": 23,
+      "character": "Bodoni with optical sizes: extreme contrast, fashion, opera houses, 1920s Paris métro posters.",
+      "pairs_with": [
+        "Jost",
+        "Instrument Sans",
+        "Source Sans 3"
+      ],
+      "avoid": "Below 20 px at display opsz; on low-DPI dark grounds (hairlines break)."
+    },
+    {
+      "family": "Abril Fatface",
+      "fontsource": "abril-fatface",
+      "category": "display",
+      "class": "fat face didone",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400
+      ],
+      "italic": false,
+      "variable": false,
+      "kb_400": 21,
+      "character": "19th-century 'fat face' didone: bold editorial headlines, broadsides, playbills.",
+      "pairs_with": [
+        "Josefin Sans",
+        "Source Sans 3",
+        "Old Standard TT"
+      ],
+      "avoid": "Small sizes; it is ubiquitous on the web, give it a specific job."
+    },
+    {
+      "family": "DM Serif Display",
+      "fontsource": "dm-serif-display",
+      "category": "serif",
+      "class": "didone-ish display",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400
+      ],
+      "italic": true,
+      "variable": false,
+      "kb_400": 36,
+      "character": "Softened high-contrast display serif with a fine italic: magazine covers, elegant but friendly.",
+      "pairs_with": [
+        "Atkinson Hyperlegible",
+        "Space Mono",
+        "Familjen Grotesk"
+      ],
+      "avoid": "Bold (none); long titles."
+    },
+    {
+      "family": "Old Standard TT",
+      "fontsource": "old-standard-tt",
+      "category": "serif",
+      "class": "scotch modern",
+      "roles": [
+        "body",
+        "display"
+      ],
+      "weights": [
+        400,
+        700
+      ],
+      "italic": true,
+      "variable": false,
+      "kb_400": 50,
+      "character": "Late-19th-century 'modern' text face: scientific journals, old newspapers, encyclopedia pages.",
+      "pairs_with": [
+        "Libre Franklin",
+        "Schibsted Grotesk",
+        "Abril Fatface"
+      ],
+      "avoid": "Small sizes on dark grounds; thin serifs."
+    },
+    {
+      "family": "Grenze Gotisch",
+      "fontsource": "grenze-gotisch",
+      "category": "display",
+      "class": "blackletter",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        500,
+        600,
+        700,
+        800
+      ],
+      "italic": false,
+      "variable": true,
+      "kb_400": 29,
+      "character": "A variable blackletter with roman bones: gothic flavour that stays readable; beer labels, Rhine towns, heraldry.",
+      "pairs_with": [
+        "Lexend",
+        "Source Sans 3",
+        "IBM Plex Mono"
+      ],
+      "avoid": "All-caps (blackletter caps must never be set in runs); body text."
+    },
+    {
+      "family": "Silkscreen",
+      "fontsource": "silkscreen",
+      "category": "display",
+      "class": "pixel",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400,
+        700
+      ],
+      "italic": false,
+      "variable": false,
+      "kb_400": 12,
+      "character": "Tiny 5 px pixel caps: arcade HUDs, LCD labels, game-cartridge stickers.",
+      "pairs_with": [
+        "Atkinson Hyperlegible Next",
+        "VT323",
+        "Alegreya Sans"
+      ],
+      "avoid": "Sizes not a multiple of its grid (8/16/24 px); anything longer than a kicker."
+    },
+    {
+      "family": "VT323",
+      "fontsource": "vt323",
+      "category": "monospace",
+      "class": "terminal pixel mono",
+      "roles": [
+        "mono",
+        "display"
+      ],
+      "weights": [
+        400
+      ],
+      "italic": false,
+      "variable": false,
+      "kb_400": 34,
+      "character": "DEC VT320 terminal bitmap: green-phosphor terminals, library catalogues, airport boards.",
+      "pairs_with": [
+        "Atkinson Hyperlegible Next",
+        "Space Mono",
+        "Jost"
+      ],
+      "avoid": "Body text; small sizes (it is small for its em, set ≥ 18 px)."
+    },
+    {
+      "family": "Doto",
+      "fontsource": "doto",
+      "category": "sans-serif",
+      "class": "dot-matrix",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        500,
+        700,
+        900
+      ],
+      "italic": false,
+      "variable": true,
+      "axes": [
+        "ROND",
+        "wght"
+      ],
+      "kb_400": 7,
+      "character": "Dot-matrix display face with a roundness axis: departure boards, receipt printers, LED clocks.",
+      "pairs_with": [
+        "Instrument Sans",
+        "Inclusive Sans",
+        "IBM Plex Mono"
+      ],
+      "avoid": "Below 24 px (dots merge); long words."
+    },
+    {
+      "family": "Handjet",
+      "fontsource": "handjet",
+      "category": "display",
+      "class": "modular element display",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        300,
+        400,
+        600
+      ],
+      "italic": false,
+      "variable": true,
+      "axes": [
+        "ELGR",
+        "ELSH",
+        "wght"
+      ],
+      "kb_400": 14,
+      "character": "Letters built from modular elements (squares, hearts, circles) by axes: embroidery, LED signs, cross-stitch.",
+      "pairs_with": [
+        "Atkinson Hyperlegible Next",
+        "Lexend",
+        "Martian Mono"
+      ],
+      "avoid": "Body; fancy element shapes at small sizes."
+    },
+    {
+      "family": "Shrikhand",
+      "fontsource": "shrikhand",
+      "category": "display",
+      "class": "retro display",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400
+      ],
+      "italic": false,
+      "variable": false,
+      "kb_400": 24,
+      "character": "Plump, italic, Gujarati-inspired display: 1970s diner signs, candy wrappers, disco record sleeves.",
+      "pairs_with": [
+        "Inclusive Sans",
+        "Atkinson Hyperlegible Next",
+        "Courier Prime"
+      ],
+      "avoid": "More than one line; next to other script faces."
+    },
+    {
+      "family": "Bungee",
+      "fontsource": "bungee",
+      "category": "display",
+      "class": "signage display",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400
+      ],
+      "italic": false,
+      "variable": false,
+      "kb_400": 25,
+      "character": "Vertical-signage caps from urban street signs: bold, geometric, layered-colour ready; bodegas, cinemas.",
+      "pairs_with": [
+        "Atkinson Hyperlegible",
+        "Space Mono",
+        "Fira Sans"
+      ],
+      "avoid": "Sentences; mixed case (caps only)."
+    },
+    {
+      "family": "Limelight",
+      "fontsource": "limelight",
+      "category": "display",
+      "class": "art deco display",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400
+      ],
+      "italic": false,
+      "variable": false,
+      "kb_400": 40,
+      "character": "Art Deco display with thick-thin contrast: 1930s cinema marquees, cocktail bars, ocean liners.",
+      "pairs_with": [
+        "Josefin Sans",
+        "Source Sans 3",
+        "Courier Prime"
+      ],
+      "avoid": "Small sizes; anything not a title."
+    },
+    {
+      "family": "Poiret One",
+      "fontsource": "poiret-one",
+      "category": "display",
+      "class": "art deco display",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400
+      ],
+      "italic": false,
+      "variable": false,
+      "kb_400": 13,
+      "character": "Hairline geometric Deco: Parisian boutiques, 1925 exhibition posters, very thin and airy.",
+      "pairs_with": [
+        "Libre Caslon Text",
+        "Jost",
+        "Source Sans 3"
+      ],
+      "avoid": "Below 28 px or on dark grounds (single weight, thin); it fails contrast in spirit even when ratio passes."
+    },
+    {
+      "family": "Cinzel",
+      "fontsource": "cinzel",
+      "category": "serif",
+      "class": "roman inscriptional",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400,
+        600,
+        700
+      ],
+      "italic": false,
+      "variable": true,
+      "kb_400": 22,
+      "character": "Caps from Roman inscriptions: stone, monuments, museum plaques; carved, formal, timeless.",
+      "pairs_with": [
+        "Alegreya Sans",
+        "EB Garamond",
+        "Andika"
+      ],
+      "avoid": "Lowercase does not exist (small caps only); epic-fantasy cliché when paired with gold on black."
+    },
+    {
+      "family": "Caveat",
+      "fontsource": "caveat",
+      "category": "handwriting",
+      "class": "handwriting",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400,
+        600,
+        700
+      ],
+      "italic": false,
+      "variable": true,
+      "kb_400": 67,
+      "character": "Casual marker handwriting: fridge notes, shopping lists, a label on a jam jar.",
+      "pairs_with": [
+        "Atkinson Hyperlegible Next",
+        "Familjen Grotesk",
+        "Courier Prime"
+      ],
+      "avoid": "Body, controls, anything read quickly; ≈67 KB per weight."
+    },
+    {
+      "family": "Caveat Brush",
+      "fontsource": "caveat-brush",
+      "category": "handwriting",
+      "class": "brush handwriting",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400
+      ],
+      "italic": false,
+      "variable": false,
+      "kb_400": 99,
+      "character": "Brushier Caveat: chalkboard menus, market stall signs.",
+      "pairs_with": [
+        "Andika",
+        "Inclusive Sans",
+        "Space Mono"
+      ],
+      "avoid": "Everything but a kicker or a sticker; heavy file (≈100 KB)."
+    },
+    {
+      "family": "Shantell Sans",
+      "fontsource": "shantell-sans",
+      "category": "display",
+      "class": "informal handwriting sans",
+      "roles": [
+        "display",
+        "body"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "italic": true,
+      "variable": true,
+      "axes": [
+        "BNCE",
+        "INFM",
+        "SPAC",
+        "ital",
+        "wght"
+      ],
+      "kb_400": 68,
+      "character": "Marker-drawn sans with an Informal axis and optional bounce: comic-book lettering you can still read in paragraphs.",
+      "pairs_with": [
+        "Young Serif",
+        "Space Mono",
+        "Fraunces"
+      ],
+      "avoid": "BNCE (bounce) axis in body; ≈68 KB per weight; very long text."
+    },
+    {
+      "family": "Klee One",
+      "fontsource": "klee-one",
+      "category": "handwriting",
+      "class": "pencil kaisho",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400,
+        600
+      ],
+      "italic": false,
+      "variable": false,
+      "kb_400": 45,
+      "character": "Japanese pencil-textbook hand (from Fontworks) with matching Latin: a kissa menu written at the counter.",
+      "pairs_with": [
+        "Zilla Slab",
+        "Inclusive Sans",
+        "IBM Plex Mono"
+      ],
+      "avoid": "Body in Latin (its Latin is secondary); expecting weights between 400 and 600."
+    },
+    {
+      "family": "JetBrains Mono",
+      "fontsource": "jetbrains-mono",
+      "category": "monospace",
+      "class": "grotesque mono",
+      "roles": [
+        "mono"
+      ],
+      "weights": [
+        400,
+        500,
+        700
+      ],
+      "italic": true,
+      "variable": true,
+      "kb_400": 29,
+      "character": "Tall x-height code face: clear, modern, reliable for times, codes and tables.",
+      "pairs_with": [
+        "Gloock",
+        "Mona Sans",
+        "Instrument Serif"
+      ],
+      "avoid": "Being the whole personality of a theme."
+    },
+    {
+      "family": "Space Mono",
+      "fontsource": "space-mono",
+      "category": "monospace",
+      "class": "retro-grotesque mono",
+      "roles": [
+        "mono",
+        "display"
+      ],
+      "weights": [
+        400,
+        700
+      ],
+      "italic": true,
+      "variable": false,
+      "kb_400": 32,
+      "character": "Colophon's 1960s-flavoured mono: squarish, idiosyncratic caps; spacecraft manuals, zines.",
+      "pairs_with": [
+        "Syne",
+        "Bitter",
+        "Alfa Slab One"
+      ],
+      "avoid": "Long paragraphs; it is overused on 'crypto' sites, give it print context."
+    },
+    {
+      "family": "Courier Prime",
+      "fontsource": "courier-prime",
+      "category": "monospace",
+      "class": "typewriter mono",
+      "roles": [
+        "mono",
+        "body"
+      ],
+      "weights": [
+        400,
+        700
+      ],
+      "italic": true,
+      "variable": false,
+      "kb_400": 31,
+      "character": "Courier fixed for screens: typewriters, screenplays, ration cards, the bureau; honest and slightly analogue.",
+      "pairs_with": [
+        "Libre Franklin",
+        "Young Serif",
+        "Jost"
+      ],
+      "avoid": "Tables of numbers (wide, slow to scan); pairing with Special Elite-style grunge."
+    },
+    {
+      "family": "Victor Mono",
+      "fontsource": "victor-mono",
+      "category": "monospace",
+      "class": "narrow mono",
+      "roles": [
+        "mono"
+      ],
+      "weights": [
+        400,
+        500,
+        700
+      ],
+      "italic": true,
+      "variable": true,
+      "kb_400": 23,
+      "character": "Narrow mono with a cursive italic: compact tables, secretarial notes; the italic is a delight for labels.",
+      "pairs_with": [
+        "Fraunces",
+        "Newsreader",
+        "Bricolage Grotesque"
+      ],
+      "avoid": "Its cursive italic for numbers; ligatures in times."
+    },
+    {
+      "family": "Martian Mono",
+      "fontsource": "martian-mono",
+      "category": "monospace",
+      "class": "wide mono",
+      "roles": [
+        "mono",
+        "display"
+      ],
+      "weights": [
+        400,
+        500,
+        700
+      ],
+      "italic": false,
+      "variable": true,
+      "axes": [
+        "wdth",
+        "wght"
+      ],
+      "kb_400": 18,
+      "character": "Wide, squarish mono with a width axis: control panels, spacecraft telemetry, bold labels.",
+      "pairs_with": [
+        "Bricolage Grotesque",
+        "Instrument Serif",
+        "Spectral"
+      ],
+      "avoid": "Long strings in narrow columns (it is wide)."
+    },
+    {
+      "family": "Xanh Mono",
+      "fontsource": "xanh-mono",
+      "category": "monospace",
+      "class": "serif mono",
+      "roles": [
+        "mono",
+        "display"
+      ],
+      "weights": [
+        400
+      ],
+      "italic": true,
+      "variable": false,
+      "kb_400": 28,
+      "character": "Quirky slab-serif mono with a flowing italic: poetry chapbooks, library index cards.",
+      "pairs_with": [
+        "Mona Sans",
+        "Inclusive Sans",
+        "Archivo"
+      ],
+      "avoid": "Being the only weight you need for numbers-heavy screens."
+    },
+    {
+      "family": "Overpass Mono",
+      "fontsource": "overpass-mono",
+      "category": "monospace",
+      "class": "highway gothic mono",
+      "roles": [
+        "mono"
+      ],
+      "weights": [
+        400,
+        600
+      ],
+      "italic": false,
+      "variable": true,
+      "kb_400": 33,
+      "character": "Monospaced cousin of US Highway Gothic signage: transit timetables, road atlases.",
+      "pairs_with": [
+        "Brygada 1918",
+        "Big Shoulders Display",
+        "Barlow Condensed"
+      ],
+      "avoid": "Pairing with Overpass sans (too much of one voice)."
+    },
+    {
+      "family": "Big Shoulders Display",
+      "fontsource": "big-shoulders-display",
+      "category": "display",
+      "class": "condensed grotesque display",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        500,
+        700,
+        800,
+        900
+      ],
+      "italic": false,
+      "variable": true,
+      "kb_400": 27,
+      "character": "Chicago industrial signage, condensed and tall: railway yards, stencilled crates, city hall banners.",
+      "pairs_with": [
+        "Spectral",
+        "Bitter",
+        "Brygada 1918"
+      ],
+      "avoid": "Body; wide tracking at black weight."
+    },
+    {
+      "family": "League Gothic",
+      "fontsource": "league-gothic",
+      "category": "sans-serif",
+      "class": "condensed gothic display",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400
+      ],
+      "italic": false,
+      "variable": true,
+      "axes": [
+        "wdth"
+      ],
+      "kb_400": 17,
+      "character": "Revival of Alternate Gothic No.1: 1900s newspapers, boxing posters, cinema listings.",
+      "pairs_with": [
+        "Libre Caslon Text",
+        "Source Sans 3",
+        "Courier Prime"
+      ],
+      "avoid": "Lowercase-heavy long titles; small sizes."
+    },
+    {
+      "family": "Barlow Condensed",
+      "fontsource": "barlow-condensed",
+      "category": "sans-serif",
+      "class": "condensed grotesque",
+      "roles": [
+        "display",
+        "body"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "italic": true,
+      "variable": false,
+      "kb_400": 35,
+      "character": "Californian highway-sign rounded grotesque, condensed: transit, dashboards, sports scoreboards.",
+      "pairs_with": [
+        "Vollkorn",
+        "Bitter",
+        "Overpass Mono"
+      ],
+      "avoid": "Body paragraphs (fine for list rows, not reading)."
+    },
+    {
+      "family": "Six Caps",
+      "fontsource": "six-caps",
+      "category": "sans-serif",
+      "class": "ultra-condensed display",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400
+      ],
+      "italic": false,
+      "variable": false,
+      "kb_400": 22,
+      "character": "Extremely condensed caps: tall, dramatic, film titles and fight cards.",
+      "pairs_with": [
+        "Spectral",
+        "Source Sans 3",
+        "IBM Plex Mono"
+      ],
+      "avoid": "Anything under 36 px; more than a few words."
+    },
+    {
+      "family": "IBM Plex Sans Condensed",
+      "fontsource": "ibm-plex-sans-condensed",
+      "category": "sans-serif",
+      "class": "condensed grotesque",
+      "roles": [
+        "body"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "italic": true,
+      "variable": false,
+      "kb_400": 35,
+      "character": "Space-saving Plex: compact themes, dense lists and tables, control-room density with good legibility.",
+      "pairs_with": [
+        "IBM Plex Mono",
+        "Newsreader",
+        "Big Shoulders Display"
+      ],
+      "avoid": "Airy themes (it looks cramped with generous space)."
+    },
+    {
+      "family": "Unbounded",
+      "fontsource": "unbounded",
+      "category": "sans-serif",
+      "class": "wide geometric display",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400,
+        600,
+        800
+      ],
+      "italic": false,
+      "variable": true,
+      "kb_400": 66,
+      "character": "Very wide rounded-square display: bold, sporty, contemporary poster type.",
+      "pairs_with": [
+        "Fira Sans",
+        "Inclusive Sans",
+        "JetBrains Mono"
+      ],
+      "avoid": "Long titles in French (it runs wide); ≈66 KB per weight."
+    },
+    {
+      "family": "Dela Gothic One",
+      "fontsource": "dela-gothic-one",
+      "category": "display",
+      "class": "heavy wide gothic",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400
+      ],
+      "italic": false,
+      "variable": false,
+      "kb_400": 23,
+      "character": "Heavy, wide Japanese-gothic display with Latin: manga covers, Shōwa-era shop signs, stamps.",
+      "pairs_with": [
+        "Inclusive Sans",
+        "Klee One",
+        "IBM Plex Mono"
+      ],
+      "avoid": "More than a word or two; tracking it tight."
+    },
+    {
+      "family": "Krona One",
+      "fontsource": "krona-one",
+      "category": "sans-serif",
+      "class": "wide grotesque display",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400
+      ],
+      "italic": false,
+      "variable": false,
+      "kb_400": 18,
+      "character": "Wide 1900s Swedish-poster grotesque: sturdy, flat, generous; ferry timetables, enamel signs.",
+      "pairs_with": [
+        "Source Sans 3",
+        "Newsreader",
+        "Courier Prime"
+      ],
+      "avoid": "Body; tight tracking."
+    },
+    {
+      "family": "Anybody",
+      "fontsource": "anybody",
+      "category": "display",
+      "class": "variable-width display",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400,
+        600,
+        800,
+        900
+      ],
+      "italic": true,
+      "variable": true,
+      "axes": [
+        "ital",
+        "wdth",
+        "wght"
+      ],
+      "kb_400": 25,
+      "character": "Width axis from ultra-condensed to extra-expanded: one family for tall headlines or wide banners, 80s-video-game energy at the extremes.",
+      "pairs_with": [
+        "Atkinson Hyperlegible Next",
+        "Space Mono",
+        "Spectral"
+      ],
+      "avoid": "Using both extremes in the same theme."
+    },
+    {
+      "family": "Barlow",
+      "fontsource": "barlow",
+      "category": "sans-serif",
+      "class": "grotesque",
+      "roles": [
+        "body"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "italic": true,
+      "variable": false,
+      "kb_400": 36,
+      "character": "Slightly rounded Californian highway-sign grotesque: stations, timetables, enamel signs; reads well at 14 px.",
+      "pairs_with": [
+        "Dela Gothic One",
+        "Overpass Mono",
+        "Vollkorn"
+      ],
+      "avoid": "Barlow Condensed as its only contrast; a grotesque display beside it flattens both."
+    },
+    {
+      "family": "DotGothic16",
+      "fontsource": "dotgothic16",
+      "category": "sans-serif",
+      "class": "pixel",
+      "roles": [
+        "mono"
+      ],
+      "weights": [
+        400
+      ],
+      "italic": false,
+      "variable": false,
+      "kb_400": 12,
+      "character": "Japanese 16-dot bitmap gothic with Latin: 16-bit game menus, HUD counters, handheld LCDs.",
+      "pairs_with": [
+        "Vollkorn",
+        "Grenze Gotisch",
+        "Atkinson Hyperlegible Next"
+      ],
+      "avoid": "Body text; sizes off its 16 px grid blur the dots."
+    },
+    {
+      "family": "DynaPuff",
+      "fontsource": "dynapuff",
+      "category": "display",
+      "class": "puffy rounded display",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400,
+        600,
+        700
+      ],
+      "italic": false,
+      "variable": true,
+      "axes": [
+        "wdth",
+        "wght"
+      ],
+      "kb_400": 37,
+      "character": "Soft, puffy rounded letters like inflated stickers: toys, candy wrappers, keychain pets.",
+      "pairs_with": [
+        "Nunito",
+        "Pixelify Sans",
+        "Lexend"
+      ],
+      "avoid": "Anything longer than a title; another rounded face as the body's only contrast."
+    },
+    {
+      "family": "Fragment Mono",
+      "fontsource": "fragment-mono",
+      "category": "monospace",
+      "class": "grotesque mono",
+      "roles": [
+        "mono"
+      ],
+      "weights": [
+        400
+      ],
+      "italic": true,
+      "variable": false,
+      "kb_400": 39,
+      "character": "A neo-grotesque in monospace: Swiss precision for times, counts and the dimension figures of a drawing.",
+      "pairs_with": [
+        "Archivo",
+        "Instrument Sans",
+        "Schibsted Grotesk"
+      ],
+      "avoid": "Needing bold (400 only); a humanist body beside it, which makes it look stiff."
+    },
+    {
+      "family": "Jersey 15",
+      "fontsource": "jersey-15",
+      "category": "display",
+      "class": "pixel",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400
+      ],
+      "italic": false,
+      "variable": false,
+      "kb_400": 29,
+      "character": "Chunky pixel letters on a 15-unit grid: a jersey number, an LED scoreboard, a modular poster.",
+      "pairs_with": [
+        "Schibsted Grotesk",
+        "Space Mono",
+        "Inclusive Sans"
+      ],
+      "avoid": "Body text and small labels; sizes that aren't a whole multiple of its grid."
+    },
+    {
+      "family": "Kode Mono",
+      "fontsource": "kode-mono",
+      "category": "monospace",
+      "class": "tech mono",
+      "roles": [
+        "mono"
+      ],
+      "weights": [
+        400,
+        500,
+        700
+      ],
+      "italic": false,
+      "variable": true,
+      "kb_400": 16,
+      "character": "Squared, technical mono with cut corners: console readouts, LCD players, sci-fi dashboards.",
+      "pairs_with": [
+        "Michroma",
+        "Lexend",
+        "Unbounded"
+      ],
+      "avoid": "Paragraphs; another squared tech face beside it."
+    },
+    {
+      "family": "M PLUS 1 Code",
+      "fontsource": "m-plus-1-code",
+      "category": "monospace",
+      "class": "gothic mono",
+      "roles": [
+        "mono"
+      ],
+      "weights": [
+        400,
+        500,
+        700
+      ],
+      "italic": false,
+      "variable": true,
+      "kb_400": 19,
+      "character": "The M+ Japanese gothic as a mono: quiet, even and light; the stamped figures of a ledger or a timetable.",
+      "pairs_with": [
+        "Zen Kaku Gothic New",
+        "Shippori Mincho",
+        "Klee One"
+      ],
+      "avoid": "Display sizes (it is plain); its heavy weights on a paper texture."
+    },
+    {
+      "family": "Michroma",
+      "fontsource": "michroma",
+      "category": "sans-serif",
+      "class": "wide geometric display",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400
+      ],
+      "italic": false,
+      "variable": false,
+      "kb_400": 32,
+      "character": "Extended squared sans in the Microgramma tradition: chrome hi-fi, sci-fi consoles, Y2K media players.",
+      "pairs_with": [
+        "Lexend",
+        "Kode Mono",
+        "Inclusive Sans"
+      ],
+      "avoid": "More than a short title (very wide: French wraps); expecting other weights (400 only)."
+    },
+    {
+      "family": "Nunito",
+      "fontsource": "nunito",
+      "category": "sans-serif",
+      "class": "rounded sans",
+      "roles": [
+        "body"
+      ],
+      "weights": [
+        400,
+        600,
+        700,
+        800
+      ],
+      "italic": true,
+      "variable": true,
+      "kb_400": 32,
+      "character": "Sans with rounded terminals that stays legible at 14 px: friendly and toy-box warm without being childish.",
+      "pairs_with": [
+        "DynaPuff",
+        "Pixelify Sans",
+        "Young Serif"
+      ],
+      "avoid": "Serious or civic themes; another rounded face beside it."
+    },
+    {
+      "family": "Pixelify Sans",
+      "fontsource": "pixelify-sans",
+      "category": "display",
+      "class": "pixel",
+      "roles": [
+        "mono"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "italic": false,
+      "variable": true,
+      "kb_400": 13,
+      "character": "A pixel sans with real weights: handheld games, LCD screens, stickers on a handmade homepage.",
+      "pairs_with": [
+        "Nunito",
+        "DynaPuff",
+        "Atkinson Hyperlegible Next"
+      ],
+      "avoid": "Body paragraphs; sizes off its pixel grid, which smear the pixels."
+    },
+    {
+      "family": "Shippori Mincho",
+      "fontsource": "shippori-mincho",
+      "category": "serif",
+      "class": "japanese mincho",
+      "roles": [
+        "display"
+      ],
+      "weights": [
+        400,
+        500,
+        700
+      ],
+      "italic": false,
+      "variable": false,
+      "kb_400": 29,
+      "character": "Japanese mincho with a refined Latin: brush-tipped serifs, washi and sumi ink, quiet book titles.",
+      "pairs_with": [
+        "Zen Kaku Gothic New",
+        "M PLUS 1 Code",
+        "Klee One"
+      ],
+      "avoid": "Small Latin body text (the hairlines thin out); its heavy weights on dark grounds."
+    },
+    {
+      "family": "Zen Kaku Gothic New",
+      "fontsource": "zen-kaku-gothic-new",
+      "category": "sans-serif",
+      "class": "japanese gothic sans",
+      "roles": [
+        "body"
+      ],
+      "weights": [
+        400,
+        500,
+        700
+      ],
+      "italic": false,
+      "variable": false,
+      "kb_400": 11,
+      "character": "Clean Japanese gothic with a calm Latin: a small file, an even colour, reads at 14 px under a mincho.",
+      "pairs_with": [
+        "Shippori Mincho",
+        "M PLUS 1 Code",
+        "Dela Gothic One"
+      ],
+      "avoid": "Being the theme's only voice (it is plain); tight tracking."
+    }
+  ]
+}

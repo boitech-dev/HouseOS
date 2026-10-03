@@ -1,0 +1,292 @@
+/* A theme as a small, still copy of the app (theme_preview.tsx). Drawn at desktop size, then
+   scaled with zoom, so its parts keep the real sizes and proportions; its colours, materials and
+   variants are the theme's own (part.* tokens, data-part-*). */
+@layer rooms {
+  .mini {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    width: 1200px;
+    height: 720px;
+    overflow: hidden;
+    border: var(--border-hairline) solid var(--c-border-default);
+    border-radius: var(--radius-card);
+    background: var(--part-page-texture), var(--part-page-bg);
+    color: var(--c-fg-default);
+    font: var(--text-body-m);
+    zoom: var(--mini-zoom, 0.5);
+    user-select: none;
+  }
+  .mini__backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-behind);
+  }
+  .mini__backdrop:empty {
+    display: none;
+  }
+  .mini__backdrop > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .mini__backdrop::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--part-page-scrim);
+  }
+  .mini__status {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    height: var(--chrome-status);
+    padding: 0 var(--space-4);
+    overflow: hidden;
+    border-bottom: var(--part-status-border);
+    background: var(--part-status-texture), var(--part-status-bg);
+  }
+  .mini__sky {
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-behind);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: var(--part-status-art-opacity);
+    image-rendering: pixelated;
+  }
+  .mini__brand {
+    flex: none;
+    width: 208px;
+    font: var(--text-brand);
+  }
+  .mini__search {
+    display: inline-flex;
+    flex: 0 1 280px;
+    align-items: center;
+    gap: var(--space-2);
+    height: 36px;
+    margin-right: auto;
+    padding: 0 var(--space-3);
+    border: var(--mat-sunken-border);
+    border-radius: var(--radius-control);
+    background: var(--mat-sunken-bg);
+    color: var(--c-fg-subtle);
+    font: var(--text-body-s);
+  }
+  .mini__body {
+    display: grid;
+    grid-template-columns: 232px 1fr;
+    min-height: 0;
+  }
+  .mini__rail {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-3);
+    border-right: var(--part-rail-border);
+    background: var(--part-rail-texture), var(--part-rail-bg);
+  }
+  .mini__door {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: 44px;
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-control);
+    font: var(--text-action);
+  }
+  .mini__door[data-current] {
+    position: relative;
+    background: var(--c-bg-current);
+    color: var(--c-fg-current);
+  }
+  .mini__door[data-current]::before {
+    content: "";
+    position: absolute;
+    inset: var(--space-2) auto var(--space-2) var(--space-1);
+    width: var(--border-strong);
+    border-radius: var(--radius-full);
+    background: var(--c-room-home);
+  }
+  .mini__rail-art {
+    width: 100%;
+    max-height: 160px;
+    margin-top: auto;
+    object-fit: contain;
+    object-position: bottom;
+  }
+  .mini__ask {
+    margin-top: auto;
+  }
+  .mini__rail-art + .mini__ask {
+    margin-top: var(--space-2);
+  }
+  .mini__page {
+    display: grid;
+    align-content: start;
+    gap: var(--space-5);
+    min-width: 0;
+    padding: var(--space-6) var(--space-6) 96px;
+    overflow: hidden;
+  }
+  .mini__header,
+  .mini__panel {
+    position: relative;
+  }
+  .mini__panels {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+  .mini__deck {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .mini__deck span,
+  .mini__now span {
+    display: grid;
+    min-width: 0;
+  }
+  .mini__deck small,
+  .mini__now small,
+  .mini__titles small {
+    color: var(--c-fg-muted);
+    font: var(--text-caption);
+  }
+  .mini__keys,
+  .mini__faces,
+  .mini__nox {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .mini__nox > .ds-notice {
+    flex: 1;
+  }
+  .mini__titles {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .mini__titles li {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-3);
+    border: var(--mat-raised-border);
+    border-radius: var(--mat-raised-radius);
+    background: var(--mat-raised-bg);
+  }
+  .mini__now {
+    position: absolute;
+    right: var(--space-4);
+    bottom: var(--space-4);
+    left: calc(232px + var(--space-4));
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    height: var(--chrome-nowbar);
+    padding: 0 var(--space-3);
+    border: var(--part-nowbar-border);
+    border-radius: var(--part-nowbar-radius);
+    background: var(--part-nowbar-texture), var(--part-nowbar-bg);
+    color: var(--part-nowbar-fg);
+    box-shadow: var(--part-nowbar-shadow);
+  }
+  .mini__now > span {
+    flex: 1;
+  }
+  .mini[data-part-nowbar="docked"] .mini__now {
+    right: 0;
+    bottom: 0;
+    left: 232px;
+    border-width: 0;
+    border-top: var(--part-nowbar-border);
+    border-radius: 0;
+    box-shadow: none;
+  }
+  /* The tour's numbered parts. */
+  .mini__mark.ds-button {
+    position: absolute;
+    top: var(--space-1);
+    left: var(--space-1);
+    z-index: var(--z-raised);
+    min-width: 40px;
+    border-radius: var(--radius-full);
+    font: var(--text-title-m);
+  }
+  .mini__status > .mini__mark.ds-button {
+    top: 50%;
+    left: auto;
+    right: 40%;
+    translate: 0 -50%;
+  }
+  .mini > .mini__mark.ds-button {
+    top: auto;
+    bottom: 112px;
+    left: auto;
+    right: var(--space-4);
+  }
+  .mini__header > .mini__mark.ds-button {
+    left: auto;
+    right: var(--space-2);
+  }
+  .mini__now > .mini__mark.ds-button {
+    position: static;
+  }
+  .mini__rail > .mini__mark.ds-button {
+    top: auto;
+    bottom: 120px;
+    left: auto;
+    right: var(--space-2);
+  }
+  /* Picking a look: big cards, the theme drawn in each. */
+  .look-pick {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-3);
+  }
+  .look-pick__one.ds-button {
+    height: auto;
+    padding: var(--space-2);
+    border: var(--border-hairline) solid var(--c-border-default);
+    border-radius: var(--radius-card);
+    white-space: normal;
+  }
+  .look-pick__one .ds-button__label {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-1);
+    min-width: 0;
+    text-align: start;
+  }
+  .look-pick__one .mini {
+    max-width: 100%;
+  }
+  /* A theme's card picture (ThemeLook): every picker the same frame and proportions. */
+  .theme-card {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border: var(--border-hairline) solid var(--c-border-default);
+    border-radius: var(--radius-card);
+  }
+  .look-pick__one small {
+    color: var(--c-fg-muted);
+    font: var(--text-caption);
+  }
+  .look-pick__one[aria-checked="true"] {
+    border-color: var(--c-accent-solid);
+    outline: var(--border-strong) solid var(--c-accent-solid);
+  }
+}

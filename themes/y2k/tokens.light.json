@@ -1,0 +1,473 @@
+{
+ "$description": "Bondi: translucent ice and Bondi-blue plastic over a lilac cloud sky, chrome edges, aqua gel buttons with dark ink.",
+ "seed": {
+  "$type": "color",
+  "neutral": {
+   "$value": "oklch(0.55 0.035 255)"
+  },
+  "accent": {
+   "$value": "oklch(0.76 0.12 212)",
+   "$description": "Aqua gel, dark ink on it"
+  },
+  "success": {
+   "$value": "oklch(0.55 0.15 145)",
+   "$description": "Lime, deepened for a light ground"
+  },
+  "warning": {
+   "$value": "oklch(0.58 0.15 58)",
+   "$description": "Tangerine"
+  },
+  "danger": {
+   "$value": "oklch(0.55 0.2 15)",
+   "$description": "Strawberry"
+  },
+  "info": {
+   "$value": "oklch(0.5 0.16 265)",
+   "$description": "Blueberry"
+  },
+  "private": {
+   "$value": "oklch(0.52 0.18 305)",
+   "$description": "Grape"
+  }
+ },
+ "color": {
+  "$type": "color",
+  "bg": {
+   "canvas": {
+    "$value": "oklch(0.9 0.045 295)",
+    "$description": "Lilac sky"
+   },
+   "surface": {
+    "$value": "alpha(oklch(0.985 0.012 240), 80%)",
+    "$description": "Translucent ice plastic"
+   },
+   "raised": {
+    "$value": "oklch(0.96 0.015 240)"
+   },
+   "overlay": {
+    "$value": "alpha(oklch(0.975 0.014 240), 90%)"
+   },
+   "sunken": {
+    "$value": "oklch(0.995 0.005 240)",
+    "$description": "A clear window"
+   },
+   "hover": {
+    "$value": "oklch(0.92 0.03 225)"
+   },
+   "pressed": {
+    "$value": "oklch(0.88 0.04 222)"
+   },
+   "selected": {
+    "$value": "oklch(0.88 0.07 212)",
+    "$description": "Bondi tint"
+   }
+  },
+  "fg": {
+   "default": {
+    "$value": "oklch(0.24 0.05 265)",
+    "$description": "Navy ink"
+   },
+   "muted": {
+    "$value": "oklch(0.4 0.04 262)"
+   },
+   "subtle": {
+    "$value": "oklch(0.42 0.04 262)"
+   },
+   "link": {
+    "$value": "oklch(0.45 0.12 225)"
+   }
+  },
+  "accent": {
+   "fg": {
+    "$value": "oklch(0.44 0.11 222)",
+    "$description": "Bondi, deep enough to read as text"
+   },
+   "soft": {
+    "$value": "{ramp.accent.3}"
+   }
+  },
+  "border": {
+   "subtle": {
+    "$value": "oklch(0.86 0.025 250)"
+   },
+   "default": {
+    "$value": "oklch(0.76 0.03 250)"
+   },
+   "strong": {
+    "$value": "oklch(0.55 0.04 255)"
+   }
+  },
+  "room": {
+   "home": {
+    "$value": "oklch(0.55 0.11 215)"
+   },
+   "listen": {
+    "$value": "oklch(0.56 0.16 50)"
+   },
+   "watch": {
+    "$value": "oklch(0.5 0.15 265)"
+   },
+   "house": {
+    "$value": "oklch(0.52 0.15 140)"
+   },
+   "files": {
+    "$value": "oklch(0.52 0.11 90)"
+   },
+   "ask": {
+    "$value": "oklch(0.52 0.17 305)"
+   },
+   "me": {
+    "$value": "oklch(0.58 0.17 355)"
+   },
+   "control": {
+    "$value": "oklch(0.48 0.03 255)"
+   },
+   "smart-home": {
+    "$value": "oklch(0.5 0.1 175)"
+   },
+   "inbox": {
+    "$value": "oklch(0.55 0.1 240)"
+   },
+   "space": {
+    "$value": "oklch(0.56 0.16 325)"
+   },
+   "party": {
+    "$value": "oklch(0.55 0.19 20)"
+   },
+   "games": {
+    "$value": "oklch(0.5 0.12 155)"
+   }
+  },
+  "person": {
+   "1": {
+    "$value": "oklch(0.56 0.15 55)"
+   },
+   "2": {
+    "$value": "oklch(0.55 0.11 215)"
+   },
+   "3": {
+    "$value": "oklch(0.56 0.15 140)"
+   },
+   "4": {
+    "$value": "oklch(0.56 0.18 18)"
+   },
+   "5": {
+    "$value": "oklch(0.52 0.16 305)"
+   },
+   "6": {
+    "$value": "oklch(0.52 0.11 92)"
+   },
+   "7": {
+    "$value": "oklch(0.5 0.14 265)"
+   },
+   "8": {
+    "$value": "oklch(0.56 0.16 350)"
+   }
+  },
+  "shadow": {
+   "$value": "oklch(0.35 0.08 280)"
+  },
+  "scrim": {
+   "$value": "alpha(oklch(0.4 0.08 290), 38%)"
+  },
+  "sprite": {
+   "outline": {
+    "$value": "oklch(0.3 0.06 265)"
+   },
+   "dark": {
+    "$value": "oklch(0.5 0.05 258)"
+   },
+   "mid-dark": {
+    "$value": "oklch(0.66 0.04 255)"
+   },
+   "mid": {
+    "$value": "oklch(0.8 0.03 250)"
+   },
+   "mist": {
+    "$value": "oklch(0.9 0.02 245)"
+   },
+   "light": {
+    "$value": "oklch(0.3 0.06 265)",
+    "$description": "c: in Bondi the high-contrast ink"
+   },
+   "light-dim": {
+    "$value": "oklch(0.95 0.02 230)"
+   },
+   "accent": {
+    "$value": "oklch(0.54 0.11 220)"
+   },
+   "accent-hi": {
+    "$value": "oklch(0.9 0.08 205)"
+   },
+   "accent-deep": {
+    "$value": "oklch(0.52 0.11 222)"
+   },
+   "familiar": {
+    "$value": "oklch(0.72 0.13 212)"
+   },
+   "familiar-mid": {
+    "$value": "oklch(0.58 0.12 218)"
+   },
+   "familiar-deep": {
+    "$value": "oklch(0.44 0.1 225)"
+   },
+   "good": {
+    "$value": "oklch(0.62 0.17 140)"
+   },
+   "alert": {
+    "$value": "oklch(0.58 0.2 15)"
+   },
+   "paper": {
+    "$value": "oklch(0.3 0.05 190)"
+   },
+   "ink": {
+    "$value": "oklch(0.9 0.19 138)"
+   }
+  },
+  "focus-ring": {
+   "$value": "oklch(0.42 0.14 262)",
+   "$description": "Blueberry: 3:1 on ice and sky"
+  }
+ },
+ "material": {
+  "canvas": {
+   "bg": {
+    "$value": "oklch(0.9 0.045 295)",
+    "$type": "color"
+   }
+  },
+  "surface": {
+   "bg": {
+    "$value": "alpha(oklch(0.985 0.012 240), 80%)",
+    "$type": "color"
+   },
+   "border": {
+    "$value": "1px solid alpha(#ffffff, 95%)",
+    "$type": "string",
+    "$description": "A lit plastic rim"
+   },
+   "shadow": {
+    "$value": "inset 0 -1px 0 alpha(oklch(0.55 0.08 250), 25%), 0 1px 0 alpha(oklch(0.4 0.08 270), 18%), 0 6px 20px alpha(oklch(0.4 0.1 285), 14%)",
+    "$type": "shadow"
+   }
+  },
+  "raised": {
+   "bg": {
+    "$value": "oklch(0.96 0.015 240)",
+    "$type": "color"
+   },
+   "border": {
+    "$value": "1px solid oklch(0.72 0.035 250)",
+    "$type": "string"
+   },
+   "shadow": {
+    "$value": "inset 0 1px 0 #ffffff, 0 1px 2px alpha(oklch(0.35 0.08 270), 18%)",
+    "$type": "shadow"
+   }
+  },
+  "overlay": {
+   "bg": {
+    "$value": "alpha(oklch(0.975 0.014 240), 88%)",
+    "$type": "color"
+   },
+   "border": {
+    "$value": "1px solid #ffffff",
+    "$type": "string"
+   },
+   "shadow": {
+    "$value": "0 16px 48px alpha(oklch(0.35 0.1 285), 24%)",
+    "$type": "shadow"
+   },
+   "blur": {
+    "$value": "blur(14px) saturate(1.3)",
+    "$type": "string",
+    "$description": "Frosted plastic: the sky shows through"
+   }
+  },
+  "sunken": {
+   "bg": {
+    "$value": "oklch(0.995 0.005 240)",
+    "$type": "color"
+   },
+   "border": {
+    "$value": "1px solid oklch(0.55 0.04 255)",
+    "$type": "string"
+   },
+   "shadow": {
+    "$value": "inset 0 1px 2px alpha(oklch(0.35 0.08 270), 22%)",
+    "$type": "shadow"
+   }
+  },
+  "screen": {
+   "bg": {
+    "$value": "oklch(0.24 0.05 200)",
+    "$type": "color"
+   },
+   "fg": {
+    "$value": "oklch(0.92 0.18 138)",
+    "$type": "color"
+   }
+  },
+  "paper": {
+   "bg": {
+    "$value": "oklch(0.96 0.06 100)",
+    "$type": "color"
+   },
+   "fg": {
+    "$value": "oklch(0.24 0.05 265)",
+    "$type": "color"
+   },
+   "shadow": {
+    "$value": "0 2px 6px alpha(oklch(0.35 0.08 270), 20%)",
+    "$type": "shadow"
+   }
+  }
+ },
+ "part": {
+  "page": {
+   "bg": {
+    "$value": "oklch(0.9 0.045 295)",
+    "$type": "color"
+   },
+   "gallery": {
+    "$value": "transparent",
+    "$type": "color",
+    "$description": "No mat: the skins are the only frames (the sky is drawn pale)"
+   },
+   "scrim": {
+    "$value": "alpha(oklch(0.9 0.045 295), 30%)",
+    "$type": "color",
+    "$description": "Pales the sky under the words"
+   }
+  },
+  "status": {
+   "bg": {
+    "$value": "oklch(0.95 0.018 250)",
+    "$type": "color"
+   },
+   "border": {
+    "$value": "1px solid oklch(0.72 0.035 255)",
+    "$type": "string"
+   },
+   "texture": {
+    "$value": "linear-gradient(#ffffff, #ffffff) left 0 bottom 4px / 100% 2px no-repeat, linear-gradient(#2a82aa, #2a82aa) left 0 bottom 2px / 100% 2px no-repeat, linear-gradient(180deg, alpha(#ffffff, 95%) 0 1px, alpha(#ffffff, 60%) 1px, alpha(#ffffff, 0%) 55%, alpha(oklch(0.55 0.06 260), 14%))",
+    "$type": "string",
+    "$description": "Chrome-white plastic: a glint on top, a cool shade below"
+   }
+  },
+  "rail": {
+   "bg": {
+    "$value": "alpha(oklch(0.97 0.02 250), 72%)",
+    "$type": "color",
+    "$description": "Frosted ice: the sky shows through"
+   },
+   "border": {
+    "$value": "1px solid alpha(#ffffff, 90%)",
+    "$type": "string"
+   },
+   "ink-shadow": {
+    "$value": "0 1px 0 alpha(#ffffff, 80%)",
+    "$type": "string",
+    "$description": "A white drop under the rail's words, like embossed plastic"
+   }
+  },
+  "dock": {
+   "bg": {
+    "$value": "alpha(oklch(0.97 0.02 250), 97%)",
+    "$type": "color",
+    "$description": "Nearly solid ice: nothing on the page ghosts through"
+   },
+   "border": {
+    "$value": "1px solid transparent",
+    "$type": "string"
+   },
+   "texture": {
+    "$value": "linear-gradient(180deg, alpha(#ffffff, 70%), alpha(#ffffff, 0%) 60%)",
+    "$type": "string"
+   }
+  },
+  "nowbar": {
+   "bg": {
+    "$value": "alpha(oklch(0.97 0.02 250), 97%)",
+    "$type": "color",
+    "$description": "Nearly solid ice: nothing on the page ghosts through"
+   },
+   "shadow": {
+    "$value": "0 6px 18px alpha(oklch(0.35 0.1 285), 22%)",
+    "$type": "shadow"
+   }
+  },
+  "header": {
+   "frame-bg": {
+    "$value": "alpha(oklch(0.985 0.012 240), 82%)",
+    "$type": "color",
+    "$description": "A frosted name plate"
+   },
+   "frame-border": {
+    "$value": "1px solid #ffffff",
+    "$type": "string"
+   },
+   "frame-texture": {
+    "$value": "repeating-linear-gradient(180deg, #ffffff 0 2px, #2a82aa 2px 4px) left 10px top 2px / calc(100% - 20px) 8px no-repeat, linear-gradient(#ffffff, #ffffff) top / 100% 1px no-repeat, linear-gradient(#ffffff, #ffffff) left / 1px 100% no-repeat, linear-gradient(#7d8cb4, #7d8cb4) bottom / 100% 1px no-repeat, linear-gradient(#7d8cb4, #7d8cb4) right / 1px 100% no-repeat",
+    "$type": "string",
+    "$description": "The name plate by day: white and Bondi grip ridges, a chrome bevel"
+   }
+  },
+  "panel": {
+   "border": {
+    "$value": "1px solid alpha(oklch(0.45 0.06 265), 45%)",
+    "$type": "string"
+   },
+   "shadow": {
+    "$value": "0 6px 20px alpha(oklch(0.4 0.1 285), 14%)",
+    "$type": "shadow"
+   }
+  },
+  "sheet": {
+   "border": {
+    "$value": "1px solid alpha(oklch(0.45 0.06 265), 45%)",
+    "$type": "string"
+   }
+  },
+  "control": {
+   "bg": {
+    "$value": "linear-gradient(180deg, alpha(#ffffff, 90%), alpha(#ffffff, 30%) 48%, alpha(#ffffff, 0%) 52%, alpha(oklch(0.5 0.05 250), 10%)) {color.bg.raised}",
+    "$type": "string",
+    "$description": "Chrome-white plastic"
+   },
+   "shadow": {
+    "$value": "inset 0 1px 0 #ffffff, inset 0 -1px 0 alpha(oklch(0.5 0.05 250), 25%), 0 1px 2px alpha(oklch(0.35 0.08 270), 20%)",
+    "$type": "shadow"
+   },
+   "primary-bg": {
+    "$value": "linear-gradient(180deg, alpha(#ffffff, 62%), alpha(#ffffff, 24%) 46%, alpha(#ffffff, 0%) 50%, alpha(#ffffff, 0%) 76%, alpha(#ffffff, 34%)) {color.accent.solid}",
+    "$type": "string",
+    "$description": "The aqua gel pill"
+   },
+   "primary-shadow": {
+    "$value": "inset 0 -2px 4px alpha(oklch(0.45 0.12 225), 45%), inset 0 1px 0 #ffffff, 0 2px 4px alpha(oklch(0.4 0.12 225), 30%)",
+    "$type": "shadow"
+   }
+  },
+  "meter": {
+   "track": {
+    "$value": "oklch(0.84 0.03 245)",
+    "$type": "color"
+   },
+   "pattern": {
+    "$value": "linear-gradient(180deg, alpha(#ffffff, 65%), alpha(#ffffff, 0%) 55%)",
+    "$type": "string",
+    "$description": "A gel tube"
+   },
+   "thumb": {
+    "$value": "oklch(0.98 0.01 240)",
+    "$type": "color"
+   },
+   "thumb-radius": {
+    "$value": "{radius.full}",
+    "$type": "dimension",
+    "$description": "A clear bead"
+   }
+  }
+ }
+}

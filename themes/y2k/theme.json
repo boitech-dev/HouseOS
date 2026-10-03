@@ -1,0 +1,362 @@
+{
+  "$schema": "../_schema/theme.schema.json",
+  "id": "y2k",
+  "schema": 1,
+  "version": 1,
+  "names": {
+    "en": "Millennium Skin",
+    "fr": "Skin an 2000"
+  },
+  "description": {
+    "en": "A Y2K media-player skin: chrome, LCD, clear plastic.",
+    "fr": "Un skin de lecteur de l’an 2000 : chrome, LCD, plastique."
+  },
+  "schemes": [
+    "dark",
+    "light"
+  ],
+  "density": "comfortable",
+  "identity": "pixel",
+  "fonts": {
+    "display": "Michroma",
+    "body": "Lexend",
+    "mono": "Kode Mono"
+  },
+  "slots": {
+    "home.hero.backdrop": {
+      "image": "art/hero-night.webp",
+      "rendering": "smooth",
+      "fit": "cover",
+      "schemes": {
+        "light": "art/hero.webp"
+      }
+    },
+    "page.backdrop": {
+      "image": "art/page-night.webp",
+      "rendering": "smooth",
+      "fit": "cover",
+      "schemes": {
+        "light": "art/page-sky.webp"
+      }
+    },
+    "auth.crest": {
+      "image": "art/crest.webp",
+      "rendering": "smooth",
+      "fit": "contain"
+    },
+    "state.empty": {
+      "image": "art/empty.webp",
+      "rendering": "smooth",
+      "fit": "contain"
+    },
+    "watch.tv.bezel": {
+      "image": "art/tv.webp",
+      "rendering": "smooth",
+      "fit": "contain"
+    },
+    "space.room.scene": {
+      "image": "art/room-night.webp",
+      "rendering": "smooth",
+      "fit": "cover",
+      "schemes": {
+        "light": "art/room.webp"
+      }
+    },
+    "deck.surface": {
+      "image": "art/skin-deck.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 24,
+      "schemes": {
+        "light": "art/skin-deck-bondi.png"
+      }
+    },
+    "rail.surface": {
+      "image": "art/skin-rail.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 24,
+      "schemes": {
+        "light": "art/skin-rail-bondi.png"
+      }
+    },
+    "panel.surface": {
+      "image": "art/skin-panel.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 16,
+      "schemes": {
+        "light": "art/skin-panel-bondi.png"
+      }
+    },
+    "sheet.surface": {
+      "image": "art/skin-panel.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 16,
+      "schemes": {
+        "light": "art/skin-panel-bondi.png"
+      }
+    },
+    "nowbar.surface": {
+      "image": "art/skin-nowbar.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 12,
+      "schemes": {
+        "light": "art/skin-nowbar-bondi.png"
+      }
+    },
+    "dock.surface": {
+      "image": "art/skin-dock.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 8,
+      "schemes": {
+        "light": "art/skin-dock-bondi.png"
+      }
+    }
+  },
+  "parts": {
+    "header": "framed",
+    "panel": "card",
+    "dock": "flush",
+    "nowbar": "floating"
+  },
+  "layers": [
+    {
+      "image": "art/rail-night.webp",
+      "where": "rail",
+      "fit": "natural",
+      "anchor": "top",
+      "rendering": "smooth",
+      "schemes": [
+        "dark"
+      ]
+    },
+    {
+      "image": "art/rail-day.webp",
+      "where": "rail",
+      "fit": "natural",
+      "anchor": "top",
+      "rendering": "smooth",
+      "schemes": [
+        "light"
+      ]
+    },
+    {
+      "image": "art/rail-led.png",
+      "where": "rail",
+      "fit": "natural",
+      "anchor": "top-right",
+      "scale": 2,
+      "rendering": "pixel",
+      "frames": {
+        "count": 8,
+        "fps": 2
+      }
+    },
+    {
+      "image": "art/clouds.webp",
+      "where": "page",
+      "fit": "repeat-x",
+      "anchor": "top",
+      "rendering": "smooth",
+      "opacity": 0.75,
+      "drift": [
+        -5,
+        0
+      ],
+      "depth": 0.15,
+      "rooms": [
+        "home",
+        "listen",
+        "watch",
+        "house",
+        "files",
+        "ask",
+        "me",
+        "smart-home",
+        "inbox",
+        "space",
+        "party",
+        "games"
+      ],
+      "schemes": [
+        "light"
+      ]
+    },
+    {
+      "image": "art/sparkle.png",
+      "where": "page",
+      "scale": 2,
+      "rendering": "pixel",
+      "particles": {
+        "count": 8,
+        "motion": "twinkle",
+        "seconds": 7
+      },
+      "rooms": [
+        "listen",
+        "watch",
+        "house",
+        "files",
+        "inbox",
+        "party",
+        "me"
+      ]
+    },
+    {
+      "image": "art/flare.webp",
+      "where": "page",
+      "fit": "natural",
+      "anchor": "top",
+      "rendering": "smooth",
+      "blend": "screen",
+      "opacity": 0.85,
+      "cross": {
+        "seconds": 16,
+        "every": 150,
+        "from": "left"
+      },
+      "rooms": [
+        "home",
+        "listen",
+        "watch",
+        "house",
+        "files",
+        "ask",
+        "me",
+        "smart-home",
+        "inbox",
+        "space",
+        "party",
+        "games"
+      ]
+    },
+    {
+      "image": "art/spectrum.png",
+      "where": "deck",
+      "fit": "natural",
+      "anchor": "top-right",
+      "scale": 2,
+      "rendering": "pixel",
+      "frames": {
+        "count": 8,
+        "fps": 8
+      },
+      "playing": true,
+      "rooms": [
+        "home",
+        "listen"
+      ],
+      "schemes": [
+        "dark"
+      ],
+      "poke": {
+        "image": "art/spectrum-spike.png",
+        "frames": {
+          "count": 6,
+          "fps": 12
+        }
+      }
+    },
+    {
+      "image": "art/spectrum-bondi.png",
+      "where": "deck",
+      "fit": "natural",
+      "anchor": "top-right",
+      "scale": 2,
+      "rendering": "pixel",
+      "frames": {
+        "count": 8,
+        "fps": 8
+      },
+      "playing": true,
+      "rooms": [
+        "home",
+        "listen"
+      ],
+      "schemes": [
+        "light"
+      ],
+      "poke": {
+        "image": "art/spectrum-spike-bondi.png",
+        "frames": {
+          "count": 6,
+          "fps": 12
+        }
+      }
+    },
+    {
+      "image": "art/phone.webp",
+      "where": "rail-foot",
+      "fit": "natural",
+      "anchor": "bottom-left",
+      "rendering": "smooth",
+      "poke": {
+        "image": "art/phone-poke.webp",
+        "frames": {
+          "count": 11,
+          "fps": 12
+        },
+        "burst": {
+          "image": "art/bit-heart.png",
+          "count": 6
+        }
+      }
+    },
+    {
+      "image": "art/egg.webp",
+      "where": "rail-foot",
+      "fit": "natural",
+      "anchor": "right",
+      "rendering": "smooth",
+      "poke": {
+        "image": "art/egg-poke.webp",
+        "frames": {
+          "count": 12,
+          "fps": 14
+        },
+        "burst": {
+          "image": "art/bit-lcd.png",
+          "count": 5
+        }
+      }
+    },
+    {
+      "image": "art/star.webp",
+      "where": "hero",
+      "fit": "natural",
+      "anchor": "bottom-right",
+      "rendering": "smooth",
+      "poke": {
+        "image": "art/star-poke.webp",
+        "frames": {
+          "count": 12,
+          "fps": 16
+        },
+        "burst": {
+          "image": "art/bit-sparkle.png",
+          "count": 8
+        }
+      }
+    },
+    {
+      "image": "art/gleam.webp",
+      "where": "hero",
+      "fit": "natural",
+      "anchor": "left",
+      "rendering": "smooth",
+      "blend": "screen",
+      "opacity": 0.35,
+      "cross": {
+        "seconds": 5,
+        "every": 45,
+        "from": "left"
+      }
+    }
+  ],
+  "author": "HouseOS theme agent",
+  "license": "CC-BY-4.0"
+}

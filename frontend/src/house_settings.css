@@ -1,0 +1,45 @@
+/* House settings (house_settings.tsx) and storage at a glance (storage_admin.tsx): layout only.
+   Colours, type and shapes come from the design system. */
+@layer rooms {
+  .house-settings-stack,
+  .house-settings-languages {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .house-settings-stack {
+    gap: var(--space-4);
+  }
+  .house-settings-add {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .house-settings-add > .ds-input {
+    flex: 1 1 14rem;
+    min-width: 0;
+  }
+  .storage-admin-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin-block: var(--space-3);
+  }
+  /* The people table (its lines and headings from .me-table): the bar takes what is left. */
+  .storage-admin-people tbody th {
+    white-space: normal;
+    color: var(--c-fg-default);
+    font: var(--text-body-s);
+  }
+  .storage-admin-people td:last-child {
+    width: 40%;
+    min-width: 6rem;
+  }
+  .storage-admin-path {
+    color: var(--c-fg-muted);
+    font: var(--text-caption);
+    overflow-wrap: anywhere;
+  }
+}

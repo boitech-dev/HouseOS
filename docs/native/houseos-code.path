@@ -1,0 +1,7 @@
+[Unit]
+Description=Apply a reviewed HouseOS code change when an admin asks (Control Room → Changes)
+[Path]
+DirectoryNotEmpty=/opt/houseos/state/run/helper-in
+Unit=houseos-code.service
+[Install]
+WantedBy=paths.target

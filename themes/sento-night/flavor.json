@@ -1,0 +1,87 @@
+{
+  "$description": "Bathhouse After Hours: the house titles as the regulars of a neighbourhood sentō. English and French.",
+  "title.dj.name": {
+    "en": "Counter-radio keeper",
+    "fr": "Gardien de la radio"
+  },
+  "title.explorer.name": {
+    "en": "Wanderer in geta",
+    "fr": "Promeneur en geta"
+  },
+  "title.night_owl.name": {
+    "en": "Last one in the bath",
+    "fr": "Dernier dans le bain"
+  },
+  "title.early_bird.name": {
+    "en": "First basin of the day",
+    "fr": "Premier baquet du jour"
+  },
+  "title.weekend.name": {
+    "en": "Towel on the head",
+    "fr": "Serviette sur la tête"
+  },
+  "title.genre_guardian.name": {
+    "en": "Mural painter: {genre}",
+    "fr": "Fresquiste : {genre}"
+  },
+  "title.broken_record.name": {
+    "en": "Same song, same tap",
+    "fr": "Même chanson, même robinet"
+  },
+  "title.marathon.name": {
+    "en": "The long soak",
+    "fr": "Le long bain"
+  },
+  "title.radio_host.name": {
+    "en": "Fan of the airwaves",
+    "fr": "Ventilo des ondes"
+  },
+  "title.task_hero.name": {
+    "en": "Scrubber of tiles",
+    "fr": "Frotteur de carreaux"
+  },
+  "title.grocery_runner.name": {
+    "en": "Milk fetcher",
+    "fr": "Porteur de lait"
+  },
+  "title.planner.name": {
+    "en": "Keeper of the clock",
+    "fr": "Gardien de l’horloge"
+  },
+  "title.wall_poet.name": {
+    "en": "Paper-crane poet",
+    "fr": "Poète aux grues de papier"
+  },
+  "title.courier.name": {
+    "en": "Furoshiki courier",
+    "fr": "Coursier au furoshiki"
+  },
+  "title.curator.name": {
+    "en": "Keeper of the keys",
+    "fr": "Gardien des clés"
+  },
+  "title.high_scorer.name": {
+    "en": "Ping-pong champion",
+    "fr": "Champion de ping-pong"
+  },
+  "title.collector.name": {
+    "en": "Token purse",
+    "fr": "Porte-jetons"
+  },
+  "title.game_hopper.name": {
+    "en": "Arcade-corner regular",
+    "fr": "Habitué du coin arcade"
+  },
+  "title.console_hopper.name": {
+    "en": "Massage-chair hopper",
+    "fr": "Adepte du fauteuil massant"
+  },
+  "title.romhacker.name": {
+    "en": "Boiler-room tinkerer",
+    "fr": "Bricoleur de chaudière"
+  },
+  "title.star.mark": {
+    "en": "♨",
+    "fr": "♨"
+  }
+}

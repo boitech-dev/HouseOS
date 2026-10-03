@@ -1,0 +1,295 @@
+{
+  "$schema": "../_schema/tokens.schema.json",
+  "$description": "Shōwa Platform at dusk: the same station at 7 p.m., navy enamel, lamplight cream, the red lamp.",
+  "seed": {
+    "$type": "color",
+    "neutral": {
+      "$value": "oklch(0.6 0.05 265)"
+    },
+    "accent": {
+      "$value": "oklch(0.66 0.17 35)"
+    },
+    "success": {
+      "$value": "oklch(0.72 0.13 150)"
+    },
+    "warning": {
+      "$value": "oklch(0.8 0.13 80)"
+    },
+    "danger": {
+      "$value": "oklch(0.66 0.17 20)"
+    },
+    "info": {
+      "$value": "oklch(0.72 0.1 245)"
+    },
+    "private": {
+      "$value": "oklch(0.72 0.11 318)"
+    }
+  },
+  "color": {
+    "$type": "color",
+    "bg": {
+      "canvas": {
+        "$value": "#1b1f35",
+        "$description": "the platform after dark"
+      },
+      "surface": {
+        "$value": "#252a47"
+      },
+      "raised": {
+        "$value": "#2c3254"
+      },
+      "overlay": {
+        "$value": "#252a47"
+      },
+      "sunken": {
+        "$value": "#141829"
+      },
+      "hover": {
+        "$value": "#343a62"
+      },
+      "pressed": {
+        "$value": "#3d4470"
+      },
+      "selected": {
+        "$value": "#3a3450",
+        "$description": "a warm dark step"
+      },
+      "inverse": {
+        "$value": "#f7eed6"
+      }
+    },
+    "fg": {
+      "default": {
+        "$value": "#f5ead0",
+        "$description": "lamplight cream"
+      },
+      "muted": {
+        "$value": "#cbc1ab"
+      },
+      "subtle": {
+        "$value": "#cbc1ab"
+      },
+      "placeholder": {
+        "$value": "#aaa293"
+      },
+      "inverse": {
+        "$value": "#1f2b4d"
+      },
+      "link": {
+        "$value": "#ff9a78"
+      }
+    },
+    "border": {
+      "subtle": {
+        "$value": "#343a5c"
+      },
+      "default": {
+        "$value": "#4b527c"
+      },
+      "strong": {
+        "$value": "#8d92b4"
+      }
+    },
+    "accent": {
+      "soft": {
+        "$value": "#3a3048"
+      },
+      "fg": {
+        "$value": "#ff9a78"
+      }
+    },
+    "paper": {
+      "bg": {
+        "$value": "#1c3026"
+      },
+      "fg": {
+        "$value": "#f5ead0"
+      },
+      "muted": {
+        "$value": "#cbc1ab"
+      }
+    },
+    "room": {
+      "home": {
+        "$value": "#cdbf9f"
+      },
+      "listen": {
+        "$value": "#d89e7c"
+      },
+      "watch": {
+        "$value": "#93acb8"
+      },
+      "games": {
+        "$value": "#8cb2a1"
+      },
+      "house": {
+        "$value": "#9eb382"
+      },
+      "files": {
+        "$value": "#bea975"
+      },
+      "ask": {
+        "$value": "#c29cb8"
+      },
+      "me": {
+        "$value": "#dc9296"
+      },
+      "control": {
+        "$value": "#9a9aa8"
+      },
+      "smart-home": {
+        "$value": "#92b291"
+      },
+      "inbox": {
+        "$value": "#9da8ca"
+      },
+      "space": {
+        "$value": "#d09aa8"
+      },
+      "party": {
+        "$value": "#cca87a"
+      }
+    },
+    "person": {
+      "1": {
+        "$value": "#f09a6e"
+      },
+      "2": {
+        "$value": "#7fb8e8"
+      },
+      "3": {
+        "$value": "#9ccf7e"
+      },
+      "4": {
+        "$value": "#e98ac4"
+      },
+      "5": {
+        "$value": "#e2c25a"
+      },
+      "6": {
+        "$value": "#6fd0c4"
+      },
+      "7": {
+        "$value": "#b49af0"
+      },
+      "8": {
+        "$value": "#f7c3a0"
+      }
+    },
+    "sprite": {
+      "light": {
+        "$value": "#d4bf93"
+      },
+      "outline": {
+        "$value": "#141c33"
+      },
+      "accent": {
+        "$value": "#ec6a44"
+      }
+    },
+    "scrim": {
+      "$value": "alpha(#0b0d18, 60%)"
+    }
+  },
+  "material": {
+    "canvas": {
+      "texture": {
+        "$value": "url(art/slab-dusk.png)",
+        "$type": "string"
+      }
+    },
+    "sunken": {
+      "shadow": {
+        "$value": "inset 0 2px 0 alpha(#000000, 25%)",
+        "$type": "shadow"
+      }
+    },
+    "screen": {
+      "bg": {
+        "$value": "#1a2440",
+        "$type": "color"
+      },
+      "glow": {
+        "$value": "0 0 0 1px alpha(#ffd66a, 25%)",
+        "$type": "shadow"
+      }
+    }
+  },
+  "elev": {
+    "$type": "shadow",
+    "1": {
+      "$value": "0 1px 0 alpha(#000000, 35%)"
+    },
+    "2": {
+      "$value": "0 2px 0 alpha(#000000, 35%)"
+    },
+    "3": {
+      "$value": "0 2px 0 alpha(#000000, 35%), 0 8px 18px alpha(#000000, 30%)"
+    },
+    "4": {
+      "$value": "0 3px 0 alpha(#000000, 35%), 0 16px 40px alpha(#000000, 40%)"
+    }
+  },
+  "part": {
+    "status": {
+      "bg": {
+        "$value": "#252a47",
+        "$type": "color"
+      },
+      "border": {
+        "$value": "1px solid #000000",
+        "$type": "string"
+      }
+    },
+    "rail": {
+      "bg": {
+        "$value": "#202540",
+        "$type": "color"
+      },
+      "border": {
+        "$value": "1px solid #000000",
+        "$type": "string"
+      },
+      "texture": {
+        "$value": "url(art/clapboard-dusk.png)",
+        "$type": "string"
+      }
+    },
+    "dock": {
+      "bg": {
+        "$value": "#252a47",
+        "$type": "color"
+      }
+    },
+    "header": {
+      "banner-fade": {
+        "$value": "#1b1f35",
+        "$type": "color"
+      }
+    },
+    "control": {
+      "bg": {
+        "$value": "linear-gradient(180deg, alpha(#ffffff, 10%), alpha(#ffffff, 0%) 55%) {color.bg.raised}",
+        "$type": "string"
+      },
+      "shadow": {
+        "$value": "0 2px 0 alpha(#000000, 45%)",
+        "$type": "shadow"
+      },
+      "primary-shadow": {
+        "$value": "inset 0 1px 0 alpha(#ffffff, 25%), 0 2px 0 alpha(#000000, 55%)",
+        "$type": "shadow"
+      }
+    },
+    "meter": {
+      "pattern": {
+        "$value": "repeating-linear-gradient(90deg, transparent 0 11px, alpha(#1b1f35, 85%) 11px 13px)",
+        "$type": "string"
+      },
+      "thumb": {
+        "$value": "#f5ead0",
+        "$type": "color"
+      }
+    }
+  }
+}

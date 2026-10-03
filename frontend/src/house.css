@@ -1,0 +1,688 @@
+/* House and Messages (household.tsx, house_stats.tsx): layout, and the numbers' charts drawn in
+   the theme's colours. Everything else comes from the design system. */
+@layer rooms {
+  .house-place,
+  .house-stack {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .house-pages {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+  }
+  /* Two short fields side by side while both fit whole (a date and time needs ~14rem), else
+     one under the other: never overlapping, never past the edge. */
+  .house-form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: var(--space-3);
+  }
+  .house-form-row > *,
+  .house-form-row .ds-input {
+    min-width: 0;
+  }
+  .house-people {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .house-confirm {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  /* ---------- the wall: notes on paper ---------- */
+  .house-wall {
+    display: grid;
+    gap: var(--space-5);
+  }
+  /* Note papers: the theme's soft tones (checked against its text in every theme). */
+  .house-wall {
+    --note-sun: var(--c-warning-soft);
+    --note-leaf: var(--c-success-soft);
+    --note-sky: var(--c-info-soft);
+    --note-rose: var(--c-danger-soft);
+    --note-lilac: var(--c-private-soft);
+    --note-sand: var(--c-accent-soft);
+  }
+  .house-wall__compose {
+    max-width: var(--house-line);
+    display: grid;
+    gap: var(--space-2);
+  }
+  .house-wall__tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .house-wall__tools > .ds-button[type="submit"] {
+    margin-left: auto;
+  }
+  .house-note[data-tone],
+  .house-wall__compose[data-tone] .ds-input {
+    background: var(--note-paper);
+  }
+  [data-tone="sun"] {
+    --note-paper: var(--note-sun);
+  }
+  [data-tone="leaf"] {
+    --note-paper: var(--note-leaf);
+  }
+  [data-tone="sky"] {
+    --note-paper: var(--note-sky);
+  }
+  [data-tone="rose"] {
+    --note-paper: var(--note-rose);
+  }
+  [data-tone="lilac"] {
+    --note-paper: var(--note-lilac);
+  }
+  [data-tone="sand"] {
+    --note-paper: var(--note-sand);
+  }
+  .house-note[data-done] {
+    opacity: 0.6;
+  }
+  .house-note[data-done] .house-note__body {
+    text-decoration: line-through;
+  }
+  .house-note__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .house-note__edit {
+    display: grid;
+    gap: var(--space-2);
+  }
+  /* Home's window onto the wall: a one-line composer, and small notes two by two. */
+  .house-wall[data-compact] {
+    gap: var(--space-3);
+  }
+  .house-wall[data-compact] .house-wall__compose {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+  }
+  /* One line that grows with what is typed (where the browser can). */
+  .house-wall[data-compact] .ds-textarea {
+    min-height: 0;
+    field-sizing: content;
+    resize: none;
+  }
+  .house-wall[data-compact] .house-wall__notes {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: var(--space-3);
+  }
+  .house-wall[data-compact] .house-note {
+    gap: var(--space-1);
+    padding: var(--space-3);
+    font: var(--text-body-s);
+  }
+  .house-wall__notes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .house-note {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+    padding: var(--space-4);
+  }
+  .house-note[data-importance="urgent"] {
+    border-color: var(--c-danger-border);
+  }
+  .house-note__body {
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  /* ---------- lists, fields and composers at a readable width ---------- */
+  .house-place,
+  .house-wall {
+    --house-line: 760px;
+  }
+  .house-place > .ds-toolbar > .ds-search {
+    flex: 0 1 28rem;
+  }
+  .house-place[data-place="tasks"] {
+    max-width: var(--house-line);
+  }
+  .house-place[data-place="groceries"] > :is(.ds-quick-add, .ds-toolbar) {
+    max-width: var(--house-line);
+  }
+  /* Groceries are short words: two columns on a wide screen, not one line across the room. */
+  @media (min-width: 1232px) {
+    .house-place[data-place="groceries"] > .ds-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--space-6);
+    }
+    .house-place[data-place="groceries"] > .ds-list > .ds-row:nth-last-child(2):nth-child(odd) {
+      border-bottom: 0;
+    }
+  }
+
+  /* ---------- tasks ---------- */
+  .task-composer {
+    display: grid;
+    gap: var(--space-3);
+  }
+  .task-composer__line {
+    display: flex;
+    gap: var(--space-2);
+  }
+  .task-composer__line > .ds-input {
+    flex: 1;
+    min-width: 0;
+  }
+  .task-composer__options {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--space-3) var(--space-5);
+  }
+  .task-composer__option {
+    display: grid;
+    gap: var(--space-1);
+  }
+  .task-composer__more {
+    align-self: center;
+  }
+  .task-composer__options .ds-chips > .ds-input {
+    width: auto;
+  }
+
+  /* ---------- the calendar ---------- */
+  /* The month and its arrows, then the tools; one row on a wide screen, two on a phone. */
+  .house-calendar-bar,
+  .house-calendar-bar__nav,
+  .house-calendar-bar__tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .house-calendar-bar {
+    column-gap: var(--space-4);
+  }
+  .house-calendar-bar__tools {
+    flex: 1 1 24rem;
+  }
+  .house-calendar-bar__month {
+    min-width: 10ch;
+    margin: 0;
+    text-align: center;
+  }
+  .house-calendar-bar__tools > .ds-input {
+    width: auto;
+  }
+  .house-calendar-bar__tools > .ds-search {
+    flex: 1 1 10rem;
+    max-width: 20rem;
+  }
+  .house-calendar-bar__tools > .ds-menu {
+    margin-inline-start: auto;
+  }
+  @media (max-width: 599.98px) {
+    .house-calendar-bar__nav {
+      flex: 1 1 100%;
+    }
+    .house-calendar-bar__month {
+      flex: 1;
+    }
+    /* The arrows and Today move by day, week and month; the date field is for wide screens. */
+    .house-calendar-bar__date {
+      display: none;
+    }
+    .house-calendar-bar__tools {
+      flex-wrap: nowrap;
+    }
+  }
+  .house-calendar {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: var(--space-1);
+    /* Over a theme's page picture: a plain ground (part.page.gallery). */
+    border-radius: var(--part-panel-radius);
+    background: var(--pv-gallery, transparent);
+    outline: var(--space-3) solid var(--pv-gallery, transparent);
+  }
+  .house-calendar__weekday {
+    padding: var(--space-1);
+    text-align: center;
+  }
+  .house-calendar__day {
+    display: grid;
+    align-content: start;
+    gap: var(--space-1);
+    min-width: 0;
+    min-height: 88px;
+    padding: var(--space-1);
+    border: var(--border-hairline) solid var(--c-border-default);
+    border-radius: var(--radius-control);
+    background: var(--c-bg-surface);
+  }
+  /* Clear to read at a glance: every other week a shade apart (the first seven children are the
+     weekday names), the weekend topped with the room's light, today outlined. */
+  .house-calendar__day:is(
+      :nth-child(14n + 15),
+      :nth-child(14n + 16),
+      :nth-child(14n + 17),
+      :nth-child(14n + 18),
+      :nth-child(14n + 19),
+      :nth-child(14n + 20),
+      :nth-child(14n + 21)
+    ) {
+    background: var(--c-bg-raised);
+  }
+  .house-calendar__day:is(:nth-child(7n + 6), :nth-child(7n)) {
+    border-top: var(--border-strong) solid var(--c-room, var(--c-accent-solid));
+  }
+  .house-calendar__day[data-today] {
+    border-color: var(--c-accent-solid);
+    outline: var(--border-hairline) solid var(--c-accent-solid);
+  }
+  .house-calendar[data-mode="week"] .house-calendar__day {
+    min-height: 200px;
+  }
+  /* Days of the next or last month: muted, still readable (4.5:1). */
+  .house-calendar__day[data-outside]:not([data-today]) > .ds-button:first-child {
+    color: var(--c-fg-muted);
+  }
+  .house-calendar__more {
+    justify-self: start;
+    white-space: normal;
+  }
+  .house-calendar__day > .ds-button:first-child {
+    justify-self: start;
+  }
+  .house-calendar__event {
+    justify-content: flex-start;
+    width: 100%;
+    min-width: 0;
+  }
+  .house-calendar__event .ds-button__label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /* A phone shows the day and a count of dots, and the day opens its events. */
+  @media (max-width: 599.98px) {
+    .house-calendar__day {
+      min-height: 56px;
+    }
+    .house-calendar[data-mode="month"] .house-calendar__event {
+      display: none;
+    }
+    .house-calendar[data-mode="month"] .house-calendar__mark {
+      display: block;
+    }
+    /* "+117", never "+11…": the word stays for screen readers. */
+    .house-calendar__more-word {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+  .house-calendar__mark {
+    display: none;
+    height: 8px;
+    border-radius: var(--radius-chip);
+    background: var(--c-accent-solid);
+  }
+  .house-calendar__mark[data-warning] {
+    background: var(--c-warning-solid);
+  }
+
+  /* An open task's control is an empty circle (Home's tasks too); the tick shows once asked. */
+  .task-check {
+    border-radius: var(--radius-full);
+  }
+  .task-check[data-variant="secondary"] .ds-icon {
+    visibility: hidden;
+  }
+
+  /* ---------- files in notes and messages ---------- */
+  .house-files {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .house-files__picked,
+  .house-files__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .house-files__picked > li {
+    display: inline-flex;
+    align-items: center;
+  }
+  .house-file {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    max-width: 100%;
+    min-height: 36px;
+    padding: 0 var(--space-3);
+    border: var(--border-hairline) solid var(--c-border-default);
+    border-radius: var(--radius-chip);
+    color: var(--c-fg-default);
+    font: var(--text-body-s);
+    text-decoration: none;
+  }
+  a.house-file:hover {
+    background: var(--c-bg-hover);
+  }
+  .house-file__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ---------- messages: the list, then the conversation ---------- */
+  .inbox-layout {
+    display: grid;
+    gap: var(--space-5);
+    min-width: 0;
+  }
+  @media (min-width: 900px) {
+    /* Two panes as tall as the window: the list, and the conversation on its own surface. */
+    .inbox-layout {
+      grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+      align-items: stretch;
+      min-height: calc(100dvh - var(--shell-top) - 220px);
+    }
+    .inbox-pane {
+      padding: var(--space-5);
+      border: var(--part-panel-border);
+      border-radius: var(--part-panel-radius);
+      background: var(--pv-panel-fill, var(--part-panel-bg));
+    }
+    .inbox-back {
+      display: none;
+    }
+  }
+  /* A phone shows one at a time: the list, or the conversation opened from it. */
+  @media (max-width: 899.98px) {
+    .inbox-layout[data-open] > .inbox-list,
+    .inbox-layout:not([data-open]) > .inbox-pane {
+      display: none;
+    }
+  }
+  .inbox-list,
+  .inbox-pane {
+    min-width: 0;
+  }
+  .inbox-list {
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+  }
+  .inbox-start {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2);
+  }
+  /* A notice is a short row: its words wrap rather than hide. */
+  .inbox-notices .ds-row__title {
+    white-space: normal;
+  }
+  .inbox-notices .ds-row__leading {
+    color: var(--c-info-fg);
+  }
+  .inbox-faces {
+    display: inline-flex;
+  }
+  .inbox-faces > * + * {
+    margin-left: calc(-1 * var(--space-3));
+  }
+  .inbox-conversation {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .inbox-conversation__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .inbox-conversation__head > h2 {
+    margin: 0;
+  }
+  .inbox-thread {
+    display: grid;
+    gap: var(--space-2);
+    justify-items: start;
+  }
+  .inbox-tools {
+    display: grid;
+    gap: var(--space-2);
+  }
+  /* A bubble fits its words, up to 70 % of the thread: yours on the right, theirs on the left. */
+  .house-message {
+    display: grid;
+    gap: var(--space-1);
+    max-width: 70%;
+    padding: var(--space-2) var(--space-3);
+    border: var(--border-hairline) solid var(--c-border-subtle);
+    border-left: var(--space-1) solid var(--tone, var(--c-border-default));
+    border-radius: var(--radius-card);
+    background: var(--c-bg-raised);
+  }
+  .house-message[data-mine] {
+    justify-self: end;
+    border-left-width: var(--border-hairline);
+    border-right: var(--space-1) solid var(--tone, var(--c-accent-border));
+  }
+  .house-message__head {
+    margin: 0;
+  }
+  .house-message__body {
+    overflow-wrap: anywhere;
+  }
+  .house-message__body > p {
+    margin: 0;
+  }
+
+  /* ---------- the house in numbers ---------- */
+  .stats {
+    display: grid;
+    gap: var(--space-5);
+    min-width: 0;
+  }
+  .stats__nox {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin: 0;
+    color: var(--c-fg-muted);
+    font: var(--text-body-m);
+  }
+  .stats__nox > p {
+    margin: 0;
+  }
+  .stats__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+  .stats__head > h3 {
+    margin: 0;
+  }
+  .stats__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--space-3);
+  }
+  .stats__stat {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-4);
+  }
+  .stats__stat > .ds-icon {
+    color: var(--c-accent-fg);
+  }
+  .stats__pair {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-5);
+  }
+  .stats__block {
+    display: grid;
+    align-content: start;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+  .stats__block > h3 {
+    margin: 0;
+  }
+  .stats__bars {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .stats__bars > li {
+    display: grid;
+    grid-template-columns: minmax(7rem, auto) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .stats__who {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .stats__bar {
+    height: var(--space-2);
+    border-radius: var(--radius-full);
+    background: var(--c-bg-sunken);
+    overflow: hidden;
+  }
+  .stats__bar > i {
+    display: block;
+    width: calc(var(--value) * 100%);
+    height: 100%;
+    border-radius: inherit;
+    background: var(--tone);
+  }
+  .stats__genres {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .stats__donut {
+    width: 112px;
+    height: 112px;
+    flex: none;
+    border-radius: var(--radius-full);
+    background: conic-gradient(var(--ring));
+    mask: radial-gradient(circle, transparent 42%, var(--c-fg-default) 43%);
+  }
+  .stats__genres > ul {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font: var(--text-body-s);
+  }
+  .stats__genres li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .stats__genres li > i {
+    width: var(--space-3);
+    height: var(--space-3);
+    border-radius: var(--radius-full);
+    background: var(--tone);
+  }
+  .stats__genres small {
+    color: var(--c-fg-muted);
+  }
+  .stats__song {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .stats__song > b {
+    min-width: 2ch;
+    text-align: end;
+  }
+  .stats__art {
+    width: 40px;
+  }
+  .stats__clock {
+    display: grid;
+    grid-template-columns: repeat(24, minmax(0, 1fr));
+    align-items: end;
+    gap: 2px;
+    height: 96px;
+  }
+  .stats__clock > i {
+    height: calc(var(--value) * 100%);
+    border-radius: var(--radius-control) var(--radius-control) 0 0;
+    background: var(--c-accent-solid);
+  }
+  .stats__clock > i[data-night] {
+    background: var(--c-data-2);
+  }
+  .stats__clock-axis {
+    display: flex;
+    justify-content: space-between;
+    color: var(--c-fg-subtle);
+    font: var(--text-caption);
+  }
+  .stats__titles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .stats__titles > li {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-3);
+    border-top: var(--space-1) solid var(--tone, transparent);
+  }
+  .stats__titles > li > .ds-icon {
+    color: var(--tone, var(--c-fg-muted));
+  }
+  .stats__titles > li[data-locked] {
+    opacity: 0.6;
+  }
+  .stats__stars {
+    margin-left: var(--space-1);
+    color: var(--c-accent-fg);
+  }
+  .stats__disk {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+  }
+}

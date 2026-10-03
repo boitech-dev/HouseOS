@@ -1,0 +1,380 @@
+/* Ask (ask.tsx, voice.tsx): Nox's chat, as a page, a side sheet or inside My space. Layout, and
+   the two kinds of message told apart by material; everything else from the design system. */
+@layer rooms {
+  .ask {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .ask__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .ask[data-setup] .ask__head {
+    padding-bottom: var(--space-2);
+    border-bottom: var(--border-strong) solid var(--c-warning-border);
+  }
+  .ask-familiar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: 48px;
+    margin-right: auto;
+  }
+  .ask__tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  /* Nox's own page: the room's header, Nox beside the name, the tools on its right. */
+  .ask__title {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .ask[data-page] .ds-page-header__text {
+    flex-basis: calc(var(--space-6) * 3);
+  }
+  .ask[data-page] .ds-page-header__actions {
+    align-items: center;
+  }
+  /* A phone: the three tools on one row, their names read aloud, not shown. */
+  @media (max-width: 599.98px) {
+    .ask[data-page] .ask__tools {
+      flex-wrap: nowrap;
+    }
+    .ask[data-page] .ask__tools .ds-button__label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+  .ask__body {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  @media (min-width: 900px) {
+    .ask__body:has(> .ask__threads) {
+      grid-template-columns: 260px minmax(0, 1fr);
+      align-items: start;
+    }
+  }
+  .ask__threads {
+    display: grid;
+    gap: var(--space-2);
+    max-height: 50vh;
+    min-width: 0;
+    overflow: hidden auto;
+  }
+  .ask__chat {
+    display: grid;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+  .ask__thread-tools {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  /* ---------- the conversation ---------- */
+  .ask-messages {
+    display: grid;
+    align-content: start; /* one short message stays its own size in a tall conversation area */
+    gap: var(--space-3);
+    min-width: 0;
+  }
+  .ask-message {
+    display: grid;
+    gap: var(--space-1);
+    justify-self: start;
+    max-width: min(92%, 680px);
+    min-width: 0;
+    padding: var(--space-3) var(--space-4);
+    border: var(--mat-raised-border);
+    border-radius: var(--space-1) var(--radius-card) var(--radius-card) var(--radius-card);
+    background: var(--mat-raised-bg);
+    overflow-wrap: anywhere;
+  }
+  .ask-message[data-role="user"] {
+    justify-self: end;
+    border-color: var(--c-accent-border);
+    border-radius: var(--radius-card) var(--space-1) var(--radius-card) var(--radius-card);
+    background: var(--c-accent-soft);
+  }
+  .ask-text > p {
+    margin: 0 0 var(--space-2);
+  }
+  .ask-text > p:last-child {
+    margin-bottom: 0;
+  }
+  .ask-text a {
+    color: var(--c-accent-fg);
+  }
+  .ask-text code {
+    font: var(--text-numeric);
+  }
+  .ask__start {
+    display: grid;
+    gap: var(--space-3);
+  }
+  .ask__presets {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ask__presets .ds-tile {
+    width: 100%;
+    height: 100%;
+  }
+  .ask__presets .ds-tile__value {
+    font: var(--text-title-m);
+  }
+  .ds-sheet .ask__presets {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+  .ask-card {
+    display: grid;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+    padding: var(--space-3);
+  }
+  .ask-card__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .ask-card__request {
+    margin: 0;
+    font: var(--text-caption);
+    font-family: var(--font-mono);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .ask-card__note {
+    margin: 0;
+    color: var(--c-fg-muted);
+    font: var(--text-body-s);
+  }
+  .ask-titles__poster {
+    width: 56px;
+  }
+  .ask-titles__why {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  /* ---------- the composer ---------- */
+  .ask-composer {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    border: var(--mat-sunken-border);
+    border-radius: var(--mat-sunken-radius);
+    background: var(--mat-sunken-bg);
+  }
+  .ask-composer > .ds-input {
+    flex: 1;
+    /* width 0: the textarea's own width must not widen the chat on phones */
+    width: 0;
+    min-width: 0;
+    min-height: 48px;
+    max-height: 40vh;
+    resize: none;
+  }
+  .ask-progress {
+    margin: 0;
+    color: var(--c-accent-fg);
+    font: var(--text-body-s);
+  }
+  .ask__fine {
+    margin: 0;
+  }
+  .ask-voice {
+    --level: 0;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
+  .ask-voice[data-listening] > .ds-button {
+    outline: calc(var(--level) * var(--space-2)) solid var(--c-accent-border);
+  }
+  .ask-voice__hint {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + var(--space-2));
+    width: max-content;
+    max-width: min(280px, 80vw);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-control);
+    background: var(--mat-inverse-bg);
+    color: var(--mat-inverse-fg);
+    font: var(--text-caption);
+  }
+  .ask-voice__hint[data-error] {
+    background: var(--c-danger-solid);
+  }
+
+  /* The full chat page fills exactly the screen between the status bar and the Now bar or the
+     dock (the page itself never scrolls); only the conversation scrolls. */
+  .shell[data-mode="chat"] .shell__main {
+    padding-bottom: calc(var(--shell-bottom) + var(--space-3));
+  }
+  .shell[data-mode="chat"] .ask {
+    display: flex;
+    flex-direction: column;
+    height: calc(
+      100dvh - var(--shell-top) - var(--shell-bottom) - var(--space-3) - var(--shell-pad-top) -
+        env(safe-area-inset-top, 0px)
+    );
+  }
+  /* Before the first message the openings sit by the composer, where the eye already is. */
+  .shell[data-mode="chat"] .ask-messages:has(> .ask__start) {
+    align-content: safe end; /* "safe": a phone scrolls to the first opening */
+  }
+  .shell[data-mode="chat"] .ask__body {
+    flex: 1;
+    min-height: 0;
+  }
+  .shell[data-mode="chat"] .ask__chat {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+  }
+  .shell[data-mode="chat"] .ask-messages {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  /* A short screen (a phone on its side, or with its keyboard open): the header keeps only the
+     tools (its name is still read), so the composer and the conversation keep their room. */
+  @media (max-height: 599.98px) {
+    .shell[data-mode="chat"] .ask__fine {
+      display: none;
+    }
+    .ask[data-page] .ds-page-header__text {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+    .ask[data-page] .ds-page-header__actions {
+      margin-inline-start: auto;
+    }
+  }
+  /* In the Ask panel, the conversation scrolls inside the sheet. */
+  .ds-sheet .ask-messages {
+    max-height: 52dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+
+/* The theme studio: pictures for Nox, the setup steps, a theme drawn in itself. */
+@layer rooms {
+  .ask-pictures {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ask-pictures > li {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: calc(var(--space-6) * 2);
+    height: calc(var(--space-6) * 2);
+    overflow: hidden;
+    border-radius: var(--radius-s);
+    background: var(--c-bg-sunken);
+  }
+  .ask-pictures img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .ask-pictures > li > .ds-button {
+    position: absolute;
+    inset-block-start: var(--space-1);
+    inset-inline-end: var(--space-1);
+  }
+  .ask-picture {
+    display: block;
+    max-width: min(100%, calc(var(--space-6) * 8));
+    border-radius: var(--radius-s);
+  }
+  .ask-steps {
+    margin: 0;
+    padding-inline-start: var(--space-4);
+  }
+  .ask-theme {
+    display: grid;
+    gap: var(--space-3);
+  }
+  .ask-theme .ds-specimen {
+    border-radius: var(--radius-m);
+  }
+  .ask-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+}
+
+/* Nox's proposed directions: swatches with their words. */
+@layer rooms {
+  .ask-directions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--space-6) * 7)), 1fr));
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ask-direction {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+    height: 100%;
+  }
+  .ask-direction__swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ask-direction__swatches > li {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-1);
+    max-width: calc(var(--space-6) * 2);
+    text-align: center;
+  }
+  .ask-direction__swatches i {
+    width: var(--space-6);
+    height: var(--space-6);
+    border-radius: var(--radius-s);
+    border: var(--border-hairline) solid var(--c-border-subtle);
+    background: var(--swatch);
+  }
+}

@@ -1,0 +1,199 @@
+# HouseOS — `./houseos.sh` (or `docker compose up -d --build`), then open https://houseos.local:8443
+# (or https://<this computer's IP>:8443). Runs on x86-64 and arm64 (Raspberry Pi 4/5).
+# One command starts everything: web app + Nox, music (sources, speakers, phones, Cast),
+# films and TV, voice typing, files, chores and reminders, the ChatGPT/Claude sign-in
+# bridges and a built-in HTTPS door. What you use is switched on inside the app
+# (Control Room → Setup); nothing here needs editing.
+# One hardware extra is a line in .env (see .env.example): an NVIDIA card for voice.
+
+x-houseos: &houseos
+  build: { context: ., dockerfile: docker/Dockerfile, target: app }
+  image: houseos:1.0
+  pull_policy: build   # built here from the source; there is no image to download
+  restart: unless-stopped
+  env_file: [{ path: .env, required: false }]
+  environment: &env
+    HOUSEOS_DB_NAME: houseos
+    HOUSEOS_DB_USER: houseos
+    HOUSEOS_DB_PASSWORD: ${HOUSEOS_DB_PASSWORD:-change-me-houseos-db}
+    HOUSEOS_TUSD_URL: http://tusd:8992
+    HOUSEOS_EXTERNAL_FETCH_ENABLED: "true"
+    HOUSEOS_AUDIO_ENABLED: "true"
+  extra_hosts: { host.docker.internal: host-gateway }  # Ollama, Jellyfin… on this computer
+  volumes:
+    - houseos-state:/state
+    - houseos-data:/data
+    - ${HOUSEOS_IMPORT_DIR:-./import}:/import:ro,z   # z: labelled for Docker on SELinux (Fedora)
+
+services:
+  db:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: houseos
+      MARIADB_USER: houseos
+      MARIADB_PASSWORD: ${HOUSEOS_DB_PASSWORD:-change-me-houseos-db}
+      MARIADB_RANDOM_ROOT_PASSWORD: "1"
+    volumes: [houseos-db:/var/lib/mysql]
+    # Reachable from the compose network, and from this computer only (for the services on
+    # the host network). Never from the LAN.
+    ports: ["127.0.0.1:${HOUSEOS_DB_HOST_PORT:-3307}:3306"]
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      retries: 30
+      start_period: 5m   # the first start on an SD card or slow disk can take minutes
+
+  api:
+    <<: *houseos
+    command: api
+    depends_on: { db: { condition: service_healthy } }
+    security_opt: ["seccomp=unconfined", "apparmor=unconfined"]  # bubblewrap media sandbox (subtitle uploads, film checks)
+    # Plain HTTP for this computer and a reverse proxy on it; phones use the HTTPS door.
+    ports: ["${HOUSEOS_BIND:-127.0.0.1}:8990:8990"]
+    environment:
+      <<: *env
+      HOUSEOS_SOURCE_ROOT: /source
+    volumes:
+      - houseos-state:/state
+      - houseos-data:/data
+      - ${HOUSEOS_IMPORT_DIR:-./import}:/import:ro,z
+      - houseos-https:/https:ro   # to hand out the HTTPS door's certificate
+      # This folder, read-only: Nox reads the code to draft changes an admin applies in Control
+      # Room → Changes (docs/CHANGING-HOUSEOS.md). Keys and settings files are never read.
+      - .:/source:ro,z
+
+  https:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    # Its own certificate authority, so browsers allow the microphone, the app install and
+    # secure sign-in on your network. Using your own reverse proxy instead? Ignore this one.
+    command: ["caddy", "run", "--adapter", "caddyfile", "--config", "/etc/caddy/Caddyfile"]
+    configs: [{ source: caddyfile, target: /etc/caddy/Caddyfile }]
+    ports: ["${HOUSEOS_HTTPS_BIND:-0.0.0.0}:${HOUSEOS_HTTPS_PORT:-8443}:8443"]
+    volumes: [houseos-https:/data]
+    depends_on: { api: { condition: service_started } }
+
+  worker:
+    <<: *houseos
+    command: worker
+    depends_on: { api: { condition: service_started } }
+    security_opt: ["seccomp=unconfined", "apparmor=unconfined"]  # bubblewrap media sandbox (song imports)
+
+  maintenance:
+    <<: *houseos
+    command: maintenance
+    depends_on: { api: { condition: service_started } }
+
+  tusd:
+    image: tusproject/tusd:v2.10.1
+    restart: unless-stopped
+    command: ["-host", "0.0.0.0", "-port", "8992", "-upload-dir", "/data/houseos/staging",
+              "-disable-download", "-disable-concatenation", "-disable-cors",
+              "-max-size", "85899345920", "-file-perms", "600", "-dir-perms", "700",
+              "-verbose=false", "-expose-metrics=false", "-show-greeting=false"]
+    user: "61990:61990"
+    volumes: [houseos-data:/data]
+    depends_on: { api: { condition: service_started } }
+
+  fetch:
+    <<: *houseos
+    command: fetch
+    # Talks to YouTube/SoundCloud/radio only: its own network, no way to the database or app.
+    networks: [egress]
+    environment: { HOUSEOS_EXTERNAL_FETCH_ENABLED: "true" }
+
+  audio:
+    <<: *houseos
+    command: audio
+    network_mode: none   # sockets and sound only
+    extra_hosts: {}
+    environment: { HOUSEOS_AUDIO_ENABLED: "true" }
+    volumes:
+      - houseos-state:/state
+      # The desktop sound server of whoever is logged in on this computer, found at start;
+      # without one, the sound card itself (/dev/snd), so music always reaches real speakers.
+      # (Short form: a computer without these folders, e.g. Windows/WSL, still starts.)
+      - /run/user:/run/host-user:ro,rslave
+      - /dev/snd:/dev/snd
+    device_cgroup_rules: ["c 116:* rmw"]   # ALSA sound devices
+
+  relay:
+    <<: *houseos
+    command: relay
+    # TVs and speakers fetch the media from here; it finds them and announces houseos.local
+    # (multicast needs the host network).
+    network_mode: host
+    extra_hosts: {}
+    environment: &hostenv
+      <<: *env
+      HOUSEOS_DB_HOST: 127.0.0.1
+      HOUSEOS_DB_PORT: ${HOUSEOS_DB_HOST_PORT:-3307}
+    depends_on: { api: { condition: service_started } }
+
+  codex:
+    <<: *houseos
+    command: codex-bridge
+    networks: [egress]
+    environment: {}
+
+  claude:
+    <<: *houseos
+    command: claude-bridge
+    networks: [egress]
+    environment: {}
+
+  cinema-worker:
+    <<: *houseos
+    command: cinema-worker
+    network_mode: host
+    extra_hosts: {}
+    security_opt: ["seccomp=unconfined", "apparmor=unconfined"]  # bubblewrap media sandbox
+    environment: *hostenv
+
+  cinema-observer:
+    <<: *houseos
+    command: cinema-observer
+    network_mode: host
+    extra_hosts: {}
+    environment: *hostenv
+
+  voice:
+    <<: *houseos
+    command: voice
+    networks: [egress]   # downloads its speech model once; then talks only to the app
+    environment: {}
+
+networks:
+  default:
+  egress:
+
+configs:
+  caddyfile:
+    content: |
+      {
+        admin off
+        http_port 8080
+        https_port 8443
+        auto_https disable_redirects
+        skip_install_trust
+        local_certs
+        on_demand_tls {
+          ask http://api:8990/api/v1/access/tls-ask
+        }
+      }
+      https:// {
+        tls {
+          on_demand
+        }
+        request_body {
+          max_size 16MB
+        }
+        reverse_proxy api:8990
+      }
+
+volumes:
+  houseos-db:
+  houseos-state:
+  houseos-data:
+  houseos-https:

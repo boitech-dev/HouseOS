@@ -1,0 +1,135 @@
+"""Writes themes/carved-night/tokens.json (atomically): the palette of make.py, as meanings.
+    python3 docs/design/themes/carved-night/tokens.py"""
+import json, os
+from pathlib import Path
+
+OUT = Path(__file__).resolve().parents[4] / "themes/carved-night/tokens.json"
+
+def col(**kv):
+    return {k: ({"$value": v} if isinstance(v, str) else v) for k, v in kv.items()}
+
+CANVAS, SURF, RAISED, DEEP = "#0a0b1c", "#11132b", "#1a1d3c", "#07081a"
+CREAM = "#efe7d6"
+CANDLE, CANDLE_HI, EMBER = "#f2b45e", "#ffd594", "#b9652c"
+T = {
+    "$description": "Legacy (carved-night): a moonlit manor, carved in stone, lit by candles. Made by docs/design/themes/carved-night/tokens.py; the art's palette is make.py's PAL.",
+    "seed": {"$type": "color", **col(neutral="#22254a", accent=CANDLE, success="#a9d18e", warning="#f2d36b",
+                                      danger="#ec8b98", info="#86cbea", private="#bba4e6")},
+    "color": {
+        "$type": "color",
+        "bg": col(canvas=CANVAS, surface=SURF, raised=RAISED, overlay="#12142e", sunken=DEEP, inverse=CREAM,
+                  hover="#252a52", pressed="#15183a", selected="#2c2c62"),
+        "fg": col(default=CREAM, muted="#d2c9b6", subtle="#a5a9d2", placeholder="#9095c2", disabled="#5a608f",
+                  inverse=CANVAS, **{"on-accent": "#140e14"}, link=CANDLE_HI),
+        "border": col(subtle="#242850", default="#30355f", strong="#666ea8"),
+        "focus-ring": {"$value": CANDLE},
+        "accent": col(solid=CANDLE, **{"solid-hover": CANDLE_HI}, soft="alpha(#f2b45e, 9%)", fg="#f6c077", border=EMBER),
+        "success": col(solid="#a9d18e", soft="alpha(#a9d18e, 12%)", fg="#c2e2a8", border="#4b6b40"),
+        "warning": col(solid="#f2d36b", soft="alpha(#f2d36b, 14%)", fg="#f5dc86", border="#75602e"),
+        "danger": col(solid="#ec8b98", soft="alpha(#ec8b98, 12%)", fg="#ffc3cc", border="#7a3348"),
+        "info": col(solid="#86cbea", soft="alpha(#86cbea, 11%)", fg="#b9e3f6", border="#2d5570"),
+        "private": col(solid="#bba4e6", soft="alpha(#bba4e6, 12%)", fg="#dccff2"),
+        "paper": col(bg="#e8dcc2", fg="#2a2138", muted="#5e5470"),
+        # rooms: lamps in the same night: candle, velvet, projector moon, gas green, brass, ghost…
+        "room": col(home="#f2dfb6", listen="#ef93a6", watch="#8cc8ec", house="#a9d18e", files="#e6c46a",
+                    ask="#a9b4fa", me="#d9a6ea", control="#8ea7e0", games="#7fd8c4", inbox="#f0ad7e",
+                    space="#d9a6ea", party="#ef93a6", **{"smart-home": "#cfe07c"}),
+        "person": col(**{"1": CANDLE, "2": "#86cbea", "3": "#a9d18e", "4": "#ef93a6", "5": "#bba4e6",
+                         "6": "#f2d36b", "7": "#8ea7e0", "8": "#7fd8c4"}),
+        "data": col(**{"1": CANDLE, "2": "#86cbea", "3": "#ef93a6", "4": "#a9d18e", "5": "#bba4e6",
+                       "6": "#f2d36b", "7": "#8ea7e0", "8": "#7fd8c4"}),
+        "scrim": {"$value": "alpha(#05060f, 74%)"},
+        "media-scrim": {"$value": "alpha(#05060f, 88%)"},
+        "shadow": {"$value": "#020208"},
+        "sprite": col(outline="#07081a", dark="#1c1f42", **{"mid-dark": "#353a70"}, mid="#5f66a3", mist="#a3a8d6",
+                      light="#f1e9d6", **{"light-dim": "#cbc1b0"}, accent=CANDLE, **{"accent-hi": "#ffe6a8"},
+                      **{"accent-deep": "#c0602e"}, familiar="#9c86cc", **{"familiar-mid": "#6a58a0"},
+                      **{"familiar-deep": "#3e2f66"}, good="#a9d18e", alert="#e5707f", paper="#e8dcc2", ink="#2a2140"),
+        "scene": col(**{"night-0": CANVAS, "night-1": "#10122a", "night-2": "#20244a", "line": "#2b305e",
+                        "line-hi": "#4e5690", "mist": "#8e95c8", "cream": CREAM, "ember": CANDLE,
+                        "ember-hi": "#ffe6a8", "ember-deep": EMBER, "lilac": "#b8a2e4", "moss": "#a9d18e"}),
+    },
+    "font": {"$type": "fontFamily",
+             "display": {"$value": ["Jacquard 12", "Alegreya Sans", "serif"]},
+             "body": {"$value": ["Alegreya Sans", "ui-sans-serif", "system-ui", "sans-serif"]},
+             "mono": {"$value": ["IBM Plex Mono", "ui-monospace", "monospace"]}},
+    "text": {
+        "$type": "typography",
+        "$description": "Jacquard 12 is woven on a 12-unit grid: display sizes are multiples of 12 so it stays crisp.",
+        "display-xl": {"$value": {"fontFamily": "{font.display}", "fontSize": 48, "fontWeight": 400, "lineHeight": 1}},
+        "display-l": {"$value": {"fontFamily": "{font.display}", "fontSize": 36, "fontWeight": 400, "lineHeight": 1.05}},
+        "display-m": {"$value": {"fontFamily": "{font.display}", "fontSize": 24, "fontWeight": 400, "lineHeight": 1.1}},
+        "brand": {"$value": {"fontFamily": "{font.display}", "fontSize": 24, "fontWeight": 400, "lineHeight": 1.1}},
+        "title-l": {"$value": {"fontFamily": "{font.body}", "fontSize": 22, "fontWeight": 700, "lineHeight": 1.2}},
+        "title-m": {"$value": {"fontFamily": "{font.body}", "fontSize": 19, "fontWeight": 700, "lineHeight": 1.25}},
+        "title-s": {"$value": {"fontFamily": "{font.body}", "fontSize": 17, "fontWeight": 700, "lineHeight": 1.3}},
+        "body-l": {"$value": {"fontFamily": "{font.body}", "fontSize": 19, "fontWeight": 400, "lineHeight": 1.45}},
+        "body-m": {"$value": {"fontFamily": "{font.body}", "fontSize": 17, "fontWeight": 400, "lineHeight": 1.45}},
+        "body-s": {"$value": {"fontFamily": "{font.body}", "fontSize": 15, "fontWeight": 400, "lineHeight": 1.4}},
+        "action": {"$value": {"fontFamily": "{font.body}", "fontSize": 16, "fontWeight": 500, "lineHeight": 1.2}},
+        "label": {"$value": {"fontFamily": "{font.body}", "fontSize": 14, "fontWeight": 700, "lineHeight": 1.25, "letterSpacing": 0.03, "textTransform": "none"}},
+        "caption": {"$value": {"fontFamily": "{font.body}", "fontSize": 13, "fontWeight": 500, "lineHeight": 1.35}},
+        "numeric": {"$value": {"fontFamily": "{font.mono}", "fontSize": 14, "fontWeight": 400, "lineHeight": 1.2}},
+    },
+    "radius": {"$type": "dimension", **{k: {"$value": "{radius.none}"} for k in ("control", "card", "sheet", "chip", "media", "avatar")}},
+    "shape": {"cut": {"$type": "string", "$value": "polygon(4px 0, calc(100% - 4px) 0, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 0 calc(100% - 4px), 0 4px)"}},
+    "elev": {"$type": "shadow",
+             "1": {"$value": "0 2px 0 #02020899"},
+             "2": {"$value": "0 3px 0 #02020899, 0 6px 16px #02020866"},
+             "3": {"$value": "0 3px 0 #020208aa, 0 10px 28px #02020880"},
+             "4": {"$value": "0 4px 0 #020208aa, 0 16px 44px #02020899"}},
+    "material": {
+        "canvas": {"bg": {"$type": "color", "$value": CANVAS}},
+        # carved stone: the moon's light on the top-left edge, a cut shadow bottom-right
+        "surface": {"border": {"$type": "string", "$value": "1px solid #262a52"},
+                    "shadow": {"$type": "shadow", "$value": "inset 1px 1px 0 #ffffff14, inset -1px -1px 0 #00000080, inset 0 0 0 2px #0a0b1c"},
+                    "texture": {"$type": "string", "$value": "none"}},
+        "raised": {"border": {"$type": "string", "$value": "1px solid #353a68"},
+                   "shadow": {"$type": "shadow", "$value": "inset 1px 1px 0 #ffffff17, inset -1px -1px 0 #00000080"}},
+        "overlay": {"border": {"$type": "string", "$value": "1px solid #3a4072"},
+                    "shadow": {"$type": "shadow", "$value": "inset 1px 1px 0 #ffffff14, 0 4px 0 #020208aa, 0 16px 44px #02020899"}},
+        "sunken": {"border": {"$type": "string", "$value": "1px solid {color.border.strong}"},
+                   "shadow": {"$type": "shadow", "$value": "inset 2px 2px 0 #00000088, inset -1px -1px 0 #ffffff0f"}},
+        "paper": {"rotate": {"$type": "string", "$value": "-0.6deg"}},
+        "media": {"border": {"$type": "string", "$value": "1px solid #353a68"},
+                  "shadow": {"$type": "shadow", "$value": "0 2px 0 #020208aa"}},
+        "screen": {"glow": {"$type": "shadow", "$value": "0 0 0 1px #07081a, 0 0 24px #86cbea1f"}},
+    },
+    "part": {
+        "page": {"scrim": {"$type": "color", "$value": "alpha(#0a0b1c, 64%)"},
+                 "ink-shadow": {"$type": "string", "$value": "0 1px 0 #05060f, 0 0 8px #05060f"},
+                 "gallery": {"$type": "color", "$value": "alpha(#0a0b1c, 92%)"}},
+        "status": {"bg": {"$type": "color", "$value": "#0a0b1ce6"},
+                   "border": {"$type": "string", "$value": "1px solid #262a52"},
+                   "art-opacity": {"$type": "string", "$value": "1"}},
+        "rail": {"bg": {"$type": "color", "$value": "#0d0f24"},
+                 "border": {"$type": "string", "$value": "1px solid #262a52"},
+                 "ink-shadow": {"$type": "string", "$value": "0 1px 0 #05060f, 0 0 6px #05060f"}},
+        "dock": {"bg": {"$type": "color", "$value": "#0d0f24"},
+                 "border": {"$type": "string", "$value": "1px solid #30355f"}},
+        "nowbar": {"bg": {"$type": "color", "$value": "#15183a"},
+                   "border": {"$type": "string", "$value": "1px solid #3a4072"},
+                   "shadow": {"$type": "shadow", "$value": "inset 1px 1px 0 #ffffff14, 0 3px 0 #020208aa, 0 10px 28px #02020880"}},
+        "header": {"banner-fade": {"$type": "color", "$value": CANVAS},
+                   "banner-wash": {"$type": "number", "$value": 0},
+                   "kicker": {"$type": "color", "$value": "#d2c9b6"}},
+        "panel": {"head": {"$type": "color", "$value": "#d2c9b6"}},
+        "control": {
+            "bg": {"$type": "string", "$value": "linear-gradient(180deg, alpha(#ffffff, 7%), alpha(#ffffff, 0%) 50%, alpha(#000000, 22%)) {color.bg.raised}"},
+            "shadow": {"$type": "shadow", "$value": "inset 1px 1px 0 #ffffff17, inset -1px -1px 0 #00000080"},
+            "primary-bg": {"$type": "string", "$value": "linear-gradient(180deg, alpha(#fff3d0, 45%), alpha(#fff3d0, 0%) 45%, alpha(#7a2c10, 22%)) {color.accent.solid}"},
+            "primary-shadow": {"$type": "shadow", "$value": "inset 1px 1px 0 #fff4d6, inset -1px -2px 0 #a8522a"},
+        },
+        "meter": {"track": {"$type": "color", "$value": "#2b305e"},
+                  "pattern": {"$type": "string", "$value": "repeating-linear-gradient(90deg, transparent 0 6px, alpha(#0a0b1c, 85%) 6px 8px)"},
+                  "thumb": {"$type": "color", "$value": CREAM},
+                  "thumb-radius": {"$type": "dimension", "$value": "{radius.none}"}},
+    },
+    "dur": {"$type": "duration", "fast": {"$value": 120}, "base": {"$value": 200}, "slow": {"$value": 320}, "slower": {"$value": 560}},
+    "ease": {"$type": "cubicBezier", "standard": {"$value": [0.25, 0.6, 0.3, 1]}, "emphasized": {"$value": [0.2, 0.7, 0.2, 1]}},
+    "icon": {"stroke": {"$type": "number", "$value": 2}},
+}
+tmp = OUT.with_suffix(".json.tmp")
+tmp.write_text(json.dumps(T, indent=2, ensure_ascii=False) + "\n")
+os.replace(tmp, OUT)
+print("wrote", OUT)

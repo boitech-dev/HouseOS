@@ -1,0 +1,150 @@
+/* The welcomes (onboarding.tsx), in a centred Sheet: layout only. Colours, type and shapes come
+   from the design system, so every theme draws them its own way. */
+@layer rooms {
+  /* A step: its picture on a soft panel beside its words (above them on phones). */
+  .journey {
+    display: grid;
+    gap: var(--space-5);
+    min-width: 0;
+  }
+  @media (min-width: 900px) {
+    .journey {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+      align-items: start;
+    }
+  }
+  .journey__art {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 140px;
+    overflow: hidden;
+    border: var(--mat-raised-border);
+    border-radius: var(--radius-card);
+    background: var(--mat-canvas-bg);
+    color: var(--c-accent-fg);
+  }
+  .journey__scene {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    image-rendering: pixelated;
+  }
+  /* The step's picture, bigger, on a raised disc (sprites stay crisp). */
+  .journey__focal {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 112px;
+    height: 112px;
+    border: var(--mat-raised-border);
+    border-radius: var(--radius-full);
+    background: var(--c-bg-raised);
+    box-shadow: var(--elev-3);
+    animation: ds-rise var(--dur-base) var(--ease-enter);
+  }
+  .journey__focal > .ds-mark {
+    scale: 1.6;
+  }
+  @media (min-width: 900px) {
+    .journey__art {
+      min-height: 280px;
+    }
+  }
+  /* Icons drawn big in the panel (sprites have their own large size). */
+  .journey__focal > .ds-icon {
+    width: 56px;
+    height: 56px;
+  }
+  .journey__words {
+    display: grid;
+    align-content: start;
+    gap: var(--space-4);
+    min-width: 0;
+    animation: ds-rise var(--dur-base) var(--ease-enter);
+  }
+  .journey__words p {
+    margin: 0;
+  }
+  /* A short list, one picture per line. */
+  .journey__points {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .journey__point {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .journey__mark {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-control);
+    background: var(--c-bg-sunken);
+  }
+  .journey__point strong {
+    display: block;
+    font: var(--text-title-s);
+  }
+  .journey__point small {
+    display: block;
+    color: var(--c-fg-muted);
+    font: var(--text-body-s);
+  }
+  /* The prompt for a coding agent: selectable, wrapped, in the mono face. */
+  .journey__prompt {
+    margin: 0;
+    padding: var(--space-3);
+    border-radius: var(--radius-control);
+    background: var(--c-bg-sunken);
+    font: var(--text-numeric);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    user-select: all;
+  }
+  .journey__news {
+    display: grid;
+    gap: var(--space-5);
+  }
+  .journey__news section {
+    display: grid;
+    gap: var(--space-3);
+  }
+  .journey__news h3 {
+    margin: 0;
+  }
+  .journey__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+  }
+  .journey__foot > .ds-button:first-child {
+    margin-right: auto;
+  }
+  /* Phones: Back and Next side by side and wide, "Skip" above them. */
+  @media (max-width: 599.98px) {
+    .journey__foot > .ds-button:not(:first-child) {
+      flex: 1;
+    }
+    .journey__foot > .ds-button:first-child {
+      flex-basis: 100%;
+    }
+  }
+  /* The picture picker inside a welcome: smaller cards, so a few fit at once. */
+  .journey .look-pick {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-auto-rows: max-content; /* scrolls: rows keep their height, never share the box */
+    max-height: 46vh;
+    overflow-y: auto;
+  }
+}

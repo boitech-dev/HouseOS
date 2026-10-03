@@ -1,0 +1,14 @@
+# REFERENCE ONLY: adapt all paths, users, runtime IDs and bind addresses before installation.
+[Unit]
+Description=HouseOS parser-only egress boundary
+Before=houseos-fetch.service
+After=network.target ufw.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/nft -f /opt/houseos/state/current/deploy/houseos-fetch.nft
+ExecStop=/usr/sbin/nft delete table inet houseos_fetch
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
