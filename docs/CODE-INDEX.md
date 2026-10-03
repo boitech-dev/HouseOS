@@ -171,78 +171,78 @@ Bounded provider adapters and actor-scoped deterministic tool orchestration.
 - [`prepare_cinema_queue_clear(body, actor, db)`](../backend/houseos/assistant.py#L428)
 - [`confirm_message(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/assistant.py#L460)
   HTTP: `router.post('/confirmations/{identity}')`
-- [`prepare_file_excerpt(body, actor, db)`](../backend/houseos/assistant.py#L535)
-- [`confirm_file_excerpt(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/assistant.py#L566)
+- [`prepare_file_excerpt(body, actor, db)`](../backend/houseos/assistant.py#L541)
+- [`confirm_file_excerpt(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/assistant.py#L572)
   HTTP: `router.post('/excerpt-confirmations/{identity}')`
-- [`record_usage_evidence(db, record, cfg, reported=None)`](../backend/houseos/assistant.py#L629)
+- [`record_usage_evidence(db, record, cfg, reported=None)`](../backend/houseos/assistant.py#L635)
   Persist billing evidence only. Provider text, identifiers and secrets are excluded.
-- [`audit_request(db, record)`](../backend/houseos/assistant.py#L735)
-- [`output_limit(cfg, provider=None)`](../backend/houseos/assistant.py#L756)
-- [`reserve(db, actor, provider, cfg, messages, schemas)`](../backend/houseos/assistant.py#L765)
-- [`without_images(messages)`](../backend/houseos/assistant.py#L920)
-- [`with_images(provider, messages)`](../backend/houseos/assistant.py#L924)
+- [`audit_request(db, record)`](../backend/houseos/assistant.py#L741)
+- [`output_limit(cfg, provider=None)`](../backend/houseos/assistant.py#L762)
+- [`reserve(db, actor, provider, cfg, messages, schemas)`](../backend/houseos/assistant.py#L771)
+- [`without_images(messages)`](../backend/houseos/assistant.py#L926)
+- [`with_images(provider, messages)`](../backend/houseos/assistant.py#L930)
   Messages may carry `images` (the theme studio's: a person's photo, a web picture):
-- [`studio_lane(cfg)`](../backend/houseos/assistant.py#L956)
+- [`studio_lane(cfg)`](../backend/houseos/assistant.py#L962)
   The theme studio's rounds go to the bridge's own lane (a long round never makes everyday
-- [`provider_round(provider, cfg, messages, schemas)`](../backend/houseos/assistant.py#L964)
-- [`is_ollama(base)`](../backend/houseos/assistant.py#L1142)
+- [`provider_round(provider, cfg, messages, schemas)`](../backend/houseos/assistant.py#L970)
+- [`is_ollama(base)`](../backend/houseos/assistant.py#L1148)
   Ollama answers /api/version next to its /v1; remembered per address.
-- [`compatible_base(value)`](../backend/houseos/assistant.py#L1156)
+- [`compatible_base(value)`](../backend/houseos/assistant.py#L1162)
   A self-hosted address typed without a path means the usual /v1 (Ollama, LM Studio, vLLM).
-- [`provider_error(exc, secret=None)`](../backend/houseos/assistant.py#L1162)
+- [`provider_error(exc, secret=None)`](../backend/houseos/assistant.py#L1168)
   The provider's own words about a refused request ("model does not support tools"),
-- [`require_room(read, policy, messages, schemas)`](../backend/houseos/assistant.py#L1181)
+- [`require_room(read, policy, messages, schemas)`](../backend/houseos/assistant.py#L1187)
   A self-hosted server with a small context silently drops most of Nox's instructions
-- [`ollama_round(root, cfg, policy, messages, schemas)`](../backend/houseos/assistant.py#L1198)
+- [`ollama_round(root, cfg, policy, messages, schemas)`](../backend/houseos/assistant.py#L1204)
   Ollama through its own API: the only one that lets a request ask for enough context
-- [`history_message(message, cards=None)`](../backend/houseos/assistant.py#L1258)
-- [`relevant_memories(rows, request)`](../backend/houseos/assistant.py#L1295)
+- [`history_message(message, cards=None)`](../backend/houseos/assistant.py#L1264)
+- [`relevant_memories(rows, request)`](../backend/houseos/assistant.py#L1301)
   Bounded lexical retrieval; no model, embeddings or hidden inferred memory.
-- [`bounded_history(rows, card_resolver=None, limit=12000)`](../backend/houseos/assistant.py#L1311)
+- [`bounded_history(rows, card_resolver=None, limit=12000)`](../backend/houseos/assistant.py#L1317)
   Keep complete recent messages under `limit` characters; never truncate workflow IDs.
-- [`limits(purpose)`](../backend/houseos/assistant.py#L1349)
+- [`limits(purpose)`](../backend/houseos/assistant.py#L1355)
   What one turn may take, by assistant purpose.
-- [`class Turn`](../backend/houseos/assistant.py#L1371)
+- [`class Turn`](../backend/houseos/assistant.py#L1377)
   Mutable state of one chat request.
   Method: `elapsed(self)`
-- [`load_tools(turn)`](../backend/houseos/assistant.py#L1402)
-- [`attachment_path(actor, name)`](../backend/houseos/assistant.py#L1412)
-- [`add_attachment(file: UploadFile=File(...), actor=Depends(require_actor))`](../backend/houseos/assistant.py#L1419)
+- [`load_tools(turn)`](../backend/houseos/assistant.py#L1408)
+- [`attachment_path(actor, name)`](../backend/houseos/assistant.py#L1418)
+- [`add_attachment(file: UploadFile=File(...), actor=Depends(require_actor))`](../backend/houseos/assistant.py#L1425)
   A picture for the theme studio: decoded, turned upright, downscaled, no metadata kept.
   HTTP: `router.post('/attachments')`
-- [`get_attachment(name: str, actor=Depends(require_actor))`](../backend/houseos/assistant.py#L1448)
+- [`get_attachment(name: str, actor=Depends(require_actor))`](../backend/houseos/assistant.py#L1454)
   HTTP: `router.get('/attachments/{name}')`
-- [`start_background(target, *args)`](../backend/houseos/assistant.py#L1460)
+- [`start_background(target, *args)`](../backend/houseos/assistant.py#L1466)
   Run a long turn on its own thread (tests replace this to run it inline).
-- [`chat(body: Chat, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/assistant.py#L1466)
+- [`chat(body: Chat, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/assistant.py#L1472)
   HTTP: `router.post('/chat')`
-- [`chat_in_background(body, actor, db)`](../backend/houseos/assistant.py#L1475)
+- [`chat_in_background(body, actor, db)`](../backend/houseos/assistant.py#L1481)
   A studio turn takes minutes: the request returns at once and the page follows the
-- [`studio_turn(turn)`](../backend/houseos/assistant.py#L1494)
-- [`finish_turn(turn, db)`](../backend/houseos/assistant.py#L1504)
-- [`run_preset(turn, db)`](../backend/houseos/assistant.py#L1531)
+- [`studio_turn(turn)`](../backend/houseos/assistant.py#L1500)
+- [`finish_turn(turn, db)`](../backend/houseos/assistant.py#L1510)
+- [`run_preset(turn, db)`](../backend/houseos/assistant.py#L1537)
   A code preset: the answer comes from HouseOS itself, no model and no cost.
-- [`open_turn(body, actor, db)`](../backend/houseos/assistant.py#L1544)
+- [`open_turn(body, actor, db)`](../backend/houseos/assistant.py#L1550)
   Authorize, deduplicate by idempotency key and persist the user message.
-- [`prepare_turn(turn, db)`](../backend/houseos/assistant.py#L1714)
+- [`prepare_turn(turn, db)`](../backend/houseos/assistant.py#L1720)
   Choose tools and build the provider messages: stable system text first, then history,
-- [`provider_call(turn, db)`](../backend/houseos/assistant.py#L1852)
+- [`provider_call(turn, db)`](../backend/houseos/assistant.py#L1858)
   One provider round with usage accounting; retries transient failures twice, never tools.
-- [`set_progress(db, turn, value)`](../backend/houseos/assistant.py#L1948)
-- [`execute_tool(turn, db, call)`](../backend/houseos/assistant.py#L1955)
+- [`set_progress(db, turn, value)`](../backend/houseos/assistant.py#L1954)
+- [`execute_tool(turn, db, call)`](../backend/houseos/assistant.py#L1961)
   Validate and run one returned tool call; the result is always a JSON-able dict.
-- [`run_turn(turn, db)`](../backend/houseos/assistant.py#L2079)
+- [`run_turn(turn, db)`](../backend/houseos/assistant.py#L2085)
   Provider rounds and tool calls until a reply, a confirmation/choice, a stop or a limit.
-- [`fallback_reply(turn)`](../backend/houseos/assistant.py#L2289)
-- [`close_turn(turn, db, completed)`](../backend/houseos/assistant.py#L2311)
+- [`fallback_reply(turn)`](../backend/houseos/assistant.py#L2295)
+- [`close_turn(turn, db, completed)`](../backend/houseos/assistant.py#L2317)
   Persist the reply, context and receipt whatever happened; returns False if deleted.
-- [`tv_followup_context(db, actor, conversation_id, confirmation_id)`](../backend/houseos/assistant.py#L2371)
+- [`tv_followup_context(db, actor, conversation_id, confirmation_id)`](../backend/houseos/assistant.py#L2377)
   Resume only movie selection after this conversation's exact observed TV action.
-- [`continue_tv(conversation_id: str, confirmation_id: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/assistant.py#L2426)
+- [`continue_tv(conversation_id: str, confirmation_id: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/assistant.py#L2432)
   HTTP: `router.post('/conversations/{conversation_id}/continue-tv/{confirmation_id}')`
-- [`resolved_cards(cards, actor, db)`](../backend/houseos/assistant.py#L2452)
+- [`resolved_cards(cards, actor, db)`](../backend/houseos/assistant.py#L2458)
   Refresh durable operation evidence from this actor's rows, with no provider/device calls.
-- [`voice(request: Request, language: str | None=Query(default=None, pattern='^[a-z]{2,3}$'), actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/assistant.py#L2531)
+- [`voice(request: Request, language: str | None=Query(default=None, pattern='^[a-z]{2,3}$'), actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/assistant.py#L2537)
   Transcribe one short recording locally (Whisper); the audio is deleted right after.
   HTTP: `router.post('/voice')`
 
@@ -352,21 +352,21 @@ Every handler calls the same permission-checked service the app's own screens us
 - [`class MusicControl`](../backend/houseos/assistant_tools.py#L545)
   Assistant music control. The queue version only guards a stale screen; a spoken
 - [`music_control(body, actor, db)`](../backend/houseos/assistant_tools.py#L557)
-- [`tool_catalogue()`](../backend/houseos/assistant_tools.py#L701)
+- [`tool_catalogue()`](../backend/houseos/assistant_tools.py#L703)
   Every assistant tool once: name -> (input model, description, handler).
-- [`tool_registry(context)`](../backend/houseos/assistant_tools.py#L1055)
-- [`class CinemaSearch`](../backend/houseos/assistant_tools.py#L1099)
-- [`class WorkflowVersion`](../backend/houseos/assistant_tools.py#L1103)
-- [`class CinemaLaunch`](../backend/houseos/assistant_tools.py#L1108)
-- [`class CinemaChange`](../backend/houseos/assistant_tools.py#L1112)
-- [`omit_default_nulls(value, schema)`](../backend/houseos/assistant_tools.py#L1116)
+- [`tool_registry(context)`](../backend/houseos/assistant_tools.py#L1057)
+- [`class CinemaSearch`](../backend/houseos/assistant_tools.py#L1101)
+- [`class WorkflowVersion`](../backend/houseos/assistant_tools.py#L1105)
+- [`class CinemaLaunch`](../backend/houseos/assistant_tools.py#L1110)
+- [`class CinemaChange`](../backend/houseos/assistant_tools.py#L1114)
+- [`omit_default_nulls(value, schema)`](../backend/houseos/assistant_tools.py#L1118)
   Undo strict-provider null placeholders, including nested union/list models.
-- [`tool_schemas(registry)`](../backend/houseos/assistant_tools.py#L1167)
+- [`tool_schemas(registry)`](../backend/houseos/assistant_tools.py#L1169)
   What a provider sees of each tool. idempotency_key is left out: execute_tool always
-- [`compact_schema(schema)`](../backend/houseos/assistant_tools.py#L1179)
+- [`compact_schema(schema)`](../backend/houseos/assistant_tools.py#L1181)
   Pydantic's schema without titles, defaults or additionalProperties (the models forbid
-- [`strict_schema(schema)`](../backend/houseos/assistant_tools.py#L1202)
-- [`action_recap(name, args, result, actor, db)`](../backend/houseos/assistant_tools.py#L1278)
+- [`strict_schema(schema)`](../backend/houseos/assistant_tools.py#L1204)
+- [`action_recap(name, args, result, actor, db)`](../backend/houseos/assistant_tools.py#L1281)
 
 ## atomic
 
@@ -2363,11 +2363,11 @@ Source: [backend/houseos/main.py](../backend/houseos/main.py)
 - [`restartable()`](../backend/houseos/main.py#L17)
 - [`refused(request: Request, message: str, status: int)`](../backend/houseos/main.py#L27)
 - [`boundaries(request: Request, call_next)`](../backend/houseos/main.py#L41)
-- [`validation_error(request, exc)`](../backend/houseos/main.py#L112)
-- [`database_error(request, exc)`](../backend/houseos/main.py#L120)
-- [`unsupported_share()`](../backend/houseos/main.py#L174)
+- [`validation_error(request, exc)`](../backend/houseos/main.py#L118)
+- [`database_error(request, exc)`](../backend/houseos/main.py#L126)
+- [`unsupported_share()`](../backend/houseos/main.py#L181)
   HTTP: `app.post('/capture/share', include_in_schema=False)`
-- [`frontend(path: str, request: Request)`](../backend/houseos/main.py#L191)
+- [`frontend(path: str, request: Request)`](../backend/houseos/main.py#L198)
   HTTP: `app.get('/{path:path}', include_in_schema=False)`
 
 ## maintenance
@@ -3061,6 +3061,68 @@ uploaded.
 - [`font(theme_id: str, body: studio.Font, actor: Actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/remix.py#L248)
   HTTP: `router.post('/{theme_id}/font')`
 
+## screen_tv
+
+Source: [backend/houseos/screen_tv.py](../backend/houseos/screen_tv.py)
+
+Show on the TV: a YouTube link, played full screen on this computer's screen, which Sunshine
+streams to Moonlight on the TV.
+
+One press (a phone's share sheet, a button on YouTube, Nox) does all of it:
+- the TV: turned on through Home Assistant, then Moonlight opened straight on this computer's
+  desktop (on LG webOS, with launch parameters Moonlight TV reads; elsewhere, its input);
+- the computer: the desktop helper (docs/native/houseos_screen.py, run as the desktop user)
+  waits for the stream, opens the video in the browser and puts it full screen.
+
+The helper asks for work with a long poll and reports back; both live in the api process (one
+process on both installs), so a restart only drops a request that was a few seconds old.
+
+Shortcuts, userscripts and the helper can't sign in or send the browser's Origin: they carry the
+house's screen key instead (`Authorization: Bearer …`, created in Control Room → Devices). The
+key only reaches these routes, never a session, and acts as the administrator who created it.
+
+- [`seconds(value)`](../backend/houseos/screen_tv.py#L59)
+  YouTube's t= ("90", "90s", "1m30s", "1h2m3s") in whole seconds, or 0.
+- [`youtube(text, at=None)`](../backend/houseos/screen_tv.py#L68)
+  The YouTube video in a shared text or link, as {id, url, start}; None when there isn't one.
+- [`folder()`](../backend/houseos/screen_tv.py#L98)
+- [`saved_key()`](../backend/houseos/screen_tv.py#L104)
+- [`digest(key)`](../backend/houseos/screen_tv.py#L111)
+- [`bearer(request)`](../backend/houseos/screen_tv.py#L115)
+- [`key_actor(db, key)`](../backend/houseos/screen_tv.py#L120)
+  The administrator who created the screen key, while the key and their account hold.
+- [`helper_caller(request: Request, db: Session=Depends(get_db))`](../backend/houseos/screen_tv.py#L135)
+- [`caller(request: Request, db: Session=Depends(get_db))`](../backend/houseos/screen_tv.py#L139)
+  A request with the screen key uses only the key (it skipped the Origin check); the app
+- [`helper_up()`](../backend/houseos/screen_tv.py#L148)
+- [`take_job()`](../backend/houseos/screen_tv.py#L152)
+- [`next_job(host_uuid: str='', app_id: int=0, streaming: bool=False, name: str='', browser: str='', wait: int=WAIT_MAX, actor: Actor=Depends(helper_caller))`](../backend/houseos/screen_tv.py#L160)
+  The helper's long poll: what it reports about the computer, and the next video if any.
+  HTTP: `router.get('/next')`
+- [`class Report`](../backend/houseos/screen_tv.py#L190)
+- [`job_report(job_id: str, body: Report, actor: Actor=Depends(helper_caller))`](../backend/houseos/screen_tv.py#L197)
+  HTTP: `router.post('/jobs/{job_id}')`
+- [`find_tv(base, headers, config)`](../backend/houseos/screen_tv.py#L210)
+  The one Home Assistant TV HouseOS may control that lists Moonlight among its sources.
+- [`tv_service(base, headers, domain, service, data)`](../backend/houseos/screen_tv.py#L227)
+- [`open_moonlight(base, headers, entity, host_uuid, app_id)`](../backend/houseos/screen_tv.py#L233)
+  Moonlight straight on this computer's desktop (LG webOS); else just Moonlight.
+- [`bring_tv(db, streaming, host_uuid, app_id)`](../backend/houseos/screen_tv.py#L253)
+  Turn the TV on and onto the stream. Returns {name, done}; name is None without a TV.
+- [`show(db, actor, text, at=None)`](../backend/houseos/screen_tv.py#L304)
+  The whole press: the video to the computer, the TV onto the computer. Returns what was
+- [`class Show`](../backend/houseos/screen_tv.py#L369)
+- [`show_route(body: Show, actor: Actor=Depends(caller), db: Session=Depends(get_db))`](../backend/houseos/screen_tv.py#L375)
+  HTTP: `router.post('/show')`
+- [`status(actor: Actor=Depends(require_actor))`](../backend/houseos/screen_tv.py#L380)
+  Whether Show on the TV works now: the helper, the computer's stream, the latest request.
+  HTTP: `router.get('')`
+- [`create_key(actor: Actor=Depends(require_admin), db: Session=Depends(get_db))`](../backend/houseos/screen_tv.py#L404)
+  A new screen key (the previous one stops working). Shown once; only its hash is kept.
+  HTTP: `router.post('/key')`
+- [`delete_key(actor: Actor=Depends(require_admin), db: Session=Depends(get_db))`](../backend/houseos/screen_tv.py#L417)
+  HTTP: `router.delete('/key')`
+
 ## stats
 
 Source: [backend/houseos/stats.py](../backend/houseos/stats.py)
@@ -3474,6 +3536,8 @@ TV off". Only the remote's allowlisted buttons; the TV is found by name like sma
 - [`class TvRemote`](../backend/houseos/tool_tv.py#L14)
 - [`tv_remote_press(body, actor, db)`](../backend/houseos/tool_tv.py#L30)
 - [`tv_film_input(body, actor, db)`](../backend/houseos/tool_tv.py#L76)
+- [`class TvShowVideo`](../backend/houseos/tool_tv.py#L100)
+- [`tv_show_video(body, actor, db)`](../backend/houseos/tool_tv.py#L104)
 
 ## tv_remote
 
