@@ -18,6 +18,7 @@ import { ChangesAdmin } from "./changes";
 import { HouseSettingsAdmin } from "./house_settings";
 import { StorageAdmin } from "./files";
 import { PairDialog, steersScreen } from "./tvremote";
+import { CustomIntegrations } from "./custom_integrations";
 import { Usage, ThemePicker, SchemeChoice, MadeHere, Studio } from "./me";
 import { StartTheme, ThemePreview } from "./theme_preview";
 import { qrColours, allThemes, renamed, useTheme } from "./design/theme";
@@ -118,7 +119,12 @@ export function Admin() {
         {tab === "users" && <Users />}
         {tab === "invites" && <Invites />}
         {tab === "ai" && <AiConnections />}
-        {tab === "integrations" && <Integrations />}
+        {tab === "integrations" && (
+          <>
+            <Integrations />
+            <CustomIntegrations />
+          </>
+        )}
         {tab === "usage" && <Usage />}
         {tab === "logs" && <ActivityLog />}
       </SettingsLayout>

@@ -141,6 +141,16 @@ asks `voice.py` over a Unix socket; faster-whisper transcribes locally, returns 
 
 For a change: locate the domain service and all callers; update input/response schemas together; add a migration only if persistence changes; route both UI and tool actions through it; run the smallest relevant regression tests plus security/concurrency tests for changed boundaries. Update the docs that describe it.
 
+## Your own integrations
+
+A household's own code (a device only it has, a helper on another computer) is an integration
+installed from a git repository in Control Room → Integrations, not a change to HouseOS:
+`custom_admin.py` checks, installs (pinned to a commit, off until turned on) and updates it;
+`custom.py` loads it, serves its routes at `/api/v1/custom/<id>` (one ASGI mount before the
+screens' catch-all), checks its keys, and adds its Nox tools, Capture share buttons and Control
+Room card. The middleware's Origin check is waived only for the key routes an integration
+declares, and only for requests carrying an `Authorization` header. docs/CUSTOM-INTEGRATIONS.md.
+
 ## Operational boundary
 
 Native services/Unix sockets/peer checks are part of the security model, in Docker (one image, one container per role: `docker/` and `docker-compose.yml`) as in a native install. The native service files in `docs/native/` are references to adapt, not a turnkey host installer. Paths, service users, mount UUIDs, network policy and own HTTPS access must match the recipient machine. Secrets remain external to source. Backup database + encryption/config keys together securely; media backup is separate. See OPERATIONS-PERSONAL.md.

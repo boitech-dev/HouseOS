@@ -171,78 +171,78 @@ Bounded provider adapters and actor-scoped deterministic tool orchestration.
 - [`prepare_cinema_queue_clear(body, actor, db)`](../backend/houseos/assistant.py#L428)
 - [`confirm_message(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/assistant.py#L460)
   HTTP: `router.post('/confirmations/{identity}')`
-- [`prepare_file_excerpt(body, actor, db)`](../backend/houseos/assistant.py#L535)
-- [`confirm_file_excerpt(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/assistant.py#L566)
+- [`prepare_file_excerpt(body, actor, db)`](../backend/houseos/assistant.py#L539)
+- [`confirm_file_excerpt(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/assistant.py#L570)
   HTTP: `router.post('/excerpt-confirmations/{identity}')`
-- [`record_usage_evidence(db, record, cfg, reported=None)`](../backend/houseos/assistant.py#L629)
+- [`record_usage_evidence(db, record, cfg, reported=None)`](../backend/houseos/assistant.py#L633)
   Persist billing evidence only. Provider text, identifiers and secrets are excluded.
-- [`audit_request(db, record)`](../backend/houseos/assistant.py#L735)
-- [`output_limit(cfg, provider=None)`](../backend/houseos/assistant.py#L756)
-- [`reserve(db, actor, provider, cfg, messages, schemas)`](../backend/houseos/assistant.py#L765)
-- [`without_images(messages)`](../backend/houseos/assistant.py#L920)
-- [`with_images(provider, messages)`](../backend/houseos/assistant.py#L924)
+- [`audit_request(db, record)`](../backend/houseos/assistant.py#L739)
+- [`output_limit(cfg, provider=None)`](../backend/houseos/assistant.py#L760)
+- [`reserve(db, actor, provider, cfg, messages, schemas)`](../backend/houseos/assistant.py#L769)
+- [`without_images(messages)`](../backend/houseos/assistant.py#L924)
+- [`with_images(provider, messages)`](../backend/houseos/assistant.py#L928)
   Messages may carry `images` (the theme studio's: a person's photo, a web picture):
-- [`studio_lane(cfg)`](../backend/houseos/assistant.py#L956)
+- [`studio_lane(cfg)`](../backend/houseos/assistant.py#L960)
   The theme studio's rounds go to the bridge's own lane (a long round never makes everyday
-- [`provider_round(provider, cfg, messages, schemas)`](../backend/houseos/assistant.py#L964)
-- [`is_ollama(base)`](../backend/houseos/assistant.py#L1142)
+- [`provider_round(provider, cfg, messages, schemas)`](../backend/houseos/assistant.py#L968)
+- [`is_ollama(base)`](../backend/houseos/assistant.py#L1146)
   Ollama answers /api/version next to its /v1; remembered per address.
-- [`compatible_base(value)`](../backend/houseos/assistant.py#L1156)
+- [`compatible_base(value)`](../backend/houseos/assistant.py#L1160)
   A self-hosted address typed without a path means the usual /v1 (Ollama, LM Studio, vLLM).
-- [`provider_error(exc, secret=None)`](../backend/houseos/assistant.py#L1162)
+- [`provider_error(exc, secret=None)`](../backend/houseos/assistant.py#L1166)
   The provider's own words about a refused request ("model does not support tools"),
-- [`require_room(read, policy, messages, schemas)`](../backend/houseos/assistant.py#L1181)
+- [`require_room(read, policy, messages, schemas)`](../backend/houseos/assistant.py#L1185)
   A self-hosted server with a small context silently drops most of Nox's instructions
-- [`ollama_round(root, cfg, policy, messages, schemas)`](../backend/houseos/assistant.py#L1198)
+- [`ollama_round(root, cfg, policy, messages, schemas)`](../backend/houseos/assistant.py#L1202)
   Ollama through its own API: the only one that lets a request ask for enough context
-- [`history_message(message, cards=None)`](../backend/houseos/assistant.py#L1258)
-- [`relevant_memories(rows, request)`](../backend/houseos/assistant.py#L1295)
+- [`history_message(message, cards=None)`](../backend/houseos/assistant.py#L1262)
+- [`relevant_memories(rows, request)`](../backend/houseos/assistant.py#L1299)
   Bounded lexical retrieval; no model, embeddings or hidden inferred memory.
-- [`bounded_history(rows, card_resolver=None, limit=12000)`](../backend/houseos/assistant.py#L1311)
+- [`bounded_history(rows, card_resolver=None, limit=12000)`](../backend/houseos/assistant.py#L1315)
   Keep complete recent messages under `limit` characters; never truncate workflow IDs.
-- [`limits(purpose)`](../backend/houseos/assistant.py#L1349)
+- [`limits(purpose)`](../backend/houseos/assistant.py#L1353)
   What one turn may take, by assistant purpose.
-- [`class Turn`](../backend/houseos/assistant.py#L1371)
+- [`class Turn`](../backend/houseos/assistant.py#L1375)
   Mutable state of one chat request.
   Method: `elapsed(self)`
-- [`load_tools(turn)`](../backend/houseos/assistant.py#L1402)
-- [`attachment_path(actor, name)`](../backend/houseos/assistant.py#L1412)
-- [`add_attachment(file: UploadFile=File(...), actor=Depends(require_actor))`](../backend/houseos/assistant.py#L1419)
+- [`load_tools(turn)`](../backend/houseos/assistant.py#L1406)
+- [`attachment_path(actor, name)`](../backend/houseos/assistant.py#L1416)
+- [`add_attachment(file: UploadFile=File(...), actor=Depends(require_actor))`](../backend/houseos/assistant.py#L1423)
   A picture for the theme studio: decoded, turned upright, downscaled, no metadata kept.
   HTTP: `router.post('/attachments')`
-- [`get_attachment(name: str, actor=Depends(require_actor))`](../backend/houseos/assistant.py#L1448)
+- [`get_attachment(name: str, actor=Depends(require_actor))`](../backend/houseos/assistant.py#L1452)
   HTTP: `router.get('/attachments/{name}')`
-- [`start_background(target, *args)`](../backend/houseos/assistant.py#L1460)
+- [`start_background(target, *args)`](../backend/houseos/assistant.py#L1464)
   Run a long turn on its own thread (tests replace this to run it inline).
-- [`chat(body: Chat, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/assistant.py#L1466)
+- [`chat(body: Chat, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/assistant.py#L1470)
   HTTP: `router.post('/chat')`
-- [`chat_in_background(body, actor, db)`](../backend/houseos/assistant.py#L1475)
+- [`chat_in_background(body, actor, db)`](../backend/houseos/assistant.py#L1479)
   A studio turn takes minutes: the request returns at once and the page follows the
-- [`studio_turn(turn)`](../backend/houseos/assistant.py#L1494)
-- [`finish_turn(turn, db)`](../backend/houseos/assistant.py#L1504)
-- [`run_preset(turn, db)`](../backend/houseos/assistant.py#L1531)
+- [`studio_turn(turn)`](../backend/houseos/assistant.py#L1498)
+- [`finish_turn(turn, db)`](../backend/houseos/assistant.py#L1508)
+- [`run_preset(turn, db)`](../backend/houseos/assistant.py#L1535)
   A code preset: the answer comes from HouseOS itself, no model and no cost.
-- [`open_turn(body, actor, db)`](../backend/houseos/assistant.py#L1544)
+- [`open_turn(body, actor, db)`](../backend/houseos/assistant.py#L1548)
   Authorize, deduplicate by idempotency key and persist the user message.
-- [`prepare_turn(turn, db)`](../backend/houseos/assistant.py#L1714)
+- [`prepare_turn(turn, db)`](../backend/houseos/assistant.py#L1718)
   Choose tools and build the provider messages: stable system text first, then history,
-- [`provider_call(turn, db)`](../backend/houseos/assistant.py#L1852)
+- [`provider_call(turn, db)`](../backend/houseos/assistant.py#L1856)
   One provider round with usage accounting; retries transient failures twice, never tools.
-- [`set_progress(db, turn, value)`](../backend/houseos/assistant.py#L1948)
-- [`execute_tool(turn, db, call)`](../backend/houseos/assistant.py#L1955)
+- [`set_progress(db, turn, value)`](../backend/houseos/assistant.py#L1952)
+- [`execute_tool(turn, db, call)`](../backend/houseos/assistant.py#L1959)
   Validate and run one returned tool call; the result is always a JSON-able dict.
-- [`run_turn(turn, db)`](../backend/houseos/assistant.py#L2079)
+- [`run_turn(turn, db)`](../backend/houseos/assistant.py#L2083)
   Provider rounds and tool calls until a reply, a confirmation/choice, a stop or a limit.
-- [`fallback_reply(turn)`](../backend/houseos/assistant.py#L2289)
-- [`close_turn(turn, db, completed)`](../backend/houseos/assistant.py#L2311)
+- [`fallback_reply(turn)`](../backend/houseos/assistant.py#L2293)
+- [`close_turn(turn, db, completed)`](../backend/houseos/assistant.py#L2315)
   Persist the reply, context and receipt whatever happened; returns False if deleted.
-- [`tv_followup_context(db, actor, conversation_id, confirmation_id)`](../backend/houseos/assistant.py#L2371)
+- [`tv_followup_context(db, actor, conversation_id, confirmation_id)`](../backend/houseos/assistant.py#L2375)
   Resume only movie selection after this conversation's exact observed TV action.
-- [`continue_tv(conversation_id: str, confirmation_id: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/assistant.py#L2426)
+- [`continue_tv(conversation_id: str, confirmation_id: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/assistant.py#L2430)
   HTTP: `router.post('/conversations/{conversation_id}/continue-tv/{confirmation_id}')`
-- [`resolved_cards(cards, actor, db)`](../backend/houseos/assistant.py#L2452)
+- [`resolved_cards(cards, actor, db)`](../backend/houseos/assistant.py#L2456)
   Refresh durable operation evidence from this actor's rows, with no provider/device calls.
-- [`voice(request: Request, language: str | None=Query(default=None, pattern='^[a-z]{2,3}$'), actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/assistant.py#L2531)
+- [`voice(request: Request, language: str | None=Query(default=None, pattern='^[a-z]{2,3}$'), actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/assistant.py#L2535)
   Transcribe one short recording locally (Whisper); the audio is deleted right after.
   HTTP: `router.post('/voice')`
 
@@ -355,18 +355,18 @@ Every handler calls the same permission-checked service the app's own screens us
 - [`tool_catalogue()`](../backend/houseos/assistant_tools.py#L701)
   Every assistant tool once: name -> (input model, description, handler).
 - [`tool_registry(context)`](../backend/houseos/assistant_tools.py#L1055)
-- [`class CinemaSearch`](../backend/houseos/assistant_tools.py#L1099)
-- [`class WorkflowVersion`](../backend/houseos/assistant_tools.py#L1103)
-- [`class CinemaLaunch`](../backend/houseos/assistant_tools.py#L1108)
-- [`class CinemaChange`](../backend/houseos/assistant_tools.py#L1112)
-- [`omit_default_nulls(value, schema)`](../backend/houseos/assistant_tools.py#L1116)
+- [`class CinemaSearch`](../backend/houseos/assistant_tools.py#L1103)
+- [`class WorkflowVersion`](../backend/houseos/assistant_tools.py#L1107)
+- [`class CinemaLaunch`](../backend/houseos/assistant_tools.py#L1112)
+- [`class CinemaChange`](../backend/houseos/assistant_tools.py#L1116)
+- [`omit_default_nulls(value, schema)`](../backend/houseos/assistant_tools.py#L1120)
   Undo strict-provider null placeholders, including nested union/list models.
-- [`tool_schemas(registry)`](../backend/houseos/assistant_tools.py#L1167)
+- [`tool_schemas(registry)`](../backend/houseos/assistant_tools.py#L1171)
   What a provider sees of each tool. idempotency_key is left out: execute_tool always
-- [`compact_schema(schema)`](../backend/houseos/assistant_tools.py#L1179)
+- [`compact_schema(schema)`](../backend/houseos/assistant_tools.py#L1183)
   Pydantic's schema without titles, defaults or additionalProperties (the models forbid
-- [`strict_schema(schema)`](../backend/houseos/assistant_tools.py#L1202)
-- [`action_recap(name, args, result, actor, db)`](../backend/houseos/assistant_tools.py#L1278)
+- [`strict_schema(schema)`](../backend/houseos/assistant_tools.py#L1206)
+- [`action_recap(name, args, result, actor, db)`](../backend/houseos/assistant_tools.py#L1282)
 
 ## atomic
 
@@ -1385,6 +1385,143 @@ Source: [backend/houseos/core.py](../backend/houseos/core.py)
 - [`activity(actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/core.py#L580)
   HTTP: `router.get('/activity')`
 
+## custom
+
+Source: [backend/houseos/custom.py](../backend/houseos/custom.py)
+
+Your own integrations: code a household adds for its own devices and habits, without changing
+HouseOS. Each one is a folder (installed from a git repository in Control Room → Integrations,
+see custom_admin.py) with a `houseos-integration.json` manifest and a Python entry file whose
+`setup(house)` returns what it adds:
+
+- routes, served at /api/v1/custom/<id>/…, with the house's sign-in or one of the integration's
+  own keys (for shortcuts, scripts and helpers on other computers, which can't sign in);
+- Nox tools, in the bundles it names, with confirmation cards when they act on something;
+- share buttons on Capture, for links that match its pattern (Android's share sheet);
+- a card in Control Room: status lines and how-to steps it reports.
+
+`House` below is everything an integration may rely on; the rest of HouseOS can change. The code
+runs inside the app with its full rights, so it is installed only by an administrator, pinned to
+a commit, and off until turned on. docs/CUSTOM-INTEGRATIONS.md is the guide.
+
+- [`code_root()`](../backend/houseos/custom.py#L55)
+  Where installed integrations live (one folder each); replaced only by an install or update.
+- [`state_root()`](../backend/houseos/custom.py#L60)
+- [`problem(status, code, message)`](../backend/houseos/custom.py#L64)
+- [`class Share`](../backend/houseos/custom.py#L70)
+  A button on Capture for shared text matching `match` (a regular expression JavaScript and
+- [`class Parts`](../backend/houseos/custom.py#L82)
+- [`class Loaded`](../backend/houseos/custom.py#L97)
+- [`class HomeAssistant`](../backend/houseos/custom.py#L106)
+  The house's Home Assistant, as HouseOS already uses it: only the entities an administrator
+  Method: `__init__(self, db)`
+  Method: `states(self)`
+  Method: `state(self, entity_id)`
+  Method: `exposed(self, entity_id)`
+  Method: `call(self, domain, service, data, timeout=10)`
+- [`house_db()`](../backend/houseos/custom.py#L145)
+  The house's database session, as the app itself gets it (with its overrides).
+- [`signed_in(request: Request, db=Depends(house_db))`](../backend/houseos/custom.py#L155)
+- [`class House`](../backend/houseos/custom.py#L159)
+  What HouseOS gives an integration. Dependencies go in FastAPI routes; the rest are plain
+  Method: `__init__(self, integration_id)`
+  Method: `key_only(self, request: Request, db=Depends(house_db))`
+  Method: `key_or_signed_in(self, request: Request, db=Depends(house_db))`
+  Method: `allowed(actor, *permissions)`
+  Method: `home_assistant(db)`
+  Method: `record(self, db, event, payload, actor=None)`
+  Method: `ask_first(self, actor, db, action, data, label, preview)`
+  Method: `problem(status, code, message)`
+- [`keys_file(integration_id)`](../backend/houseos/custom.py#L213)
+- [`keys(integration_id)`](../backend/houseos/custom.py#L219)
+- [`digest(key)`](../backend/houseos/custom.py#L226)
+- [`bearer(request)`](../backend/houseos/custom.py#L230)
+- [`key_actor(integration_id, db, key)`](../backend/houseos/custom.py#L235)
+- [`create_key(integration_id, name, actor)`](../backend/houseos/custom.py#L248)
+- [`remove_key(integration_id, key_id)`](../backend/houseos/custom.py#L262)
+- [`public_keys(integration_id)`](../backend/houseos/custom.py#L267)
+- [`read_manifest(folder: Path)`](../backend/houseos/custom.py#L272)
+  The manifest, checked; raises ValueError with a sentence.
+- [`forget_modules(integration_id)`](../backend/houseos/custom.py#L292)
+- [`check_parts(integration_id, parts)`](../backend/houseos/custom.py#L298)
+- [`load(integration_id)`](../backend/houseos/custom.py#L313)
+  Import an installed integration and serve it. Returns None, or why it didn't load.
+- [`unload(integration_id)`](../backend/houseos/custom.py#L345)
+- [`installed(db)`](../backend/houseos/custom.py#L352)
+- [`start(db)`](../backend/houseos/custom.py#L357)
+  At startup: load every integration that is turned on.
+- [`class Dispatch`](../backend/houseos/custom.py#L365)
+  /api/v1/custom/<id>/… → that integration's own app, while it is loaded.
+  Method: `__init__(self)`
+  Method: `__call__(self, scope, receive, send)`
+- [`key_route(path)`](../backend/houseos/custom.py#L389)
+  Whether this /api/v1/custom path is one its integration opens to keys (Origin skipped).
+- [`tools(context)`](../backend/houseos/custom.py#L400)
+  The tools turned-on integrations add to this bundle of Nox's.
+- [`confirm(row, actor, db)`](../backend/houseos/custom.py#L409)
+  A confirmed card from House.ask_first: run the integration's handler once.
+- [`shares(actor: Actor=Depends(require_actor))`](../backend/houseos/custom.py#L428)
+  Capture's buttons for shared links, from the integrations turned on.
+  HTTP: `router.get('/shares')`
+- [`card(loaded, actor, db)`](../backend/houseos/custom.py#L439)
+- [`describe(integration_id, row, actor, db)`](../backend/houseos/custom.py#L453)
+- [`class Enabled`](../backend/houseos/custom.py#L478)
+- [`class KeyName`](../backend/houseos/custom.py#L482)
+- [`list_installed(actor: Actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/custom.py#L490)
+  HTTP: `admin.get('')`
+- [`row_or_404(db, integration_id)`](../backend/houseos/custom.py#L494)
+- [`set_enabled(integration_id: str, body: Enabled, actor: Actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/custom.py#L502)
+  HTTP: `admin.put('/{integration_id}/enabled')`
+- [`new_key(integration_id: str, body: KeyName, actor: Actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/custom.py#L516)
+  HTTP: `admin.post('/{integration_id}/keys')`
+- [`delete_key(integration_id: str, key_id: str, actor: Actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/custom.py#L525)
+  HTTP: `admin.delete('/{integration_id}/keys/{key_id}')`
+- [`remove_files(integration_id)`](../backend/houseos/custom.py#L533)
+
+## custom_admin
+
+Source: [backend/houseos/custom_admin.py](../backend/houseos/custom_admin.py)
+
+Installing your own integrations from a git repository (Control Room → Integrations).
+
+Two steps, so an administrator sees what they install: **check** clones the repository (https only,
+a branch or tag if given, with an optional access token for a private one) into a staging folder
+and reads its manifest without running anything; **install** moves that exact commit into place,
+turned off. Updating is the same with the saved address and token, and keeps the integration's
+keys and data. The token is sent as a header, never written into the address or the copy, and
+kept encrypted like the other integrations' secrets.
+
+Sources are a field ("git" today), so other ways in (one Nox drafts, a folder) can come later
+through install_folder().
+
+- [`staging_root()`](../backend/houseos/custom_admin.py#L42)
+- [`checked_url(url)`](../backend/houseos/custom_admin.py#L51)
+- [`clone(url, ref, token, into: Path)`](../backend/houseos/custom_admin.py#L60)
+  A shallow copy of `ref` (or the default branch). Returns (commit, subject).
+- [`seal(token)`](../backend/houseos/custom_admin.py#L104)
+- [`unseal(row)`](../backend/houseos/custom_admin.py#L108)
+- [`preview(check_id, folder, source)`](../backend/houseos/custom_admin.py#L121)
+- [`public(source)`](../backend/houseos/custom_admin.py#L132)
+- [`write_meta(stage, meta)`](../backend/houseos/custom_admin.py#L136)
+- [`stage(url, ref, token)`](../backend/houseos/custom_admin.py#L141)
+- [`staged(check_id)`](../backend/houseos/custom_admin.py#L161)
+- [`install_folder(db, folder: Path, manifest, source, actor, replace=False)`](../backend/houseos/custom_admin.py#L172)
+  Put a checked copy in place, turned off (or as it was, on an update). Any source.
+- [`class Check`](../backend/houseos/custom_admin.py#L211)
+- [`class Staged`](../backend/houseos/custom_admin.py#L217)
+- [`check(body: Check, actor: Actor=Depends(require_admin))`](../backend/houseos/custom_admin.py#L222)
+  Download and read a repository's manifest, without running any of it.
+  HTTP: `router.post('/check')`
+- [`install(body: Staged, actor: Actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/custom_admin.py#L228)
+  HTTP: `router.post('/install')`
+- [`check_update(integration_id: str, actor: Actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/custom_admin.py#L238)
+  HTTP: `router.post('/{integration_id}/check-update')`
+- [`update(integration_id: str, body: Staged, actor: Actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/custom_admin.py#L252)
+  HTTP: `router.post('/{integration_id}/update')`
+- [`remove(integration_id: str, actor: Actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/custom_admin.py#L267)
+  Its code, keys and data go; what it recorded in the activity diary stays.
+  HTTP: `router.delete('/{integration_id}')`
+
 ## db
 
 Source: [backend/houseos/db.py](../backend/houseos/db.py)
@@ -2361,13 +2498,15 @@ apply to every call, as for a chat with Nox.
 Source: [backend/houseos/main.py](../backend/houseos/main.py)
 
 - [`restartable()`](../backend/houseos/main.py#L17)
-- [`refused(request: Request, message: str, status: int)`](../backend/houseos/main.py#L27)
-- [`boundaries(request: Request, call_next)`](../backend/houseos/main.py#L41)
-- [`validation_error(request, exc)`](../backend/houseos/main.py#L112)
-- [`database_error(request, exc)`](../backend/houseos/main.py#L120)
-- [`unsupported_share()`](../backend/houseos/main.py#L174)
+- [`start_custom()`](../backend/houseos/main.py#L28)
+  Your own integrations that are turned on (custom.py); one that fails only says why.
+- [`refused(request: Request, message: str, status: int)`](../backend/houseos/main.py#L40)
+- [`boundaries(request: Request, call_next)`](../backend/houseos/main.py#L54)
+- [`validation_error(request, exc)`](../backend/houseos/main.py#L132)
+- [`database_error(request, exc)`](../backend/houseos/main.py#L140)
+- [`unsupported_share()`](../backend/houseos/main.py#L198)
   HTTP: `app.post('/capture/share', include_in_schema=False)`
-- [`frontend(path: str, request: Request)`](../backend/houseos/main.py#L191)
+- [`frontend(path: str, request: Request)`](../backend/houseos/main.py#L215)
   HTTP: `app.get('/{path:path}', include_in_schema=False)`
 
 ## maintenance
@@ -3670,6 +3809,7 @@ Source: [backend/houseos/worker.py](../backend/houseos/worker.py)
 - [cinema.tsx](../frontend/src/cinema.tsx): `trackLanguage`, `deviceTone`, `TV`, `Screens`, `downloadActive`, `DownloadProgress`, `SubtitlePicker`, `useCinemaCurrent`, `CinemaTransport`, `CinemaStop`, `CinemaSleep`
 - [cinema_upload.tsx](../frontend/src/cinema_upload.tsx): `CinemaUpload`
 - [control.tsx](../frontend/src/control.tsx): `Admin`
+- [custom_integrations.tsx](../frontend/src/custom_integrations.tsx): `own`, `CustomIntegrations`, `ShareButtons`
 - [file_transfer.ts](../frontend/src/file_transfer.ts): `cancelUpload`, `transferFile`
 - [files.css](../frontend/src/files.css): styles
 - [files.tsx](../frontend/src/files.tsx): `Files`, `Capture`, `StorageAdmin`

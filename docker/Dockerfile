@@ -3,10 +3,11 @@ FROM python:3.13-slim-bookworm AS app
 
 # ffmpeg/ffprobe: audio and film inspection · mpv: the speaker bridge · nodejs/npm: YouTube's
 # challenge solver and the ChatGPT/Claude sign-in clients · bubblewrap: sandbox for media
-# parsers · pulseaudio-utils: the host's PipeWire/PulseAudio · util-linux: findmnt/setpriv.
+# parsers · pulseaudio-utils: the host's PipeWire/PulseAudio · util-linux: findmnt/setpriv ·
+# git: installing your own integrations from their repository (custom_admin.py).
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-      ffmpeg mpv nodejs npm bubblewrap pulseaudio-utils util-linux ca-certificates tini \
+      ffmpeg mpv nodejs npm bubblewrap pulseaudio-utils util-linux ca-certificates tini git \
  && rm -rf /var/lib/apt/lists/* \
  # The media sandbox exposes /usr only: resolve Debian's /etc/alternatives library links.
  && find /usr/lib -lname '/etc/alternatives/*' -exec sh -c 'ln -sfn "$(readlink -f "$1")" "$1"' _ {} \;

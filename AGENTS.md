@@ -79,6 +79,7 @@ encrypted.
   - Home: `household.py`.
   - Assistant: `assistant*.py`.
   - Smart home: `home.py`.
+  - Your own integrations (a house's own code, from a git repository): `custom.py`, `custom_admin.py`; docs/CUSTOM-INTEGRATIONS.md.
 - **Frontend:** `frontend/src/`, one file per room with its CSS beside it (`music.tsx`,
   `watch.tsx`, `household.tsx`, `me.tsx`, `control.tsx`…; the list is in docs/FRONTEND.md).
   - Product and writing rules: docs/design/BRIEF.md, docs/design/COPY.md.
