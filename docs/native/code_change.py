@@ -31,7 +31,13 @@ from pathlib import Path
 # The running release's rules, this one file only: importing the houseos package would run its
 # __init__ (app code) here, outside the jail, as the checkout's owner.
 _spec = importlib.util.spec_from_file_location(
-    "code_rules", Path(__file__).resolve().parents[1] / "backend/houseos/code_rules.py"
+    # The checkout this script sits in: deploy/ in a release, docs/native/ in the repository.
+    "code_rules",
+    next(
+        p / "backend/houseos/code_rules.py"
+        for p in Path(__file__).resolve().parents
+        if (p / "backend/houseos/code_rules.py").is_file()
+    ),
 )
 rules = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(rules)

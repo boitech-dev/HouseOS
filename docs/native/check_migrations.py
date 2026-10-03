@@ -12,7 +12,8 @@ import sys
 from pathlib import Path
 from sqlalchemy import create_engine, inspect, text
 
-backend = Path(__file__).resolve().parents[1] / "backend"
+# deploy/ in a release, docs/native/ in the repository: the nearest folder holding backend/.
+backend = next(p / "backend" for p in Path(__file__).resolve().parents if (p / "backend/houseos").is_dir())
 url = os.environ["DATABASE_URL"].replace("mysql://", "mysql+pymysql://", 1)
 engine = create_engine(url, hide_parameters=True)
 if engine.url.database != "houseos_migrate":

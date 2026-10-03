@@ -24,6 +24,17 @@ from test_core import admin
 ADA = SimpleNamespace(id="ada", name="Ada", role="admin")
 KEY = "test-key-for-the-helper"
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def shipped(name):
+    """A host script where this checkout keeps it: docs/native/ (and houseos.sh at the root) in
+    the public repository, deploy/ (packaging/docker/) in a house's own copy."""
+    for place in ("docs/native", "deploy", ".", "packaging/docker"):
+        if (ROOT / place / name).is_file():
+            return ROOT / place / name
+    raise FileNotFoundError(name)
+
+
 APP = "backend/houseos/app.py"
 NEW = "backend/houseos/new.py"
 
@@ -120,7 +131,7 @@ def test_the_host_script_and_houseos_sh_allow_the_same_paths(tmp_path):
                       "backend/tests/fixtures/a.json", "frontend/src/music.tsx", "frontend/src/design/x.css",
                       "themes/zabiwa/theme.json", "docs/CHANGING-HOUSEOS.md", "backend/houseos/sub/__init__.py",
                       "BACKEND/houseos/x.PY"}  # fmt: skip
-    script = (ROOT / "packaging/docker/houseos.sh").read_text()
+    script = shipped("houseos.sh").read_text()
     [rule] = [line for line in script.splitlines() if line.startswith("nox_may_change()")]
     listed = subprocess.run(
         [
@@ -188,7 +199,7 @@ def code_change(monkeypatch):
     """The host script, pointed at this test's temporary source and runtime from the start."""
     monkeypatch.setenv("HOUSEOS_SOURCE_ROOT", str(settings.source_root))
     monkeypatch.setenv("HOUSEOS_RUNTIME_ROOT", str(settings.runtime_root))
-    spec = importlib.util.spec_from_file_location("houseos_code_change_test", ROOT / "deploy/code_change.py")
+    spec = importlib.util.spec_from_file_location("houseos_code_change_test", shipped("code_change.py"))
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -300,7 +311,7 @@ def test_the_host_never_imports_the_app(tmp_path):
     loaded = subprocess.run(
         [sys.executable, "-c", "import importlib.util as u, sys\n"
          "s = u.spec_from_file_location('c', sys.argv[1]); s.loader.exec_module(u.module_from_spec(s))\n"
-         "print(sorted(m for m in sys.modules if m.split('.')[0] == 'houseos'))", ROOT / "deploy/code_change.py"],
+         "print(sorted(m for m in sys.modules if m.split('.')[0] == 'houseos'))", shipped("code_change.py")],
         cwd=tmp_path, env={**os.environ, "PYTHONPATH": str(ROOT / "backend"), "HOUSEOS_RUNTIME_ROOT": str(tmp_path)},
         capture_output=True, text=True, check=True,
     ).stdout  # fmt: skip
@@ -363,7 +374,7 @@ def test_the_broker_lets_the_code_user_restart_app_services_only(monkeypatch):
         pwd, "getpwnam", lambda n: SimpleNamespace(pw_uid=names[n]) if n in names else real(n)
     )
     monkeypatch.setenv("HOUSEOS_CODE_USER", "coder")
-    spec = importlib.util.spec_from_file_location("houseos_broker_test", ROOT / "deploy/control_broker.py")
+    spec = importlib.util.spec_from_file_location("houseos_broker_test", shipped("control_broker.py"))
     broker = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(broker)
     ran = []
@@ -555,7 +566,7 @@ def test_the_host_refuses_an_edited_checkout_and_reports_through_notes(host, rep
 
 
 def test_houseos_sh_parses_and_passes_shellcheck():
-    script = ROOT / "packaging/docker/houseos.sh"
+    script = shipped("houseos.sh")
     subprocess.run(["bash", "-n", script], check=True)
     if shutil.which("shellcheck"):
         found = subprocess.run(["shellcheck", "-S", "warning", script], capture_output=True, text=True)

@@ -151,6 +151,9 @@ Compatibility problems are the most common request. Work in this order:
 
 ## Changing it safely
 
+0. **Start from the latest `master`.** `git fetch origin` and `git status` first; work on a branch
+   from `origin/master` (`git switch -c my-change origin/master`), and `git pull --rebase` before
+   you push. Never force-push `master`: others build on its history. Open a pull request.
 1. Make the change, with its test: `backend/tests/` (pytest) or `frontend/tests/` (Playwright).
 2. Run the checks in docs/TESTING.md. Never point tests at the live database: the fixtures
    refuse any schema other than `houseos_test`.
