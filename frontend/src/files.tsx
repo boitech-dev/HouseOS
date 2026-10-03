@@ -1434,7 +1434,8 @@ function IncomingShare({
 }) {
   const [incoming, setIncoming] = useState<Obj | null>(null),
     [error, setError] = useState(""),
-    [discarding, setDiscarding] = useState(false);
+    [discarding, setDiscarding] = useState(false),
+    [sent, setSent] = useState("");
   useEffect(() => {
     void localStore("get", "incoming:" + id)
       .then((v) => setIncoming(v || {}))
@@ -1444,7 +1445,9 @@ function IncomingShare({
   return (
     <Section title={t("Incoming share")} lead={t("On this device, not uploaded.")}>
       <Problem error={error} />
-      {!incoming ? (
+      {sent ? (
+        <Notice tone="success">{sent}</Notice>
+      ) : !incoming ? (
         <State kind="loading" title={t("Reading this device’s incoming share…")} />
       ) : !incoming.id ? (
         <Text>
@@ -1459,6 +1462,16 @@ function IncomingShare({
       ) : (
         <>
           <Text>{incoming.text}</Text>
+          {/* A shared link straight to an integration (Show on the TV…): nothing to keep after. */}
+          {!offline && incoming.text && (
+            <ShareButtons
+              text={incoming.text}
+              onSent={(message) => {
+                void localStore("delete", "incoming:" + id);
+                setSent(message);
+              }}
+            />
+          )}
           {incoming.files?.length > 0 && (
             <List label={t("Shared files")}>
               {incoming.files.map((f: File, i: number) => (
@@ -1491,7 +1504,7 @@ function IncomingShare({
           </Form>
         </>
       )}
-      {incoming?.id && (
+      {incoming?.id && !sent && (
         <div>
           <Button variant="quiet" icon="trash" onClick={() => setDiscarding(true)}>
             {t("Discard incoming share")}
