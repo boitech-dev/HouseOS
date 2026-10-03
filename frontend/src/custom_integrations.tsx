@@ -373,8 +373,9 @@ function IntegrationSheet({ row, reload, onClose }: { row: Obj; reload: () => Pr
   );
 }
 
-/** Capture: the share buttons turned-on integrations offer for this text. */
-export function ShareButtons({ text }: { text: string }) {
+/** Capture: the share buttons turned-on integrations offer for this text. `onSent` takes over
+ *  once one worked (an incoming share then clears itself); otherwise its reply shows here. */
+export function ShareButtons({ text, onSent }: { text: string; onSent?: (message: string) => void }) {
   const { data } = useData<Obj>("/custom-integrations/shares");
   const [busy, setBusy] = useState(""),
     [said, setSaid] = useState<{ tone: Tone; text: string } | null>(null);
@@ -398,7 +399,9 @@ export function ShareButtons({ text }: { text: string }) {
             setSaid(null);
             try {
               const reply = await api<Obj>(`/custom/${s.integration}${s.path}`, "POST", { [s.field]: text });
-              setSaid({ tone: "success", text: own(reply?.message) || t("Sent.") });
+              const message = own(reply?.message) || t("Sent.");
+              if (onSent) onSent(message);
+              else setSaid({ tone: "success", text: message });
             } catch (e) {
               setSaid({ tone: "warning", text: (e as Error).message });
             } finally {
