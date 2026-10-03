@@ -53,8 +53,10 @@ PROBLEMS: dict[str, str] = {}  # id -> why it didn't load, in a sentence
 
 
 def code_root():
-    """Where installed integrations live (one folder each); replaced only by an install or update."""
-    return settings.runtime_root / "integrations"
+    """Where installed integrations live (one folder each); replaced only by an install or update.
+    Under run/: the one state folder the app may write on both installs (Docker's /state and a
+    native install's units only open the folders they list)."""
+    return settings.runtime_root / "run" / "integrations"
 
 
 def state_root():
