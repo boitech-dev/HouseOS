@@ -817,13 +817,6 @@ export function Capture({ offlineActor }: { offlineActor?: Obj } = {}) {
         "",
     ),
     [saved, setSaved] = useState(false);
-  // Show on the TV: the computer plays a YouTube link full screen, and the TV shows the computer.
-  const tvAllowed =
-    user?.role === "admin" ||
-    !!user?.permissions?.some((p: string) => p === "home.control" || p === "cinema.use");
-  const screen = useData<Obj>(tvAllowed ? "/tv/screen" : null);
-  const [shown, setShown] = useState(""),
-    [showing, setShowing] = useState(false);
   return (
     <Page>
       <PageHeader
@@ -923,28 +916,6 @@ export function Capture({ offlineActor }: { offlineActor?: Obj } = {}) {
                 {t("Play this video on the TV")}
               </Button>
             )}
-            {screen.data?.ready && /youtu\.?be/i.test(text) && (
-              <Button
-                icon="tv"
-                busy={showing}
-                onClick={async () => {
-                  setShowing(true);
-                  setShown("");
-                  try {
-                    await api("/tv/screen/show", "POST", { url: text });
-                    setShown("sent");
-                  } catch (e) {
-                    setShown((e as Error).message);
-                  } finally {
-                    setShowing(false);
-                  }
-                }}
-              >
-                {t("Show on the TV from the computer")}
-              </Button>
-            )}
-            {shown === "sent" && <Notice tone="success">{t("On its way to the TV.")}</Notice>}
-            {shown && shown !== "sent" && <Notice tone="warning">{shown}</Notice>}
             {/* Your own integrations' buttons for shared links (custom_integrations.tsx). */}
             {text && <ShareButtons text={text} />}
           </Form>
