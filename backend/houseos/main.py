@@ -74,12 +74,6 @@ async def boundaries(request: Request, call_next):
             )
         origin = access.normalize(request.headers.get("origin") or "")
         first_account = trust["open"] and request.url.path == "/api/v1/auth/bootstrap" and origin
-        # Show on the TV's shortcuts and helper send the screen key, never a cookie: no browser
-        # can forge that header across sites, and those routes then accept only the key.
-        screen_key = "authorization" in request.headers and (
-            request.url.path == "/api/v1/tv/screen/show"
-            or request.url.path.startswith("/api/v1/tv/screen/jobs/")
-        )
         # An integration's key routes (shortcuts, scripts, helpers) send its key and no cookie or
         # Origin: no browser can forge that header across sites, and those routes take only the key.
         custom_key = (
@@ -87,7 +81,7 @@ async def boundaries(request: Request, call_next):
             and request.url.path.startswith("/api/v1/custom/")
             and custom.key_route(request.url.path)
         )
-        if origin not in trust["origins"] and not first_account and not screen_key and not custom_key:
+        if origin not in trust["origins"] and not first_account and not custom_key:
             return refused(request, access.rejection("origin", request.headers.get("origin", "")), 403)
     try:
         response = await call_next(request)
@@ -180,7 +174,6 @@ for name in (
     "discovery",
     "home",
     "house_actions",
-    "screen_tv",  # before tv_remote: /tv/screen/… is Show on the TV, not a TV called "screen"
     "tv_remote",
     "activity",
     "languages",

@@ -482,7 +482,6 @@ def confirm_message(identity: str, actor=Depends(require_actor), db=Depends(get_
             "assistant.cast_output",
             "assistant.access_add",
             "assistant.tv_remote",
-            "assistant.tv_screen",
             "assistant.memory_save",
         }
         or row.state != "needs_confirmation"
@@ -499,11 +498,6 @@ def confirm_message(identity: str, actor=Depends(require_actor), db=Depends(get_
         return tv_remote.call(
             tv_remote.press, db, device, row.data["key"], row.data["value"], 1, row.data["target"]
         )
-    if row.kind == "assistant.tv_screen":  # prepared by tv_show_video
-        from . import screen_tv
-
-        db.commit()  # one confirmation sends at most once
-        return screen_tv.show(db, actor, row.data["url"])
     if row.kind == "assistant.memory_save":  # prepared by memory_save
         source = {k: v for k, v in row.data.items() if k.startswith("source_")}
         saved = save_memory(Memory(**{k: row.data[k] for k in Memory.model_fields}), actor, db)

@@ -591,7 +591,6 @@ BUNDLES = {
         "home_list",
         "home_control",
         "tv_remote",
-        "tv_show_video",
     ),
     "music": (
         "users_lookup",
@@ -684,7 +683,6 @@ BUNDLES = {
         "tv_control",
         "tv_remote",
         "tv_film_input",
-        "tv_show_video",
         "cinema_search",
         "cinema_discover",
     ),
@@ -1278,7 +1276,6 @@ ACTION_LABELS = {
     "home_control": "Smart home",
     "tv_remote": "TV remote",
     "tv_film_input": "Film TV input",
-    "tv_show_video": "Show on the TV",
 }
 
 
