@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- **Your own integrations**: code for your house's own devices and habits, installed from a git
+  repository in Control Room → Integrations (checked before it runs, pinned to a commit, off until
+  turned on, updated in one step). It can add routes with their own keys for shortcuts and
+  helpers, Nox tools with confirmation cards, share buttons on Capture and a Control Room card.
+  docs/CUSTOM-INTEGRATIONS.md, with a tested example. The Docker image now includes `git`.
+
 ## 1.0.0 — first release
 
 HouseOS is your home's own app: one computer at home runs it, and everyone opens it in a browser,

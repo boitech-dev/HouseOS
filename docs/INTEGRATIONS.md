@@ -4,6 +4,9 @@ Every integration starts empty and disabled. Configure them in **Control Room** 
 stored encrypted in your database with your own encryption key; never put them in source, Git, chat
 or docs. A setting that saves is not a tested feature: try the real thing once.
 
+Something HouseOS doesn't know (a device only your house has, a helper on another computer)?
+Add **your own integration** from a git repository: [CUSTOM-INTEGRATIONS.md](CUSTOM-INTEGRATIONS.md).
+
 ## Nox (the AI house manager)
 
 **Not configured.** Control Room → **AI** shows five cards; each is one input or the official sign-in.

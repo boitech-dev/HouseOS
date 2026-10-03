@@ -1,0 +1,7 @@
+{
+  "id": "hello",
+  "name": "Hello, house",
+  "version": "1.0.0",
+  "description": "The example integration: keeps the last link shared with it and shows it in Control Room.",
+  "entry": "integration.py"
+}

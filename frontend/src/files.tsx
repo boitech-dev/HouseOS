@@ -18,6 +18,7 @@ import {
   type Obj,
 } from "./api";
 import { go } from "./nav";
+import { ShareButtons } from "./custom_integrations";
 import { claimIncomingShare, localStore } from "./local";
 import { PeopleFilter, SortGenres } from "./music";
 import { OpenInPlayer } from "./player";
@@ -915,6 +916,8 @@ export function Capture({ offlineActor }: { offlineActor?: Obj } = {}) {
                 {t("Play this video on the TV")}
               </Button>
             )}
+            {/* Your own integrations' buttons for shared links (custom_integrations.tsx). */}
+            {text && <ShareButtons text={text} />}
           </Form>
         </Section>
         <div className="files-stack">
