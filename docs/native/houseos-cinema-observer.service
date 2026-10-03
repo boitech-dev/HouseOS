@@ -1,0 +1,41 @@
+# REFERENCE ONLY: adapt all paths, users, runtime IDs and bind addresses before installation.
+[Unit]
+Description=HouseOS cinema-observer
+After=network-online.target
+Wants=network-online.target
+RequiresMountsFor=/mnt/house-storage/houseos
+
+[Service]
+User=houseos
+Group=houseos
+WorkingDirectory=/opt/houseos/state/current/backend
+EnvironmentFile=/etc/houseos/houseos.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+Environment=HOME=/opt/houseos/state/run
+Environment=HOUSEOS_RUNTIME_ROOT=/opt/houseos/state
+ExecStartPre=/opt/houseos/state/venvs/app/bin/python /opt/houseos/state/current/deploy/mount_check.py
+ExecStart=/opt/houseos/state/venvs/app/bin/python -m houseos.cinema_observer
+Restart=on-failure
+RestartSec=5
+UMask=0007
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+RestrictSUIDSGID=yes
+ProtectSystem=strict
+ProtectHome=read-only
+# YOUR_PRIVATE_DIRS: folders this service must never see (your SSH keys, backups, …).
+InaccessiblePaths=YOUR_PRIVATE_DIRS
+ReadWritePaths=/opt/houseos/state/run /opt/houseos/state/audio /opt/houseos/state/transcode /opt/houseos/state/cinema /mnt/house-storage/houseos
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+LockPersonality=yes
+LimitCORE=0
+MemoryMax=2G
+TasksMax=128
+
+[Install]
+WantedBy=multi-user.target

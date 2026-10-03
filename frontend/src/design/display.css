@@ -1,0 +1,486 @@
+/* Display pieces (display.tsx). Tokens only. */
+@layer components {
+  .ds-text {
+    font: var(--text-body-m);
+  }
+  .ds-text[data-style="display-xl"] {
+    font: var(--text-display-xl);
+    letter-spacing: var(--text-display-xl-tracking);
+    text-transform: var(--text-display-xl-case);
+  }
+  .ds-text[data-style="display-l"] {
+    font: var(--text-display-l);
+    letter-spacing: var(--text-display-l-tracking);
+    text-transform: var(--text-display-l-case);
+  }
+  .ds-text[data-style="display-m"] {
+    font: var(--text-display-m);
+    letter-spacing: var(--text-display-m-tracking);
+    text-transform: var(--text-display-m-case);
+  }
+  .ds-text[data-style="title-l"] {
+    font: var(--text-title-l);
+    letter-spacing: var(--text-title-l-tracking);
+  }
+  .ds-text[data-style="title-m"] {
+    font: var(--text-title-m);
+    letter-spacing: var(--text-title-m-tracking);
+  }
+  .ds-text[data-style="title-s"] {
+    font: var(--text-title-s);
+    letter-spacing: var(--text-title-s-tracking);
+  }
+  .ds-text[data-style="body-l"] {
+    font: var(--text-body-l);
+  }
+  .ds-text[data-style="body-s"] {
+    font: var(--text-body-s);
+  }
+  .ds-text[data-style="action"] {
+    font: var(--text-action);
+  }
+  .ds-text[data-style="label"] {
+    font: var(--text-label);
+    letter-spacing: var(--text-label-tracking);
+    text-transform: var(--text-label-case);
+  }
+  .ds-text[data-style="caption"] {
+    font: var(--text-caption);
+    letter-spacing: var(--text-caption-tracking);
+  }
+  .ds-text[data-style="numeric"] {
+    font: var(--text-numeric);
+    font-variant-numeric: tabular-nums;
+  }
+  .ds-text[data-tone="muted"] {
+    color: var(--c-fg-muted);
+  }
+  .ds-text[data-tone="subtle"] {
+    color: var(--c-fg-subtle);
+  }
+  .ds-text[data-tone="accent"] {
+    color: var(--c-accent-fg);
+  }
+  .ds-text[data-tone="danger"] {
+    color: var(--c-danger-fg);
+  }
+
+  /* ---------- status and badges ---------- */
+  .ds-status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font: var(--text-body-s);
+    color: var(--c-fg-muted);
+  }
+  .ds-status[data-tone="accent"] .ds-icon {
+    color: var(--c-accent-solid);
+  }
+  .ds-status[data-tone="success"] .ds-icon {
+    color: var(--c-success-solid);
+  }
+  .ds-status[data-tone="warning"] .ds-icon {
+    color: var(--c-warning-solid);
+  }
+  .ds-status[data-tone="danger"] {
+    color: var(--c-danger-fg);
+  }
+  .ds-status[data-tone="danger"] .ds-icon {
+    color: var(--c-danger-solid);
+  }
+  .ds-status[data-tone="info"] .ds-icon {
+    color: var(--c-info-solid);
+  }
+  .ds-status[data-tone="private"] .ds-icon {
+    color: var(--c-private-solid);
+  }
+  .ds-status[data-busy] .ds-icon {
+    animation: ds-spin var(--dur-slower) linear infinite;
+  }
+  .ds-badge {
+    display: inline-grid;
+    place-items: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 var(--space-1);
+    border-radius: var(--radius-chip);
+    background: var(--c-accent-solid);
+    color: var(--c-fg-on-accent);
+    font: var(--text-caption);
+  }
+  .ds-badge[data-tone="neutral"] {
+    background: var(--c-bg-raised);
+    color: var(--c-fg-default);
+  }
+  .ds-badge[data-tone="danger"] {
+    background: var(--c-danger-soft);
+    color: var(--c-danger-fg);
+  }
+  .ds-badge[data-tone="success"] {
+    background: var(--c-success-soft);
+    color: var(--c-success-fg);
+  }
+
+  /* ---------- people ---------- */
+  .ds-avatar {
+    --size: 40px;
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: var(--size);
+    height: var(--size);
+    border-radius: var(--radius-avatar);
+    background: var(--c-bg-raised);
+    /* The ring is drawn inside the circle, so no parent's clip can shave it off, and nothing is
+       clipped here, so the at-home dot can sit on the edge. */
+    outline: var(--border-strong) solid var(--tone, var(--c-border-default));
+    outline-offset: calc(-1 * var(--border-strong));
+  }
+  /* A chosen picture is the whole avatar: its own transparent shape, no ring, disc or crop. */
+  .ds-avatar:has(> :not(.ds-avatar__initials)) {
+    outline: none;
+    background: transparent;
+    border-radius: 0;
+  }
+  .ds-avatar[data-size="s"] {
+    --size: 28px;
+  }
+  .ds-avatar[data-size="l"] {
+    --size: 64px;
+  }
+  .ds-avatar img {
+    image-rendering: pixelated;
+  }
+  /* Nobody chose a picture: their initials on their own colour (the pair the theme checks). */
+  .ds-avatar:has(> .ds-avatar__initials) {
+    background: var(--tone, var(--c-fg-muted));
+  }
+  .ds-avatar__initials {
+    color: var(--c-bg-canvas);
+    font: var(--text-title-s);
+    letter-spacing: 0;
+    line-height: 1;
+  }
+  .ds-avatar__initials::before {
+    content: attr(data-initials);
+  }
+  .ds-avatar[data-size="s"] .ds-avatar__initials {
+    font: var(--text-caption);
+    font-weight: 600;
+    line-height: 1;
+  }
+  .ds-avatar[data-size="l"] .ds-avatar__initials {
+    font: var(--text-title-l);
+    line-height: 1;
+  }
+  .ds-avatar[data-home]::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 10px;
+    height: 10px;
+    border: var(--border-strong) solid var(--c-bg-canvas);
+    border-radius: var(--radius-full);
+    background: var(--c-success-solid);
+  }
+
+  /* ---------- progress, skeleton ---------- */
+  .ds-progress {
+    position: relative;
+    height: 6px;
+    min-width: 48px;
+    border-radius: var(--radius-full);
+    background: var(--c-border-subtle);
+    overflow: hidden;
+  }
+  .ds-progress::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--part-meter-pattern);
+    pointer-events: none;
+  }
+  .ds-progress > span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: calc(var(--value) * 100%);
+    border-radius: inherit;
+    background: var(--c-room, var(--c-accent-solid));
+    transition: width var(--dur-base) var(--ease-standard);
+  }
+  .ds-progress[data-steps] {
+    border-radius: 0;
+    background: transparent;
+    mask: repeating-linear-gradient(
+      to right,
+      var(--c-shadow) 0 calc(100% / var(--steps) - 3px),
+      transparent 0 calc(100% / var(--steps))
+    );
+    background-color: var(--c-border-subtle);
+  }
+  .ds-progress[data-busy] > span {
+    width: 35%;
+    animation: ds-glide calc(var(--dur-slower) * 3) var(--ease-standard) infinite;
+  }
+  @keyframes ds-glide {
+    from {
+      translate: -100% 0;
+    }
+    to {
+      translate: 300% 0;
+    }
+  }
+  .ds-skeleton {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .ds-skeleton span {
+    height: 16px;
+    border-radius: var(--radius-xs);
+    background: linear-gradient(90deg, var(--c-bg-raised), var(--c-bg-hover), var(--c-bg-raised)) 0
+      0 / 200% 100%;
+    animation: ds-shimmer calc(var(--dur-slower) * 3) linear infinite;
+  }
+  .ds-skeleton span:last-child {
+    width: 60%;
+  }
+  .ds-skeleton[data-media] span:first-child {
+    height: auto;
+    aspect-ratio: 2 / 3;
+  }
+  @keyframes ds-shimmer {
+    to {
+      background-position: -200% 0;
+    }
+  }
+
+  .ds-divider {
+    height: 0;
+    margin: var(--space-4) 0;
+    border: 0;
+    border-top: var(--border-hairline) solid var(--c-border-subtle);
+  }
+  .ds-kbd {
+    padding: 0 var(--space-1);
+    border: var(--border-hairline) solid var(--c-border-default);
+    border-radius: var(--radius-xs);
+    color: var(--c-fg-muted);
+    font: var(--text-numeric);
+  }
+  .ds-tooltip {
+    position: relative;
+    display: inline-flex;
+  }
+  .ds-tooltip > [role="tooltip"] {
+    position: absolute;
+    bottom: calc(100% + var(--space-1));
+    left: 50%;
+    z-index: var(--z-toast);
+    translate: -50% 0;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--mat-inverse-radius);
+    background: var(--mat-inverse-bg);
+    color: var(--mat-inverse-fg);
+    font: var(--text-caption);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-fast) var(--ease-standard);
+  }
+  .ds-tooltip:hover > [role="tooltip"],
+  .ds-tooltip:focus-within > [role="tooltip"] {
+    opacity: 1;
+  }
+
+  /* ---------- surfaces (materials) ---------- */
+  .ds-surface {
+    border-radius: var(--mat-surface-radius);
+    background: var(--mat-surface-bg) var(--mat-surface-texture);
+    border: var(--mat-surface-border);
+    box-shadow: var(--mat-surface-shadow);
+    clip-path: var(--shape-cut);
+  }
+  .ds-surface[data-material="raised"] {
+    border: var(--mat-raised-border);
+    border-radius: var(--mat-raised-radius);
+    background: var(--mat-raised-bg);
+    box-shadow: var(--mat-raised-shadow);
+  }
+  .ds-surface[data-material="sunken"] {
+    border: var(--mat-sunken-border);
+    border-radius: var(--mat-sunken-radius);
+    background: var(--mat-sunken-bg);
+    box-shadow: var(--mat-sunken-shadow);
+  }
+  .ds-surface[data-material="overlay"] {
+    border: var(--mat-overlay-border);
+    border-radius: var(--mat-overlay-radius);
+    background: var(--mat-overlay-bg);
+    box-shadow: var(--mat-overlay-shadow);
+  }
+  .ds-surface[data-material="inverse"] {
+    border: 0;
+    border-radius: var(--mat-inverse-radius);
+    background: var(--mat-inverse-bg);
+    color: var(--mat-inverse-fg);
+    box-shadow: none;
+  }
+  /* Text on paper takes the paper's ink, whatever the theme's page colours are. */
+  .ds-surface[data-material="paper"] {
+    --c-fg-default: var(--mat-paper-fg);
+    --c-fg-muted: color-mix(in oklab, var(--mat-paper-fg) 75%, var(--mat-paper-bg));
+    --c-fg-subtle: color-mix(in oklab, var(--mat-paper-fg) 65%, var(--mat-paper-bg));
+    --c-fg-link: var(--mat-paper-fg);
+    --c-border-subtle: color-mix(in oklab, var(--mat-paper-fg) 20%, var(--mat-paper-bg));
+    --c-bg-raised: color-mix(in oklab, var(--mat-paper-fg) 8%, var(--mat-paper-bg));
+    border: 0;
+    border-radius: var(--radius-xs);
+    background: var(--mat-paper-bg) var(--mat-paper-texture);
+    color: var(--mat-paper-fg);
+    box-shadow: var(--mat-paper-shadow);
+    rotate: var(--mat-paper-rotate);
+    clip-path: none;
+  }
+  .ds-surface[data-material="screen"] {
+    border: 0;
+    background: var(--mat-screen-bg) var(--mat-screen-texture);
+    color: var(--mat-screen-fg);
+    box-shadow: var(--mat-screen-glow);
+  }
+
+  /* ---------- media ---------- */
+  .ds-media {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border: var(--mat-media-border);
+    border-radius: var(--mat-media-radius);
+    background: var(--c-bg-raised) var(--placeholder) center / cover;
+    box-shadow: var(--mat-media-shadow);
+    image-rendering: pixelated;
+  }
+  .ds-media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    image-rendering: auto;
+    transition: opacity var(--dur-base) var(--ease-standard);
+  }
+  .ds-media img[data-loaded] {
+    opacity: 1;
+  }
+  .ds-media__mark {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: var(--c-fg-subtle);
+  }
+  /* Glyphs and Nox: one fixed box per size in every theme, the pixel sprite or line icon centred. */
+  .ds-mark {
+    --mark: 32px;
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+    width: var(--mark);
+    height: var(--mark);
+  }
+  .ds-mark[data-size="l"],
+  .ds-mascot[data-size="m"] {
+    --mark: 48px;
+  }
+  .ds-mascot[data-size="l"] {
+    --mark: 64px;
+  }
+  .ds-mascot > .ds-icon {
+    width: 75%;
+    height: 75%;
+  }
+  /* Pixel art keeps its hard edges at any size. */
+  .ds-sprite[data-fit] {
+    object-fit: contain;
+  }
+  .ds-sprite {
+    display: inline-block;
+    flex: none;
+    image-rendering: pixelated;
+  }
+  .ds-scene {
+    display: block;
+    width: 100%;
+    height: auto;
+    image-rendering: pixelated;
+  }
+  /* A theme drawn in itself (pickers, the studio's preview). */
+  .ds-specimen {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+    height: 100%;
+    padding: var(--space-4);
+    border: var(--mat-surface-border);
+  }
+  .ds-specimen__swatches {
+    display: flex;
+    gap: var(--space-1);
+  }
+  .ds-specimen__swatches > i {
+    width: var(--space-5);
+    height: var(--space-5);
+    border-radius: var(--radius-full);
+    border: var(--border-hairline) solid var(--c-border-subtle);
+    background: var(--swatch);
+  }
+  .ds-specimen__name {
+    font: var(--text-display-m);
+    letter-spacing: var(--text-display-m-tracking);
+    text-transform: var(--text-display-m-case);
+  }
+  .ds-specimen__about {
+    color: var(--c-fg-muted);
+    font: var(--text-body-s);
+  }
+  /* A word-free sample (the name shows the display face): the reading face, the accent, a
+     neutral step. Nothing here acts. */
+  .ds-specimen__sample {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .ds-specimen__sample > b {
+    font: var(--text-title-l);
+    letter-spacing: var(--text-title-l-tracking);
+  }
+  .ds-specimen__sample > i {
+    width: var(--space-7);
+    height: var(--space-2);
+    border-radius: var(--radius-control);
+    background: var(--c-accent-solid);
+  }
+  .ds-specimen__sample > i + i {
+    width: var(--space-6);
+    border: var(--border-hairline) solid var(--c-border-default);
+    background: var(--c-bg-raised);
+  }
+}
+
+/* A slot's art as its theme says, over any room's own crop (see design/slots.tsx). */
+@layer overrides {
+  img[data-slot-rendering="pixel"] {
+    image-rendering: pixelated;
+  }
+  img[data-slot-rendering="smooth"] {
+    image-rendering: auto;
+  }
+  img[data-slot-fit="contain"] {
+    object-fit: contain;
+  }
+  img[data-slot-fit="stretch"] {
+    object-fit: fill;
+  }
+}

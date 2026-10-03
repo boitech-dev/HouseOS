@@ -1,0 +1,7 @@
+[Unit]
+Description=Daily encrypted HouseOS backup
+[Timer]
+OnCalendar=*-*-* 04:15:00
+Persistent=true
+[Install]
+WantedBy=timers.target

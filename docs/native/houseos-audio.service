@@ -1,0 +1,42 @@
+# REFERENCE ONLY: adapt all paths, users, runtime IDs and bind addresses before installation.
+[Unit]
+Description=HouseOS audio
+After=network-online.target
+Wants=network-online.target
+RequiresMountsFor=/mnt/house-storage/houseos
+
+[Service]
+User=YOUR_DESKTOP_USER
+Group=houseos
+WorkingDirectory=/opt/houseos/state/current/backend
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+Environment=HOUSEOS_AUDIO_ENABLED=true
+Environment=XDG_RUNTIME_DIR=/run/user/YOUR_UID
+Environment=PULSE_SERVER=unix:/run/user/YOUR_UID/pulse/native
+Environment=HOME=/opt/houseos/state/run
+Environment=HOUSEOS_RUNTIME_ROOT=/opt/houseos/state
+ExecStart=/opt/houseos/state/venvs/app/bin/python -m houseos.audio
+Restart=on-failure
+RestartSec=5
+UMask=0007
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+RestrictSUIDSGID=yes
+ProtectSystem=strict
+ProtectHome=tmpfs
+InaccessiblePaths=/mnt/house-storage
+BindReadOnlyPaths=/opt/houseos/state/venvs /home/YOUR_USER/.local/share/uv/python /opt/houseos/state/current/backend
+BindPaths=/opt/houseos/state/run /opt/houseos/state/audio /run/user/YOUR_UID/pulse
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+LockPersonality=yes
+LimitCORE=0
+MemoryMax=2G
+TasksMax=128
+
+[Install]
+WantedBy=multi-user.target

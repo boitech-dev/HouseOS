@@ -1,0 +1,9 @@
+# REFERENCE ONLY: adapt all paths, users, runtime IDs and bind addresses before installation.
+[Unit]
+Description=Update the HouseOS AI helpers' sign-in clients (Claude Code, Codex)
+After=network-online.target
+Wants=network-online.target
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /opt/houseos/state/current/deploy/update_bridge_clis.py
+TimeoutStartSec=1500

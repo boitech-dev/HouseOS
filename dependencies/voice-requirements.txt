@@ -1,0 +1,11 @@
+# Optional voice service (houseos.voice): local speech-to-text with faster-whisper.
+# Its own venv (Python 3.12 or 3.13), installed online; not in the offline wheelhouse (large CUDA wheels).
+#   python3 -m venv <state>/venvs/voice && <state>/venvs/voice/bin/pip install -r voice-requirements.txt
+faster-whisper==1.2.1
+ctranslate2==4.8.2
+# NVIDIA GPU (optional, much faster): also install these and set LD_LIBRARY_PATH as in
+# docs/native/houseos-voice.service. Without a GPU the service uses the "small" model on CPU.
+# nvidia-cublas-cu12==12.9.2.10
+# nvidia-cudnn-cu12==9.26.0.51
+# Models (downloaded once into <state>/models/whisper, then used offline):
+#   large-v3-turbo (GPU, ~1.6 GB) and small (CPU fallback). See docs/SETUP.md §6.

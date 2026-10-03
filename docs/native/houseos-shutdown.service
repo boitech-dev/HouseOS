@@ -1,0 +1,7 @@
+# REFERENCE ONLY: adapt all paths, users, runtime IDs and bind addresses before installation.
+[Unit]
+Description=Gracefully stop all HouseOS-owned processes
+[Service]
+Type=oneshot
+ExecStart=/usr/local/lib/houseos/houseos-power stop
+TimeoutStartSec=150

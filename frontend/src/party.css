@@ -1,0 +1,162 @@
+/* Party (party.tsx): layout only. No navigation, big touch targets. On a big screen everything is
+   on one screen in either orientation (9:16 or 16:9): the song, the add bar and the queue
+   (scrolling inside itself). On a phone the page scrolls, so the queue always has its length.
+   The join code opens in a sheet. The shell hides its bars in party mode (shell.css). */
+@layer rooms {
+  .shell[data-mode="party"] .shell__main {
+    height: 100dvh;
+  }
+  .party-room {
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: var(--space-4);
+    padding: var(--space-4);
+  }
+  /* Portrait: one column; only the queue scrolls. */
+  .party-stage {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .party-stage > :not(.listen-queue) {
+    flex: none;
+  }
+  .party-stage > .listen-deck[data-compact] {
+    grid-template-columns: min(28vh, 320px) minmax(0, 1fr);
+  }
+  .party-stage > .listen-deck .listen-deck__art {
+    width: 100%;
+  }
+  /* Search results scroll here instead of pushing the queue away. */
+  .party-stage > .listen-add {
+    max-height: 38vh;
+    overflow-y: auto;
+  }
+  .party-stage > .listen-add > .ds-list {
+    max-height: none;
+  }
+  .party-stage > .listen-queue {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .party-volume {
+    display: none;
+  }
+
+  /* From a tablet up, the song reads from across the room. */
+  @media (min-width: 900px) {
+    .party-stage .listen-deck__title {
+      font: var(--text-display-xl);
+      letter-spacing: var(--text-display-xl-tracking);
+      text-transform: var(--text-display-xl-case);
+    }
+    .party-stage .listen-deck__meta {
+      font: var(--text-body-l);
+    }
+  }
+
+  /* A phone, upright or on its side: the page scrolls and the queue shows at its own length;
+     a small cover, and the volume behind a button in the header. */
+  @media (max-width: 599.98px), (max-height: 599.98px) {
+    .shell[data-mode="party"] .shell__main {
+      height: auto;
+      min-height: 100dvh;
+    }
+    .party-room {
+      height: auto;
+    }
+    .party-stage > .listen-queue {
+      flex: none;
+      overflow: visible;
+    }
+    .party-stage > .listen-add {
+      max-height: none;
+      overflow: visible;
+    }
+    .party-stage > .listen-deck[data-compact] {
+      grid-template-columns: 96px minmax(0, 1fr);
+    }
+    .party-stage > .listen-deck > .ds-slider:has(> .ds-field__label) {
+      display: none;
+    }
+    .party-volume {
+      display: inline-flex;
+    }
+  }
+  /* A phone's header keeps one row: no full screen, "Leave" as its arrow (the name is read). */
+  @media (max-width: 599.98px) {
+    .party-fullscreen {
+      display: none;
+    }
+    .party-leave .ds-button__label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+
+  /* ---------- the join code (in its sheet) ---------- */
+  .party-join {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-4);
+    text-align: center;
+  }
+  .party-join__qr {
+    width: min(48vh, 100%, 360px);
+    height: auto;
+    image-rendering: pixelated;
+  }
+  .party-join__words {
+    display: grid;
+    gap: var(--space-1);
+  }
+  .party-join__words > * {
+    margin: 0;
+  }
+
+  /* Wide screens: the search field, its source and the button on one line. */
+  @media (min-width: 900px) {
+    .party-stage .listen-add__field {
+      grid-template-columns: minmax(0, 1fr) auto auto;
+    }
+    .party-stage .listen-add__field > .listen-add__input {
+      grid-column: auto;
+    }
+  }
+
+  /* A big screen on its side: the song, large, on the left; the add bar and the queue beside it. */
+  @media (orientation: landscape) and (min-width: 900px) and (min-height: 600px) {
+    .party-stage {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: var(--space-4) var(--space-7);
+    }
+    .party-stage > .listen-deck[data-compact] {
+      grid-column: 1;
+      grid-row: 1 / -1;
+      align-self: center;
+      grid-template-columns: min(40vh, 50%) minmax(0, 1fr);
+      column-gap: var(--space-6);
+      row-gap: var(--space-5);
+    }
+    .party-stage > .listen-add {
+      grid-column: 2;
+      grid-row: 1;
+      max-height: 45vh;
+    }
+    .party-stage > .listen-queue {
+      grid-column: 2;
+      grid-row: 2;
+      height: 100%;
+    }
+  }
+}

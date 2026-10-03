@@ -1,0 +1,28 @@
+# REFERENCE ONLY: adapt all paths, users, runtime IDs and bind addresses before installation.
+[Unit]
+Description=HouseOS fixed service control broker
+After=network.target
+
+[Service]
+Group=houseos
+# The source checkout's owner may restart HouseOS too (houseos-code.service, Control Room → Changes).
+Environment=HOUSEOS_CODE_USER=ai
+ExecStart=/usr/bin/python3 /usr/local/lib/houseos/control_broker.py
+Restart=on-failure
+RestartSec=5
+UMask=0007
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+RuntimeDirectory=houseos-control
+RuntimeDirectoryMode=0750
+ReadWritePaths=/run/houseos-control
+PrivateTmp=yes
+RestrictAddressFamilies=AF_UNIX
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+CapabilityBoundingSet=CAP_CHOWN
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,103 @@
+{
+  "$description": "Base in light: the ramps flip by themselves; these marks darken so they still read on a light ground.",
+  "seed": {
+    "$type": "color",
+    "accent": {
+      "$value": "oklch(0.55 0.09 200)"
+    },
+    "success": {
+      "$value": "oklch(0.55 0.12 150)"
+    },
+    "warning": {
+      "$value": "oklch(0.6 0.13 70)"
+    },
+    "danger": {
+      "$value": "oklch(0.55 0.17 25)"
+    },
+    "info": {
+      "$value": "oklch(0.55 0.11 245)"
+    },
+    "private": {
+      "$value": "oklch(0.55 0.12 305)"
+    }
+  },
+  "color": {
+    "$type": "color",
+    "room": {
+      "home": {
+        "$value": "oklch(0.5 0.025 80)"
+      },
+      "listen": {
+        "$value": "oklch(0.54 0.07 50)"
+      },
+      "watch": {
+        "$value": "oklch(0.54 0.06 210)"
+      },
+      "house": {
+        "$value": "oklch(0.52 0.065 145)"
+      },
+      "files": {
+        "$value": "oklch(0.56 0.07 95)"
+      },
+      "ask": {
+        "$value": "oklch(0.5 0.08 10)"
+      },
+      "me": {
+        "$value": "oklch(0.52 0.06 325)"
+      },
+      "control": {
+        "$value": "oklch(0.48 0.07 260)"
+      },
+      "games": {
+        "$value": "oklch(0.5 0.07 175)"
+      }
+    },
+    "person": {
+      "1": {
+        "$value": "oklch(0.58 0.13 60)"
+      },
+      "2": {
+        "$value": "oklch(0.55 0.1 215)"
+      },
+      "3": {
+        "$value": "oklch(0.55 0.12 145)"
+      },
+      "4": {
+        "$value": "oklch(0.56 0.15 20)"
+      },
+      "5": {
+        "$value": "oklch(0.55 0.12 305)"
+      },
+      "6": {
+        "$value": "oklch(0.62 0.12 90)"
+      },
+      "7": {
+        "$value": "oklch(0.52 0.12 255)"
+      },
+      "8": {
+        "$value": "oklch(0.55 0.12 345)"
+      }
+    },
+    "shadow": {
+      "$value": "oklch(0.3 0.02 255)"
+    },
+    "scrim": {
+      "$value": "alpha({ramp.neutral.12}, 40%)"
+    }
+  },
+  "elev": {
+    "$type": "shadow",
+    "1": {
+      "$value": "0 1px 2px alpha({color.shadow}, 12%)"
+    },
+    "2": {
+      "$value": "0 2px 8px alpha({color.shadow}, 12%)"
+    },
+    "3": {
+      "$value": "0 8px 24px alpha({color.shadow}, 14%)"
+    },
+    "4": {
+      "$value": "0 16px 48px alpha({color.shadow}, 18%)"
+    }
+  }
+}

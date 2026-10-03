@@ -1,0 +1,338 @@
+/* Overlays (overlays.tsx). Tokens only. */
+@layer components {
+  /* ---------- sheets ---------- */
+  .ds-sheet {
+    --viewport-h: 100dvh;
+    position: fixed;
+    inset: auto 0 0 0;
+    width: 100%;
+    max-width: none;
+    max-height: calc(var(--viewport-h) - var(--space-5));
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--c-fg-default);
+    overflow: visible;
+  }
+  .ds-sheet::backdrop {
+    background: var(--c-scrim);
+    backdrop-filter: var(--mat-overlay-blur);
+    animation: ds-fade var(--dur-base) var(--ease-enter);
+  }
+  .ds-sheet[data-closing]::backdrop {
+    animation: ds-fade var(--dur-fast) var(--ease-exit) reverse forwards;
+  }
+  .ds-sheet[data-closing] .ds-sheet__panel {
+    animation: ds-rise var(--dur-fast) var(--ease-exit) reverse forwards;
+  }
+  @keyframes ds-fade {
+    from {
+      opacity: 0;
+    }
+  }
+  .ds-sheet__panel {
+    display: flex;
+    flex-direction: column;
+    max-height: inherit;
+    border: var(--part-sheet-border);
+    border-bottom: 0;
+    border-radius: var(--part-sheet-radius) var(--part-sheet-radius) 0 0;
+    background: var(--part-sheet-texture), var(--part-sheet-bg);
+    box-shadow: var(--part-sheet-shadow);
+    translate: 0 var(--drag, 0);
+    animation: ds-rise var(--dur-base) var(--ease-enter);
+  }
+  @keyframes ds-rise {
+    from {
+      translate: 0 var(--space-7);
+      opacity: 0;
+    }
+  }
+  /* A side sheet comes in from the side it sits on. */
+  @keyframes ds-slide-in {
+    from {
+      translate: var(--space-7) 0;
+      opacity: 0;
+    }
+  }
+  .ds-sheet__grip {
+    align-self: center;
+    width: 44px;
+    height: 20px;
+    flex: none;
+    cursor: grab;
+    touch-action: none;
+    background: linear-gradient(var(--c-border-strong), var(--c-border-strong)) center / 36px 4px
+      no-repeat;
+  }
+  .ds-sheet__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-2) var(--space-2) var(--space-5);
+  }
+  .ds-sheet[data-place="bottom"] .ds-sheet__head {
+    padding-top: 0;
+  }
+  .ds-sheet__head h2 {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    font: var(--text-title-l);
+    letter-spacing: var(--text-title-l-tracking);
+  }
+  .ds-sheet__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  .ds-sheet__body {
+    flex: 1;
+    min-height: 0;
+    padding: var(--space-2) var(--space-5) var(--space-5);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .ds-sheet__foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-5) calc(var(--space-3) + env(safe-area-inset-bottom));
+    border-top: var(--border-hairline) solid var(--c-border-subtle);
+  }
+  @media (min-width: 900px) {
+    .ds-sheet[data-place="side"] {
+      inset: 0 0 0 auto;
+      width: min(480px, 100vw);
+      height: 100dvh;
+      max-height: none;
+    }
+    .ds-sheet[data-place="side"][data-wide] {
+      width: min(720px, 100vw);
+    }
+    .ds-sheet[data-place="side"] .ds-sheet__panel,
+    .ds-sheet[data-place="side"][data-closing] .ds-sheet__panel {
+      animation-name: ds-slide-in;
+      height: 100%;
+      border-radius: var(--part-sheet-radius) 0 0 var(--part-sheet-radius);
+      border-bottom: var(--part-sheet-border);
+    }
+    .ds-sheet[data-place="center"],
+    .ds-sheet[data-place="bottom"] {
+      inset: 0;
+      width: min(560px, calc(100vw - 2 * var(--space-5)));
+      height: fit-content;
+      max-height: min(80dvh, 760px);
+      margin: auto;
+    }
+    .ds-sheet[data-wide]:not([data-place="side"]) {
+      width: min(860px, calc(100vw - 2 * var(--space-5)));
+    }
+    .ds-sheet[data-place="center"] .ds-sheet__panel,
+    .ds-sheet[data-place="bottom"] .ds-sheet__panel {
+      border-radius: var(--part-sheet-radius);
+      border-bottom: var(--part-sheet-border);
+    }
+    .ds-sheet__grip {
+      display: none;
+    }
+    /* The palette stays put near the top while its results change as you type. */
+    .ds-sheet[data-place="center"]:has(.ds-palette) {
+      margin-top: 12dvh;
+    }
+  }
+
+  /* ---------- menu ---------- */
+  .ds-menu {
+    position: relative;
+    display: inline-flex;
+  }
+  .ds-menu__list {
+    position: absolute;
+    top: calc(100% + var(--space-1));
+    right: 0;
+    z-index: var(--z-overlay);
+    min-width: 220px;
+    margin: 0;
+    padding: var(--space-1);
+    list-style: none;
+    border: var(--mat-overlay-border);
+    border-radius: var(--mat-raised-radius);
+    background: var(--mat-overlay-bg);
+    box-shadow: var(--elev-3);
+    animation: ds-fade var(--dur-fast) var(--ease-enter);
+  }
+  .ds-menu__list button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    min-height: 44px;
+    padding: 0 var(--space-3);
+    border: 0;
+    border-radius: var(--radius-control);
+    background: transparent;
+    color: var(--c-fg-default);
+    font: var(--text-body-m);
+    text-align: start;
+    cursor: pointer;
+  }
+  .ds-menu__list button:hover,
+  .ds-menu__list button:focus-visible {
+    background: var(--c-bg-hover);
+    outline-offset: -2px;
+  }
+  .ds-menu__list button[data-danger] {
+    color: var(--c-danger-fg);
+  }
+  .ds-menu__list button:disabled {
+    color: var(--c-fg-disabled);
+  }
+  .ds-popover {
+    position: relative;
+    display: inline-flex;
+  }
+  .ds-popover__trigger.ds-button {
+    padding-inline: var(--space-1);
+  }
+  .ds-popover__panel {
+    position: absolute;
+    top: calc(100% + var(--space-1));
+    left: 0;
+    z-index: var(--z-overlay);
+    width: min(360px, calc(100vw - 2 * var(--space-4)));
+    max-height: min(480px, 70dvh);
+    overflow: auto;
+    padding: var(--space-2);
+    border: var(--mat-overlay-border);
+    border-radius: var(--mat-raised-radius);
+    background: var(--mat-overlay-bg);
+    box-shadow: var(--elev-3);
+    animation: ds-fade var(--dur-fast) var(--ease-enter);
+  }
+
+  /* In the top layer (overlays.tsx places it under its button). */
+  .ds-popover__panel:popover-open {
+    position: fixed;
+    inset: auto;
+    margin: 0;
+    color: inherit;
+  }
+
+  /* ---------- toasts ---------- */
+  .ds-toasts {
+    position: fixed;
+    inset: auto var(--space-4) calc(var(--chrome-offset, 0px) + var(--space-3)) var(--space-4);
+    z-index: var(--z-toast);
+    display: grid;
+    justify-items: center;
+    gap: var(--space-2);
+    pointer-events: none;
+  }
+  .ds-toast {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    max-width: min(560px, 100%);
+    min-height: 44px;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--mat-inverse-radius);
+    background: var(--mat-inverse-bg);
+    color: var(--mat-inverse-fg);
+    box-shadow: var(--elev-3);
+    font: var(--text-body-s);
+    pointer-events: auto;
+    animation: ds-rise var(--dur-base) var(--ease-enter);
+  }
+  .ds-toast .ds-button[data-variant="link"] {
+    color: inherit;
+  }
+
+  /* ---------- command palette ---------- */
+  .ds-palette {
+    display: grid;
+    gap: var(--space-3);
+  }
+  .ds-palette ul {
+    display: grid;
+    gap: var(--space-1);
+    max-height: 50dvh;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-y: auto;
+  }
+  .ds-palette li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: 44px;
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-control);
+    cursor: pointer;
+  }
+  .ds-palette li span {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ds-palette li small {
+    color: var(--c-fg-subtle);
+    font: var(--text-caption);
+  }
+  .ds-palette li[aria-selected="true"] {
+    background: var(--c-bg-selected);
+  }
+  .ds-palette li[aria-disabled] {
+    color: var(--c-fg-disabled);
+    cursor: default;
+  }
+  .ds-palette li > .ds-kbd {
+    flex: none;
+    min-width: 24px;
+    text-align: center;
+  }
+  .ds-palette__field {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .ds-palette__field > .ds-input {
+    flex: 1;
+    min-width: 0;
+  }
+  .ds-palette__mode {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: 44px;
+    padding: 0 var(--space-3);
+    border: var(--border-hairline) solid var(--c-accent-border);
+    border-radius: var(--radius-chip);
+    background: var(--c-accent-soft);
+    color: var(--c-accent-fg);
+    font: var(--text-label);
+    cursor: pointer;
+  }
+  .ds-palette__lead {
+    margin: 0;
+    color: var(--c-fg-muted);
+    font: var(--text-caption);
+  }
+  .ds-palette__keys {
+    margin: 0;
+    color: var(--c-fg-subtle);
+    font: var(--text-caption);
+  }
+  /* Keyboard hints mean nothing on a touch screen. */
+  @media (pointer: coarse) {
+    .ds-palette__keys {
+      display: none;
+    }
+  }
+}

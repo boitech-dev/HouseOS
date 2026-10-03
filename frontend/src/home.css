@@ -1,0 +1,306 @@
+/* Home (home.tsx): layout only. Colours, type and shapes come from the design system; the hero's
+   picture is the theme's `home.hero.backdrop` slot (nothing in a theme without one). */
+@layer rooms {
+  /* ---------- the greeting ---------- */
+  .home-hero {
+    position: relative;
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  /* With a backdrop, the picture never runs under the words: a band above them on phones, the
+     right-hand side on wide screens, faded into the page (the mask uses only alpha). */
+  .home-hero:has(> .home-hero__scene) {
+    align-content: end;
+    padding: calc(112px + var(--space-3)) var(--space-4) var(--space-4);
+    overflow: hidden;
+    border: var(--mat-raised-border);
+    border-radius: var(--mat-raised-radius);
+  }
+  .home-hero__scene {
+    position: absolute;
+    inset: 0 0 auto 0;
+    width: 100%;
+    height: 112px;
+    object-fit: cover;
+    image-rendering: pixelated;
+    mask-image: linear-gradient(var(--c-fg-default) 55%, transparent);
+  }
+  @media (min-width: 900px) {
+    /* Over a theme's page picture, the hero's own art fades into a plain ground of its own, never
+       into the other picture (part.page.gallery; phones keep the band on top as it is). */
+    .home-hero:has(> .home-hero__scene) {
+      background: var(--pv-gallery, transparent);
+    }
+    .home-hero:has(> .home-hero__scene) {
+      min-height: 200px;
+      padding: var(--space-5) var(--space-6);
+    }
+    /* The picture holds the right of the hero (part.hero.width) and fades in from the words' side
+       over part.hero.fade of its width, on an eased curve (no visible edge where it starts). */
+    .home-hero__scene {
+      --fade: var(--part-hero-fade);
+      inset: 0 0 0 auto;
+      width: var(--part-hero-width);
+      height: 100%;
+      object-position: 100% 50%;
+      mask-image: linear-gradient(
+        to right,
+        transparent,
+        color-mix(in srgb, var(--c-fg-default) 4%, transparent) calc(var(--fade) * 0.2),
+        color-mix(in srgb, var(--c-fg-default) 16%, transparent) calc(var(--fade) * 0.35),
+        color-mix(in srgb, var(--c-fg-default) 50%, transparent) calc(var(--fade) * 0.6),
+        color-mix(in srgb, var(--c-fg-default) 84%, transparent) calc(var(--fade) * 0.82),
+        var(--c-fg-default) var(--fade)
+      );
+    }
+    /* The words and the ask stay on the clear side: the picture shows whole from 64 %. */
+    .home-hero:has(> .home-hero__scene) > .home-hero__actions {
+      max-width: 62%;
+    }
+  }
+  .home-hero > :not(.home-hero__scene, .ds-layers) {
+    position: relative;
+  }
+  .home-hero__words {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .home-hero__kicker {
+    margin: 0;
+    color: var(--c-accent-fg);
+    font: var(--text-label);
+    letter-spacing: var(--text-label-tracking);
+    text-transform: var(--text-label-case);
+  }
+  .home-hero h1 {
+    margin: 0;
+    font: var(--text-display-l);
+    letter-spacing: var(--text-display-l-tracking);
+    overflow-wrap: anywhere;
+  }
+  .home-hero__tagline {
+    margin: 0;
+    color: var(--c-fg-muted);
+    font: var(--text-body-m);
+  }
+  .home-digest a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--c-room-line);
+    text-underline-offset: 0.2em;
+  }
+  .home-who {
+    display: flex;
+    align-items: center;
+  }
+  /* Sent from the same small row as who's home, in the same small words. */
+  .home-hero__send.ds-button {
+    color: var(--c-fg-muted);
+    font: var(--text-body-s);
+  }
+  .home-who .ds-popover__trigger .ds-button__label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--c-fg-muted);
+    font: var(--text-body-s);
+  }
+  .home-who__faces {
+    display: inline-flex;
+  }
+  .home-who__faces > * + * {
+    margin-left: calc(-1 * var(--space-1));
+  }
+  .home-ask {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    max-width: 720px;
+  }
+  .home-ask > .ds-input {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* ---------- the board: every panel a window onto a place ---------- */
+  /* Three bands, a steady gap between them: the day (what plays and what to watch · today and
+     groceries), the numbers across, then the rest. Each wide column stacks its own panels at their
+     own height, so a short panel never leaves a hole beside a tall one. */
+  .home-board {
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+  }
+  .home-band {
+    display: grid;
+    grid-template-areas: "now" "today" "groceries" "watch";
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .home-band__col {
+    display: contents;
+  }
+  .home-band .home-now {
+    grid-area: now;
+  }
+  .home-band .home-today {
+    grid-area: today;
+  }
+  .home-band .home-groceries {
+    grid-area: groceries;
+  }
+  .home-band .home-watch {
+    grid-area: watch;
+  }
+  /* Below the numbers, three columns from 1232px: titles · the Wall (widest) and when the house
+     listens · top songs and film nights. Each column stacks its own panels at their own height. */
+  .home-more {
+    display: grid;
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .home-more__col {
+    display: contents;
+  }
+  .home-more .home-titles {
+    grid-area: titles;
+  }
+  .home-more .home-wall {
+    grid-area: wall;
+  }
+  .home-more .home-top {
+    grid-area: top;
+  }
+  .home-more .home-clock {
+    grid-area: clock;
+  }
+  .home-more .home-films {
+    grid-area: films;
+  }
+  .home-more {
+    grid-template-areas: "wall" "top" "titles" "clock" "films";
+  }
+  @media (min-width: 900px) {
+    .home-band {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-areas: "now groceries" "now watch" "now today";
+    }
+    .home-more {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-areas: "wall wall" "titles top" "clock films";
+    }
+  }
+  @media (min-width: 1232px) {
+    .home-band {
+      grid-template-areas: none;
+    }
+    .home-band__col {
+      display: grid;
+      gap: var(--space-4);
+      align-content: start;
+    }
+    .home-band .home-band__col > * {
+      grid-area: auto;
+    }
+    .home-more {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr);
+      grid-template-areas: none;
+    }
+    .home-more__col {
+      display: grid;
+      gap: var(--space-4);
+      align-content: start;
+    }
+    .home-more .home-more__col > * {
+      grid-area: auto;
+    }
+  }
+  .home-watch__posters {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  /* Four posters in a row where they fit (half the board on wide screens). */
+  @media (min-width: 1232px) {
+    .home-watch__posters {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  /* The panel names what it shows: no second heading inside. */
+  .home-top .stats__block > h3,
+  .home-clock .stats__block > h3 {
+    display: none;
+  }
+  /* The whole wall is one tap away: here, the latest notes only. */
+  .home-wall .house-pages {
+    display: none;
+  }
+  .home-films .stats__stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .home-hero__people,
+  .home-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .home-hero__actions > .home-ask {
+    flex: 1 1 24rem;
+  }
+  .home-board .listen-panel {
+    gap: var(--space-3);
+  }
+  .home-group {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 44px;
+    color: var(--c-fg-muted);
+    font: var(--text-label);
+    letter-spacing: var(--text-label-tracking);
+    text-transform: var(--text-label-case);
+    text-decoration: none;
+  }
+  .home-group > span {
+    flex: 1;
+  }
+  .home-group > b {
+    color: var(--c-fg-default);
+    font: var(--text-body-s);
+  }
+  .home-group:hover > span {
+    text-decoration: underline;
+  }
+  /* The titles as a column of medals. */
+  .home-titles .stats__titles {
+    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+    gap: var(--space-2);
+  }
+  .home-titles .stats__titles > li {
+    padding: var(--space-2) var(--space-3);
+  }
+  .home-numbers__grid,
+  .home-numbers__main {
+    display: grid;
+    gap: var(--space-4);
+    align-items: start;
+  }
+  @media (min-width: 900px) {
+    .home-numbers__grid[data-ring] {
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+      gap: var(--space-6);
+    }
+  }
+  .home-numbers .stats__stats {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+  .home-numbers .stats__stat {
+    padding: var(--space-3);
+  }
+}

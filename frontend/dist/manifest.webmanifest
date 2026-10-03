@@ -1,0 +1,48 @@
+{
+  "id": "/",
+  "name": "MIDNIGHT HOUSE",
+  "short_name": "HouseOS",
+  "description": "Your private household, together.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0e1020",
+  "theme_color": "#0e1020",
+  "icons": [
+    {
+      "src": "/art/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/art/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/art/icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "share_target": {
+    "action": "/capture/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "files",
+          "accept": [
+            "*/*"
+          ]
+        }
+      ]
+    }
+  }
+}

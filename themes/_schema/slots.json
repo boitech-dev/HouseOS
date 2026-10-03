@@ -1,0 +1,126 @@
+{
+  "$description": "Every place decoration may live. A theme fills a slot in theme.json `slots` with a scene generator ({\"scene\": \"hall\" | \"room\"}, scene slots only), an image of its own (\"art/<file>\"), or {\"image\": \"art/<file>\", \"rendering\": \"pixel\" | \"smooth\", \"fit\": \"cover\" | \"contain\" | \"stretch\" | \"slice\", \"slice\": <px, with fit slice>} (default pixel and cover; slice, a 9-slice frame, on surfaces only). An image fill may also take \"anchor\": \"top\" | \"center\" | \"bottom\" (the part kept whole when a tall picture is cropped; default center), \"rooms\": {room: \"art/<file>\"} or {room: {\"dark\" | \"light\": \"art/<file>\"}} (another picture in those rooms, per scheme if needed), and \"schemes\": {\"dark\" | \"light\": \"art/<file>\"} (another picture in that scheme; a room's own picture wins). Every slot takes an image; all are optional: every layout is right with every slot empty. Sizes are the box on screen: draw at that size (or a whole multiple, for pixel art). `min` is the smallest picture that isn't upscaled (smooth art smaller than it blurs).",
+  "status.backdrop": {
+    "kind": "scene",
+    "size": "320 × 16 strip, the status bar's full width",
+    "purpose": "a strip behind the house's name and the bar (its strength: part.status.art-opacity)"
+  },
+  "home.hero.backdrop": {
+    "kind": "scene",
+    "size": "240 × 72, scaled",
+    "purpose": "the house at the real time of day, on Home"
+  },
+  "auth.crest": {
+    "kind": "image",
+    "size": "square, 160 px",
+    "purpose": "the house's emblem on the sign-in page",
+    "min": [
+      160,
+      160
+    ]
+  },
+  "watch.tv.bezel": {
+    "kind": "image",
+    "size": "4:3, 480 px wide",
+    "purpose": "the frame around the TV picture",
+    "min": [
+      480,
+      360
+    ]
+  },
+  "space.room.scene": {
+    "kind": "scene",
+    "size": "160 × 72, scaled",
+    "purpose": "the person's room in My Space"
+  },
+  "page.backdrop": {
+    "kind": "image",
+    "size": "the whole window, cover (1600 × 900 is plenty)",
+    "purpose": "a picture behind every page, under the part.page.scrim",
+    "min": [
+      1600,
+      900
+    ]
+  },
+  "header.banner": {
+    "kind": "image",
+    "size": "the page header's width × 160, fades into the page",
+    "purpose": "a banner behind each room's title (with parts.header: banner)",
+    "min": [
+      1200,
+      160
+    ]
+  },
+  "state.empty": {
+    "kind": "image",
+    "size": "square, 96 px",
+    "purpose": "the picture of an empty state (instead of Nox)",
+    "min": [
+      96,
+      96
+    ]
+  },
+  "rail.art": {
+    "kind": "image",
+    "size": "the rail's width × up to 240, at its foot",
+    "purpose": "a decoration at the bottom of the rail (wide screens)",
+    "min": [
+      232,
+      240
+    ]
+  },
+  "rail.surface": {
+    "kind": "surface",
+    "size": "the rail, full height (232 wide)",
+    "min": [
+      232,
+      600
+    ],
+    "purpose": "the rail's own picture (wide screens)"
+  },
+  "dock.surface": {
+    "kind": "surface",
+    "size": "the dock, the phone's width × 64",
+    "min": [
+      390,
+      64
+    ],
+    "purpose": "the dock's own picture (phones)"
+  },
+  "nowbar.surface": {
+    "kind": "surface",
+    "size": "the Now bar, up to 960 × 56",
+    "min": [
+      960,
+      56
+    ],
+    "purpose": "the Now bar's own picture"
+  },
+  "panel.surface": {
+    "kind": "surface",
+    "size": "any panel (a 9-slice frame fits all)",
+    "min": [
+      320,
+      200
+    ],
+    "purpose": "every panel's picture or frame"
+  },
+  "sheet.surface": {
+    "kind": "surface",
+    "size": "a sheet, up to 720 wide",
+    "min": [
+      720,
+      400
+    ],
+    "purpose": "every sheet's picture or frame"
+  },
+  "deck.surface": {
+    "kind": "surface",
+    "size": "the music player on Listen, up to 480 × 560 (a 9-slice frame fits all)",
+    "min": [
+      320,
+      320
+    ],
+    "purpose": "the music player's own picture or skin"
+  }
+}

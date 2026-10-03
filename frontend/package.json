@@ -1,0 +1,33 @@
+{
+  "name": "houseos-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "node --no-warnings scripts/i18n-check.mjs && node scripts/design-check.mjs && tsc -b && vite build && node scripts/service-worker.mjs",
+    "check": "tsc --noEmit",
+    "test:browser": "node scripts/browser-tests.mjs",
+    "census": "node scripts/design-check.mjs --census"
+  },
+  "dependencies": {
+    "@fontsource/alegreya-sans": "5.3.0",
+    "@fontsource/ibm-plex-mono": "5.3.0",
+    "@fontsource/jacquard-12": "5.3.0",
+    "lucide-react": "0.468.0",
+    "qrcode": "1.5.4",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "@types/qrcode": "1.5.5",
+    "@types/react": "19.2.0",
+    "@types/react-dom": "19.2.0",
+    "@vitejs/plugin-react": "5.0.4",
+    "axe-core": "4.13.0",
+    "prettier": "3.9.9",
+    "typescript": "5.9.3",
+    "vite": "7.3.6"
+  }
+}

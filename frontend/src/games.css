@@ -1,0 +1,203 @@
+/* Games (games.tsx, games_player.tsx): layout only. Colours, type and shapes come from the design
+   system; covers keep their true colours, whole (a box is never cropped). */
+@layer rooms {
+  .games-search {
+    display: grid;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+  .games-search__field,
+  .games-tools,
+  .games-filters__row,
+  .games-sheet__play,
+  .games-sheet__actions,
+  .games-grid__head,
+  .games-pair {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .games-search__field > .ds-search {
+    flex: 1 1 200px;
+  }
+  .games-tools > .ds-chips {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .games-filters,
+  .games-stack,
+  .games-add,
+  .games-sheet,
+  .games-sheet__section,
+  .games-sheet__facts {
+    display: grid;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+  .games-filters {
+    padding: var(--space-4);
+    border-radius: var(--part-panel-radius);
+    background: var(--c-bg-surface);
+  }
+  .games-grid__head > h2 {
+    margin: 0;
+  }
+
+  /* ---------- covers ---------- */
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+    gap: var(--space-5) var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  @media (min-width: 900px) {
+    .games-grid {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+  }
+  .games-card {
+    min-width: 0;
+    list-style: none;
+  }
+  /* A box, whole (a US SNES box lies down, a Japanese one stands): contained on the sunken
+     ground, never cropped; without a picture, the title in its place. */
+  .games-cover {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    border: var(--mat-media-border);
+    border-radius: var(--mat-media-radius);
+    background: var(--c-bg-sunken, var(--c-bg-raised));
+    box-shadow: var(--mat-media-shadow);
+    transition:
+      translate var(--dur-fast) var(--ease-standard),
+      box-shadow var(--dur-fast) var(--ease-standard);
+  }
+  .games-cover > img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  @media (hover: hover) {
+    .games-card .ds-media-card:hover .games-cover {
+      translate: 0 calc(-1 * var(--space-1));
+      outline: var(--border-hairline) solid var(--c-room-line);
+      box-shadow: var(--elev-3);
+    }
+  }
+  .games-cover__title {
+    padding: var(--space-3);
+    color: var(--c-fg-muted);
+    font: var(--text-title-s);
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  /* ---------- a game ---------- */
+  .games-sheet__head {
+    display: grid;
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .games-sheet__head > .games-cover {
+    max-width: 200px;
+  }
+  @media (min-width: 600px) {
+    .games-sheet__head {
+      grid-template-columns: 180px minmax(0, 1fr);
+    }
+  }
+  .games-sheet__shots {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+  .games-saves {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .games-save {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+  .games-save__blank {
+    aspect-ratio: 4 / 3;
+    border-radius: var(--mat-media-radius);
+    background: var(--c-bg-raised);
+  }
+  .games-save__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  .games-steps {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding-inline-start: var(--space-5);
+  }
+
+  /* ---------- the player: the whole screen, a thin bar on top ---------- */
+  .games-player {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+    background: var(--c-bg-canvas);
+  }
+  .games-player__bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+    padding: var(--space-1) var(--space-3);
+    padding-top: calc(env(safe-area-inset-top, 0px) + var(--space-1));
+    background: var(--part-dock-texture, none), var(--part-dock-bg, var(--c-bg-surface));
+  }
+  .games-player__title {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /* "Saved · 12:04": on a phone the bar keeps its room for the buttons. */
+  .games-player__saved {
+    display: none;
+    flex: none;
+  }
+  @media (min-width: 600px) {
+    .games-player__saved {
+      display: inline;
+    }
+  }
+  .games-player__stage {
+    position: relative;
+    min-height: 0;
+  }
+  .games-player__stage > #games-stage {
+    width: 100%;
+    height: 100%;
+  }
+  .games-player__loading {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    text-align: center;
+  }
+}

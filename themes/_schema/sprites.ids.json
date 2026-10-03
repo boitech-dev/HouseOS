@@ -1,0 +1,183 @@
+{
+  "$description": "Every piece a theme may redraw in sprites.json, by id: a grid of letters (≤ 16 × 16; '.' is empty), each letter a color.sprite token through the file's palette. Anything a theme leaves out keeps the built-in drawing (or line icon). Drawn at the size given, pixels stay crisp; a piece is scaled by whole pixels to fill its box (avatars their ring, medals 32 px). The five avatars are the pictures people pick; \"Initials\" stays letters in every theme.",
+  "avatar.moon": {
+    "size": "12 × 11",
+    "purpose": "a person's picture: the moon"
+  },
+  "avatar.bat": {
+    "size": "12 × 11",
+    "purpose": "a person's picture: the bat"
+  },
+  "avatar.raven": {
+    "size": "12 × 11",
+    "purpose": "a person's picture: the raven"
+  },
+  "avatar.rose": {
+    "size": "12 × 11",
+    "purpose": "a person's picture: the rose"
+  },
+  "avatar.ghost": {
+    "size": "12 × 11",
+    "purpose": "a person's picture: the ghost"
+  },
+  "nox.idle": {
+    "size": "16 × 16",
+    "purpose": "Nox, the house's familiar, at rest"
+  },
+  "nox.blink": {
+    "size": "16 × 16",
+    "purpose": "Nox, the house's familiar, blinking (a frame of idle)"
+  },
+  "nox.listening": {
+    "size": "16 × 16",
+    "purpose": "Nox, the house's familiar, listening to you"
+  },
+  "nox.thinking": {
+    "size": "16 × 16",
+    "purpose": "Nox, the house's familiar, working on it"
+  },
+  "nox.happy": {
+    "size": "16 × 16",
+    "purpose": "Nox, the house's familiar, done, pleased"
+  },
+  "nox.error": {
+    "size": "16 × 16",
+    "purpose": "Nox, the house's familiar, something went wrong"
+  },
+  "room.home": {
+    "size": "16 × 16",
+    "purpose": "the home room's mark (rail, dock, panels)"
+  },
+  "room.listen": {
+    "size": "16 × 16",
+    "purpose": "the listen room's mark (rail, dock, panels)"
+  },
+  "room.watch": {
+    "size": "16 × 16",
+    "purpose": "the watch room's mark (rail, dock, panels)"
+  },
+  "room.house": {
+    "size": "16 × 16",
+    "purpose": "the house room's mark (rail, dock, panels)"
+  },
+  "room.files": {
+    "size": "16 × 16",
+    "purpose": "the files room's mark (rail, dock, panels)"
+  },
+  "room.smart-home": {
+    "size": "16 × 16",
+    "purpose": "the smart-home room's mark (rail, dock, panels)"
+  },
+  "room.games": {
+    "size": "16 × 16",
+    "purpose": "the games room's mark (rail, the dock's More sheet, panels)"
+  },
+  "room.more": {
+    "size": "16 × 16",
+    "purpose": "the phone dock's More: the rooms past the dock"
+  },
+  "room.me": {
+    "size": "16 × 16",
+    "purpose": "the me room's mark (rail, dock, panels)"
+  },
+  "transport.play": {
+    "size": "9 × 9",
+    "purpose": "the play key of the players"
+  },
+  "transport.pause": {
+    "size": "9 × 9",
+    "purpose": "the pause key of the players"
+  },
+  "transport.next": {
+    "size": "9 × 9",
+    "purpose": "the next key of the players"
+  },
+  "transport.previous": {
+    "size": "9 × 9",
+    "purpose": "the previous key of the players"
+  },
+  "transport.stop": {
+    "size": "9 × 9",
+    "purpose": "the stop key of the players"
+  },
+  "title.dj": {
+    "size": "16 × 16",
+    "purpose": "the medal of the house title dj"
+  },
+  "title.explorer": {
+    "size": "16 × 16",
+    "purpose": "the medal of the house title explorer"
+  },
+  "title.night_owl": {
+    "size": "16 × 16",
+    "purpose": "the medal of the house title night owl"
+  },
+  "title.early_bird": {
+    "size": "16 × 16",
+    "purpose": "the medal of the house title early bird"
+  },
+  "title.weekend": {
+    "size": "16 × 16",
+    "purpose": "the medal of the house title weekend"
+  },
+  "title.genre_guardian": {
+    "size": "16 × 16",
+    "purpose": "the medal of the house title genre guardian"
+  },
+  "title.broken_record": {
+    "size": "16 × 16",
+    "purpose": "the medal of the house title broken record"
+  },
+  "title.marathon": {
+    "size": "16 × 16",
+    "purpose": "the medal of the house title marathon"
+  },
+  "title.radio_host": {
+    "size": "16 × 16",
+    "purpose": "the medal of the house title radio host"
+  },
+  "title.task_hero": {
+    "size": "16 × 16",
+    "purpose": "the medal of the house title task hero"
+  },
+  "title.grocery_runner": {
+    "size": "16 × 16",
+    "purpose": "the medal of the house title grocery runner"
+  },
+  "title.planner": {
+    "size": "16 × 16",
+    "purpose": "the medal of the house title planner"
+  },
+  "title.wall_poet": {
+    "size": "16 × 16",
+    "purpose": "the medal of the house title wall poet"
+  },
+  "title.courier": {
+    "size": "16 × 16",
+    "purpose": "the medal of the house title courier"
+  },
+  "title.curator": {
+    "size": "16 × 16",
+    "purpose": "the medal of the house title curator"
+  },
+  "title.high_scorer": {
+    "size": "16 × 16",
+    "purpose": "the medal of the house title high_scorer"
+  },
+  "title.collector": {
+    "size": "16 × 16",
+    "purpose": "the medal of the house title collector"
+  },
+  "title.game_hopper": {
+    "size": "16 × 16",
+    "purpose": "the medal of the house title game_hopper"
+  },
+  "title.console_hopper": {
+    "size": "16 × 16",
+    "purpose": "the medal of the house title console_hopper"
+  },
+  "title.romhacker": {
+    "size": "16 × 16",
+    "purpose": "the medal of the house title romhacker"
+  }
+}

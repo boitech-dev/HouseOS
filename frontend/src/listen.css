@@ -1,0 +1,418 @@
+/* Listen (music.tsx): layout only. Colours, type and shapes come from the design system. */
+@layer rooms {
+  /* The queue tab is one console: the add field, the deck, the queue and ideas. Phones stack them
+     (add first); tablets keep the deck at the left; wide screens give each its own column, with
+     search results scrolling inside theirs, so the page itself hardly scrolls. */
+  .listen-console {
+    display: grid;
+    grid-template-areas: "add" "deck" "auto" "queue" "ideas";
+    gap: var(--space-5);
+    align-items: start;
+  }
+  .listen-console > .listen-add {
+    grid-area: add;
+  }
+  .listen-console > .listen-deckcol {
+    grid-area: deck;
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+    min-width: 0;
+  }
+  .listen-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .listen-filters > :first-child {
+    flex: 1 1 16rem;
+  }
+  .listen-side {
+    display: grid;
+    gap: var(--space-2);
+  }
+  /* The three ways to play, side by side: icon over a short name. */
+  .listen-side__ways {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+  .listen-side__ways > .ds-button {
+    flex-direction: column;
+    height: auto;
+    padding-block: var(--space-2);
+    white-space: normal;
+    text-align: center;
+  }
+  /* Auto play: its settings, and beside them what it will play next. */
+  .listen-autoplace {
+    display: grid;
+    gap: var(--space-6);
+    align-items: start;
+  }
+  @media (min-width: 900px) {
+    .listen-autoplace {
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
+    }
+  }
+  /* The way in: a card of its own, first thing in the page, not a field at the side. */
+  .listen-console > .listen-add {
+    padding: var(--space-4);
+    border: var(--part-panel-border);
+    border-radius: var(--part-panel-radius);
+    background: var(--pv-panel-fill, var(--part-panel-bg));
+  }
+  .listen-console > .listen-add .ds-input {
+    min-height: 48px;
+    font: var(--text-body-l);
+  }
+  .listen-console > .listen-queue {
+    grid-area: queue;
+  }
+  .listen-console > .listen-starts {
+    grid-area: ideas;
+  }
+  .listen-console > .listen-auto {
+    grid-area: auto;
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+    min-width: 0;
+  }
+  /* The deck, the queue and the ideas on the theme's gallery ground when art shows behind the
+     pages (part.page.gallery; painted outside each box, so nothing moves). */
+  .listen-console > :is(.listen-deckcol, .listen-queue, .listen-starts, .listen-auto) {
+    border-radius: var(--part-panel-radius);
+    background: var(--pv-gallery, transparent);
+    outline: var(--space-3) solid var(--pv-gallery, transparent);
+  }
+  @media (min-width: 900px) {
+    .listen-console {
+      grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
+      grid-template-areas: "deck add" "deck auto" "deck queue" "deck ideas";
+      grid-template-rows: auto auto auto 1fr;
+      column-gap: var(--space-6);
+    }
+    .listen-console > .listen-deckcol {
+      position: sticky;
+      top: calc(var(--shell-top) + var(--space-4));
+    }
+  }
+  @media (min-width: 1232px) {
+    .listen-console {
+      grid-template-columns: minmax(240px, 280px) minmax(0, 1fr) minmax(280px, 360px);
+      grid-template-areas: "deck add add" "deck queue auto" "deck queue ideas";
+      grid-template-rows: auto auto 1fr;
+    }
+    /* The field's placeholder says what it takes; the caption would push the ideas down. */
+    .listen-console > .listen-add > .ds-text[data-style="caption"] {
+      display: none;
+    }
+    .listen-console > .listen-add > .ds-list {
+      max-height: calc(100dvh - var(--shell-top) - 220px);
+    }
+  }
+  .listen-console .listen-queue .ds-section__head {
+    min-height: 0;
+  }
+  .listen-starts {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .listen-starts > h2 {
+    margin: 0;
+  }
+  .listen-autoline {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+  }
+  .listen-autoline > .ds-icon {
+    flex: none;
+    align-self: center;
+  }
+  .listen-add__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+
+  /* ---------- the deck ---------- */
+  .listen-deck {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+    min-width: 0;
+  }
+  .listen-deck__art {
+    position: relative;
+    width: min(100%, 280px);
+  }
+  .listen-deck__badges {
+    position: absolute;
+    top: var(--space-2);
+    left: var(--space-2);
+    display: flex;
+    gap: var(--space-1);
+  }
+  .listen-deck__info {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+  /* The player's first line: what it's doing, and its menu at the right. */
+  .listen-deck__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .listen-deck__title {
+    margin: 0;
+    font: var(--text-title-l);
+    letter-spacing: var(--text-title-l-tracking);
+    overflow-wrap: anywhere;
+  }
+  .listen-deck__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-3);
+    margin: 0;
+    color: var(--c-fg-muted);
+    font: var(--text-body-s);
+  }
+  .listen-deck__keys {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  /* Compact (Home, and every phone): the cover beside the title, the controls under both. */
+  .listen-deck[data-compact] {
+    grid-template-columns: 96px minmax(0, 1fr);
+    column-gap: var(--space-4);
+    align-items: center;
+  }
+  .listen-deck[data-compact] > :not(.listen-deck__art, .listen-deck__info) {
+    grid-column: 1 / -1;
+  }
+  /* The console's deck: the cover beside who and where, the title across the column under both
+     (a long title never stacks one word per line), then the controls. */
+  .listen-deckcol > .listen-deck {
+    grid-template-columns: 96px minmax(0, 1fr);
+    column-gap: var(--space-3);
+    align-items: center;
+  }
+  .listen-deckcol > .listen-deck > .listen-deck__art {
+    grid-row: 1 / span 3;
+  }
+  .listen-deckcol > .listen-deck > .listen-deck__info {
+    display: contents;
+  }
+  .listen-deckcol .listen-deck__info > * {
+    grid-column: 2;
+  }
+  .listen-deckcol .listen-deck__info > .listen-deck__title {
+    grid-row: 4;
+    grid-column: 1 / -1;
+    font: var(--text-title-m);
+    letter-spacing: normal;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+  .listen-deckcol > .listen-deck > :not(.listen-deck__art, .listen-deck__info) {
+    grid-column: 1 / -1;
+  }
+  /* Volume shares the keys' row, taking what is left of it. */
+  .listen-deck__volume {
+    flex: 1 1 96px;
+    min-width: 96px;
+  }
+  .listen-onair {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    color: var(--c-fg-muted);
+    font: var(--text-body-s);
+  }
+  .listen-stopclear,
+  .listen-stopclear__ask {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  /* ---------- rows ---------- */
+  .listen-cover {
+    width: 48px;
+  }
+  .listen-detail,
+  .listen-who {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-2);
+  }
+  .listen-genre::before {
+    content: "· ";
+  }
+  .listen-queue__title {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  /* A queue row keeps "play first", "remove" and "…" at hand; the move arrows show only where the
+     queue is wide enough for them on the same line (they are in the song's sheet too). */
+  .listen-queue {
+    container-type: inline-size;
+  }
+  .listen-sheet__steps {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+  }
+  .listen-queue__step {
+    display: none;
+  }
+  @container (min-width: 600px) {
+    .listen-queue__step {
+      display: inline-flex;
+    }
+  }
+  .listen-rotation__limit {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .listen-rotation__limit .ds-input {
+    width: 6rem;
+  }
+
+  /* ---------- adding ---------- */
+  .listen-add {
+    display: grid;
+    gap: var(--space-2);
+  }
+  /* The field on its own line, the source and the button under it on one. */
+  .listen-add__field {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-2);
+  }
+  .listen-add__field > .listen-add__input {
+    grid-column: 1 / -1;
+  }
+  /* Wide enough: field, source and button on one line. */
+  @media (min-width: 900px) {
+    .listen-console > .listen-add > .listen-add__field {
+      grid-template-columns: minmax(0, 1fr) auto auto;
+    }
+    .listen-console > .listen-add > .listen-add__field > .listen-add__input {
+      grid-column: auto;
+    }
+  }
+  @media (max-width: 599.98px) {
+    .listen-add > .ds-text[data-style="caption"] {
+      display: none;
+    }
+  }
+  .listen-inline-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--space-2);
+  }
+  .listen-add__input {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1 1 16rem;
+    min-width: 0;
+  }
+  .listen-add__input > .ds-icon {
+    position: absolute;
+    left: var(--space-3);
+    color: var(--c-fg-muted);
+    pointer-events: none;
+  }
+  .listen-add__input .ds-input {
+    padding-left: var(--space-7);
+  }
+  .listen-inline-form > .ds-input,
+  .listen-inline-form > .ds-field {
+    flex: 1 1 12rem;
+  }
+  /* Many results scroll in their own box, so the queue stays one flick away. */
+  .listen-add > .ds-list {
+    max-height: 60dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .listen-results__more {
+    padding: var(--space-3) 0;
+    list-style: none;
+  }
+  .listen-preview {
+    max-height: 40dvh;
+    margin: 0;
+    padding-left: var(--space-5);
+    overflow-y: auto;
+    color: var(--c-fg-muted);
+  }
+  .listen-pick {
+    display: grid;
+    gap: var(--space-3);
+  }
+  .listen-tips {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: start;
+  }
+  .listen-tips li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .listen-selbar {
+    position: sticky;
+    bottom: calc(var(--shell-bottom) + var(--space-2));
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border: var(--mat-raised-border);
+    border-radius: var(--mat-raised-radius);
+    background: var(--mat-raised-bg);
+    box-shadow: var(--elev-2);
+  }
+  .listen-selbar > :first-child {
+    margin-right: auto;
+  }
+
+  /* ---------- Home's window, and speaker mode ---------- */
+  .listen-panel {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .listen-speaker {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: center;
+  }
+  .listen-speaker p {
+    margin: var(--space-1) 0 0;
+    color: var(--c-fg-muted);
+  }
+}

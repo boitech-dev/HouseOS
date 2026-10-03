@@ -1,0 +1,67 @@
+{
+ "$description": "Zabiwa: gallery-label voice, few words: a line under each room's title, no numbering above it. English and French (tu).",
+ "title.dj.name": {
+  "en": "Choirmaster",
+  "fr": "Chef de chœur"
+ },
+ "title.explorer.name": {
+  "en": "Cartographer of Worlds",
+  "fr": "Cartographe des mondes"
+ },
+ "title.night_owl.name": {
+  "en": "Keeper of the Moon",
+  "fr": "Garde de la lune"
+ },
+ "title.early_bird.name": {
+  "en": "Sentinel of Dawn",
+  "fr": "Sentinelle de l’aube"
+ },
+ "title.weekend.name": {
+  "en": "Soul of the Revels",
+  "fr": "Âme des festins"
+ },
+ "title.genre_guardian.name": {
+  "en": "Warden of {genre}",
+  "fr": "Vigie · {genre}"
+ },
+ "title.broken_record.name": {
+  "en": "The Endless Refrain",
+  "fr": "Le refrain sans fin"
+ },
+ "title.marathon.name": {
+  "en": "The Long Procession",
+  "fr": "La longue procession"
+ },
+ "title.radio_host.name": {
+  "en": "Voice of the Ether",
+  "fr": "Voix de l’éther"
+ },
+ "title.task_hero.name": {
+  "en": "The Gilded Hand",
+  "fr": "La main dorée"
+ },
+ "title.grocery_runner.name": {
+  "en": "Quartermaster",
+  "fr": "Intendance"
+ },
+ "title.planner.name": {
+  "en": "Keeper of Days",
+  "fr": "Garde des jours"
+ },
+ "title.wall_poet.name": {
+  "en": "Scribe of the Wall",
+  "fr": "Scribe du mur"
+ },
+ "title.courier.name": {
+  "en": "Winged Messenger",
+  "fr": "Plume messagère"
+ },
+ "title.curator.name": {
+  "en": "Custodian of Relics",
+  "fr": "Custode des reliques"
+ },
+ "title.star.mark": {
+  "en": "✦",
+  "fr": "✦"
+ }
+}

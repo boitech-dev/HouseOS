@@ -1,0 +1,370 @@
+[
+  {
+    "id": "A01",
+    "filename": "house-panorama-desktop.webp",
+    "dimensions": [
+      768,
+      112
+    ],
+    "purpose": "Shallow moonlit house header",
+    "source": "assets/sources/panorama.png",
+    "creator": "OpenAI imagegen",
+    "provenance": "Original generated for HouseOS",
+    "revision": 1
+  },
+  {
+    "id": "A02",
+    "filename": "house-panorama-mobile.webp",
+    "dimensions": [
+      390,
+      88
+    ],
+    "purpose": "Independently composed mobile panorama",
+    "source": "assets/sources/mobile-panorama.png",
+    "creator": "OpenAI imagegen",
+    "provenance": "Original generated for HouseOS",
+    "revision": 2
+  },
+  {
+    "id": "A03",
+    "filename": "house-crest.png",
+    "dimensions": [
+      64,
+      64
+    ],
+    "purpose": "House identity",
+    "creator": "OpenAI built-in imagegen; deterministic nearest-neighbor export",
+    "date": "2026-09-20",
+    "source": "assets/sources",
+    "provenance": "Original generated for HouseOS; no third-party assets",
+    "revision": 1
+  },
+  {
+    "id": "A04",
+    "filename": "courier-bat.png",
+    "dimensions": [
+      64,
+      64
+    ],
+    "purpose": "Courier static pose",
+    "creator": "OpenAI built-in imagegen; deterministic nearest-neighbor export",
+    "date": "2026-09-20",
+    "source": "assets/sources",
+    "provenance": "Original generated for HouseOS; no third-party assets",
+    "revision": 1
+  },
+  {
+    "id": "A05",
+    "filename": "jukebox-relic.png",
+    "dimensions": [
+      144,
+      104
+    ],
+    "purpose": "Music decoration",
+    "creator": "OpenAI built-in imagegen; deterministic nearest-neighbor export",
+    "date": "2026-09-20",
+    "source": "assets/sources",
+    "provenance": "Original generated for HouseOS; no third-party assets",
+    "revision": 1
+  },
+  {
+    "id": "A06",
+    "filename": "tv-bezel.png",
+    "dimensions": [
+      160,
+      112
+    ],
+    "purpose": "TV decoration",
+    "creator": "OpenAI built-in imagegen; deterministic nearest-neighbor export",
+    "date": "2026-09-20",
+    "source": "assets/sources",
+    "provenance": "Original generated for HouseOS; no third-party assets",
+    "revision": 1
+  },
+  {
+    "id": "A07",
+    "filename": "archive-tray.png",
+    "dimensions": [
+      64,
+      48
+    ],
+    "purpose": "Files decoration",
+    "creator": "OpenAI built-in imagegen; deterministic nearest-neighbor export",
+    "date": "2026-09-20",
+    "source": "assets/sources",
+    "provenance": "Original generated for HouseOS; no third-party assets",
+    "revision": 1
+  },
+  {
+    "id": "A09",
+    "filename": "window-glow.png",
+    "dimensions": [
+      32,
+      48
+    ],
+    "purpose": "Static window",
+    "creator": "OpenAI built-in imagegen; deterministic nearest-neighbor export",
+    "date": "2026-09-20",
+    "source": "assets/sources",
+    "provenance": "Original generated for HouseOS; no third-party assets",
+    "revision": 1
+  },
+  {
+    "id": "A11b",
+    "filename": "empty-inbox.png",
+    "dimensions": [
+      160,
+      96
+    ],
+    "purpose": "Empty inbox",
+    "creator": "OpenAI built-in imagegen; deterministic nearest-neighbor export",
+    "date": "2026-09-20",
+    "source": "assets/sources",
+    "provenance": "Original generated for HouseOS; no third-party assets",
+    "revision": 1
+  },
+  {
+    "id": "A11a",
+    "filename": "empty-queue.png",
+    "dimensions": [
+      160,
+      96
+    ],
+    "purpose": "Empty music",
+    "creator": "OpenAI built-in imagegen; deterministic nearest-neighbor export",
+    "date": "2026-09-20",
+    "source": "assets/sources",
+    "provenance": "Original generated for HouseOS; no third-party assets",
+    "revision": 1
+  },
+  {
+    "id": "A11c",
+    "filename": "empty-drop.png",
+    "dimensions": [
+      160,
+      96
+    ],
+    "purpose": "Empty files",
+    "creator": "OpenAI built-in imagegen; deterministic nearest-neighbor export",
+    "date": "2026-09-20",
+    "source": "assets/sources",
+    "provenance": "Original generated for HouseOS; no third-party assets",
+    "revision": 1
+  },
+  {
+    "id": "A12",
+    "filename": "icon-192.png",
+    "dimensions": [
+      192,
+      192
+    ],
+    "purpose": "PWA icon",
+    "creator": "OpenAI built-in imagegen; deterministic nearest-neighbor export",
+    "date": "2026-09-20",
+    "source": "assets/sources",
+    "provenance": "Original generated for HouseOS; no third-party assets",
+    "revision": 1
+  },
+  {
+    "id": "A12",
+    "filename": "icon-512.png",
+    "dimensions": [
+      512,
+      512
+    ],
+    "purpose": "PWA icon",
+    "creator": "OpenAI built-in imagegen; deterministic nearest-neighbor export",
+    "date": "2026-09-20",
+    "source": "assets/sources",
+    "provenance": "Original generated for HouseOS; no third-party assets",
+    "revision": 1
+  },
+  {
+    "id": "A08-music",
+    "filename": "icon-music.png",
+    "dimensions": [
+      24,
+      24
+    ],
+    "purpose": "music icon",
+    "source": "assets/sources/icons.png",
+    "creator": "OpenAI imagegen",
+    "provenance": "Original generated for HouseOS",
+    "static_fallback": "icon-music.png"
+  },
+  {
+    "id": "A08-tv",
+    "filename": "icon-tv.png",
+    "dimensions": [
+      24,
+      24
+    ],
+    "purpose": "tv icon",
+    "source": "assets/sources/icons.png",
+    "creator": "OpenAI imagegen",
+    "provenance": "Original generated for HouseOS",
+    "static_fallback": "icon-tv.png"
+  },
+  {
+    "id": "A08-files",
+    "filename": "icon-files.png",
+    "dimensions": [
+      24,
+      24
+    ],
+    "purpose": "files icon",
+    "source": "assets/sources/icons.png",
+    "creator": "OpenAI imagegen",
+    "provenance": "Original generated for HouseOS",
+    "static_fallback": "icon-files.png"
+  },
+  {
+    "id": "A08-note",
+    "filename": "icon-note.png",
+    "dimensions": [
+      24,
+      24
+    ],
+    "purpose": "note icon",
+    "source": "assets/sources/icons.png",
+    "creator": "OpenAI imagegen",
+    "provenance": "Original generated for HouseOS",
+    "static_fallback": "icon-note.png"
+  },
+  {
+    "id": "A08-grocery",
+    "filename": "icon-grocery.png",
+    "dimensions": [
+      24,
+      24
+    ],
+    "purpose": "grocery icon",
+    "source": "assets/sources/icons.png",
+    "creator": "OpenAI imagegen",
+    "provenance": "Original generated for HouseOS",
+    "static_fallback": "icon-grocery.png"
+  },
+  {
+    "id": "A08-calendar",
+    "filename": "icon-calendar.png",
+    "dimensions": [
+      24,
+      24
+    ],
+    "purpose": "calendar icon",
+    "source": "assets/sources/icons.png",
+    "creator": "OpenAI imagegen",
+    "provenance": "Original generated for HouseOS",
+    "static_fallback": "icon-calendar.png"
+  },
+  {
+    "id": "A08-inbox",
+    "filename": "icon-inbox.png",
+    "dimensions": [
+      24,
+      24
+    ],
+    "purpose": "inbox icon",
+    "source": "assets/sources/icons.png",
+    "creator": "OpenAI imagegen",
+    "provenance": "Original generated for HouseOS",
+    "static_fallback": "icon-inbox.png"
+  },
+  {
+    "id": "A08-settings",
+    "filename": "icon-settings.png",
+    "dimensions": [
+      24,
+      24
+    ],
+    "purpose": "settings icon",
+    "source": "assets/sources/icons.png",
+    "creator": "OpenAI imagegen",
+    "provenance": "Original generated for HouseOS",
+    "static_fallback": "icon-settings.png"
+  },
+  {
+    "id": "A08-moon",
+    "filename": "icon-moon.png",
+    "dimensions": [
+      24,
+      24
+    ],
+    "purpose": "moon icon",
+    "source": "assets/sources/icons.png",
+    "creator": "OpenAI imagegen",
+    "provenance": "Original generated for HouseOS",
+    "static_fallback": "icon-moon.png"
+  },
+  {
+    "id": "A08-warning",
+    "filename": "icon-warning.png",
+    "dimensions": [
+      24,
+      24
+    ],
+    "purpose": "warning icon",
+    "source": "assets/sources/icons.png",
+    "creator": "OpenAI imagegen",
+    "provenance": "Original generated for HouseOS",
+    "static_fallback": "icon-warning.png"
+  },
+  {
+    "id": "A04-animation",
+    "filename": "courier-delivery.png",
+    "dimensions": [
+      192,
+      32
+    ],
+    "frames": 6,
+    "frame_size": [
+      32,
+      32
+    ],
+    "animation_timing_ms": 150,
+    "static_fallback": "courier-idle.png",
+    "purpose": "One-shot successful message delivery",
+    "source": "assets/sources/courier-strip.png",
+    "creator": "OpenAI imagegen; fixed canvas export",
+    "provenance": "Original generated for HouseOS"
+  },
+  {
+    "id": "A12-maskable",
+    "filename": "icon-maskable.png",
+    "dimensions": [
+      512,
+      512
+    ],
+    "purpose": "Maskable icon, centered in safe circle",
+    "source": "house-crest.png",
+    "creator": "Deterministic safe-area adaptation",
+    "provenance": "HouseOS generated crest"
+  },
+  {
+    "id": "A09-animation",
+    "filename": "window-glow-frames.png",
+    "dimensions": [
+      64,
+      24
+    ],
+    "frames": 4,
+    "frame_size": [
+      16,
+      24
+    ],
+    "animation_timing_ms": 1600,
+    "static_fallback": "window-glow.png",
+    "purpose": "Restrained window glow",
+    "creator": "Original imagegen window with deterministic fixed-grid glow variants",
+    "source": "assets/sources/objects.png",
+    "provenance": "Original generated for HouseOS"
+  },
+  {
+    "id": "A07-full",
+    "filename": "archive-tray-full.png",
+    "purpose": "Stored files tray",
+    "creator": "OpenAI imagegen atlas export",
+    "source": "assets/sources/objects.png",
+    "provenance": "Original generated for HouseOS"
+  }
+]

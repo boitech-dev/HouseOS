@@ -1,0 +1,87 @@
+{
+ "$description": "Millennium Skin: the house titles named like a millennium web and its gadgets. English and French (tu).",
+ "title.dj.name": {
+  "en": "Playlist mixer",
+  "fr": "Mixeur de playlists"
+ },
+ "title.explorer.name": {
+  "en": "Web surfer",
+  "fr": "Surfeur du Web"
+ },
+ "title.night_owl.name": {
+  "en": "Online after midnight",
+  "fr": "En ligne après minuit"
+ },
+ "title.early_bird.name": {
+  "en": "First to log on",
+  "fr": "Premier connecté"
+ },
+ "title.weekend.name": {
+  "en": "Weekend skin",
+  "fr": "Skin du week-end"
+ },
+ "title.genre_guardian.name": {
+  "en": "Keeper of {genre}",
+  "fr": "Gardien : {genre}"
+ },
+ "title.broken_record.name": {
+  "en": "On repeat",
+  "fr": "En boucle"
+ },
+ "title.marathon.name": {
+  "en": "All-night session",
+  "fr": "Session nuit blanche"
+ },
+ "title.radio_host.name": {
+  "en": "Web radio host",
+  "fr": "Animateur de webradio"
+ },
+ "title.task_hero.name": {
+  "en": "Task bar hero",
+  "fr": "Héros des tâches"
+ },
+ "title.grocery_runner.name": {
+  "en": "Supply run",
+  "fr": "Ravitailleur"
+ },
+ "title.planner.name": {
+  "en": "Pocket organiser",
+  "fr": "Agenda de poche"
+ },
+ "title.wall_poet.name": {
+  "en": "Guestbook poet",
+  "fr": "Poète du livre d’or"
+ },
+ "title.courier.name": {
+  "en": "You’ve got post",
+  "fr": "Facteur de messages"
+ },
+ "title.curator.name": {
+  "en": "Skin collector",
+  "fr": "Collectionneur de skins"
+ },
+ "title.high_scorer.name": {
+  "en": "High score",
+  "fr": "Meilleur score"
+ },
+ "title.collector.name": {
+  "en": "Charm collector",
+  "fr": "Collectionneur de breloques"
+ },
+ "title.game_hopper.name": {
+  "en": "Cartridge swapper",
+  "fr": "Échangeur de cartouches"
+ },
+ "title.console_hopper.name": {
+  "en": "Clear-case gamer",
+  "fr": "Joueur boîtier transparent"
+ },
+ "title.romhacker.name": {
+  "en": "Patch maker",
+  "fr": "Bidouilleur de patchs"
+ },
+ "title.star.mark": {
+  "en": "✦",
+  "fr": "✦"
+ }
+}

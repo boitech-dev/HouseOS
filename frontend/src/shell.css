@@ -1,0 +1,741 @@
+/* The shell (shell.tsx): status bar, rail or dock, the Now bar. Tokens only. The page keeps room
+   for the bars through --shell-top and --shell-bottom, which pages that fill the screen (Nox's
+   chat, Party) use too. */
+@layer patterns {
+  :root {
+    --shell-rail-w: 0px;
+    --shell-top: var(--chrome-status);
+    /* The page's own top padding (pages that fill the screen subtract it). */
+    --shell-pad-top: var(--space-5);
+    --shell-bottom: calc(
+      var(--chrome-dock) + var(--shell-now-h, 0px) + env(safe-area-inset-bottom, 0px)
+    );
+    /* Toasts sit above the dock and the Now bar. */
+    --chrome-offset: var(--shell-bottom);
+  }
+  .shell {
+    min-height: 100dvh;
+    isolation: isolate;
+    background: var(--part-page-texture), var(--part-page-bg);
+  }
+  /* The theme's page.backdrop art: behind every page, under its scrim, never catching a click. */
+  .shell__backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-behind);
+    pointer-events: none;
+  }
+  .shell__backdrop:empty {
+    display: none;
+  }
+  .shell__backdrop > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .shell__backdrop::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--part-page-scrim);
+  }
+  .shell__rail-art {
+    display: none;
+  }
+  .skip {
+    position: absolute;
+    left: var(--space-3);
+    top: calc(-1 * var(--space-8));
+    z-index: var(--z-palette);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-control);
+    background: var(--c-accent-solid);
+    color: var(--c-fg-on-accent);
+  }
+  .skip:focus {
+    top: var(--space-2);
+  }
+
+  /* ---------- status bar ---------- */
+  .shell__status {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    height: var(--chrome-status);
+    margin-left: var(--shell-rail-w);
+    padding: 0 var(--space-2) 0 var(--space-4);
+    border-bottom: var(--part-status-border);
+    background: var(--part-status-texture), var(--part-status-bg);
+    overflow: hidden;
+  }
+  .shell__sky {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    image-rendering: pixelated;
+    opacity: var(--part-status-art-opacity);
+    pointer-events: none;
+  }
+  .shell__status > :not(.shell__sky, .ds-layers) {
+    position: relative;
+  }
+  /* Over a picture, the name and the controls float on pills of the bar's own ground, each as
+     wide as what it holds: the picture shows all around them, never cut into boxes. */
+  .shell__status:has(> .shell__sky) :is(.shell__name, .shell__search, .shell__signs) {
+    align-self: center;
+    border-radius: var(--radius-full);
+    background: var(--part-status-bg);
+    box-shadow: var(--part-nowbar-shadow);
+  }
+  .shell__status:has(> .shell__sky) .shell__name {
+    flex: 0 1 auto;
+    margin-right: auto;
+    padding: var(--space-1) var(--space-3);
+  }
+  .shell__status:has(> .shell__sky) .shell__signs {
+    padding: 0 var(--space-1);
+  }
+  .shell__name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--c-fg-default);
+    font: var(--text-brand);
+    letter-spacing: var(--text-brand-tracking);
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .shell__search {
+    display: none;
+  }
+  .shell__signs {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  .shell__clock {
+    padding: 0 var(--space-2);
+    color: var(--c-fg-muted);
+    font: var(--text-numeric);
+  }
+  .shell__sign .ds-badge {
+    margin-left: calc(-1 * var(--space-1));
+  }
+  .shell__me {
+    position: relative;
+    padding: 0 var(--space-1);
+  }
+  /* Unread messages: a small count on the avatar's corner. */
+  .shell__me .ds-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    pointer-events: none;
+  }
+
+  /* ---------- the page ---------- */
+  .shell__main {
+    /* Over a theme's page picture: quiet buttons, tabs and chips on a plaque (part.page.quiet),
+       lists and pictures on the gallery ground (part.page.gallery). Only on the page itself: the
+       rail's and dock's doors keep their look, and panels and sheets switch both off. */
+    --pv-quiet-fill: var(--part-page-quiet);
+    --pv-gallery: var(--part-page-gallery);
+    display: block;
+    min-width: 0;
+    margin-left: var(--shell-rail-w);
+    padding: var(--shell-pad-top) var(--space-4) calc(var(--shell-bottom) + var(--space-6));
+    outline: none;
+  }
+
+  /* ---------- dock (phones) ---------- */
+  .shell__rail {
+    display: none;
+  }
+  .shell__dock {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: var(--z-dock);
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    height: calc(var(--chrome-dock) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    border-top: var(--part-dock-border);
+    background: var(--part-dock-texture), var(--part-dock-bg);
+  }
+  .shell__door {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: var(--space-1);
+    min-height: 44px;
+    padding: var(--space-1);
+    border: 0;
+    border-radius: var(--radius-control);
+    background: transparent;
+    color: var(--c-fg-muted);
+    font: var(--text-caption);
+    text-decoration: none;
+    box-shadow: none;
+  }
+  .shell__door .ds-button__label {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-1);
+    font: var(--text-caption);
+  }
+  /* Every door's mark sits in a row as tall as Ask's plate, so the five words line up. */
+  .shell__dock a.shell__door,
+  .shell__dock .shell__door .ds-button__label {
+    grid-template-rows: 32px auto;
+    align-items: center;
+  }
+  .shell__door:hover,
+  .shell__door[aria-current="page"] {
+    color: var(--c-fg-default);
+  }
+  .shell__dock .shell__door[aria-current="page"]::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 24px;
+    height: var(--border-strong);
+    border-radius: var(--radius-full);
+    background: var(--c-room, var(--c-accent-solid));
+  }
+  .shell__door .ds-badge {
+    position: absolute;
+    top: var(--space-1);
+    left: calc(50% + var(--space-2));
+  }
+  /* Nox, the dock's heart: a round button rising above the bar, the rooms two on each side. */
+  .shell__dock .shell__door--ask {
+    color: var(--c-fg-default);
+  }
+  /* Its label is never clipped (the room names' one-line rule below skips it): the circle leaves
+     the bar. */
+  .shell__dock .shell__door--ask .ds-button__label {
+    grid-template-rows: auto auto;
+    overflow: visible;
+  }
+  .shell__dock .shell__door--ask .ds-button__label > :first-child {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    margin-top: calc(-1 * var(--space-6));
+    border: var(--part-dock-border);
+    border-radius: var(--radius-full);
+    background: var(--part-dock-texture), var(--part-dock-bg);
+    box-shadow: var(--part-nowbar-shadow);
+  }
+  /* Never took Nox's tour: a dot on Nox's corner (a tap asks for the tour). */
+  .shell__nox-dot {
+    position: absolute;
+    top: var(--space-1);
+    right: calc(50% - 30px);
+    width: 14px;
+    height: 14px;
+    border: var(--border-strong) solid var(--c-bg-canvas);
+    border-radius: var(--radius-full);
+    background: var(--c-danger-solid);
+  }
+  .shell__dock .shell__nox-dot {
+    top: calc(-1 * var(--space-6) + var(--space-1));
+  }
+  .shell__ask-card > small {
+    color: var(--c-fg-muted);
+    font: var(--text-caption);
+    text-align: center;
+  }
+  /* A room's name in the dock: one line, shortened rather than widening the phone. */
+  .shell__dock .shell__door:not(.shell__door--ask) > span:not(.ds-badge) {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ---------- the Now bar ---------- */
+  .shell__now {
+    position: fixed;
+    left: calc(var(--shell-rail-w) + var(--space-2));
+    right: var(--space-2);
+    /* Clear of Nox's raised button in the dock. */
+    bottom: calc(var(--chrome-dock) + env(safe-area-inset-bottom, 0px) + var(--space-6));
+    z-index: var(--z-nowbar);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    height: var(--chrome-nowbar);
+    padding: 0 var(--space-2) 0 var(--space-1);
+    border: var(--part-nowbar-border);
+    border-radius: var(--part-nowbar-radius);
+    background: var(--part-nowbar-texture), var(--part-nowbar-bg);
+    color: var(--part-nowbar-fg);
+    box-shadow: var(--part-nowbar-shadow);
+  }
+  .shell__now-open.ds-button {
+    flex: 1;
+    justify-content: flex-start;
+    min-width: 0;
+    padding: 0 var(--space-1);
+    text-align: start;
+  }
+  .shell__now-open .ds-button__label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+  .shell__now-art {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 40px;
+  }
+  .shell__now-text {
+    display: grid;
+    min-width: 0;
+  }
+  .shell__now-title {
+    overflow: hidden;
+    font: var(--text-title-s);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .shell__now-text small {
+    overflow: hidden;
+    color: var(--c-fg-muted);
+    font: var(--text-caption);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .shell__now-keys {
+    display: flex;
+    flex: none;
+    gap: var(--space-1);
+  }
+  /* Volume in the bar where there is room; a phone opens the player for it (one tap). */
+  .shell__now-volume {
+    display: none;
+    flex: 0 1 160px;
+    min-width: 112px;
+  }
+  @media (min-width: 900px) {
+    .shell__now-volume {
+      display: block;
+    }
+  }
+  .shell__now-line {
+    position: absolute;
+    inset: auto var(--space-2) 0 var(--space-2);
+    height: var(--border-strong);
+    background: var(--c-border-subtle);
+    overflow: hidden;
+  }
+  .shell__now-line i {
+    display: block;
+    width: calc(var(--value) * 100%);
+    height: 100%;
+    background: var(--c-room, var(--c-accent-solid));
+  }
+  .shell__now-error {
+    position: absolute;
+    inset: auto var(--space-2) calc(100% + var(--space-2)) auto;
+    max-width: calc(100% - 2 * var(--space-2));
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--mat-inverse-radius);
+    background: var(--mat-inverse-bg);
+    color: var(--mat-inverse-fg);
+    font: var(--text-caption);
+    box-shadow: var(--elev-2);
+  }
+  .shell__now .ds-segmented {
+    flex: none;
+    padding: 2px;
+  }
+  @media (max-width: 599.98px) {
+    /* Icons only on phones; the words stay for screen readers. */
+    .shell__now .ds-segmented label span {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    /* The phone shows the time already: the house's name keeps the status bar's width. */
+    .shell__clock {
+      display: none;
+    }
+  }
+  @media (max-width: 899.98px) {
+    /* No page shows through between the Now bar and the dock. */
+    .shell__now::after {
+      content: "";
+      position: absolute;
+      inset: 100% calc(-1 * var(--space-2)) auto;
+      height: calc(var(--space-2) + var(--border-hairline));
+      background: var(--mat-overlay-bg);
+    }
+  }
+
+  /* ---------- the Now sheet, activity, the "me" menu ---------- */
+  .shell__now-sheet,
+  .shell__now-card,
+  .shell__me-menu {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .shell__now-head {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: var(--space-4);
+    align-items: center;
+  }
+  .shell__now-head h3 {
+    margin: 0;
+    font: var(--text-title-l);
+  }
+  .shell__now-head p {
+    margin: var(--space-1) 0 0;
+    color: var(--c-fg-muted);
+  }
+  .shell__now-transport {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-3);
+  }
+  .shell__now-card h4 {
+    margin: 0;
+    font: var(--text-label);
+    letter-spacing: var(--text-label-tracking);
+    text-transform: var(--text-label-case);
+    color: var(--c-fg-subtle);
+  }
+  .shell__now-card > .ds-button[data-variant="link"],
+  .shell__me-menu > .ds-button {
+    justify-self: start;
+  }
+  .shell__me-who {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .shell__me-who div {
+    display: grid;
+  }
+  .shell__me-who small {
+    color: var(--c-fg-muted);
+  }
+
+  /* A conversation has its composer where this would sit, and scrolls on its own. */
+  :root:has(.inbox-conversation, .ask-composer) .shell__totop {
+    display: none;
+  }
+  .shell__totop.ds-button {
+    position: fixed;
+    right: var(--space-4);
+    bottom: calc(var(--shell-bottom) + var(--space-4));
+    z-index: var(--z-sticky);
+    border-radius: var(--radius-full);
+    box-shadow: var(--elev-2);
+  }
+
+  /* ---------- wide screens: the rail ---------- */
+  @media (min-width: 900px) {
+    :root {
+      --shell-rail-w: 232px;
+      --shell-pad-top: var(--space-6);
+      --shell-bottom: calc(var(--shell-now-h, 0px) + var(--space-3));
+    }
+    .shell[data-rail="icons"] {
+      --shell-rail-w: var(--chrome-rail);
+    }
+    .shell__dock {
+      display: none;
+    }
+    .shell__name {
+      display: none;
+    }
+    .shell__status {
+      justify-content: flex-end;
+    }
+    .shell__search.ds-button {
+      display: inline-flex;
+      margin-right: auto;
+      min-width: 280px;
+      justify-content: flex-start;
+      border: var(--border-hairline) solid var(--c-border-default);
+      background: var(--mat-sunken-bg);
+      color: var(--c-fg-muted);
+    }
+    .shell__search kbd {
+      margin-left: auto;
+      padding-left: var(--space-4);
+      font: var(--text-numeric);
+      color: var(--c-fg-subtle);
+    }
+    .shell__search-icon {
+      display: none;
+    }
+    .shell__rail {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: var(--z-dock);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+      width: var(--shell-rail-w);
+      padding: var(--space-3);
+      border-right: var(--part-rail-border);
+      background: var(--part-rail-texture), var(--part-rail-bg);
+    }
+    .shell__rail ul {
+      display: grid;
+      gap: var(--space-1);
+      margin: var(--space-3) 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .shell__crest {
+      display: block;
+      min-height: 40px;
+      padding: var(--space-2) var(--space-3);
+      overflow: hidden;
+      color: var(--c-fg-default);
+      font: var(--text-brand);
+      letter-spacing: var(--text-brand-tracking);
+      text-decoration: none;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .shell__rail .shell__door,
+    .shell__rail .shell__door .ds-button__label {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: var(--space-3);
+      font: var(--text-action);
+    }
+    .shell__rail .shell__door {
+      width: 100%;
+      min-height: 44px;
+      padding: 0 var(--space-3);
+    }
+    .shell__rail .shell__door:hover {
+      background: var(--c-bg-hover);
+    }
+    /* Over a rail picture (a theme's rail.surface), the words must read on any part of it:
+       bright, a step bolder, lifted by a soft shadow; the door under the pointer or the one
+       you're in sits on a dark box. Weight and shadow only: sizes stay the contract's. */
+    [data-surface-rail] .shell__rail :is(.shell__door, .shell__crest) {
+      color: var(--c-fg-default);
+      font-weight: 600;
+      text-shadow: var(--part-rail-ink-shadow);
+    }
+    [data-surface-rail] .shell__rail .shell__door:is(:hover, [aria-current="page"]) {
+      background: color-mix(in srgb, var(--c-bg-canvas) 88%, transparent);
+      color: var(--c-fg-default);
+      text-shadow: none;
+    }
+    /* The theme's rail.art: at the rail's foot, above Ask Nox, never pushing it off screen. */
+    .shell__rail-art {
+      display: block;
+      width: 100%;
+      max-height: min(240px, 25dvh);
+      margin-top: auto;
+      object-fit: contain;
+      object-position: bottom;
+    }
+    .shell[data-rail="icons"] .shell__rail-art {
+      display: none;
+    }
+    .shell__rail .shell__rail-art + .shell__ask-card {
+      margin-top: var(--space-2);
+    }
+    /* The rail's foot for moving pictures (layers where "rail-foot"): the rail art's box, just
+       above Ask Nox, whatever the screen's height. */
+    .shell__rail > .ds-layers[data-where="rail-foot"] {
+      position: relative;
+      flex: 0 1 240px; /* 240 px, or what the rail has left on a short screen */
+      min-height: 0;
+      margin: auto calc(-1 * var(--space-3)) 0; /* the rail's whole width, as the art is drawn */
+    }
+    .shell__rail > .ds-layers[data-where="rail-foot"] ~ .shell__ask-card {
+      margin-top: var(--space-2);
+    }
+    .shell[data-rail="icons"] :is(.ds-layers[data-where="rail-foot"], .shell__credit) {
+      display: none;
+    }
+    .shell__credit {
+      color: var(--c-fg-subtle);
+      font: var(--text-caption);
+      text-align: center;
+    }
+    /* Nox in the rail: a card that calls to be used, the mascot large. */
+    .shell__ask-card {
+      display: grid;
+      justify-items: center;
+      gap: var(--space-1);
+      margin-top: auto;
+      padding: var(--space-2);
+      border: var(--part-panel-border);
+      border-radius: var(--radius-card);
+      background: var(--c-accent-soft);
+      color: var(--c-fg-muted);
+      font: var(--text-caption);
+      text-align: center;
+    }
+    .shell__ask-card > .shell__door--ask {
+      width: 100%;
+      color: var(--c-fg-default);
+      font: var(--text-title-s);
+    }
+    .shell__ask-card > .shell__door--ask .ds-button__label {
+      display: grid;
+      justify-items: center;
+      gap: var(--space-1);
+    }
+    .shell[data-rail="icons"] .shell__ask-card > :not(.shell__door--ask) {
+      display: none;
+    }
+    .shell__rail .shell__door[aria-current="page"] {
+      background: var(--c-bg-current);
+      color: var(--c-fg-current);
+    }
+    /* The room's mark: a bar of its own inside the pill (a border would bend with the corners). */
+    .shell__rail .shell__door[aria-current="page"]::before {
+      content: "";
+      position: absolute;
+      inset: var(--space-2) auto var(--space-2) var(--space-1);
+      width: var(--border-strong);
+      border-radius: var(--radius-full);
+      background: var(--c-room, var(--c-accent-solid));
+    }
+    .shell__rail .shell__door .ds-badge {
+      position: static;
+      margin-left: auto;
+    }
+
+    .shell__fold {
+      align-self: flex-end;
+    }
+    .shell[data-rail="icons"] .shell__crest,
+    .shell[data-rail="icons"] .shell__rail .shell__door > span:not(.ds-badge),
+    .shell[data-rail="icons"] .shell__rail .shell__door .ds-button__label > span:not(:first-child) {
+      display: none;
+    }
+    .shell[data-rail="icons"] .shell__rail .shell__door {
+      justify-content: center;
+      padding: 0;
+    }
+    .shell[data-rail="icons"] .shell__fold {
+      align-self: center;
+    }
+    .shell__main {
+      padding: var(--shell-pad-top) var(--space-6) calc(var(--shell-bottom) + var(--space-7));
+    }
+    .shell__now {
+      left: calc(var(--shell-rail-w) + var(--space-4));
+      right: var(--space-4);
+      bottom: var(--space-3);
+      max-width: 960px;
+      margin-inline: auto;
+    }
+  }
+
+  /* ---------- places that fill the screen ---------- */
+  .shell:is([data-mode="party"], [data-mode="play"]) :is(.shell__status, .shell__rail, .shell__dock, .shell__now) {
+    display: none;
+  }
+  .shell:is([data-mode="party"], [data-mode="play"]) .shell__main {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* ---------- parts: size-neutral variants a theme picks (themes/_schema/parts.json) ---------- */
+  /* A floating dock: the same bar, rounded, lifted off the bottom edge. */
+  [data-part-dock="floating"] .shell__dock {
+    inset: auto var(--space-2) calc(env(safe-area-inset-bottom, 0px) + var(--space-2));
+    height: var(--chrome-dock);
+    padding-bottom: 0;
+    border: var(--part-dock-border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--elev-3);
+  }
+  [data-part-dock="floating"] {
+    --shell-bottom: calc(
+      var(--chrome-dock) + var(--space-2) + var(--shell-now-h, 0px) + env(safe-area-inset-bottom, 0px)
+    );
+  }
+  [data-part-dock="floating"] .shell__now {
+    bottom: calc(
+      var(--chrome-dock) + env(safe-area-inset-bottom, 0px) + var(--space-2) + var(--space-6)
+    );
+  }
+  /* A docked Now bar: flat across the width, sitting on the dock (or the page's foot). */
+  [data-part-nowbar="docked"] .shell__now {
+    left: var(--shell-rail-w);
+    right: 0;
+    bottom: calc(var(--chrome-dock) + env(safe-area-inset-bottom, 0px));
+    max-width: none;
+    margin: 0;
+    border-width: 0;
+    border-top: var(--part-nowbar-border);
+    border-radius: 0;
+    box-shadow: none;
+  }
+  [data-part-nowbar="docked"] .shell__now::after {
+    display: none;
+  }
+  /* On phones Nox's circle rises out of the dock: the docked bar grows an empty band at its foot
+     for it, so the bar still sits on the dock and nothing of it is covered. */
+  @media (max-width: 899.98px) {
+    [data-part-nowbar="docked"] .shell__now {
+      /* The dock's level: the dock comes later in the page, so the circle paints over the band. */
+      z-index: var(--z-dock);
+      height: calc(var(--chrome-nowbar) + var(--space-6));
+      padding-bottom: var(--space-6);
+    }
+  }
+  /* Wide screens have no dock: the bar sits on the window's bottom edge (or just above it). */
+  @media (min-width: 900px) {
+    [data-part-nowbar="docked"] .shell__now {
+      bottom: 0;
+    }
+    [data-part-dock="floating"] .shell__now {
+      bottom: var(--space-3);
+    }
+    [data-part-dock="floating"] {
+      --shell-bottom: calc(var(--shell-now-h, 0px) + var(--space-3));
+    }
+  }
+  /* Trying a theme on: a small bar under the top one, over every page, until kept or taken off. */
+  .shell__trying {
+    position: fixed;
+    top: calc(var(--chrome-status) + var(--space-2));
+    left: 50%;
+    z-index: var(--z-toast);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    max-width: calc(100vw - 2 * var(--space-4));
+    padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3);
+    translate: -50% 0;
+    border-radius: var(--mat-inverse-radius);
+    background: var(--mat-inverse-bg);
+    color: var(--mat-inverse-fg);
+    box-shadow: var(--elev-3);
+    font: var(--text-body-s);
+  }
+}

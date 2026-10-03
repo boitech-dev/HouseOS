@@ -1,0 +1,46 @@
+# HouseOS as its own device on your network, with its own address (optional).
+# `./houseos.sh own-address` (or Control Room → Services) writes the lines to .env and restarts. Phones open https://houseos.local:8443 or
+# https://<HOUSEOS_LAN_IP>:8443. See docs/DOCKER.md, "HouseOS as its own device on the network".
+#
+# ipvlan (L2), not macvlan: the address shares this computer's network card and its MAC
+# address, so it also works on Wi-Fi. Known limit: this computer itself cannot reach that
+# address (phones, TVs and other computers can); here, use http://localhost:8990.
+services:
+  # Holds the address. The HTTPS door and the media relay share it, so restarting either one
+  # never changes or drops it.
+  lan:
+    image: caddy:2.10-alpine
+    entrypoint: ["sleep", "2147483647"]
+    init: true
+    restart: unless-stopped
+    networks:
+      lan:
+        ipv4_address: ${HOUSEOS_LAN_IP:?HOUSEOS_LAN_IP is missing; run lan-suggest (see compose.lan.yml)}
+        gw_priority: 1   # the house's own router, not Docker's, is the way out
+      default: {}
+
+  https:
+    network_mode: service:lan
+    ports: !reset []   # nothing on this computer's ports: the door is at HOUSEOS_LAN_IP:8443
+    depends_on: { lan: { condition: service_started } }
+
+  relay:
+    # Announces houseos.local, finds devices and serves media to TVs from the house's address.
+    network_mode: service:lan
+    depends_on: { lan: { condition: service_started } }
+    environment:
+      HOUSEOS_DB_HOST: db
+      HOUSEOS_DB_PORT: "3306"
+      HOUSEOS_HTTPS_PORT: "8443"   # the door it announces is at this address, whatever .env says
+
+networks:
+  lan:
+    driver: ipvlan
+    driver_opts:
+      parent: ${HOUSEOS_LAN_PARENT:?HOUSEOS_LAN_PARENT is missing; run lan-suggest (see compose.lan.yml)}
+      ipvlan_mode: l2
+    ipam:
+      config:
+        - subnet: ${HOUSEOS_LAN_SUBNET:?HOUSEOS_LAN_SUBNET is missing; run lan-suggest}
+          gateway: ${HOUSEOS_LAN_GATEWAY:?HOUSEOS_LAN_GATEWAY is missing; run lan-suggest}
+          ip_range: ${HOUSEOS_LAN_IP}/32   # Docker never hands out any other address there

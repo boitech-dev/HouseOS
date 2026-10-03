@@ -1,0 +1,232 @@
+/* The theme workshop and Remix (workshop.tsx, remix.tsx): layout only; the pieces are the design
+   system's, the previews are theme_preview.css. */
+@layer rooms {
+  /* ---------- tour ---------- */
+  .workshop-tour {
+    display: grid;
+    gap: var(--space-5);
+    align-items: start;
+  }
+  .workshop-tour__stage {
+    display: grid;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+  .workshop-tour__stage .ds-field {
+    max-width: 320px;
+  }
+  /* The preview is drawn at desktop size and scaled: its frame scrolls sideways on a phone. */
+  .workshop-tour__frame,
+  .workshop-card__preview,
+  .remix__stage {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .workshop-part {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .workshop-part__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .workshop-part__n {
+    display: inline-grid;
+    place-items: center;
+    min-width: 24px;
+    height: 24px;
+    border-radius: var(--radius-full);
+    background: var(--c-accent-soft);
+    color: var(--c-accent-fg);
+    font: var(--text-label);
+  }
+  .workshop-part__card {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    border: var(--mat-surface-border);
+    border-radius: var(--mat-surface-radius);
+    background: var(--mat-surface-bg);
+  }
+  .workshop-part__card dl {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: var(--space-2) var(--space-4);
+    margin: 0;
+  }
+  .workshop-part__card dt {
+    color: var(--c-fg-muted);
+    font: var(--text-label);
+  }
+  .workshop-part__card dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .workshop-part__card code,
+  .workshop-catalogue code {
+    font: var(--text-numeric);
+  }
+  @media (min-width: 1232px) {
+    .workshop-tour {
+      grid-template-columns: auto minmax(320px, 1fr);
+    }
+    .workshop-part__list {
+      display: grid;
+    }
+  }
+  .workshop-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .workshop-steps li {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+  }
+  .workshop-steps__n {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-full);
+    background: var(--c-accent-soft);
+    color: var(--c-accent-fg);
+  }
+
+  /* ---------- ideas, catalogue, ways ---------- */
+  .workshop-card,
+  .workshop-idea,
+  .workshop-catalogue,
+  .workshop-way {
+    display: grid;
+    align-content: start;
+    gap: var(--space-3);
+    min-width: 0;
+    padding: var(--space-4);
+    border: var(--mat-surface-border);
+    border-radius: var(--mat-surface-radius);
+    background: var(--mat-surface-bg);
+  }
+  .workshop-way {
+    gap: var(--space-4);
+    padding: var(--space-5);
+  }
+  .workshop-way > .ds-icon {
+    color: var(--c-accent-fg);
+  }
+  .workshop-way__code {
+    margin: 0;
+    padding: var(--space-3);
+    overflow-x: auto;
+    border-radius: var(--radius-control);
+    background: var(--mat-sunken-bg);
+    font: var(--text-numeric);
+  }
+  .workshop-catalogue dl {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+  }
+  .workshop-catalogue dl > div {
+    display: grid;
+    gap: 0;
+  }
+  .workshop-catalogue dd {
+    margin: 0;
+    color: var(--c-fg-muted);
+    font: var(--text-body-s);
+  }
+
+  /* ---------- remix ---------- */
+  .remix {
+    display: grid;
+    gap: var(--space-6);
+    align-items: start;
+  }
+  .remix__controls {
+    display: grid;
+    gap: var(--space-5);
+    min-width: 0;
+  }
+  .remix__preview {
+    display: grid;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+  @media (min-width: 1232px) {
+    .remix {
+      grid-template-columns: minmax(360px, 1fr) auto;
+    }
+    .remix__preview {
+      position: sticky;
+      top: calc(var(--shell-top) + var(--space-4));
+    }
+  }
+  .remix__failures {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding-left: var(--space-5);
+    color: var(--c-danger-fg);
+    font: var(--text-body-s);
+  }
+  .remix__swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--space-2) var(--space-4);
+  }
+  .remix__slot {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-3) 0;
+    border-top: var(--border-hairline) solid var(--c-border-subtle);
+  }
+  .remix__words {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-2) 0;
+  }
+  @media (min-width: 900px) {
+    .remix__words {
+      grid-template-columns: 180px repeat(2, minmax(0, 1fr));
+      align-items: center;
+    }
+  }
+  .remix__pixels {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--space-4);
+    padding: var(--space-3);
+    border-radius: var(--radius-card);
+    background: var(--c-bg-canvas);
+  }
+  .remix__grid {
+    display: grid;
+    grid-template-columns: repeat(16, 20px);
+    grid-auto-rows: 20px;
+    border: var(--border-hairline) solid var(--c-border-default);
+    touch-action: none;
+    cursor: crosshair;
+  }
+  .remix__grid > span {
+    border: var(--border-hairline) solid var(--c-border-subtle);
+    background: var(--ink, transparent);
+  }
+  .remix__grid:focus-visible > span[data-cursor] {
+    outline: var(--border-strong) solid var(--c-focus-ring);
+    outline-offset: -2px;
+  }
+  .remix__pixels > .ds-swatches {
+    flex: 1 1 200px;
+  }
+}

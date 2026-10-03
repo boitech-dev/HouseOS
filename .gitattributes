@@ -1,0 +1,12 @@
+# One line ending everywhere: a Windows checkout must not turn scripts copied into Linux
+# containers (entrypoint.sh, houseos.sh) into CRLF files that no longer run.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.webp binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.whl binary
+*.zip binary

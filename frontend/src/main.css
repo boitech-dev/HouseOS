@@ -1,0 +1,26 @@
+/* Sign-in and the splash: the house's crest, its name, and the door. */
+@layer rooms {
+  .auth {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: var(--space-3);
+    min-block-size: 100dvh;
+    max-inline-size: calc(var(--space-6) * 14);
+    margin-inline: auto;
+    padding: var(--space-6) var(--space-4);
+    text-align: center;
+  }
+  .auth__crest {
+    inline-size: calc(var(--space-6) * 3);
+    block-size: auto;
+    image-rendering: pixelated;
+  }
+  .auth .ds-form {
+    inline-size: 100%;
+    text-align: start;
+  }
+  .auth .ds-form__actions > * {
+    flex: 1;
+  }
+}

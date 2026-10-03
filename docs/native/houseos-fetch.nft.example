@@ -1,0 +1,13 @@
+table inet houseos_fetch {
+  chain output {
+    type filter hook output priority -10; policy accept;
+    meta skuid "houseos-fetch" ip daddr 127.0.0.1 tcp dport 4416 accept
+    meta skuid "houseos-fetch" ip daddr 127.0.0.53 udp dport 53 accept
+    meta skuid "houseos-fetch" ip daddr 127.0.0.53 tcp dport 53 accept
+    meta skuid "houseos-fetch" ip daddr { 0.0.0.0/8, 10.0.0.0/8, 100.64.0.0/10, 127.0.0.0/8, 169.254.0.0/16, 172.16.0.0/12, 192.0.0.0/24, 192.0.2.0/24, 192.168.0.0/16, 198.18.0.0/15, 198.51.100.0/24, 203.0.113.0/24, 224.0.0.0/4, 240.0.0.0/4 } reject
+    meta skuid "houseos-fetch" ip6 daddr { ::/128, ::1/128, ::ffff:0:0/96, 64:ff9b::/96, 100::/64, 2001:db8::/32, fc00::/7, fe80::/10, ff00::/8 } reject
+    # Public web and radio streams (Icecast/Shoutcast use high ports); private ranges are refused above.
+    meta skuid "houseos-fetch" tcp dport { 80, 443, 1024-65535 } accept
+    meta skuid "houseos-fetch" reject
+  }
+}

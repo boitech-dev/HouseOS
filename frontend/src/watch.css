@@ -1,0 +1,361 @@
+/* Watch (watch.tsx, watch_explore.tsx, cinema.tsx): layout only. Colours, type and shapes come
+   from the design system; posters keep their true colours. */
+@layer rooms {
+  .watch-seeall__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .watch-seeall__head > h2 {
+    margin: 0;
+  }
+  .watch-stack {
+    display: grid;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+
+  /* ---------- search and filters ---------- */
+  .watch-search {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .watch-search__field {
+    display: flex;
+    flex: 1 1 20rem;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .watch-search__field > .ds-search {
+    flex: 1;
+    min-width: 0;
+  }
+  .watch-lists,
+  .watch-screen__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  /* The filter bar and your lists share a line when there is room. */
+  .watch-tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
+    min-width: 0;
+    margin-top: calc(-1 * var(--space-2));
+  }
+  .watch-filterbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-2);
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  @media (min-width: 600px) {
+    .watch-filterbar {
+      grid-template-columns: minmax(8rem, 12rem) auto auto;
+      flex: 0 1 auto;
+    }
+  }
+  /* A phone shows the sliders (and the count) only; the words are still read aloud. */
+  .watch-filter-toggle {
+    padding: 0 var(--space-3);
+  }
+  .watch-filter-toggle__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  @media (min-width: 600px) {
+    .watch-filter-toggle {
+      padding: 0 var(--space-4);
+    }
+    .watch-filter-toggle__label {
+      position: static;
+      width: auto;
+      height: auto;
+      overflow: visible;
+      clip-path: none;
+    }
+  }
+  .watch-lists {
+    min-width: 0;
+  }
+  .watch-lists > .ds-button {
+    flex: none;
+  }
+  .watch-row-slot {
+    min-width: 0;
+  }
+  /* Brought into view when it opens: clear of the status bar and the Now bar. */
+  .watch-filters-slot {
+    scroll-margin: var(--shell-top, 0px) 0 var(--shell-bottom, 0px);
+  }
+  /* More filters: one column on a phone, two, then three; themes take the whole width. */
+  .watch-filters {
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    border: var(--mat-sunken-border);
+    border-radius: var(--mat-sunken-radius);
+    background: var(--mat-sunken-bg);
+  }
+  @media (min-width: 600px) {
+    .watch-filters {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-4) var(--space-5);
+    }
+  }
+  @media (min-width: 1232px) {
+    .watch-filters {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .watch-filters > :not(.watch-filters__cell) {
+    grid-column: 1 / -1;
+  }
+  .watch-filters__cell {
+    display: grid;
+    align-content: start;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+  .watch-filters__pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+  .watch-filters__themes {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .watch-filters__themes legend {
+    padding: 0 0 var(--space-2);
+    font: var(--text-label);
+    letter-spacing: var(--text-label-tracking);
+    text-transform: var(--text-label-case);
+  }
+
+  /* ---------- posters ---------- */
+  /* A full page of posters hangs on the theme's gallery ground (part.page.gallery), never on
+     the page's own picture; painted outside the box, so nothing moves. */
+  .watch-grid {
+    border-radius: var(--part-panel-radius);
+    background: var(--pv-gallery, transparent);
+    outline: var(--space-3) solid var(--pv-gallery, transparent);
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+    gap: var(--space-5) var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  @media (min-width: 900px) {
+    .watch-grid {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+  }
+  .watch-poster {
+    min-width: 0;
+    list-style: none;
+  }
+  /* A poster lifts under the pointer (instantly when motion is still: base.css). */
+  .watch-poster .ds-media {
+    transition:
+      translate var(--dur-fast) var(--ease-standard),
+      box-shadow var(--dur-fast) var(--ease-standard);
+  }
+  @media (hover: hover) {
+    .watch-poster .ds-media-card:hover .ds-media {
+      translate: 0 calc(-1 * var(--space-1));
+      outline: var(--border-hairline) solid var(--c-room-line);
+      box-shadow: var(--elev-3);
+    }
+  }
+  .watch-poster__bar {
+    position: absolute;
+    inset: auto var(--space-2) var(--space-2);
+  }
+  /* A row not loaded yet keeps its place, so the page doesn't jump when it arrives. */
+  .watch-row-waiting {
+    min-height: 240px;
+  }
+
+  /* ---------- a title ---------- */
+  .watch-title {
+    display: grid;
+    gap: var(--space-6);
+  }
+  /* The poster and its facts; the words under both on a phone, beside the poster when wide. */
+  .watch-title__intro {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .watch-title__about {
+    grid-column: 1 / -1;
+  }
+  @media (min-width: 600px) {
+    .watch-title__intro {
+      grid-template-columns: 180px minmax(0, 1fr);
+      grid-template-rows: auto 1fr;
+      gap: var(--space-3) var(--space-5);
+    }
+    .watch-title__poster {
+      grid-row: 1 / span 2;
+    }
+    .watch-title__about {
+      grid-column: 2;
+    }
+  }
+  /* The title's actions: one grid of equal buttons (one a row on a phone, whole words). */
+  .watch-title__actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    gap: var(--space-2);
+  }
+  .watch-title__meta {
+    align-self: center;
+  }
+  .watch-title__meta,
+  .watch-title__rating {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-2);
+  }
+  .watch-title__about {
+    max-width: 60ch;
+  }
+  .watch-episode__number {
+    min-width: 2ch;
+    text-align: end;
+  }
+  .watch-release {
+    display: block;
+    overflow-wrap: anywhere;
+  }
+
+  /* ---------- tonight ---------- */
+  /* Tonight: a part of the sheet under a hairline, not a card (its notices are the boxes). */
+  .watch-tonight {
+    display: grid;
+    gap: var(--space-3);
+    padding-top: var(--space-5);
+    border-top: var(--border-hairline) solid var(--c-border-subtle);
+  }
+  .watch-tonight > h3,
+  .watch-checking {
+    margin: 0;
+  }
+  .watch-checking small {
+    color: var(--c-fg-muted);
+  }
+  .watch-inline-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--space-2);
+  }
+  .watch-inline-form > .ds-field {
+    flex: 1 1 10rem;
+  }
+
+  /* ---------- screens, transport, copies ---------- */
+  .watch-screens {
+    display: grid;
+    gap: var(--space-5);
+  }
+  .watch-screens__art {
+    width: 160px;
+    height: auto;
+    image-rendering: pixelated;
+  }
+  .watch-screen {
+    display: grid;
+    gap: var(--space-2);
+    padding-bottom: var(--space-4);
+    border-bottom: var(--border-hairline) solid var(--c-border-subtle);
+  }
+  .watch-screen__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .watch-transport {
+    display: grid;
+    gap: var(--space-3);
+  }
+  .watch-transport__keys {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-4);
+  }
+  .watch-stop {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .watch-download {
+    display: grid;
+    gap: var(--space-1);
+  }
+}
+
+/* ---------- Watch → Web (watch_web.tsx) ---------- */
+@layer rooms {
+  .watch-web {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .watch-web__add {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    border: var(--part-panel-border);
+    border-radius: var(--part-panel-radius);
+    background: var(--pv-panel-fill, var(--part-panel-bg));
+  }
+  .watch-web__add .ds-input {
+    min-height: 48px;
+  }
+  .watch-web__go {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .watch-web__go > .ds-select {
+    flex: 1 1 12rem;
+  }
+  .watch-web__thumb {
+    display: block;
+    width: 112px;
+  }
+  @media (max-width: 599.98px) {
+    .watch-web__thumb {
+      width: 80px;
+    }
+    .watch-web__go > .ds-button {
+      flex: 1 1 100%;
+    }
+  }
+}

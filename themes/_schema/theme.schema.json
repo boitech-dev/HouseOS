@@ -1,0 +1,560 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "A HouseOS theme's manifest (theme.json)",
+  "type": "object",
+  "required": [
+    "id",
+    "schema",
+    "version",
+    "names",
+    "description",
+    "schemes",
+    "fonts"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "The folder's name: lowercase words joined by hyphens."
+    },
+    "schema": {
+      "const": 1,
+      "description": "The pack format's version."
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "This theme's own version; raise it with each change you share."
+    },
+    "names": {
+      "$ref": "#/$defs/words",
+      "description": "Its name in English and French, 32 characters at most."
+    },
+    "description": {
+      "$ref": "#/$defs/words",
+      "description": "One sentence: its mood."
+    },
+    "schemes": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "dark",
+          "light"
+        ]
+      },
+      "minItems": 1,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "description": "The first is its own; with both, people may pick or follow their device."
+    },
+    "density": {
+      "enum": [
+        "compact",
+        "comfortable",
+        "airy"
+      ],
+      "default": "comfortable",
+      "description": "A word for the brief only: spacing and sizes are the same in every theme."
+    },
+    "identity": {
+      "enum": [
+        "line",
+        "pixel"
+      ],
+      "default": "line",
+      "description": "Icons: line drawings, or the pixel sprites (glyphs and the mascot)."
+    },
+    "fonts": {
+      "type": "object",
+      "required": [
+        "display",
+        "body",
+        "mono"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "display": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "mono": {
+          "type": "string"
+        }
+      },
+      "description": "Family names: \"system\", a bundled face (Jacquard 12, Alegreya Sans, IBM Plex Mono), or one in fonts/ (theme_kit font adds it)."
+    },
+    "slots": {
+      "type": "object",
+      "description": "Art slots (_schema/slots.json): {\"scene\": \"hall\" | \"room\"}, \"art/<file>\", or {\"image\", \"rendering\", \"fit\"}.",
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "scene"
+            ],
+            "properties": {
+              "scene": {
+                "enum": [
+                  "hall",
+                  "room"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "string",
+            "pattern": "^(art/[a-z0-9][a-z0-9._-]*\\.(svg|png|webp)|/art/[a-z0-9-]+\\.(png|svg|webp))$"
+          },
+          {
+            "type": "object",
+            "required": [
+              "image"
+            ],
+            "properties": {
+              "image": {
+                "type": "string",
+                "pattern": "^(art/[a-z0-9][a-z0-9._-]*\\.(svg|png|webp)|/art/[a-z0-9-]+\\.(png|svg|webp))$"
+              },
+              "rendering": {
+                "enum": [
+                  "pixel",
+                  "smooth"
+                ],
+                "default": "pixel"
+              },
+              "fit": {
+                "enum": [
+                  "cover",
+                  "contain",
+                  "stretch",
+                  "slice"
+                ],
+                "default": "cover"
+              },
+              "anchor": {
+                "enum": [
+                  "top",
+                  "center",
+                  "bottom"
+                ],
+                "default": "center",
+                "description": "When the picture is cropped (cover), the part always seen: bottom crops the top first."
+              },
+              "slice": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 400,
+                "description": "With fit slice (surfaces): the frame's corner size in px."
+              },
+              "rooms": {
+                "type": "object",
+                "propertyNames": {
+                  "enum": [
+                    "home",
+                    "listen",
+                    "watch",
+                    "house",
+                    "files",
+                    "ask",
+                    "me",
+                    "control",
+                    "smart-home",
+                    "inbox",
+                    "space",
+                    "party",
+                    "games"
+                  ]
+                },
+                "additionalProperties": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^(art/[a-z0-9][a-z0-9._-]*\\.(svg|png|webp)|/art/[a-z0-9-]+\\.(png|svg|webp))$"
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string",
+                        "pattern": "^(art/[a-z0-9][a-z0-9._-]*\\.(svg|png|webp)|/art/[a-z0-9-]+\\.(png|svg|webp))$"
+                      },
+                      "propertyNames": {
+                        "enum": [
+                          "dark",
+                          "light"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "description": "Another picture in these rooms: {room: art/<file>} or {room: {dark|light: art/<file>}}."
+              },
+              "schemes": {
+                "type": "object",
+                "propertyNames": {
+                  "enum": [
+                    "dark",
+                    "light"
+                  ]
+                },
+                "additionalProperties": {
+                  "type": "string",
+                  "pattern": "^(art/[a-z0-9][a-z0-9._-]*\\.(svg|png|webp)|/art/[a-z0-9-]+\\.(png|svg|webp))$"
+                },
+                "description": "Another picture in this scheme: {dark|light: art/<file>} (a room's own wins)."
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "hidden": {
+      "type": "boolean",
+      "description": "Kept out of the pickers (debug themes)."
+    },
+    "debug": {
+      "type": "boolean"
+    },
+    "author": {
+      "type": "string",
+      "maxLength": 80
+    },
+    "license": {
+      "type": "string",
+      "maxLength": 40
+    },
+    "rooms": {
+      "enum": [
+        "distinct",
+        "unified"
+      ],
+      "default": "distinct",
+      "description": "Each room its own light (distinct), or one light for all (unified: limited-ink themes)."
+    },
+    "parts": {
+      "type": "object",
+      "description": "Size-neutral variants of the interface's parts (_schema/parts.json).",
+      "additionalProperties": false,
+      "properties": {
+        "header": {
+          "enum": [
+            "plain",
+            "banner",
+            "ribbon",
+            "framed"
+          ],
+          "default": "plain",
+          "description": "plain: the title on the page; banner: the header.banner art behind the title, fading into the page; ribbon: the kicker as a small ribbon in the room's light; framed: the title in a box of its own, with an edge: for themes with a picture behind every page"
+        },
+        "panel": {
+          "enum": [
+            "card",
+            "flat",
+            "outlined"
+          ],
+          "default": "card",
+          "description": "card: a filled card with an edge; flat: no card: a hairline above each panel; outlined: an edge only, the page showing through"
+        },
+        "dock": {
+          "enum": [
+            "flush",
+            "floating"
+          ],
+          "default": "flush",
+          "description": "flush: a bar along the bottom (phones); floating: a rounded bar floating above the bottom edge"
+        },
+        "nowbar": {
+          "enum": [
+            "floating",
+            "docked"
+          ],
+          "default": "floating",
+          "description": "floating: a rounded bar over the page; docked: a flat bar across the width, above the dock"
+        }
+      }
+    },
+    "layers": {
+      "type": "array",
+      "maxItems": 12,
+      "description": "Pictures the app moves, as far as the person's motion level allows (themes/README.md, Layers).",
+      "items": {
+        "type": "object",
+        "required": [
+          "image",
+          "where"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "image": {
+            "type": "string",
+            "pattern": "^(art/[a-z0-9][a-z0-9._-]*\\.(svg|png|webp)|/art/[a-z0-9-]+\\.(png|svg|webp))$"
+          },
+          "where": {
+            "enum": [
+              "page",
+              "hero",
+              "header",
+              "rail",
+              "rail-foot",
+              "status",
+              "deck"
+            ]
+          },
+          "fit": {
+            "enum": [
+              "cover",
+              "contain",
+              "repeat",
+              "repeat-x",
+              "natural"
+            ]
+          },
+          "anchor": {
+            "enum": [
+              "center",
+              "top",
+              "bottom",
+              "left",
+              "right",
+              "top-left",
+              "top-right",
+              "bottom-left",
+              "bottom-right"
+            ]
+          },
+          "blend": {
+            "enum": [
+              "normal",
+              "screen",
+              "multiply",
+              "overlay",
+              "soft-light"
+            ]
+          },
+          "rendering": {
+            "enum": [
+              "pixel",
+              "smooth"
+            ]
+          },
+          "rooms": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "home",
+                "listen",
+                "watch",
+                "house",
+                "files",
+                "ask",
+                "me",
+                "control",
+                "smart-home",
+                "inbox",
+                "space",
+                "party",
+                "games"
+              ]
+            }
+          },
+          "schemes": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "dark",
+                "light"
+              ]
+            }
+          },
+          "scale": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 8
+          },
+          "opacity": {
+            "type": "number",
+            "minimum": 0.05,
+            "maximum": 1
+          },
+          "depth": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "above": {
+            "type": "boolean",
+            "description": "Over the page (where page), opacity 0.15 at most."
+          },
+          "under": {
+            "type": "boolean",
+            "description": "Behind the place's own picture (page, hero, status, header), e.g. a sky seen through it."
+          },
+          "drift": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": -200,
+              "maximum": 200
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "cross": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "seconds": {
+                "type": "number",
+                "minimum": 2,
+                "maximum": 120
+              },
+              "every": {
+                "type": "number",
+                "minimum": 2,
+                "maximum": 600
+              },
+              "from": {
+                "enum": [
+                  "left",
+                  "right",
+                  "top",
+                  "bottom"
+                ]
+              }
+            }
+          },
+          "frames": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "count": {
+                "type": "integer",
+                "minimum": 2,
+                "maximum": 32
+              },
+              "fps": {
+                "type": "number",
+                "minimum": 1,
+                "maximum": 24
+              }
+            }
+          },
+          "particles": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "count": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 24
+              },
+              "motion": {
+                "enum": [
+                  "rise",
+                  "fall",
+                  "float",
+                  "twinkle"
+                ]
+              },
+              "seconds": {
+                "type": "number",
+                "minimum": 2,
+                "maximum": 60
+              }
+            }
+          },
+          "playing": {
+            "type": "boolean"
+          },
+          "poke": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "frames"
+            ],
+            "description": "Desktop: a click plays this reaction once (a natural piece), with an optional small burst.",
+            "properties": {
+              "image": {
+                "type": "string",
+                "pattern": "^(art/[a-z0-9][a-z0-9._-]*\\.(svg|png|webp)|/art/[a-z0-9-]+\\.(png|svg|webp))$"
+              },
+              "frames": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "count": {
+                    "type": "integer",
+                    "minimum": 2,
+                    "maximum": 32
+                  },
+                  "fps": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 24
+                  }
+                }
+              },
+              "stay": {
+                "enum": [
+                  "random"
+                ],
+                "description": "After the reaction, the piece keeps one of its frames at random (a new arrangement each click)."
+              },
+              "burst": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "image",
+                  "count"
+                ],
+                "properties": {
+                  "image": {
+                    "type": "string",
+                    "pattern": "^(art/[a-z0-9][a-z0-9._-]*\\.(svg|png|webp)|/art/[a-z0-9-]+\\.(png|svg|webp))$"
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 12
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "credit": {
+      "$ref": "#/$defs/words",
+      "description": "Who made it, shown small at the rail's foot: plain text, 40 characters at most, never a link."
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "words": {
+      "type": "object",
+      "required": [
+        "en",
+        "fr"
+      ],
+      "properties": {
+        "en": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fr": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

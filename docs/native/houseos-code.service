@@ -1,0 +1,38 @@
+# REFERENCE ONLY: adapt all paths, users, runtime IDs and bind addresses before installation.
+[Unit]
+Description=Apply, undo or keep a reviewed HouseOS code change (deploy/code_change.py)
+[Service]
+Type=oneshot
+# The source checkout's owner: it commits there, runs the checks and assembles the release.
+# Restarts go through the control broker (HOUSEOS_CODE_USER in houseos-control.service), which
+# lets it restart the app services and nothing else.
+User=YOUR_DESKTOP_USER
+SupplementaryGroups=houseos
+# The note's signing key comes from here; the checks never see this environment (code_change.py
+# CLEAN), and run in their own jail (bubblewrap: read-only, no network, own processes).
+EnvironmentFile=/etc/houseos/houseos.env
+Environment=HOUSEOS_RUNTIME_ROOT=/opt/houseos/state HOME=/tmp
+ExecStart=/usr/bin/python3 /opt/houseos/state/current/deploy/code_change.py
+TimeoutStartSec=3600
+# The owner may use sudo: drafted code runs in the checks, so no privilege gain, no view of the
+# owner's home (keys, browser profiles, other projects) and no network but this computer's own.
+# It writes only the checkout (the commit) and HouseOS's state folder (releases, notes, build);
+# the venv and frontend/node_modules live there too.
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=tmpfs
+BindPaths=/opt/houseos/state
+BindReadOnlyPaths=/home/YOUR_USER/.local/share/uv/python
+ReadWritePaths=/opt/houseos/source /opt/houseos/state
+InaccessiblePaths=-/opt/houseos/state/test.env -/opt/houseos/state/source-backups
+# Sockets that would give the owner root or the network back (Docker and containerd, LXD, snapd,
+# hwctl, polkit through D-Bus or systemd, Tailscale, SSH). ProtectHome already hides /run/user.
+InaccessiblePaths=-/run/docker.sock -/run/docker -/run/containerd -/var/lib/docker -/var/lib/lxd -/var/snap
+InaccessiblePaths=-/run/snapd.socket -/run/snapd-snap.socket -/run/dbus -/run/polkit
+InaccessiblePaths=-/run/systemd/io.systemd.Manager -/run/tailscale -/run/ssh-unix-local
+PrivateTmp=yes
+IPAddressDeny=any
+IPAddressAllow=localhost
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+ProtectKernelModules=yes
+CapabilityBoundingSet=

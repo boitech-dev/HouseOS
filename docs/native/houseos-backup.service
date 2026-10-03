@@ -1,0 +1,11 @@
+# REFERENCE ONLY: adapt all paths, users, runtime IDs and bind addresses before installation.
+[Unit]
+Description=Encrypted HouseOS-only state and source backup
+RequiresMountsFor=/mnt/house-storage/backups
+
+[Service]
+Type=oneshot
+User=YOUR_DESKTOP_USER
+ExecStart=/opt/houseos/state/venvs/app/bin/python /opt/houseos/state/current/deploy/backup.py
+UMask=0077
+# Runs as the desktop user, with a sudo grant for UUID-only file reads.

@@ -1,0 +1,34 @@
+{
+  "$description": "The interface's parts a theme may style on their own, and the size-neutral variants of each (theme.json `parts`). Every variant keeps the same boxes, heights and spacing; only the treatment changes. Tokens for each part: part.<name>.* in tokens.json.",
+  "header": {
+    "default": "plain",
+    "variants": {
+      "plain": "the title on the page",
+      "banner": "the header.banner art behind the title, fading into the page",
+      "ribbon": "the kicker as a small ribbon in the room's light",
+      "framed": "the title in a box of its own, with an edge: for themes with a picture behind every page"
+    }
+  },
+  "panel": {
+    "default": "card",
+    "variants": {
+      "card": "a filled card with an edge",
+      "flat": "no card: a hairline above each panel",
+      "outlined": "an edge only, the page showing through"
+    }
+  },
+  "dock": {
+    "default": "flush",
+    "variants": {
+      "flush": "a bar along the bottom (phones)",
+      "floating": "a rounded bar floating above the bottom edge"
+    }
+  },
+  "nowbar": {
+    "default": "floating",
+    "variants": {
+      "floating": "a rounded bar over the page",
+      "docked": "a flat bar across the width, above the dock"
+    }
+  }
+}

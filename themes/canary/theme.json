@@ -1,0 +1,27 @@
+{
+  "id": "canary",
+  "schema": 1,
+  "version": 1,
+  "debug": true,
+  "hidden": true,
+  "names": {
+    "en": "Canary",
+    "fr": "Canari"
+  },
+  "description": {
+    "en": "Debug: shows what doesn't follow the theme.",
+    "fr": "D\u00e9bogage : montre ce qui ne suit pas le th\u00e8me."
+  },
+  "schemes": [
+    "dark"
+  ],
+  "density": "comfortable",
+  "fonts": {
+    "display": "system",
+    "body": "system",
+    "mono": "system"
+  },
+  "slots": {},
+  "author": "HouseOS",
+  "license": "MIT"
+}

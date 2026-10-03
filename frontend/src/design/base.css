@@ -1,0 +1,95 @@
+/* Element defaults, read from tokens only (docs/design/SYSTEM.md). The legacy layer comes after
+   and still wins where old rooms style the same elements. */
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+  body {
+    margin: 0;
+  }
+  /* No double-tap zoom delay on anything you tap. */
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  summary {
+    touch-action: manipulation;
+  }
+  summary {
+    cursor: pointer;
+  }
+  table {
+    border-collapse: collapse;
+  }
+  /* The page's main region takes focus on each move (for screen readers), without a ring. */
+  main:focus {
+    outline: none;
+  }
+}
+
+@layer base {
+  html {
+    background: var(--mat-canvas-bg);
+    color: var(--c-fg-default);
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    /* A focused control never hides under the status bar, the dock or the Now bar (WCAG 2.4.11);
+       the shell sets both (shell.css). */
+    scroll-padding-block: var(--shell-top, 0px) var(--shell-bottom, 0px);
+  }
+  /* The theme's text starts at body: html keeps the browser's 16px, so rem never follows a theme. */
+  body {
+    font: var(--text-body-m);
+  }
+  :focus-visible {
+    outline: var(--border-strong) solid var(--c-focus-ring);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: var(--c-accent-solid);
+    color: var(--c-fg-on-accent);
+  }
+  a {
+    color: var(--c-fg-link);
+  }
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-mono);
+  }
+  /* The person's motion level wins over any animation (an important in an early layer beats
+     every later one). */
+  html[data-motion-effective="still"] *,
+  html[data-motion-effective="still"] *::before,
+  html[data-motion-effective="still"] *::after {
+    animation-duration: var(--dur-instant) !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: var(--dur-instant) !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@layer utilities {
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}

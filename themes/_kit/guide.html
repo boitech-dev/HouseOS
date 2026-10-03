@@ -1,0 +1,948 @@
+<!doctype html>
+<!-- Template for frontend/public/guides/make-a-theme.html. Don't open this file: run
+     python3 frontend/tools/theme-guide.py  (placeholders are listed at the top of that script). -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Make your own HouseOS theme</title>
+<meta name="description" content="A visual guide to HouseOS themes for a person and their AI agent: what a theme changes, the ten bundled themes, the method, the vocabulary, the art toolkit, the rubric and sharing.">
+<style>
+:root {
+  --bg: #f6f3ee; --paper: #fffdf9; --band: #efebe4; --ink: #1b1a18; --muted: #5d584f; --faint: #8a847a;
+  --line: #e0d9cd; --accent: #b93d12; --accent-ink: #ffffff; --soft: #f6e2d5;
+  --good: #2d7447; --bad: #b3261e; --code: #eee8df; --night: #0f0d1a;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+  --shadow: 0 1px 2px #0000001a, 0 14px 34px -16px #00000055;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111113; --paper: #1a1a1d; --band: #151518; --ink: #f0ece6; --muted: #aaa399; --faint: #7d776e;
+    --line: #2f2e33; --accent: #ff8b5e; --accent-ink: #1c0c05; --soft: #3a2419;
+    --good: #7fd19b; --bad: #ff8a80; --code: #232327;
+    --shadow: 0 1px 2px #00000066, 0 16px 40px -18px #000000cc;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: 64px; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--sans); overflow-x: hidden; }
+img { max-width: 100%; height: auto; display: block; }
+.px, .pixel { image-rendering: pixelated; }
+a { color: var(--accent); }
+code, pre, kbd { font-family: var(--mono); font-size: .86em; }
+code { background: var(--code); padding: .08em .35em; border-radius: 4px; overflow-wrap: anywhere; }
+pre { margin: 0; background: var(--code); border-radius: 10px; padding: 14px 16px; white-space: pre; overflow-x: auto; line-height: 1.55; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+h1, h2, h3, h4 { margin: 0; line-height: 1.12; letter-spacing: -.02em; }
+h2 { font-size: clamp(30px, 4.6vw, 48px); font-weight: 800; }
+h3 { font-size: 20px; font-weight: 700; }
+h4 { font-size: 15px; font-weight: 700; letter-spacing: 0; }
+p { margin: 0 0 10px; }
+ul { margin: 0; padding-left: 18px; }
+figure { margin: 0; }
+figcaption { font-size: 13px; color: var(--muted); margin-top: 8px; }
+.muted { color: var(--muted); }
+.shot { border-radius: 10px; border: 1px solid var(--line); box-shadow: var(--shadow); }
+
+/* Section frame */
+section { padding: 80px 0; border-top: 1px solid var(--line); }
+section.band { background: var(--band); }
+.head { display: grid; grid-template-columns: 64px 1fr; gap: 0 18px; margin-bottom: 36px; }
+.num { font: 800 15px/1 var(--mono); color: var(--accent); padding-top: 12px; }
+.lead { font-size: 18px; color: var(--muted); max-width: 64ch; margin: 12px 0 0; }
+.label { font: 700 12px/1.2 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.chips { list-style: none; padding: 0; margin: 10px 0 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.chips li { background: var(--soft); border-radius: 999px; padding: 3px 11px; font-size: 14px; }
+.chips.never li { background: transparent; border: 1px dashed var(--faint); color: var(--muted); }
+.chips.slotlist li { background: var(--code); padding: 2px 8px; }
+.chips.slotlist code { background: none; padding: 0; }
+.slotpics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; align-items: end; margin-top: 8px; }
+.slotpics img { width: 100%; max-height: 120px; object-fit: contain; border-radius: 8px; }
+.slotpics figcaption { font: 600 11px var(--mono); overflow-wrap: anywhere; }
+.demo-note { font-size: 12px; color: var(--faint); margin-top: 6px; }
+
+/* Top bar */
+.bar { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.bar .wrap { display: flex; align-items: center; gap: 18px; height: 52px; }
+.bar b { font-size: 14px; white-space: nowrap; }
+.bar nav { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; margin-right: -16px; padding-right: 16px; }
+.bar nav::-webkit-scrollbar { display: none; }
+.bar nav a { color: var(--muted); text-decoration: none; font-size: 14px; padding: 6px 10px; border-radius: 999px; white-space: nowrap; }
+.bar nav a:hover { color: var(--ink); background: var(--code); }
+a:focus-visible, button:focus-visible, label:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* Hero */
+.hero { padding: 72px 0 0; }
+.hero .wrap { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: end; }
+.hero h1 { font-size: clamp(44px, 7.4vw, 92px); font-weight: 850; letter-spacing: -.045em; line-height: .95; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero .sub { font-size: 19px; color: var(--muted); max-width: 46ch; margin: 22px 0 0; }
+.hero ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; font-size: 15px; }
+.hero ul li { display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: baseline; }
+.hero ul b { font: 800 13px var(--mono); color: var(--accent); }
+.cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font: 650 15px var(--sans); text-decoration: none; border-radius: 999px; padding: 10px 18px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; }
+.btn.primary { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.covers { display: flex; gap: 12px; justify-content: center; padding: 56px 16px 72px; }
+.covers figure { flex: 0 1 150px; min-width: 0; transform: translateY(var(--y, 0)); }
+.covers figure:nth-child(odd) { --y: 34px; }
+.covers figure:nth-child(3n) { --y: 64px; }
+.covers img { border-radius: 16px; border: 1px solid #0000002a; box-shadow: var(--shadow); }
+.covers figcaption { text-align: center; font-size: 12px; }
+
+/* 1: what a theme is */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 10px; margin-top: 20px; }
+.stat { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.stat b { display: block; font-size: 24px; font-weight: 800; letter-spacing: -.02em; }
+.stat span { font-size: 13px; color: var(--muted); }
+.files { width: 100%; border-collapse: collapse; font-size: 14px; }
+.files td { padding: 7px 0; border-top: 1px solid var(--line); vertical-align: top; }
+.files td:first-child { width: 42%; padding-right: 12px; }
+.files tr:first-child td { border-top: 0; }
+.map { margin-top: 28px; }
+
+/* 2: gallery */
+.group { font-size: 22px; margin: 8px 0 16px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.group span { font-size: 15px; font-weight: 400; color: var(--muted); letter-spacing: 0; }
+.themes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 24px; margin-bottom: 44px; }
+.theme .stage { display: grid; grid-template-columns: minmax(0, 1fr) 27%; gap: 12px; align-items: end; margin-bottom: 14px; }
+.theme figure { position: relative; }
+.theme img { border-radius: 10px; border: 1px solid #00000024; box-shadow: var(--shadow); width: 100%; }
+.theme .phone img { border-radius: 14px; }
+.scheme { display: block; margin-top: 6px; font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--faint); }
+.theme h3 { margin-bottom: 4px; }
+.theme p { color: var(--muted); font-size: 15px; margin: 0; }
+.theme .facts { font-size: 13px; margin-top: 6px; color: var(--faint); }
+
+/* 3: method */
+.steps { display: grid; gap: 18px; counter-reset: step; }
+.step { display: grid; grid-template-columns: 5fr 7fr; gap: 28px; align-items: center; background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 26px; }
+.step h3 { font-size: 24px; display: flex; gap: 12px; align-items: baseline; }
+.step h3::before { counter-increment: step; content: counter(step); display: inline-grid; place-items: center; flex: 0 0 34px; height: 34px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-size: 16px; }
+.step ul { margin-top: 12px; color: var(--muted); font-size: 15px; display: grid; gap: 4px; }
+.step .file { display: inline-block; margin-top: 12px; font-size: 13px; }
+.flowline { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0 0 28px; font-size: 14px; }
+.flowline span { background: var(--paper); border: 1px solid var(--line); padding: 4px 11px; border-radius: 999px; font-weight: 600; }
+.flowline span.loop { border-color: var(--accent); color: var(--accent); }
+.flowline i { color: var(--faint); font-style: normal; }
+/* step pictures */
+.dir { background: #f4ecd6; color: #1c2335; border-radius: 12px; padding: 18px; font-size: 13.5px; border: 1px solid #d9c9a0; }
+.dir b { display: block; font: 700 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: #9b3a1f; margin: 10px 0 3px; }
+.dir b:first-child { margin-top: 0; }
+.dir h4 { font-size: 17px; margin-bottom: 2px; }
+.sw { display: flex; gap: 6px; flex-wrap: wrap; }
+.sw span { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; background: #fffaf0; border: 1px solid #d9c9a0; border-radius: 999px; padding: 2px 9px 2px 3px; }
+.sw span::before { content: ""; width: 16px; height: 16px; border-radius: 50%; background: var(--c); border: 1px solid #0003; }
+.plan { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 6px; font-size: 13px; }
+.plan li { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; display: flex; gap: 6px; align-items: center; }
+.plan li::before { content: ""; flex: 0 0 10px; height: 10px; border-radius: 50%; background: var(--good); }
+.plan li.plain::before { background: transparent; border: 2px solid var(--faint); }
+.legend { font-size: 12px; color: var(--muted); margin-top: 8px; display: flex; gap: 14px; }
+.legend span::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--good); margin-right: 5px; }
+.legend span.plain::before { background: transparent; border: 2px solid var(--faint); width: 5px; height: 5px; }
+.draw { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; align-items: center; }
+.draw pre { font-size: 12px; }
+.draw img { border-radius: 8px; width: 100%; }
+.tour { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.tour img { border-radius: 8px; border: 1px solid var(--line); width: 100%; }
+.tour figcaption { font-size: 11px; margin-top: 4px; text-align: center; }
+.score { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; font-size: 13.5px; }
+.bars { display: grid; gap: 5px; }
+.bars div { display: grid; grid-template-columns: 96px 1fr 18px; gap: 8px; align-items: center; }
+.bars i { height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--accent) calc(var(--v) * 10%), var(--code) 0); }
+.bars b { font: 700 12px var(--mono); text-align: right; }
+.score h4 { margin: 0 0 4px; font-size: 12px; font-family: var(--mono); text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.score ul { margin: 0 0 10px; color: var(--ink); font-size: 13px; }
+.verdict { display: inline-block; font: 700 12px var(--mono); text-transform: uppercase; letter-spacing: .05em; padding: 4px 10px; border-radius: 6px; background: var(--soft); color: var(--accent); }
+.loop { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-weight: 650; }
+.loop span { padding: 10px 14px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); }
+.loop span.ship { background: var(--good); color: var(--bg); border-color: var(--good); }
+.loop i { font-style: normal; color: var(--faint); }
+.loop small { flex-basis: 100%; color: var(--muted); font-weight: 400; font-size: 13px; }
+
+/* 4: vocabulary */
+.vocab { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 20px; }
+.term { grid-column: span 6; display: flex; flex-direction: column; gap: 10px; }
+.term.wide { grid-column: span 12; }
+.term.third { grid-column: span 4; }
+.term h3 { font-size: 21px; }
+.term > p { color: var(--muted); font-size: 15px; margin: 0; }
+.term pre { font-size: 12px; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tags code { font-size: 12px; }
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.pair figcaption, .rooms figcaption { margin-top: 5px; font: 600 12px var(--mono); color: var(--muted); }
+.rooms { display: grid; gap: 8px; }
+.rooms img, .pair img { width: 100%; border-radius: 6px; }
+/* 9-slice */
+.slices { display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap; background: var(--night); border-radius: 12px; padding: 18px; }
+.nine { border: 36px solid transparent; border-image: url({{uri:themes/night-castle/art/frame-panel.png}}) 18 fill / 36px; image-rendering: pixelated; color: #f0e8d0; font: 600 12px var(--mono); display: grid; place-items: center; padding: 0; }
+.nine.a { width: 150px; height: 110px; }
+.nine.b { width: 260px; height: 140px; }
+.nine.c { flex: 1 1 140px; height: 90px; }
+.src { display: grid; place-items: center; gap: 6px; font: 600 11px var(--mono); color: #cbbfa8; }
+.src img { width: 108px; image-rendering: pixelated; }
+/* layer demos */
+.demos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.demo { border-radius: 12px; overflow: hidden; background: var(--paper); border: 1px solid var(--line); }
+.demo .box { position: relative; height: 128px; overflow: hidden; background: linear-gradient(#150b24, #2a1740 70%, #3a2150); }
+.demo .txt { padding: 10px 12px 12px; font-size: 13px; }
+.demo .txt b { font: 700 13px var(--mono); color: var(--accent); display: block; }
+.demo .txt span { color: var(--muted); }
+.box.sky { background: linear-gradient(#8fb8f5, #d9d3fa); }
+.drift { position: absolute; inset: 0; background: url({{uri:themes/y2k/art/clouds.webp}}) repeat-x 0 0 / 600px 130px; animation: drift 40s linear infinite; }
+@keyframes drift { to { background-position: -600px 0; } }
+.bats { position: absolute; top: 34px; left: 100%; width: 80px; height: 44px; background: url({{uri:themes/night-castle/art/bats.png}}) 0 0 / 160px 44px; image-rendering: pixelated; animation: flap .4s steps(2) infinite, cross 7s linear infinite; }
+@keyframes flap { to { background-position: -160px 0; } }
+@keyframes cross { 0% { transform: translateX(0); } 70%, 100% { transform: translateX(calc(-100% - 320px)); } }
+.box.steam { background: linear-gradient(#0a2c35, #04171e); }
+.puff { position: absolute; bottom: -40px; width: 60px; height: 36px; background: url({{uri:themes/sento-night/art/steam-puff.png}}) 0 0 / 60px 36px; image-rendering: pixelated; opacity: 0; animation: rise 7s linear infinite; }
+.puff:nth-child(1) { left: 8%; } .puff:nth-child(2) { left: 36%; animation-delay: -2.3s; } .puff:nth-child(3) { left: 62%; animation-delay: -4.6s; } .puff:nth-child(4) { left: 80%; animation-delay: -1.1s; }
+@keyframes rise { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: .8; } 100% { transform: translateY(-190px); opacity: 0; } }
+.box.torch { display: grid; place-items: center; background: linear-gradient(#1a0f22, #0c0612); }
+.flame { width: 28px; height: 64px; background: url({{uri:themes/night-castle/art/torch.png}}) 0 0 / 112px 64px; image-rendering: pixelated; animation: burn .66s steps(4) infinite; }
+@keyframes burn { to { background-position: -112px 0; } }
+.levels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; font-size: 13px; }
+.levels div { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.levels b { display: block; font-family: var(--mono); }
+.levels span { color: var(--muted); }
+.stack { font-size: 13px; }
+.stack td { padding: 5px 10px 5px 0; border-top: 1px solid var(--line); vertical-align: top; }
+.stack td:first-child { font-family: var(--mono); font-weight: 700; }
+.stack tr:first-child td { border-top: 0; }
+/* poke */
+.pokebox { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: center; }
+.poke { position: relative; width: 150px; height: 120px; border: 0; border-radius: 12px; background: linear-gradient(#2b1b45, #120a1e); cursor: pointer; padding: 0; }
+.poke .g { position: absolute; left: 35px; bottom: 24px; width: 80px; height: 64px; background: url({{uri:themes/night-castle/art/gargoyle.png}}) 0 0 / 80px 64px; image-rendering: pixelated; }
+.poke:hover .g, .poke:focus-visible .g, .poke:active .g { background-image: url({{uri:themes/night-castle/art/gargoyle-wake.png}}); background-size: 560px 64px; animation: wake .8s steps(7) forwards; }
+@keyframes wake { to { background-position: -560px 0; } }
+.poke .bit { position: absolute; left: 70px; top: 40px; width: 20px; height: 12px; background: url({{uri:themes/night-castle/art/tiny-bat.png}}) 0 0 / 20px 12px; image-rendering: pixelated; opacity: 0; }
+.poke:hover .bit, .poke:focus-visible .bit, .poke:active .bit { animation: burst .9s ease-out .35s forwards; }
+.poke .bit:nth-child(2) { --x: -60px; --y: -30px; } .poke .bit:nth-child(3) { --x: 56px; --y: -34px; } .poke .bit:nth-child(4) { --x: -40px; --y: -52px; } .poke .bit:nth-child(5) { --x: 44px; --y: -60px; } .poke .bit:nth-child(6) { --x: 0; --y: -66px; }
+@keyframes burst { 0% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translate(var(--x), var(--y)); } }
+.sheet { background: var(--night); border-radius: 8px; padding: 10px; }
+.sheet img { width: 100%; image-rendering: pixelated; }
+/* controls, meters */
+.ctl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.ctl > div { display: grid; gap: 10px; justify-items: start; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+.ctl code { font-size: 11px; }
+.fake { display: inline-flex; align-items: center; height: 40px; padding: 0 16px; font: 650 14px var(--sans); }
+.f1 { border-radius: 7px; color: #10233a; background: linear-gradient(#ffffff, #cfd8e6 48%, #b3bfd1 52%, #e6ecf5); border: 1px solid #6c7d99; box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #8a97ad; }
+.f2 { border-radius: 0; color: #fffaf0; background: #c43e24; border: 1px solid #1f2b4d; box-shadow: 3px 3px 0 #1f2b4d; }
+.f3 { border-radius: 999px; color: var(--ink); background: transparent; border: 1px solid var(--ink); }
+.meter { position: relative; width: 100%; height: 12px; border-radius: 3px; background: var(--code); }
+.meter i { position: absolute; inset: 0 40% 0 0; border-radius: inherit; }
+.m1 i { background: repeating-linear-gradient(90deg, #6fd46a 0 7px, transparent 7px 10px); }
+.m2 i { background: repeating-linear-gradient(-45deg, #1b1a18 0 6px, #f2c230 6px 12px); }
+.m3 { border-radius: 0; height: 6px; margin: 7px 0; }
+.m3 i { background: var(--ink); border-radius: 0; }
+.m3 b { position: absolute; left: 60%; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; background: var(--ink); }
+.m1 { background: #10230f; }
+.here { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.rail { list-style: none; margin: 0; padding: 8px; border-radius: 12px; background: var(--r-bg); color: var(--r-fg); font-size: 14px; display: grid; gap: 2px; }
+.rail li { padding: 7px 10px; border-radius: 7px; }
+.rail li.cur { background: var(--r-cur-bg); color: var(--r-cur-fg); font-weight: 700; }
+
+/* 5: pieces viewer */
+.viewer > input { position: absolute; opacity: 0; pointer-events: none; }
+.ptabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.ptabs label { cursor: pointer; font-size: 14px; font-weight: 600; padding: 7px 13px; border-radius: 999px; border: 1px solid var(--line); background: var(--paper); }
+.ppanel { display: none; background: var(--pbg); color: var(--pfg); border-radius: 18px; padding: 24px; border: 1px solid var(--line); }
+.prow + .prow { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--pline); }
+.prow h4 { margin-bottom: 12px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px; }
+.star { font-weight: 400; color: var(--pmuted); }
+.star b { color: var(--pfg); font-size: 18px; margin-left: 4px; }
+.cells { display: flex; flex-wrap: wrap; gap: 14px 18px; }
+.cells figure { display: grid; justify-items: center; gap: 4px; }
+.cells figcaption { margin: 0; font: 11px var(--mono); color: var(--pmuted); }
+.medals { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; }
+.medals li { display: grid; grid-template-columns: 40px 1fr; gap: 10px; align-items: center; background: var(--psurface); border: 1px solid var(--pline); border-radius: 10px; padding: 8px 10px; }
+.medals img, .medals .own { width: 32px; height: 32px; justify-self: center; }
+.medals .own { border: 1px dashed var(--pmuted); border-radius: 6px; }
+.medals b { display: block; font-size: 14px; line-height: 1.25; }
+.medals b.muted { color: var(--pmuted); font-weight: 500; }
+.medals i { display: block; font-size: 13px; color: var(--pmuted); }
+.medals small { display: block; font: 10.5px var(--mono); color: var(--pmuted); opacity: .85; margin-top: 2px; }
+
+/* 6: toolkit */
+.tools { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.tool { display: flex; flex-direction: column; gap: 10px; }
+.tool .pic { height: 150px; border-radius: 10px; overflow: hidden; background: var(--night); display: grid; place-items: center; }
+.tool .pic img { width: 100%; height: 100%; object-fit: cover; }
+.tool .pic img.px { object-fit: contain; }
+.tool h3 { font-family: var(--mono); font-size: 16px; }
+.tool p { font-size: 14px; color: var(--muted); margin: 0; }
+.contact { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 8px; width: 100%; height: 100%; background: #28282c; }
+.contact span { display: grid; place-items: center; background: repeating-conic-gradient(#56565c 0 25%, #4a4a50 0 50%) 0 0 / 10px 10px; border-radius: 3px; overflow: hidden; }
+.contact img { max-width: 90%; max-height: 90%; width: auto; height: auto; image-rendering: pixelated; }
+.rules { margin-top: 24px; }
+.rules ul { display: grid; gap: 6px; font-size: 15px; }
+.budget { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 16px; }
+
+/* 7: rubric */
+.rubric { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; counter-reset: r; }
+.rubric li { counter-increment: r; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; font-size: 14px; color: var(--muted); }
+.rubric b { display: block; color: var(--ink); font-size: 16px; margin-bottom: 2px; }
+.rubric b::before { content: counter(r) "  "; font-family: var(--mono); color: var(--accent); }
+.fails { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 24px; font-size: 15px; }
+.fails li { display: grid; grid-template-columns: 22px 1fr; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
+.fails li::before { content: ""; width: 16px; height: 16px; margin-top: 3px; border: 2px solid var(--accent); border-radius: 4px; }
+.fails b { display: block; }
+.fails span { color: var(--muted); font-size: 14px; }
+.dodont { margin-top: 28px; }
+.tag { display: inline-block; font: 700 12px var(--mono); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+.tag.do { color: var(--good); } .tag.dont { color: var(--bad); }
+
+/* 8: brainstorm */
+.bcard { background: var(--paper); border: 1px solid var(--line); border-radius: 20px; padding: 28px; box-shadow: var(--shadow); }
+.qs { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px 28px; counter-reset: q; }
+.qs > li { counter-increment: q; }
+.qs h4 { font-size: 16px; margin-bottom: 8px; }
+.qs h4::before { content: counter(q) ". "; color: var(--accent); font-family: var(--mono); }
+.qs ol { list-style: upper-alpha; padding-left: 22px; margin: 0; color: var(--muted); font-size: 14px; display: grid; gap: 2px; }
+.qs ol li::marker { font-family: var(--mono); color: var(--ink); font-weight: 700; }
+.axes { margin-top: 26px; padding-top: 22px; border-top: 1px dashed var(--line); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; font-size: 14px; }
+.axes ul { color: var(--muted); display: grid; gap: 3px; }
+.prompt { position: relative; margin-top: 26px; background: var(--ink); color: var(--bg); border-radius: 14px; padding: 20px 20px 70px; }
+.prompt pre { background: none; padding: 0; color: inherit; font-size: 14.5px; white-space: pre-wrap; }
+.prompt .btn { position: absolute; right: 14px; bottom: 14px; background: var(--accent); color: var(--accent-ink); border: 0; }
+
+/* 9: share */
+.path { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; counter-reset: p; }
+.path li { counter-increment: p; position: relative; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 14px; font-size: 14px; color: var(--muted); }
+.path li::before { content: counter(p); display: block; font: 800 22px var(--mono); color: var(--accent); margin-bottom: 4px; }
+.path b { display: block; color: var(--ink); font-size: 15px; margin-bottom: 2px; }
+
+footer { padding: 56px 0 80px; border-top: 1px solid var(--line); font-size: 14px; color: var(--muted); }
+footer h2 { font-size: 26px; color: var(--ink); margin-bottom: 12px; }
+footer p { max-width: 90ch; }
+
+@media (max-width: 1000px) {
+  .hero .wrap { grid-template-columns: 1fr; }
+  .covers { justify-content: flex-start; overflow-x: auto; scrollbar-width: none; padding-bottom: 56px; }
+  .covers figure { flex: 0 0 140px; }
+  .step { grid-template-columns: 1fr; }
+  .term, .term.third { grid-column: span 12; }
+  .demos, .tools { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .qs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .path { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid3 { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+  section { padding: 56px 0; }
+  .head { grid-template-columns: 1fr; }
+  .num { padding: 0 0 8px; }
+  .themes, .grid2, .fails, .axes, .here { grid-template-columns: minmax(0, 1fr); }
+  .covers figure { flex-basis: 118px; }
+  .bar b { display: none; }
+  .tour { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .slotpics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .draw, .score, .ctl { grid-template-columns: 1fr; }
+  .step, .card, .bcard, .ppanel { padding: 18px; }
+  .pokebox { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .demos, .tools, .qs, .path, .levels { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; }
+  .puff { opacity: .7; bottom: 20px; }
+  .bats { left: 40%; }
+}
+@media print {
+  .bar, .prompt .btn { display: none; }
+  section { break-inside: avoid-page; }
+}
+</style>
+</head>
+<body>
+
+<div class="bar"><div class="wrap">
+  <b>Make your own theme</b>
+  <nav aria-label="Sections">
+    <a href="#what">What it is</a><a href="#themes">The ten themes</a><a href="#method">Method</a><a href="#vocabulary">Vocabulary</a><a href="#pieces">Pieces &amp; words</a><a href="#toolkit">Art toolkit</a><a href="#review">Rubric</a><a href="#brainstorm">Brainstorm</a><a href="#share">Share</a>
+  </nav>
+</div></div>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <div class="label">HouseOS · a visual guide</div>
+      <h1>Make your own <em>theme</em></h1>
+      <p class="sub">For you and your AI agent. You direct, the agent designs, builds, checks and shows you screenshots. Same house, same sizes, your world.</p>
+      <div class="cta">
+        <a class="btn primary" href="#brainstorm">Start with the brainstorm card</a>
+        <a class="btn" href="#themes">See the ten themes</a>
+      </div>
+    </div>
+    <ul>
+      <li><b>01</b><span><strong>Direction.</strong> One idea, its tells, a plan for every part.</span></li>
+      <li><b>02</b><span><strong>Art by code.</strong> One script redraws every picture.</span></li>
+      <li><b>03</b><span><strong>Tour.</strong> Screenshots of every place, both schemes.</span></li>
+      <li><b>04</b><span><strong>Review round.</strong> Fresh eyes score it, you fix, tour again.</span></li>
+    </ul>
+  </div>
+  <div class="covers">{{covers}}</div>
+</header>
+
+<main>
+<!-- 1 -->
+<section id="what">
+  <div class="wrap">
+    <div class="head"><div class="num">01</div><div>
+      <h2>A skin on the same blocks</h2>
+      <p class="lead">A theme is a folder of data. It changes how every block looks, never how big it is or where it sits, so no theme can break a screen.</p>
+    </div></div>
+    <div class="grid2">
+      <div class="card">
+        <div class="label">A theme changes</div>
+        <ul class="chips">
+          <li>Colours</li><li>Fonts &amp; weights</li><li>Corners &amp; shadows</li><li>Materials &amp; edges</li><li>Buttons &amp; sliders</li>
+          <li>Part variants</li><li>Pictures in slots</li><li>Surfaces &amp; 9-slice frames</li><li>Layers that move</li><li>Pokes</li>
+          <li>Nox, avatars, medals, room marks</li><li>Title names</li><li>Motion timing</li><li>A credit line</li>
+        </ul>
+        <div class="label" style="margin-top:20px">Never</div>
+        <ul class="chips never">
+          <li>Spacing</li><li>Control &amp; bar sizes</li><li>Icon boxes</li><li>Layout &amp; order</li><li>Words in the interface</li><li>What anything does</li><li>Code</li>
+        </ul>
+        <div class="stats">
+          <div class="stat"><b>40·44·52</b><span>px buttons</span></div>
+          <div class="stat"><b>48</b><span>px status bar</span></div>
+          <div class="stat"><b>64</b><span>px phone dock</span></div>
+          <div class="stat"><b>232</b><span>px rail</span></div>
+          <div class="stat"><b>1 px</b><span>every edge</span></div>
+          <div class="stat"><b>+1 px</b><span>text vs. Base, at most</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="label">The folder: <code>themes/&lt;id&gt;/</code></div>
+        <table class="files">
+          <tr><td><code>theme.json</code></td><td>names, schemes, fonts, parts, slots, layers, credit</td></tr>
+          <tr><td><code>tokens.json</code></td><td>only what differs from Base; <code>tokens.light.json</code> / <code>.dark.json</code> per scheme</td></tr>
+          <tr><td><code>sprites.json</code></td><td>Nox, avatars, room marks, transport keys, 20 medals</td></tr>
+          <tr><td><code>flavor.json</code></td><td>the 20 title names and the star mark: the only words</td></tr>
+          <tr><td><code>art/</code> <code>fonts/</code></td><td>PNG, WebP, SVG; OFL fonts</td></tr>
+          <tr><td><code>BRIEF.md</code></td><td>mood, references, each picture's source</td></tr>
+          <tr><td><code>REPORT.md</code> <code>art/card-*.webp</code></td><td>written by the check and the tour (the pickers' card)</td></tr>
+        </table>
+        <p class="demo-note" style="margin-top:12px">No code in a theme. The direction and the art scripts live in <code>docs/design/themes/&lt;id&gt;/</code>.</p>
+      </div>
+    </div>
+    <figure class="map">{{pic:themes/_kit/visuals/parts-map.webp|The parts of HouseOS labelled on Home (desktop) and a room (phone): rail, status bar, Home hero, panels, page, header, Now bar, dock|shot}}
+      <figcaption>Every labelled part has its own <code>part.*</code> tokens and its own picture slot. Shown in Pure.</figcaption></figure>
+  </div>
+</section>
+
+<!-- 2 -->
+<section id="themes" class="band">
+  <div class="wrap">
+    <div class="head"><div class="num">02</div><div>
+      <h2>Ten themes, one house</h2>
+      <p class="lead">The bundled themes, as their own tour photographed them. Each started from a written direction and went through review rounds. Their directions and art scripts: <code>docs/design/themes/&lt;id&gt;/</code>.</p>
+    </div></div>
+    {{gallery}}
+  </div>
+</section>
+
+<!-- 3 -->
+<section id="method">
+  <div class="wrap">
+    <div class="head"><div class="num">03</div><div>
+      <h2>The method in six steps</h2>
+      <p class="lead">Every theme so far needed a second round after its first review, and got clearly better. Plan for it. Full method: <code>themes/_kit/METHOD.md</code>.</p>
+    </div></div>
+    <div class="flowline"><span>Study</span><i>→</i><span>Direction</span><i>→</i><span>Plan</span><i>→</i><span>Draw</span><i>→</i><span>Build &amp; tour</span><i>→</i><span>Self-critique</span><i>→</i><span class="loop">Review round</span><i>→</i><span class="loop">Fix</span><i>→</i><span class="loop">Tour</span><i>↺</i><span>Hand over</span></div>
+    <div class="steps">
+      <div class="step">
+        <div>
+          <h3>Direction</h3>
+          <ul>
+            <li>Five to eight <b>tells</b>: details that make the aesthetic recognisable at a glance.</li>
+            <li>One idea, three moments (Home's hero, the music deck, a surprise).</li>
+            <li>Palette with roles, light, type, medium, a never-list.</li>
+            <li>The person says yes before anything is drawn.</li>
+          </ul>
+          <code class="file">docs/design/themes/&lt;id&gt;/DIRECTION.md</code>
+        </div>
+        <div class="dir" aria-label="An example direction card, from Shōwa Platform">
+          <b>Idea</b><h4>A small local-line station, 1960s, a hot August afternoon.</h4>
+          <b>Tells</b>enamel station boards, navy on cream · punched tickets · catenary against cumulus · a level-crossing's black-and-yellow · a vending machine humming
+          <b>Palette</b>
+          <div class="sw"><span style="--c:#f1e7cd">cream ground</span><span style="--c:#171f2f">navy ink</span><span style="--c:#c43e24">signal red, the one accent</span><span style="--c:#75b0e3">summer sky</span><span style="--c:#1b1f35">dusk (dark)</span></div>
+          <b>Medium</b>pixel art at one density<b>Never</b>words in pictures, real railway logos
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>Plan the house</h3>
+          <ul>
+            <li>Every place gets a decision. Nothing left to defaults by accident.</li>
+            <li>Plain is fine, on purpose: the Control Room should stay calm.</li>
+            <li>A second scheme is a second design, not an inversion.</li>
+          </ul>
+        </div>
+        <div>
+          <ul class="plan">
+            <li>Sign-in</li><li>Status bar</li><li>Rail</li><li>Dock</li><li>Page</li><li>Banners</li>
+            <li>Home hero</li><li>Music deck</li><li>Now bar</li><li>TV bezel</li><li class="plain">Games</li><li>My Space</li>
+            <li>Medals</li><li class="plain">Control</li><li>Sheets</li><li>Empty state</li><li>Controls</li><li>Nox</li>
+            <li>Pokes</li><li>Room lights</li><li>Dark</li><li>Light</li>
+          </ul>
+          <div class="legend"><span>drawn for this theme</span><span class="plain">plain, on purpose</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>Draw with code</h3>
+          <ul>
+            <li>One <code>make.py</code> regenerates every picture, so a fix is an edit, not a redraw.</li>
+            <li>Draw the hero at least three times; keep the best and say why.</li>
+            <li>Look at the contact sheet after every change.</li>
+          </ul>
+          <code class="file">python3 docs/design/themes/&lt;id&gt;/make.py</code>
+        </div>
+        <div class="draw">
+          <pre>from pixel import *
+pal = Palette(sky=ramp("#75b0e3", 5),
+              ink="#1f2b4d")
+hero, draw = canvas(720, 256)
+bands(hero, (0, 0, 720, 150),
+      pal["sky"])
+bench = grid(BENCH, {"k": pal["ink"]})
+hero.paste(bench, (600, 214), bench)
+pal.lock(hero, "hero")
+save(hero, ART / "hero.png")</pre>
+          {{pic:themes/showa-platform/art/hero.png|Shōwa Platform's Home hero: a country platform under a summer sky, pixel art|pixel}}
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>Build and tour</h3>
+          <ul>
+            <li>Every place, both schemes, phone and desktop, French, motion still, sign-in.</li>
+            <li>Fails on broken things: sideways scroll, cut text, a layer over a control, contrast, focus rings.</li>
+            <li>Then open every screenshot. Passing is not the same as good.</li>
+          </ul>
+          <code class="file">node themes/_kit/tour.cjs &lt;id&gt;</code>
+        </div>
+        <div class="tour">
+          <figure>{{pic:themes/showa-platform/shots/light-phone-home.png|Tour shot: Home, light, phone||180}}<figcaption>home</figcaption></figure>
+          <figure>{{pic:themes/showa-platform/shots/light-phone-listen.png|Tour shot: Listen, light, phone||180}}<figcaption>listen</figcaption></figure>
+          <figure>{{pic:themes/showa-platform/shots/light-phone-me.png|Tour shot: Me, light, phone||180}}<figcaption>me</figcaption></figure>
+          <figure>{{pic:themes/showa-platform/shots/dark-phone-home.png|Tour shot: Home, dark, phone||180}}<figcaption>dark</figcaption></figure>
+          <figure>{{pic:themes/showa-platform/shots/light-phone-fr-home.png|Tour shot: Home in French, phone||180}}<figcaption>french</figcaption></figure>
+          <figure>{{pic:themes/showa-platform/shots/light-phone-control-setup.png|Tour shot: the Control Room, phone||180}}<figcaption>control</figcaption></figure>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>Review round</h3>
+          <ul>
+            <li>A fresh reviewer: another agent, a new session or a person.</li>
+            <li>Give only the direction, the rubric, the common failures and the screenshots. Not your notes or code.</li>
+            <li>Ask for scores, what to keep, located fixes in order, a verdict.</li>
+          </ul>
+        </div>
+        <div class="score" aria-label="An example review">
+          <div class="bars">
+            <h4>Scores (example)</h4>
+            <div><span>Readability</span><i style="--v:8"></i><b>8</b></div>
+            <div><span>Usability</span><i style="--v:8"></i><b>8</b></div>
+            <div><span>Cohesion</span><i style="--v:7"></i><b>7</b></div>
+            <div><span>Craft</span><i style="--v:6"></i><b>6</b></div>
+            <div><span>Depth</span><i style="--v:5"></i><b>5</b></div>
+            <div><span>Restraint</span><i style="--v:8"></i><b>8</b></div>
+            <div><span>Love it?</span><i style="--v:6"></i><b>6</b></div>
+          </div>
+          <div>
+            <h4>Keep</h4><ul><li>The platform hero and its sky</li><li>Ticket-strip sliders</li></ul>
+            <h4>Fixes, in order</h4><ul><li>Listen banner's radio sits under the search button on a phone: move it left of 75 %</li><li>The TV bezel is flat next to the hero: add the enamel frame</li></ul>
+            <span class="verdict">Verdict: another round</span>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>Fix, tour, review again</h3>
+          <ul>
+            <li>Fix in priority order: edit <code>make.py</code> and the tokens.</li>
+            <li>Tour again, send the new screenshots to a reviewer.</li>
+            <li>Stop when the verdict is ship and the person agrees.</li>
+          </ul>
+        </div>
+        <div class="loop">
+          <span>Fix</span><i>→</i><span>Tour</span><i>→</i><span>Review</span><i>→</i><span>another round?</span><i>→</i><span class="ship">Ship</span>
+          <small>Hand over: DIRECTION.md, make.py, NOTES.md, BRIEF.md, a passing REPORT.md, the cards, names and a short description in English and French.</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section id="vocabulary" class="band">
+  <div class="wrap">
+    <div class="head"><div class="num">04</div><div>
+      <h2>The vocabulary</h2>
+      <p class="lead">The words the kit, the checks and your agent use. Every field and limit: <code>themes/README.md</code>.</p>
+    </div></div>
+    <div class="vocab">
+
+      <div class="term">
+        <div class="label">Slots</div>
+        <h3>Pictures in fixed places</h3>
+        <p>A slot takes a picture and adds nothing to the layout. Every screen is right with every slot empty or filled.</p>
+        <ul class="chips slotlist">{{slots}}</ul>
+        <div class="slotpics">
+          <figure>{{pic:themes/showa-platform/art/crest.png|Shōwa Platform's crest, a winged wheel|px}}<figcaption>auth.crest</figcaption></figure>
+          <figure>{{pic:themes/linen-morning/art/empty-stone.webp|Kinari's empty state, a stone||192}}<figcaption>state.empty</figcaption></figure>
+          <figure>{{pic:themes/y2k/art/tv.webp|Millennium Skin's TV bezel, a translucent plastic set||320}}<figcaption>watch.tv.bezel</figcaption></figure>
+          <figure>{{pic:themes/showa-platform/art/office.png|Shōwa Platform's My Space: the stationmaster's office|px}}<figcaption>space.room.scene</figcaption></figure>
+        </div>
+      </div>
+
+      <div class="term">
+        <div class="label">Surfaces</div>
+        <h3>A part's own skin</h3>
+        <p>Rail, dock, Now bar, panels, sheets and the music deck take a picture: cover, contain, stretch, or a <b>9-slice frame</b> whose corners stay sharp at any size. Keep the centre opaque under text.</p>
+        <div class="slices">
+          <div class="src">{{pic:themes/night-castle/art/frame-panel.png|The Vampire's Keep's panel frame, 54 by 54 pixels|px}}54 × 54 source</div>
+          <div class="nine a">150 × 110</div>
+          <div class="nine b">260 × 140</div>
+          <div class="nine c">any width</div>
+        </div>
+        <pre>"panel.surface": {
+  "image": "art/frame-panel.png",
+  "fit": "slice", "slice": 18 }</pre>
+      </div>
+
+      <div class="term">
+        <div class="label">Per room</div>
+        <h3>A picture for each room</h3>
+        <p>Any slot can take another picture in some rooms: a banner for Listen, another for Watch.</p>
+        <div class="rooms">
+          <figure>{{pic:themes/sento-night/art/banner-listen.png|Bathhouse After Hours: the Listen banner, a radio on the counter|pixel}}<figcaption>listen</figcaption></figure>
+          <figure>{{pic:themes/sento-night/art/banner-watch.png|Bathhouse After Hours: the Watch banner, a small TV on the shelf|pixel}}<figcaption>watch</figcaption></figure>
+          <figure>{{pic:themes/sento-night/art/banner-house.png|Bathhouse After Hours: the House banner, a clock and a drinks fridge|pixel}}<figcaption>house</figcaption></figure>
+        </div>
+        <pre>"header.banner": {
+  "image": "art/banner.png",
+  "rooms": {
+    "listen": "art/banner-listen.png",
+    "watch": "art/banner-watch.png" } }</pre>
+      </div>
+
+      <div class="term">
+        <div class="label">Per scheme</div>
+        <h3>A day and a night picture</h3>
+        <p>A theme with two schemes draws each one. <code>schemes</code> swaps a picture; a room's own picture can be per scheme too.</p>
+        <div class="pair">
+          <figure>{{pic:themes/showa-platform/art/hero.png|Shōwa Platform's hero by day|pixel}}<figcaption>light</figcaption></figure>
+          <figure>{{pic:themes/showa-platform/art/hero-dusk.png|Shōwa Platform's hero at dusk|pixel}}<figcaption>dark</figcaption></figure>
+        </div>
+        <pre>"home.hero.backdrop": {
+  "image": "art/hero.png",
+  "schemes": { "dark": "art/hero-dusk.png" } }</pre>
+      </div>
+
+      <div class="term wide">
+        <div class="label">Layers</div>
+        <h3>Pictures the app moves</h3>
+        <p>A layer is a picture in a place (<code>page</code>, <code>hero</code>, <code>header</code>, <code>rail</code>, <code>rail-foot</code>, <code>status</code>, <code>deck</code>) with one way of moving. It draws over its place's picture unless <code>"under": true</code>, and always under the words. 12 layers and 48 particles at most.</p>
+        <div class="demos">
+          <div class="demo"><div class="box sky"><div class="drift"></div></div><div class="txt"><b>drift</b><span>A seamless tile that pans: clouds, fog, a grid.</span></div></div>
+          <div class="demo"><div class="box"><div class="bats"></div></div><div class="txt"><b>cross + frames</b><span>A piece crossing now and then: a bat, a train.</span></div></div>
+          <div class="demo"><div class="box steam"><span class="puff"></span><span class="puff"></span><span class="puff"></span><span class="puff"></span></div><div class="txt"><b>particles</b><span>One image, repeated: steam, snow, sparkles.</span></div></div>
+          <div class="demo"><div class="box torch"><div class="flame"></div></div><div class="txt"><b>frames</b><span>A sprite sheet in place: a torch, a curtain.</span></div></div>
+        </div>
+        <div class="grid2" style="margin-top:6px">
+          <div>
+            <div class="label" style="margin-top:8px">The person's motion level</div>
+            <div class="levels">
+              <div><b>still</b><span>first frames only; nothing crosses</span></div>
+              <div><b>subtle</b><span>default: drift, frames, crossings, half the particles</span></div>
+              <div><b>full</b><span>every particle, and parallax (<code>depth</code>)</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="label" style="margin-top:8px">Also</div>
+            <table class="stack">
+              <tr><td>playing</td><td>moves only while music plays (deck layers)</td></tr>
+              <tr><td>above</td><td>a faint finish over the whole page: grain, scanlines (0.15 at most)</td></tr>
+              <tr><td>depth</td><td>follows the pointer a little, full motion only</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="term">
+        <div class="label">Pokes</div>
+        <h3>A piece that answers a click</h3>
+        <p>An anecdote from the world, played once: the gargoyle wakes, the candle flares. Desktop with a mouse only, never at motion still, 6 at most, in empty space, never over controls or text.</p>
+        <div class="pokebox">
+          <button class="poke" type="button" aria-label="Poke the gargoyle"><span class="g"></span><span class="bit"></span><span class="bit"></span><span class="bit"></span><span class="bit"></span><span class="bit"></span></button>
+          <div class="sheet">{{pic:themes/night-castle/art/gargoyle-wake.png|The gargoyle's reaction: seven frames side by side|px}}<p class="demo-note" style="color:#cbbfa8">The reaction sheet: 7 frames. Point at the gargoyle.</p></div>
+        </div>
+        <pre>{ "image": "art/gargoyle.png",
+  "where": "hero", "fit": "natural",
+  "poke": {
+    "image": "art/gargoyle-wake.png",
+    "frames": { "count": 7 },
+    "burst": { "image": "art/tiny-bat.png", "count": 5 } } }</pre>
+      </div>
+
+      <div class="term">
+        <div class="label">Controls &amp; meters</div>
+        <h3>Buttons and sliders</h3>
+        <p>Same sizes in every theme; the ground, bevel, shadow, the bar's pattern and the thumb are the theme's.</p>
+        <div class="ctl" aria-hidden="true">
+          <div><span class="fake f1">Play</span><div class="meter m1"><i></i></div><code>gloss · segments</code></div>
+          <div><span class="fake f2">Play</span><div class="meter m2"><i></i></div><code>offset shadow · stripes</code></div>
+          <div><span class="fake f3">Play</span><div class="meter m3"><i></i><b></b></div><code>hairline · square thumb</code></div>
+        </div>
+        <div class="tags"><code>part.control.bg</code><code>part.control.primary-shadow</code><code>part.meter.pattern</code><code>part.meter.thumb</code><code>part.meter.thumb-radius</code></div>
+      </div>
+
+      <div class="term">
+        <div class="label">Where you are</div>
+        <h3>The current room</h3>
+        <p>The rail's current room and the settings menu's page: an inverted block, a stamped tab. Checked as a contrast pair.</p>
+        <div class="here" aria-hidden="true">
+          <ul class="rail" style="--r-bg:#f2efe8;--r-fg:#141312;--r-cur-bg:#141312;--r-cur-fg:#f2efe8"><li>Home</li><li class="cur">Listen</li><li>Watch</li></ul>
+          <ul class="rail" style="--r-bg:#1b1f35;--r-fg:#f5ead0;--r-cur-bg:#e76444;--r-cur-fg:#1b1f35"><li>Home</li><li class="cur">Listen</li><li>Watch</li></ul>
+        </div>
+        <div class="tags"><code>color.bg.current</code><code>color.fg.current</code></div>
+      </div>
+
+      <div class="term">
+        <div class="label">Part variants</div>
+        <h3>Same boxes, another build</h3>
+        <p>Header: plain, banner, ribbon (a kicker as a tag), framed. Panel: card, flat, outlined. Dock: flush, floating. Now bar: floating, docked.</p>
+        <figure>{{pic:themes/_kit/visuals/header-variants.webp|The same header three ways: plain, banner and framed|shot|900}}</figure>
+        <figure>{{pic:themes/_kit/visuals/panel-variants.webp|The same panel three ways: card, flat and outlined|shot|900}}</figure>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="pieces">
+  <div class="wrap">
+    <div class="head"><div class="num">05</div><div>
+      <h2>Pieces and the only words</h2>
+      <p class="lead">Nox's 6 moods, the 5 avatars people pick, the room marks and 20 medals: rows of letters, 16 × 16 at most, painted by the theme's colours. The 20 title names and the star mark are a theme's only words, in English and French. Every other line is HouseOS's own.</p>
+    </div></div>
+    {{pieces}}
+    <p class="demo-note">One world: Nox, the medals and the names come from the same place as the pictures. A dashed box keeps HouseOS's own drawing. Title names: 28 characters at most; the genre keeper's may hold <code>{genre}</code>.</p>
+  </div>
+</section>
+
+<!-- 6 -->
+<section id="toolkit" class="band">
+  <div class="wrap">
+    <div class="head"><div class="num">06</div><div>
+      <h2>The art toolkit</h2>
+      <p class="lead">No drawing program needed. Four small Python tools in <code>themes/_kit/art/</code>; every bundled theme was drawn with them.</p>
+    </div></div>
+    <div class="tools">
+      <div class="card tool">
+        <div class="pic">{{pic:themes/sento-night/art/hero-hall.png|Bathhouse After Hours: the bath hall, pixel art|px}}</div>
+        <h3>pixel.py</h3>
+        <p>Hue-shifted <code>ramp()</code>, <code>Palette().lock()</code>, <code>grid()</code> sprites from text, <code>outline()</code>, <code>dither()</code>, <code>sheet()</code> for frames, <code>nine()</code> for 9-slice boxes, <code>scale()</code>.</p>
+      </div>
+      <div class="card tool">
+        <div class="pic">{{pic:themes/y2k/art/page-sky.webp|Millennium Skin: a soft sky, drawn as SVG||600}}</div>
+        <h3>svg.py</h3>
+        <p>Write an SVG, <code>render()</code> it to PNG or WebP at the exact size. Gradients, <code>feTurbulence</code> paper and grain, blur; <code>add_grain()</code>, <code>limit()</code>.</p>
+      </div>
+      <div class="card tool">
+        <div class="pic">{{pic:themes/y2k/art/hero.webp|Millennium Skin: chrome and clear plastic toys, a 3D render||600}}</div>
+        <h3>blender.py</h3>
+        <p>Headless 3D scenes: chrome, brushed metal, plastic, glass, concrete, paper presets; a camera, lights and <code>finish()</code>.</p>
+      </div>
+      <div class="card tool">
+        <div class="pic"><div class="contact">
+          <span>{{pic:themes/showa-platform/art/vending-foot.png|Vending machine|px}}</span>
+          <span>{{pic:themes/showa-platform/art/crest.png|Winged wheel crest|px}}</span>
+          <span>{{pic:themes/showa-platform/art/plate.png|Enamel plate frame|px}}</span>
+          <span>{{pic:themes/showa-platform/art/furin.png|Wind bell|px}}</span>
+          <span>{{pic:themes/showa-platform/art/ticket.png|Ticket frame|px}}</span>
+          <span>{{pic:themes/showa-platform/art/empty.png|An empty bench|px}}</span>
+        </div></div>
+        <h3>sheet.py</h3>
+        <p>A contact sheet of your art at 1× and zoomed. Look at it after every change: if it can't be seen at 1×, it doesn't exist.</p>
+      </div>
+    </div>
+    <div class="grid2 rules">
+      <div class="card">
+        <div class="label">Craft rules</div>
+        <ul>
+          <li><b>Pixel art:</b> one pixel scale for the whole theme, whole multiples only; clusters, not noise; 2–4 hue-shifted shades per material.</li>
+          <li><b>Vector:</b> one stroke weight, consistent corners, grain so flat fills don't look plastic.</li>
+          <li><b>Renders:</b> one light setup, composed for the box and its anchor.</li>
+          <li><b>Phones crop banners</b> to the middle: keep the subject in 45–75 % of the width, the right end calm for the buttons.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="label">Every picture</div>
+        <ul>
+          <li>Original, drawn for this theme, or the person's own work. No logos, brands or borrowed characters.</li>
+          <li>No words, letters or digits in pictures.</li>
+          <li>Smooth art at least the slot's size, never upscaled.</li>
+          <li>The contrast check can't see pictures: veil the art where text lies.</li>
+        </ul>
+        <div class="budget">
+          <div class="stat"><b>200 KB</b><span>per picture</span></div>
+          <div class="stat"><b>2 MB</b><span>of art</span></div>
+          <div class="stat"><b>800 KB</b><span>of fonts</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section id="review">
+  <div class="wrap">
+    <div class="head"><div class="num">07</div><div>
+      <h2>Judge it like an art director</h2>
+      <p class="lead">Score each criterion from 1 to 10, then check every common first-round failure. The reviewer uses the same list.</p>
+    </div></div>
+    <ol class="rubric">
+      <li><b>Readability</b>Every text comfortable at a glance; no text on busy pictures.</li>
+      <li><b>Usability</b>Controls look like controls; selected, focus, disabled obvious; French fits.</li>
+      <li><b>Cohesion</b>One palette, one light, one pixel scale or stroke, one voice.</li>
+      <li><b>Craft</b>Pictures hold up zoomed; compositions made for their box.</li>
+      <li><b>Depth</b>Every part considered; three or more discoveries.</li>
+      <li><b>Restraint</b>Motion gentle and optional; effects serve the idea; budgets kept.</li>
+      <li><b>Would they love it</b>What the person asked for, done better than they imagined.</li>
+    </ol>
+    <h3 style="margin:40px 0 12px">Common first-round failures</h3>
+    <ul class="fails">
+      <li><div><b>One great Home picture, the rest thin</b><span>Banners, deck, My Space, TV and rail read as placeholders.</span></div></li>
+      <li><div><b>Details too small to see</b><span>1–2 px screws, Nox moods that differ by one pixel.</span></div></li>
+      <li><div><b>Text touching art</b><span>Props under header buttons, sparkles over words.</span></div></li>
+      <li><div><b>Phone crops</b><span>Banner subjects cut off or orphaned on a phone.</span></div></li>
+      <li><div><b>Pixel scale drift</b><span>Fractional <code>cover</code> scaling, two pixel sizes side by side.</span></div></li>
+      <li><div><b>Surfaces that let the page through</b><span>A transparent 9-slice centre under text.</span></div></li>
+      <li><div><b>Layer stacking assumed wrong</b><span>Layers draw over their place's picture unless <code>under</code>.</span></div></li>
+      <li><div><b>The room tint left on</b><span><code>part.header.banner-wash</code>: 0 for none.</span></div></li>
+      <li><div><b>Off-palette leftovers</b><span>Default avatars, a selected state in the accent's soft tint.</span></div></li>
+      <li><div><b>Two drawing systems</b><span>Nox and the medals drawn unlike the pictures.</span></div></li>
+      <li><div><b>Motion nobody sees</b><span>Something should be alive at first sight, with motion on.</span></div></li>
+      <li><div><b>A big idea gone timid</b><span>Use the budget when the idea asks for it; a minimal theme does the opposite.</span></div></li>
+    </ul>
+    <div class="grid2 dodont">
+      <figure><div class="tag do">Do</div>{{pic:themes/_kit/visuals/art-do.webp|Zabiwa's Listen page: a framed title, plaques behind tabs, grounds behind lists, panel edges over the art|shot|900}}
+        <figcaption>A picture behind every page: framed title, plaques (<code>part.page.quiet</code>), a ground behind lists (<code>gallery</code>), a scrim, panel edges.</figcaption></figure>
+      <figure><div class="tag dont">Don't</div>{{pic:themes/_kit/visuals/art-dont.webp|The same page with those settings off: tabs, rows and the title lost in the picture|shot|900}}
+        <figcaption>The same page without them: tabs, rows and the title lost in the picture.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- 8 -->
+<section id="brainstorm" class="band">
+  <div class="wrap">
+    <div class="head"><div class="num">08</div><div>
+      <h2>Brainstorm card</h2>
+      <p class="lead">Your agent asks one question at a time. Pick a letter or say it in your own words. Four to six answers are usually enough for a direction.</p>
+    </div></div>
+    <div class="bcard">
+      <ol class="qs">
+        <li><h4>Source: what should the house feel like?</h4><ol><li>A place: a warm kitchen at 8 a.m.</li><li>An era: a 1970s hi-fi catalogue</li><li>An object, a film, a game</li><li>A picture of mine</li></ol></li>
+        <li><h4>Light</h4><ol><li>Dark, for evenings</li><li>Light, for mornings</li><li>Both, each designed</li></ol></li>
+        <li><h4>Where is it used most?</h4><ol><li>Phones at night</li><li>A kitchen wall tablet</li><li>A desktop</li><li>Everyone, kids too</li></ol></li>
+        <li><h4>How much picture?</h4><ol><li>Colour, type and texture only</li><li>Small pieces and scenes</li><li>A picture behind every page</li><li>A full world that moves</li></ol></li>
+        <li><h4>Who is Nox in this world?</h4><ol><li>A creature of the place</li><li>An object come alive</li><li>HouseOS's own, recoloured</li></ol></li>
+        <li><h4>Never</h4><ol><li>Neon and glow</li><li>Pastel everything</li><li>Heavy texture</li><li>A colour I dislike</li></ol></li>
+      </ol>
+      <div class="axes">
+        <div>
+          <h4>Then three different directions</h4>
+          <ul><li>Vary at least three: value key, temperature, material, edge, type personality, shape, motion, how much picture.</li><li>Pick one, or a mix.</li></ul>
+        </div>
+        <div>
+          <h4>Each direction shows</h4>
+          <ul><li>A name (en, fr) and the idea in one sentence</li><li>3–6 swatches with a word each: "moss ground", "ember accent"</li><li>Display and body faces, material and shape</li><li>The three moments, and who Nox is</li><li>One surprising but reasoned choice</li></ul>
+        </div>
+      </div>
+      <div class="prompt">
+        <div class="label" style="color:inherit;opacity:.7">Paste into your agent, started in the HouseOS folder</div>
+        <pre id="prompt">Read themes/AGENT-KIT.md and follow it. Help me make my own HouseOS theme: ask me a few short questions (give me choices I can pick), propose three different directions, then build the one I choose, run every check and the tour, and show me screenshots before we refine it.</pre>
+        <button class="btn" type="button" data-copy="prompt">Copy the prompt</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="share">
+  <div class="wrap">
+    <div class="head"><div class="num">09</div><div>
+      <h2>Share and install</h2>
+      <p class="lead">A theme travels as one file. Anyone who lives in the house can design one; an administrator shares it with everyone.</p>
+    </div></div>
+    <ol class="path">
+      <li><b>Check</b><code>theme_kit check &lt;id&gt;</code> must PASS.</li>
+      <li><b>Pack</b><code>theme_kit pack &lt;id&gt;</code> makes <code>&lt;id&gt;.houseos-theme</code>.</li>
+      <li><b>Bring it in</b>Me → Appearance → Your themes → Bring a theme file: your draft.</li>
+      <li><b>Wear it</b>Look at it on a real phone and screen, both schemes.</li>
+      <li><b>Share</b>Ask to share it; an administrator shares it in Control Room → Themes.</li>
+    </ol>
+    <div class="grid2" style="margin-top:20px">
+      <div class="card">
+        <div class="label">Commands, from the HouseOS folder</div>
+        <pre>PYTHONPATH=backend python3 -m houseos.theme_kit new &lt;id&gt; --scheme dark
+PYTHONPATH=backend python3 -m houseos.theme_kit check &lt;id&gt;
+PYTHONPATH=backend python3 -m houseos.theme_kit build
+node themes/_kit/tour.cjs &lt;id&gt;
+PYTHONPATH=backend python3 -m houseos.theme_kit pack &lt;id&gt;</pre>
+      </div>
+      <div class="card">
+        <div class="label">No terminal?</div>
+        <ul>
+          <li><b>Theme workshop → Remix:</b> colours, type, corners, parts, pictures, pixel pieces and title names, with a live preview and the same checks.</li>
+          <li><b>Make one with Nox:</b> the in-app studio follows the same method.</li>
+          <li>A shared theme passes the same checks again on the server; its CSS is always rebuilt there.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <h2>Credits</h2>
+    <p>Every bundled theme but Zabiwa was drawn by code, pictures, pieces and names, by AI agents working from written directions, with review rounds. Legacy is HouseOS's first look, redrawn. The art in Zabiwa is © Zabiwa (zabiwa.com), shown only as the theme ships it. Fonts are open-licence (OFL) families. Screenshots use test data.</p>
+    <p>Made from the theme kit: <code>themes/AGENT-KIT.md</code>, <code>themes/_kit/METHOD.md</code>, <code>themes/README.md</code>. Regenerated with <code>python3 frontend/tools/theme-guide.py</code>.</p>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll("[data-copy]").forEach(function (button) {
+  button.addEventListener("click", function () {
+    var node = document.getElementById(button.dataset.copy);
+    var select = function () {
+      var range = document.createRange();
+      range.selectNodeContents(node);
+      getSelection().removeAllRanges();
+      getSelection().addRange(range);
+      button.textContent = "Selected: press Ctrl+C";
+    };
+    if (navigator.clipboard && window.isSecureContext)
+      navigator.clipboard.writeText(node.innerText).then(function () { button.textContent = "Copied"; }, select);
+    else select();
+  });
+});
+</script>
+</body>
+</html>

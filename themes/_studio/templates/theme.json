@@ -1,0 +1,27 @@
+{
+  "$schema": "../_schema/theme.schema.json",
+  "id": "your-theme",
+  "schema": 1,
+  "version": 1,
+  "names": {
+    "en": "Your theme",
+    "fr": "Ton thème"
+  },
+  "description": {
+    "en": "One sentence: the mood, the place, the material.",
+    "fr": "Une phrase : l’ambiance, le lieu, la matière."
+  },
+  "schemes": [
+    "dark"
+  ],
+  "density": "comfortable",
+  "identity": "line",
+  "fonts": {
+    "display": "system",
+    "body": "system",
+    "mono": "system"
+  },
+  "slots": {},
+  "author": "",
+  "license": "MIT"
+}

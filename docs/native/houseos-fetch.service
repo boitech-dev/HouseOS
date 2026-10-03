@@ -1,0 +1,45 @@
+# REFERENCE ONLY: adapt all paths, users, runtime IDs and bind addresses before installation.
+[Unit]
+Description=HouseOS fetch
+After=network-online.target houseos-fetch-network.service houseos-pot.service
+Requires=houseos-fetch-network.service
+Wants=network-online.target houseos-pot.service
+RequiresMountsFor=/mnt/house-storage/houseos
+
+[Service]
+User=houseos-fetch
+Group=houseos
+WorkingDirectory=/opt/houseos/state/current/backend
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+Environment=HOME=/opt/houseos/state/run
+Environment=HOUSEOS_RUNTIME_ROOT=/opt/houseos/state
+Environment=HOUSEOS_EXTERNAL_FETCH_ENABLED=true
+Environment=HOUSEOS_RESOLVER_BIN=/opt/houseos/state/venvs/resolver-next/bin/yt-dlp
+Environment=HOUSEOS_RESOLVER_PLUGIN_DIR=/opt/houseos/state/resolver-plugins
+Environment=HOUSEOS_YOUTUBE_CLIENT=mweb
+Environment=HOUSEOS_YOUTUBE_POT_URL=http://127.0.0.1:4416
+ExecStart=/opt/houseos/state/venvs/app/bin/python -m houseos.fetcher
+Restart=on-failure
+RestartSec=5
+UMask=0007
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+RestrictSUIDSGID=yes
+ProtectSystem=strict
+ProtectHome=tmpfs
+InaccessiblePaths=/mnt/house-storage
+BindReadOnlyPaths=/opt/houseos/state/resolver-plugins /opt/houseos/state/venvs /home/YOUR_USER/.local/share/uv/python /opt/houseos/state/current/backend
+BindPaths=/opt/houseos/state/run /opt/houseos/state/audio
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+LockPersonality=yes
+LimitCORE=0
+MemoryMax=2G
+TasksMax=128
+
+[Install]
+WantedBy=multi-user.target

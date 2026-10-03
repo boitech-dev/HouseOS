@@ -1,0 +1,4 @@
+/* The cascade, in order: a later layer wins without fighting specificity (docs/design/SYSTEM.md).
+   tokens: Base on :root (generated) · theme: every other theme (generated) · then the design
+   system's own layers. */
+@layer reset, tokens, theme, base, layout, components, patterns, rooms, utilities, overrides;

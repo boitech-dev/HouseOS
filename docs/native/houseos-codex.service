@@ -1,0 +1,41 @@
+# REFERENCE ONLY: adapt all paths, users, runtime IDs and bind addresses before installation.
+[Unit]
+Description=HouseOS isolated Codex sign-in and conversation bridge
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=houseos-codex
+Group=houseos
+UMask=0077
+RuntimeDirectory=houseos-codex
+RuntimeDirectoryMode=0750
+WorkingDirectory=/opt/houseos/state/codex/empty
+Environment=PYTHONPATH=/opt/houseos/state/current/backend
+Environment=HOUSEOS_RUNTIME_ROOT=/opt/houseos/state
+ExecStart=/opt/houseos/state/venvs/app/bin/python -m houseos.codex_bridge
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+CapabilityBoundingSet=
+RestrictSUIDSGID=true
+LimitCORE=0
+ProtectSystem=strict
+ProtectHome=tmpfs
+BindReadOnlyPaths=/opt/houseos/state/venvs/app /home/YOUR_USER/.local/share/uv/python /opt/houseos/state/current/backend
+BindPaths=/opt/houseos/state/codex
+ReadWritePaths=/run/houseos-codex
+InaccessiblePaths=/mnt/house-storage /root
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+MemoryMax=768M
+TasksMax=64
+KillMode=control-group
+
+[Install]
+WantedBy=multi-user.target

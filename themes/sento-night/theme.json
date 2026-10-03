@@ -1,0 +1,316 @@
+{
+  "$schema": "../_schema/theme.schema.json",
+  "id": "sento-night",
+  "schema": 1,
+  "version": 4,
+  "names": {
+    "en": "Bathhouse After Hours",
+    "fr": "Bains publics, après l’heure"
+  },
+  "description": {
+    "en": "A Shōwa bathhouse at closing: Fuji mural, steam.",
+    "fr": "Un bain public Shōwa à la fermeture : Fuji, vapeur."
+  },
+  "schemes": [
+    "dark"
+  ],
+  "density": "comfortable",
+  "identity": "pixel",
+  "fonts": {
+    "display": "Dela Gothic One",
+    "body": "Fira Sans",
+    "mono": "Overpass Mono"
+  },
+  "slots": {
+    "status.backdrop": {
+      "image": "art/status-beam.png",
+      "rendering": "pixel",
+      "fit": "cover",
+      "anchor": "top"
+    },
+    "home.hero.backdrop": {
+      "image": "art/hero-hall.png",
+      "rendering": "pixel",
+      "fit": "cover"
+    },
+    "auth.crest": {
+      "image": "art/crest.png",
+      "rendering": "pixel",
+      "fit": "contain"
+    },
+    "watch.tv.bezel": {
+      "image": "art/tv.png",
+      "rendering": "pixel",
+      "fit": "contain"
+    },
+    "space.room.scene": {
+      "image": "art/changing-room.png",
+      "rendering": "pixel",
+      "fit": "cover"
+    },
+    "header.banner": {
+      "image": "art/banner.png",
+      "rendering": "pixel",
+      "fit": "cover",
+      "anchor": "top",
+      "rooms": {
+        "listen": "art/banner-listen.png",
+        "watch": "art/banner-watch.png",
+        "games": "art/banner-games.png",
+        "house": "art/banner-house.png",
+        "space": "art/banner-space.png",
+        "files": "art/banner-files.png",
+        "control": "art/banner-control.png",
+        "me": "art/banner-me.png",
+        "inbox": "art/banner-inbox.png",
+        "smart-home": "art/banner-smart.png",
+        "ask": "art/banner-ask.png",
+        "party": "art/banner-party.png"
+      }
+    },
+    "state.empty": {
+      "image": "art/empty-basin.png",
+      "rendering": "pixel",
+      "fit": "contain"
+    },
+    "rail.surface": {
+      "image": "art/rail-wall.png",
+      "rendering": "pixel",
+      "fit": "cover",
+      "anchor": "bottom"
+    },
+    "dock.surface": {
+      "image": "art/dock-shelf.png",
+      "rendering": "pixel",
+      "fit": "cover"
+    },
+    "nowbar.surface": {
+      "image": "art/nowbar-frame.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 16
+    },
+    "sheet.surface": {
+      "image": "art/sheet-hem.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 12
+    },
+    "page.backdrop": {
+      "image": "art/page-mural.png",
+      "rendering": "pixel",
+      "fit": "cover"
+    },
+    "deck.surface": {
+      "image": "art/deck-radio.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 16
+    }
+  },
+  "layers": [
+    {
+      "image": "art/vapour.png",
+      "where": "page",
+      "fit": "repeat",
+      "scale": 4,
+      "rendering": "pixel",
+      "opacity": 0.3,
+      "drift": [
+        6,
+        -2
+      ]
+    },
+    {
+      "image": "art/steam-puff.png",
+      "where": "page",
+      "fit": "natural",
+      "scale": 4,
+      "rendering": "pixel",
+      "opacity": 0.45,
+      "particles": {
+        "count": 8,
+        "motion": "rise",
+        "seconds": 32
+      }
+    },
+    {
+      "image": "art/hero-ground.png",
+      "where": "hero",
+      "fit": "repeat",
+      "scale": 4,
+      "rendering": "pixel",
+      "under": true
+    },
+    {
+      "image": "art/hero-steam.png",
+      "where": "hero",
+      "fit": "natural",
+      "anchor": "top-right",
+      "scale": 4,
+      "rendering": "pixel",
+      "opacity": 0.5,
+      "frames": {
+        "count": 8,
+        "fps": 2
+      },
+      "poke": {
+        "frames": {
+          "count": 8,
+          "fps": 10
+        },
+        "image": "art/hero-steam-billow.png",
+        "burst": {
+          "image": "art/bit-drop.png",
+          "count": 6
+        }
+      }
+    },
+    {
+      "image": "art/hero-drop.png",
+      "where": "hero",
+      "fit": "natural",
+      "anchor": "top-right",
+      "scale": 4,
+      "rendering": "pixel",
+      "cross": {
+        "seconds": 2,
+        "every": 23,
+        "from": "top"
+      }
+    },
+    {
+      "image": "art/cat-walk.png",
+      "where": "status",
+      "fit": "natural",
+      "anchor": "bottom",
+      "scale": 4,
+      "rendering": "pixel",
+      "frames": {
+        "count": 4,
+        "fps": 6
+      },
+      "cross": {
+        "seconds": 16,
+        "every": 95,
+        "from": "right"
+      }
+    },
+    {
+      "image": "art/noren.png",
+      "where": "header",
+      "fit": "natural",
+      "anchor": "top-left",
+      "scale": 4,
+      "rendering": "pixel",
+      "frames": {
+        "count": 8,
+        "fps": 3
+      },
+      "rooms": [
+        "listen",
+        "house",
+        "me",
+        "inbox",
+        "control",
+        "smart-home",
+        "ask",
+        "party"
+      ],
+      "poke": {
+        "frames": {
+          "count": 12,
+          "fps": 14
+        },
+        "image": "art/noren-parts.png"
+      }
+    },
+    {
+      "image": "art/deck-dial.png",
+      "where": "deck",
+      "fit": "natural",
+      "anchor": "top",
+      "scale": 4,
+      "rendering": "pixel",
+      "playing": true,
+      "frames": {
+        "count": 16,
+        "fps": 2
+      },
+      "poke": {
+        "frames": {
+          "count": 10,
+          "fps": 12
+        },
+        "image": "art/deck-dial-spin.png",
+        "burst": {
+          "image": "art/bit-note.png",
+          "count": 5
+        }
+      }
+    },
+    {
+      "image": "art/deck-wisp.png",
+      "where": "deck",
+      "fit": "natural",
+      "anchor": "top-right",
+      "scale": 4,
+      "rendering": "pixel",
+      "playing": true,
+      "frames": {
+        "count": 6,
+        "fps": 3
+      }
+    },
+    {
+      "image": "art/foot-fridge.png",
+      "where": "rail-foot",
+      "anchor": "bottom-left",
+      "rendering": "pixel",
+      "scale": 4,
+      "fit": "natural",
+      "frames": {
+        "count": 3,
+        "fps": 2
+      },
+      "poke": {
+        "frames": {
+          "count": 10,
+          "fps": 10
+        },
+        "image": "art/foot-fridge-open.png",
+        "burst": {
+          "image": "art/bit-cap.png",
+          "count": 5
+        }
+      }
+    },
+    {
+      "image": "art/foot-cat.png",
+      "where": "rail-foot",
+      "anchor": "bottom-right",
+      "rendering": "pixel",
+      "scale": 4,
+      "fit": "natural",
+      "frames": {
+        "count": 6,
+        "fps": 1
+      },
+      "poke": {
+        "frames": {
+          "count": 10,
+          "fps": 8
+        },
+        "image": "art/foot-cat-wakes.png"
+      }
+    }
+  ],
+  "author": "Jo",
+  "license": "CC-BY-4.0",
+  "parts": {
+    "header": "banner",
+    "panel": "card",
+    "dock": "flush",
+    "nowbar": "floating"
+  }
+}

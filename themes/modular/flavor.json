@@ -1,0 +1,87 @@
+{
+  "$description": "Modular: the house titles named in a print studio's voice. English and French (tu).",
+  "title.dj.name": {
+    "en": "Selector",
+    "fr": "Sélecteur"
+  },
+  "title.explorer.name": {
+    "en": "Grid walker",
+    "fr": "Arpenteur de grille"
+  },
+  "title.night_owl.name": {
+    "en": "Night shift press",
+    "fr": "Presse de nuit"
+  },
+  "title.early_bird.name": {
+    "en": "First proof",
+    "fr": "Première épreuve"
+  },
+  "title.weekend.name": {
+    "en": "Weekend edition",
+    "fr": "Édition du week-end"
+  },
+  "title.genre_guardian.name": {
+    "en": "Keeper of {genre}",
+    "fr": "Gardien du genre {genre}"
+  },
+  "title.broken_record.name": {
+    "en": "Repeat pattern",
+    "fr": "Motif répété"
+  },
+  "title.marathon.name": {
+    "en": "Long run",
+    "fr": "Grand tirage"
+  },
+  "title.radio_host.name": {
+    "en": "On the air",
+    "fr": "À l’antenne"
+  },
+  "title.task_hero.name": {
+    "en": "Clean layout",
+    "fr": "Mise en page nette"
+  },
+  "title.grocery_runner.name": {
+    "en": "Supply run",
+    "fr": "Réassort"
+  },
+  "title.planner.name": {
+    "en": "Grid planner",
+    "fr": "Maître de la grille"
+  },
+  "title.wall_poet.name": {
+    "en": "Poster writer",
+    "fr": "Auteur d’affiches"
+  },
+  "title.courier.name": {
+    "en": "Dispatch",
+    "fr": "Expédition"
+  },
+  "title.curator.name": {
+    "en": "Exhibition maker",
+    "fr": "Commissaire d’expo"
+  },
+  "title.high_scorer.name": {
+    "en": "Top of the column",
+    "fr": "En tête de colonne"
+  },
+  "title.collector.name": {
+    "en": "Full set",
+    "fr": "Série complète"
+  },
+  "title.game_hopper.name": {
+    "en": "Module swapper",
+    "fr": "Changeur de modules"
+  },
+  "title.console_hopper.name": {
+    "en": "Format changer",
+    "fr": "Changeur de format"
+  },
+  "title.romhacker.name": {
+    "en": "Type hacker",
+    "fr": "Bidouilleur de caractères"
+  },
+  "title.star.mark": {
+    "en": "■",
+    "fr": "■"
+  }
+}

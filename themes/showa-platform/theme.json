@@ -1,0 +1,340 @@
+{
+  "$schema": "../_schema/theme.schema.json",
+  "id": "showa-platform",
+  "schema": 1,
+  "version": 4,
+  "names": {
+    "en": "Shōwa Platform",
+    "fr": "Quai Shōwa"
+  },
+  "description": {
+    "en": "A 1960s country station on a summer afternoon.",
+    "fr": "Une petite gare des années 60, un après-midi d’été."
+  },
+  "schemes": [
+    "light",
+    "dark"
+  ],
+  "density": "comfortable",
+  "identity": "pixel",
+  "fonts": {
+    "display": "Dela Gothic One",
+    "body": "Barlow",
+    "mono": "Overpass Mono"
+  },
+  "slots": {
+    "status.backdrop": {
+      "image": "art/status.png",
+      "rendering": "pixel",
+      "fit": "cover",
+      "schemes": {
+        "dark": "art/status-dusk.png"
+      }
+    },
+    "home.hero.backdrop": {
+      "image": "art/hero.png",
+      "rendering": "pixel",
+      "fit": "cover",
+      "schemes": {
+        "dark": "art/hero-dusk.png"
+      }
+    },
+    "auth.crest": {
+      "image": "art/crest.png",
+      "rendering": "pixel",
+      "fit": "contain"
+    },
+    "watch.tv.bezel": {
+      "image": "art/tv.png",
+      "rendering": "pixel",
+      "fit": "contain"
+    },
+    "space.room.scene": {
+      "image": "art/office.png",
+      "rendering": "pixel",
+      "fit": "cover",
+      "schemes": {
+        "dark": "art/office-dusk.png"
+      }
+    },
+    "state.empty": {
+      "image": "art/empty.png",
+      "rendering": "pixel",
+      "fit": "contain"
+    },
+    "header.banner": {
+      "image": "art/board-listen.png",
+      "rendering": "pixel",
+      "fit": "cover",
+      "anchor": "top",
+      "rooms": {
+        "watch": "art/board-watch.png",
+        "games": "art/board-games.png",
+        "house": "art/board-house.png",
+        "files": "art/board-files.png",
+        "ask": "art/board-ask.png",
+        "me": "art/board-me.png",
+        "control": "art/board-control.png",
+        "smart-home": "art/board-smart-home.png",
+        "inbox": "art/board-inbox.png",
+        "space": "art/board-space.png",
+        "party": "art/board-party.png"
+      }
+    },
+    "panel.surface": {
+      "image": "art/plate.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 16,
+      "schemes": {
+        "dark": "art/plate-dusk.png"
+      }
+    },
+    "sheet.surface": {
+      "image": "art/plate.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 16,
+      "schemes": {
+        "dark": "art/plate-dusk.png"
+      }
+    },
+    "deck.surface": {
+      "image": "art/pa-box.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 16,
+      "schemes": {
+        "dark": "art/pa-box-dusk.png"
+      }
+    },
+    "nowbar.surface": {
+      "image": "art/ticket.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 28,
+      "schemes": {
+        "dark": "art/ticket-dusk.png"
+      }
+    },
+    "dock.surface": {
+      "image": "art/dock.png",
+      "rendering": "pixel",
+      "fit": "cover",
+      "anchor": "top",
+      "schemes": {
+        "dark": "art/dock-dusk.png"
+      }
+    }
+  },
+  "author": "Shōwa Platform studio (drawn by code)",
+  "license": "MIT",
+  "parts": {
+    "header": "banner",
+    "panel": "card",
+    "dock": "flush",
+    "nowbar": "docked"
+  },
+  "layers": [
+    {
+      "image": "art/status-sky.png",
+      "where": "status",
+      "fit": "repeat-x",
+      "anchor": "top",
+      "scale": 2,
+      "drift": [
+        12,
+        0
+      ],
+      "under": true,
+      "schemes": [
+        "light"
+      ]
+    },
+    {
+      "image": "art/status-sky-dusk.png",
+      "where": "status",
+      "fit": "repeat-x",
+      "anchor": "top",
+      "scale": 2,
+      "drift": [
+        6,
+        0
+      ],
+      "under": true,
+      "schemes": [
+        "dark"
+      ]
+    },
+    {
+      "image": "art/train-far.png",
+      "where": "status",
+      "fit": "natural",
+      "scale": 2,
+      "anchor": "bottom-left",
+      "frames": {
+        "count": 2,
+        "fps": 6
+      },
+      "cross": {
+        "seconds": 14,
+        "every": 45,
+        "from": "right"
+      },
+      "schemes": [
+        "light"
+      ]
+    },
+    {
+      "image": "art/train-far-dusk.png",
+      "where": "status",
+      "fit": "natural",
+      "scale": 2,
+      "anchor": "bottom-left",
+      "frames": {
+        "count": 2,
+        "fps": 6
+      },
+      "cross": {
+        "seconds": 14,
+        "every": 45,
+        "from": "right"
+      },
+      "schemes": [
+        "dark"
+      ]
+    },
+    {
+      "image": "art/swallows.png",
+      "where": "status",
+      "fit": "natural",
+      "scale": 2,
+      "anchor": "top-left",
+      "frames": {
+        "count": 2,
+        "fps": 8
+      },
+      "cross": {
+        "seconds": 5,
+        "every": 25,
+        "from": "left"
+      }
+    },
+    {
+      "image": "art/crossing.png",
+      "where": "status",
+      "fit": "natural",
+      "scale": 2,
+      "anchor": "bottom",
+      "poke": {
+        "image": "art/crossing-blink.png",
+        "frames": {
+          "count": 6,
+          "fps": 5
+        }
+      }
+    },
+    {
+      "image": "art/bench-end.png",
+      "where": "hero",
+      "fit": "natural",
+      "scale": 2,
+      "anchor": "bottom-right",
+      "frames": {
+        "count": 12,
+        "fps": 1
+      },
+      "poke": {
+        "image": "art/bench-end-wake.png",
+        "frames": {
+          "count": 10,
+          "fps": 8
+        }
+      },
+      "schemes": [
+        "light"
+      ]
+    },
+    {
+      "image": "art/bench-end-dusk.png",
+      "where": "hero",
+      "fit": "natural",
+      "scale": 2,
+      "anchor": "bottom-right",
+      "frames": {
+        "count": 12,
+        "fps": 1
+      },
+      "poke": {
+        "image": "art/bench-end-wake-dusk.png",
+        "frames": {
+          "count": 10,
+          "fps": 8
+        }
+      },
+      "schemes": [
+        "dark"
+      ]
+    },
+    {
+      "image": "art/vending-foot.png",
+      "where": "rail-foot",
+      "fit": "natural",
+      "scale": 2,
+      "anchor": "bottom",
+      "poke": {
+        "image": "art/vending-can.png",
+        "frames": {
+          "count": 10,
+          "fps": 9
+        }
+      },
+      "schemes": [
+        "light"
+      ]
+    },
+    {
+      "image": "art/vending-foot-dusk.png",
+      "where": "rail-foot",
+      "fit": "natural",
+      "scale": 2,
+      "anchor": "bottom",
+      "poke": {
+        "image": "art/vending-can-dusk.png",
+        "frames": {
+          "count": 10,
+          "fps": 9
+        }
+      },
+      "schemes": [
+        "dark"
+      ]
+    },
+    {
+      "image": "art/firefly.png",
+      "where": "status",
+      "fit": "natural",
+      "scale": 2,
+      "particles": {
+        "count": 8,
+        "motion": "float",
+        "seconds": 12
+      },
+      "schemes": [
+        "dark"
+      ]
+    },
+    {
+      "image": "art/furin.png",
+      "where": "deck",
+      "fit": "natural",
+      "scale": 2,
+      "anchor": "top-right",
+      "frames": {
+        "count": 4,
+        "fps": 3
+      },
+      "playing": true
+    }
+  ]
+}

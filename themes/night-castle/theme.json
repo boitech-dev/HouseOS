@@ -1,0 +1,320 @@
+{
+  "$schema": "../_schema/theme.schema.json",
+  "id": "night-castle",
+  "schema": 1,
+  "version": 4,
+  "names": {
+    "en": "The Vampire's Keep",
+    "fr": "Le donjon du vampire"
+  },
+  "description": {
+    "en": "A 16-bit gothic castle: candles, crimson and gold.",
+    "fr": "Un château gothique 16 bits : bougies, pourpre et or."
+  },
+  "schemes": [
+    "dark"
+  ],
+  "density": "comfortable",
+  "identity": "pixel",
+  "fonts": {
+    "display": "Grenze Gotisch",
+    "body": "Vollkorn",
+    "mono": "DotGothic16"
+  },
+  "slots": {
+    "home.hero.backdrop": {
+      "image": "art/hero-keep.png",
+      "rendering": "pixel",
+      "fit": "cover"
+    },
+    "panel.surface": {
+      "image": "art/frame-panel.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 18
+    },
+    "rail.surface": {
+      "image": "art/frame-panel.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 18
+    },
+    "nowbar.surface": {
+      "image": "art/frame-bar.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 12
+    },
+    "dock.surface": {
+      "image": "art/frame-bar.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 12
+    },
+    "sheet.surface": {
+      "image": "art/frame-sheet.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 18
+    },
+    "auth.crest": {
+      "image": "art/crest.png",
+      "rendering": "pixel",
+      "fit": "contain"
+    },
+    "state.empty": {
+      "image": "art/empty-sconce.png",
+      "rendering": "pixel",
+      "fit": "contain"
+    },
+    "watch.tv.bezel": {
+      "image": "art/tv-frame.png",
+      "rendering": "pixel",
+      "fit": "contain"
+    },
+    "space.room.scene": {
+      "image": "art/chamber.png",
+      "rendering": "pixel",
+      "fit": "cover"
+    },
+    "deck.surface": {
+      "image": "art/frame-deck.png",
+      "rendering": "pixel",
+      "fit": "slice",
+      "slice": 15
+    },
+    "page.backdrop": {
+      "image": "art/sky.png",
+      "rendering": "smooth",
+      "fit": "cover",
+      "anchor": "bottom"
+    },
+    "header.banner": {
+      "image": "art/banner-hall.png",
+      "rendering": "pixel",
+      "fit": "cover",
+      "rooms": {
+        "listen": "art/banner-chapel.png",
+        "files": "art/banner-library.png",
+        "control": "art/banner-clock.png",
+        "me": "art/banner-throne.png",
+        "space": "art/banner-quiet.png",
+        "games": "art/banner-armory.png",
+        "watch": "art/banner-gallery.png"
+      }
+    }
+  },
+  "layers": [
+    {
+      "image": "art/far-castle.png",
+      "where": "page",
+      "fit": "natural",
+      "anchor": "bottom-right",
+      "scale": 3,
+      "rendering": "pixel",
+      "depth": 0.15,
+      "opacity": 0.42,
+      "rooms": [
+        "listen",
+        "watch",
+        "house",
+        "files",
+        "ask",
+        "me",
+        "smart-home",
+        "inbox",
+        "space",
+        "party",
+        "games"
+      ]
+    },
+    {
+      "image": "art/clouds.png",
+      "where": "page",
+      "fit": "repeat-x",
+      "anchor": "bottom",
+      "scale": 3,
+      "rendering": "pixel",
+      "drift": [
+        -5,
+        0
+      ]
+    },
+    {
+      "image": "art/terrace.png",
+      "where": "page",
+      "fit": "repeat-x",
+      "anchor": "bottom",
+      "scale": 3,
+      "rendering": "pixel",
+      "depth": 0.45
+    },
+    {
+      "image": "art/bats.png",
+      "where": "page",
+      "fit": "natural",
+      "anchor": "left",
+      "scale": 3,
+      "rendering": "pixel",
+      "frames": {
+        "count": 2,
+        "fps": 5
+      },
+      "cross": {
+        "seconds": 16,
+        "every": 45,
+        "from": "right"
+      }
+    },
+    {
+      "image": "art/hero-sky.png",
+      "where": "hero",
+      "fit": "natural",
+      "anchor": "top-right",
+      "scale": 3,
+      "rendering": "pixel",
+      "under": true
+    },
+    {
+      "image": "art/bats.png",
+      "where": "hero",
+      "fit": "natural",
+      "anchor": "top",
+      "scale": 3,
+      "rendering": "pixel",
+      "frames": {
+        "count": 2,
+        "fps": 6
+      },
+      "cross": {
+        "seconds": 7,
+        "every": 24,
+        "from": "right"
+      }
+    },
+    {
+      "image": "art/gargoyle.png",
+      "where": "hero",
+      "fit": "natural",
+      "anchor": "top-right",
+      "scale": 3,
+      "rendering": "pixel",
+      "poke": {
+        "frames": {
+          "count": 7,
+          "fps": 9
+        },
+        "image": "art/gargoyle-wake.png",
+        "burst": {
+          "image": "art/tiny-bat.png",
+          "count": 5
+        }
+      }
+    },
+    {
+      "image": "art/candelabra-foot.png",
+      "where": "rail-foot",
+      "fit": "natural",
+      "anchor": "bottom",
+      "scale": 3,
+      "rendering": "pixel",
+      "frames": {
+        "count": 4,
+        "fps": 5
+      },
+      "poke": {
+        "frames": {
+          "count": 8,
+          "fps": 9
+        },
+        "image": "art/candelabra-whip.png",
+        "burst": {
+          "image": "art/heart-bit.png",
+          "count": 4
+        }
+      }
+    },
+    {
+      "image": "art/torch.png",
+      "where": "status",
+      "fit": "natural",
+      "anchor": "bottom",
+      "scale": 3,
+      "rendering": "pixel",
+      "frames": {
+        "count": 4,
+        "fps": 6
+      },
+      "poke": {
+        "frames": {
+          "count": 4,
+          "fps": 8
+        },
+        "image": "art/torch-flare.png",
+        "burst": {
+          "image": "art/spark.png",
+          "count": 6
+        }
+      }
+    },
+    {
+      "image": "art/deck-candle.png",
+      "where": "deck",
+      "fit": "natural",
+      "anchor": "bottom-left",
+      "scale": 3,
+      "rendering": "pixel",
+      "frames": {
+        "count": 4,
+        "fps": 5
+      },
+      "poke": {
+        "frames": {
+          "count": 7,
+          "fps": 9
+        },
+        "image": "art/candle-snuff.png"
+      }
+    },
+    {
+      "image": "art/deck-candle.png",
+      "where": "deck",
+      "fit": "natural",
+      "anchor": "bottom-right",
+      "scale": 3,
+      "rendering": "pixel",
+      "frames": {
+        "count": 4,
+        "fps": 4
+      },
+      "poke": {
+        "frames": {
+          "count": 7,
+          "fps": 9
+        },
+        "image": "art/candle-snuff.png"
+      }
+    },
+    {
+      "image": "art/ember.png",
+      "where": "deck",
+      "scale": 3,
+      "rendering": "pixel",
+      "playing": true,
+      "blend": "screen",
+      "particles": {
+        "count": 6,
+        "motion": "rise",
+        "seconds": 7
+      }
+    }
+  ],
+  "parts": {
+    "header": "banner",
+    "panel": "card",
+    "dock": "flush",
+    "nowbar": "floating"
+  },
+  "author": "HouseOS theme agent",
+  "license": "CC-BY-4.0"
+}

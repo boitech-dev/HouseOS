@@ -1,0 +1,304 @@
+{
+  "$schema": "../_schema/tokens.schema.json",
+  "$description": "Modular, dark: black paper, white ink, the same red.",
+  "seed": {
+    "$type": "color",
+    "neutral": {
+      "$value": "oklch(0.55 0.006 80)"
+    },
+    "accent": {
+      "$value": "#F2EFE8"
+    },
+    "success": {
+      "$value": "oklch(0.74 0.12 185)"
+    },
+    "warning": {
+      "$value": "oklch(0.82 0.15 85)"
+    },
+    "danger": {
+      "$value": "oklch(0.64 0.22 5)"
+    },
+    "info": {
+      "$value": "oklch(0.7 0.13 250)"
+    },
+    "private": {
+      "$value": "oklch(0.72 0.1 300)"
+    }
+  },
+  "color": {
+    "$type": "color",
+    "bg": {
+      "canvas": {
+        "$value": "#141312"
+      },
+      "surface": {
+        "$value": "#141312"
+      },
+      "raised": {
+        "$value": "#141312"
+      },
+      "overlay": {
+        "$value": "#141312"
+      },
+      "sunken": {
+        "$value": "mix(#F2EFE8, #141312, 5%)"
+      },
+      "inverse": {
+        "$value": "#F2EFE8"
+      },
+      "hover": {
+        "$value": "mix(#F2EFE8, #141312, 8%)"
+      },
+      "pressed": {
+        "$value": "mix(#F2EFE8, #141312, 18%)"
+      },
+      "selected": {
+        "$value": "mix(#F2EFE8, #141312, 16%)"
+      },
+      "current": {
+        "$value": "#F2EFE8"
+      }
+    },
+    "fg": {
+      "default": {
+        "$value": "#F2EFE8"
+      },
+      "muted": {
+        "$value": "mix(#F2EFE8, #141312, 70%)"
+      },
+      "subtle": {
+        "$value": "mix(#F2EFE8, #141312, 66%)"
+      },
+      "placeholder": {
+        "$value": "mix(#F2EFE8, #141312, 68%)"
+      },
+      "disabled": {
+        "$value": "mix(#F2EFE8, #141312, 38%)"
+      },
+      "inverse": {
+        "$value": "#141312"
+      },
+      "on-accent": {
+        "$value": "#141312"
+      },
+      "link": {
+        "$value": "#F2EFE8"
+      },
+      "current": {
+        "$value": "#141312"
+      }
+    },
+    "border": {
+      "subtle": {
+        "$value": "mix(#F2EFE8, #141312, 18%)"
+      },
+      "default": {
+        "$value": "mix(#F2EFE8, #141312, 80%)"
+      },
+      "strong": {
+        "$value": "#F2EFE8"
+      }
+    },
+    "focus-ring": {
+      "$value": "#F2EFE8"
+    },
+    "accent": {
+      "solid": {
+        "$value": "#F2EFE8"
+      },
+      "solid-hover": {
+        "$value": "#FF6A4D"
+      },
+      "soft": {
+        "$value": "mix(#F2EFE8, #141312, 7%)"
+      },
+      "fg": {
+        "$value": "#FF5B3F"
+      },
+      "border": {
+        "$value": "#F2EFE8"
+      }
+    },
+    "paper": {
+      "bg": {
+        "$value": "#141312"
+      },
+      "fg": {
+        "$value": "#F2EFE8"
+      },
+      "muted": {
+        "$value": "mix(#F2EFE8, #141312, 70%)"
+      }
+    },
+    "room": {
+      "home": {
+        "$value": "#F2EFE8"
+      },
+      "listen": {
+        "$value": "#F2EFE8"
+      },
+      "watch": {
+        "$value": "#F2EFE8"
+      },
+      "house": {
+        "$value": "#F2EFE8"
+      },
+      "files": {
+        "$value": "#F2EFE8"
+      },
+      "ask": {
+        "$value": "#F2EFE8"
+      },
+      "me": {
+        "$value": "#F2EFE8"
+      },
+      "control": {
+        "$value": "#F2EFE8"
+      },
+      "smart-home": {
+        "$value": "#F2EFE8"
+      },
+      "inbox": {
+        "$value": "#F2EFE8"
+      },
+      "space": {
+        "$value": "#F2EFE8"
+      },
+      "party": {
+        "$value": "#F2EFE8"
+      },
+      "games": {
+        "$value": "#F2EFE8"
+      }
+    },
+    "person": {
+      "1": {
+        "$value": "mix(#F2EFE8, #141312, 100%)"
+      },
+      "2": {
+        "$value": "mix(#F2EFE8, #141312, 93%)"
+      },
+      "3": {
+        "$value": "mix(#F2EFE8, #141312, 86%)"
+      },
+      "4": {
+        "$value": "mix(#F2EFE8, #141312, 79%)"
+      },
+      "5": {
+        "$value": "mix(#F2EFE8, #141312, 72%)"
+      },
+      "6": {
+        "$value": "mix(#F2EFE8, #141312, 65%)"
+      },
+      "7": {
+        "$value": "mix(#F2EFE8, #141312, 58%)"
+      },
+      "8": {
+        "$value": "mix(#F2EFE8, #141312, 51%)"
+      }
+    },
+    "data": {
+      "1": {
+        "$value": "#FF4F2E"
+      },
+      "2": {
+        "$value": "#F2EFE8"
+      },
+      "3": {
+        "$value": "mix(#F2EFE8, #141312, 50%)"
+      },
+      "4": {
+        "$value": "oklch(0.62 0.13 255)"
+      },
+      "5": {
+        "$value": "oklch(0.8 0.14 90)"
+      },
+      "6": {
+        "$value": "mix(#F2EFE8, #141312, 70%)"
+      },
+      "7": {
+        "$value": "oklch(0.7 0.13 150)"
+      },
+      "8": {
+        "$value": "oklch(0.68 0.14 330)"
+      }
+    },
+    "scrim": {
+      "$value": "alpha(#141312, 80%)"
+    },
+    "media-scrim": {
+      "$value": "alpha(#000000, 66%)"
+    },
+    "shadow": {
+      "$value": "#141312"
+    },
+    "sprite": {
+      "$description": "k ink · c paper · e red · n/l/L/m ink tones toward paper",
+      "outline": {
+        "$value": "#F2EFE8"
+      },
+      "dark": {
+        "$value": "mix(#F2EFE8, #141312, 80%)"
+      },
+      "mid-dark": {
+        "$value": "mix(#F2EFE8, #141312, 55%)"
+      },
+      "mid": {
+        "$value": "mix(#F2EFE8, #141312, 35%)"
+      },
+      "mist": {
+        "$value": "mix(#F2EFE8, #141312, 20%)"
+      },
+      "light": {
+        "$value": "#F2EFE8"
+      },
+      "light-dim": {
+        "$value": "mix(#F2EFE8, #141312, 70%)"
+      },
+      "accent": {
+        "$value": "#FF4F2E"
+      },
+      "accent-hi": {
+        "$value": "#FF7A5E"
+      },
+      "accent-deep": {
+        "$value": "#B0240E"
+      },
+      "familiar": {
+        "$value": "#F2EFE8"
+      },
+      "familiar-mid": {
+        "$value": "mix(#F2EFE8, #141312, 60%)"
+      },
+      "familiar-deep": {
+        "$value": "mix(#F2EFE8, #141312, 85%)"
+      },
+      "good": {
+        "$value": "{ramp.success.9}"
+      },
+      "alert": {
+        "$value": "{ramp.danger.9}"
+      },
+      "paper": {
+        "$value": "#141312"
+      },
+      "ink": {
+        "$value": "#F2EFE8"
+      }
+    }
+  },
+  "part": {
+    "control": {
+      "primary-bg": {
+        "$type": "string",
+        "$value": "#FF4F2E"
+      }
+    },
+    "page": {
+      "quiet": {
+        "$type": "color",
+        "$value": "mix(#F2EFE8, #141312, 6%)"
+      }
+    }
+  }
+}

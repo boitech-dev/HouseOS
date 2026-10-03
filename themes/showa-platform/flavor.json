@@ -1,0 +1,87 @@
+{
+  "$description": "Shōwa Platform: the stamp rally's titles, each a station object (its medal). English and French (tu).",
+  "title.dj.name": {
+    "en": "Platform Loudspeaker",
+    "fr": "Haut-parleur du quai"
+  },
+  "title.explorer.name": {
+    "en": "Every-Stop Explorer",
+    "fr": "Explorateur de toutes gares"
+  },
+  "title.night_owl.name": {
+    "en": "Last Train Lantern",
+    "fr": "Lanterne du dernier train"
+  },
+  "title.early_bird.name": {
+    "en": "First Train Sparrow",
+    "fr": "Moineau du premier train"
+  },
+  "title.weekend.name": {
+    "en": "Ramune Weekender",
+    "fr": "Week-end à la limonade"
+  },
+  "title.genre_guardian.name": {
+    "en": "Line Keeper · {genre}",
+    "fr": "Gardien de ligne · {genre}"
+  },
+  "title.broken_record.name": {
+    "en": "Round-Trip Rider",
+    "fr": "Roi de l’aller-retour"
+  },
+  "title.marathon.name": {
+    "en": "Long-Haul Express",
+    "fr": "Express grandes lignes"
+  },
+  "title.radio_host.name": {
+    "en": "Station Announcer",
+    "fr": "Voix de la gare"
+  },
+  "title.task_hero.name": {
+    "en": "Platform Sweeper",
+    "fr": "As du balai de quai"
+  },
+  "title.grocery_runner.name": {
+    "en": "Bento Runner",
+    "fr": "Coureur à bentō"
+  },
+  "title.planner.name": {
+    "en": "Timetable Keeper",
+    "fr": "Maître des horaires"
+  },
+  "title.wall_poet.name": {
+    "en": "Chalkboard Poet",
+    "fr": "Poète du tableau à craie"
+  },
+  "title.courier.name": {
+    "en": "Parcel Porter",
+    "fr": "Porteur de colis"
+  },
+  "title.curator.name": {
+    "en": "Lost-Property Keeper",
+    "fr": "Gardien des objets trouvés"
+  },
+  "title.high_scorer.name": {
+    "en": "Goldfish Champion",
+    "fr": "Champion du poisson rouge"
+  },
+  "title.collector.name": {
+    "en": "Stamp Rally Collector",
+    "fr": "As du carnet de tampons"
+  },
+  "title.game_hopper.name": {
+    "en": "Kendama Hopper",
+    "fr": "Virtuose du kendama"
+  },
+  "title.console_hopper.name": {
+    "en": "Signal-Box Switcher",
+    "fr": "Aiguilleur du poste"
+  },
+  "title.romhacker.name": {
+    "en": "Ticket-Clipper Tinkerer",
+    "fr": "Bricoleur de poinçonneuse"
+  },
+  "title.star.mark": {
+    "en": "◎",
+    "fr": "◎"
+  }
+}

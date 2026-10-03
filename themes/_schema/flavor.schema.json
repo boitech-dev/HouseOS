@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "A HouseOS theme's words around the rooms (flavor.json)",
+  "description": "Optional: a theme's own names for the house titles (28 characters at most in either language) and the star mark of titles (3). Every other sentence is HouseOS's own: practical words, the same in every theme. French uses tu.",
+  "type": "object",
+  "properties": {
+    "$description": {
+      "type": "string"
+    }
+  },
+  "patternProperties": {
+    "^title\\.[a-z_]+\\.name$": {
+      "$ref": "#/$defs/name"
+    },
+    "^title\\.star\\.mark$": {
+      "$ref": "#/$defs/mark"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "words": {
+      "type": "object",
+      "required": [
+        "en",
+        "fr"
+      ],
+      "properties": {
+        "en": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fr": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "name": {
+      "$ref": "#/$defs/words",
+      "properties": {
+        "en": {
+          "maxLength": 28
+        },
+        "fr": {
+          "maxLength": 28
+        }
+      }
+    },
+    "mark": {
+      "$ref": "#/$defs/words",
+      "properties": {
+        "en": {
+          "maxLength": 3
+        },
+        "fr": {
+          "maxLength": 3
+        }
+      }
+    }
+  }
+}

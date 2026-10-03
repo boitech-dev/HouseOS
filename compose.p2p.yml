@@ -1,0 +1,23 @@
+# The torrent player (optional): a stream add-on's versions play without a debrid service (docs/INTEGRATIONS.md).
+# Turn it on: ./houseos.sh torrents on, then tick "Play torrents from this computer" in Control
+# Room → Integrations → Stream add-on (ticking it sets the player quiet). It stays unused until then.
+# TorrServer (GPL-3) is a separate program; its web page is reachable from this computer only.
+services:
+  torrserver:
+    image: ghcr.io/yourok/torrserver:MatriX.145
+    container_name: ${COMPOSE_PROJECT_NAME:-houseos}-torrserver
+    restart: unless-stopped
+    environment:
+      TS_PORT: "8090"
+      TS_DONTKILL: "1"
+    ports:
+      - "127.0.0.1:8090:8090"  # the relay (host network) reaches it here; nothing on the LAN
+    volumes:
+      - houseos-torrserver:/opt/ts/config
+    mem_limit: 1g
+  api: { environment: { HOUSEOS_TORRENT_ENGINE: "http://torrserver:8090" } }
+  worker: { environment: { HOUSEOS_TORRENT_ENGINE: "http://torrserver:8090" } }
+  cinema-worker: { environment: { HOUSEOS_TORRENT_ENGINE: "http://torrserver:8090" } }
+  relay: { environment: { HOUSEOS_TORRENT_ENGINE: "http://127.0.0.1:8090" } }
+volumes:
+  houseos-torrserver: {}

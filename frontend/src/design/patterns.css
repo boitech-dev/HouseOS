@@ -1,0 +1,1287 @@
+/* Patterns and layout (patterns.tsx). Tokens only. */
+@layer layout {
+  /* One width for every room, so pages share their edges; narrow is for single-purpose screens. */
+  .ds-page {
+    --page-max: 1440px;
+    display: grid;
+    gap: var(--space-6);
+    width: 100%;
+    max-width: var(--page-max);
+    margin-inline: auto;
+    min-width: 0;
+  }
+  .ds-page[data-width="narrow"] {
+    --page-max: 760px;
+  }
+  .ds-stack {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .ds-cluster {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .ds-cluster[data-end] {
+    justify-content: flex-end;
+  }
+  .ds-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(var(--min), 100%), 1fr));
+    gap: var(--space-4);
+  }
+  :is(.ds-stack, .ds-cluster, .ds-grid)[data-space="1"] {
+    gap: var(--space-1);
+  }
+  :is(.ds-stack, .ds-cluster, .ds-grid)[data-space="2"] {
+    gap: var(--space-2);
+  }
+  :is(.ds-stack, .ds-cluster, .ds-grid)[data-space="3"] {
+    gap: var(--space-3);
+  }
+  :is(.ds-stack, .ds-cluster, .ds-grid)[data-space="4"] {
+    gap: var(--space-4);
+  }
+  :is(.ds-stack, .ds-cluster, .ds-grid)[data-space="5"] {
+    gap: var(--space-5);
+  }
+  :is(.ds-stack, .ds-cluster, .ds-grid)[data-space="6"] {
+    gap: var(--space-6);
+  }
+  :is(.ds-stack, .ds-cluster, .ds-grid)[data-space="7"] {
+    gap: var(--space-7);
+  }
+}
+
+@layer patterns {
+  /* ---------- page header ---------- */
+  .ds-page-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--space-3) var(--space-4);
+  }
+  .ds-page-header__text {
+    flex: 1 1 12rem;
+    min-width: 0;
+    pointer-events: none; /* its empty width leaves a theme's header pieces clickable */
+  }
+  .ds-page-header__text > * {
+    width: fit-content; /* as wide as its words, the rest of the line left to the header's art */
+    max-width: 100%;
+    pointer-events: auto;
+  }
+  .ds-page-header h1 {
+    margin: 0;
+    color: var(--part-header-fg);
+    font: var(--text-display-l);
+    letter-spacing: var(--text-display-l-tracking);
+    text-transform: var(--text-display-l-case);
+    overflow-wrap: anywhere;
+  }
+  /* The theme's words above a title: one line, never more (a theme adds no layout). */
+  .ds-page-header__kicker {
+    overflow: hidden;
+    margin: 0 0 var(--space-1);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font: var(--text-label);
+    letter-spacing: var(--text-label-tracking);
+    text-transform: var(--text-label-case);
+    width: fit-content;
+    max-width: 100%;
+    padding: var(--pv-kicker-pad);
+    border-radius: var(--radius-chip);
+    background: var(--pv-kicker-fill);
+    color: var(--pv-kicker-ink);
+  }
+  /* Header variants (parts.header). A banner: the theme's header.banner art (or the room's light)
+     behind the title, fading into the page; it never adds height. A ribbon: the kicker as a tag. */
+  /* Its own layer (the banner sits behind the words), raised over the page below it so a menu
+     opened from its actions draws over what follows. */
+  .ds-page-header {
+    position: relative;
+    isolation: isolate;
+    z-index: var(--z-raised);
+  }
+  .ds-page-header__banner {
+    position: absolute;
+    inset: calc(-1 * var(--space-6)) 0 auto;
+    z-index: var(--z-behind);
+    height: 160px;
+    overflow: hidden;
+    background: linear-gradient(
+      to bottom,
+      color-mix(
+        in srgb,
+        var(--c-room-soft, var(--c-bg-surface)) calc(var(--part-header-banner-wash) * 100%),
+        transparent
+      ),
+      transparent
+    );
+    mask-image: linear-gradient(to bottom, black 45%, transparent);
+    pointer-events: none;
+  }
+  .ds-page-header__banner > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    image-rendering: pixelated;
+  }
+  [data-part-header] {
+    --pv-kicker-fill: transparent;
+    --pv-kicker-ink: var(--c-room, var(--part-header-kicker));
+    --pv-kicker-pad: 0;
+  }
+  /* Framed: the title's words in a box of their own (the same place and size: the box grows into
+     the page's gutter), for themes with a picture behind every page. */
+  [data-part-header="framed"] .ds-page-header {
+    gap: var(--space-5) var(--space-6); /* room for the box's edge before what follows */
+  }
+  [data-part-header="framed"] .ds-page-header__actions {
+    margin-left: auto; /* the box hugs its words: the actions keep the right edge */
+  }
+  [data-part-header="framed"] .ds-page-header__text {
+    flex: 0 1 auto;
+    margin: calc(-1 * var(--space-3));
+    padding: var(--space-3);
+    border: var(--part-header-frame-border);
+    border-radius: var(--part-panel-radius);
+    background: var(--part-header-frame-texture), var(--part-header-frame-bg);
+  }
+  /* The page's own headings stay legible over a page picture (none unless the theme says). */
+  .ds-page-header h1,
+  .ds-page-header__kicker,
+  .ds-section__head h2,
+  .ds-section__head h3 {
+    text-shadow: var(--part-page-ink-shadow);
+  }
+  [data-part-header="ribbon"] {
+    --pv-kicker-fill: var(--c-room, var(--c-accent-solid));
+    --pv-kicker-ink: var(--c-room-fg, var(--c-fg-on-accent));
+    --pv-kicker-pad: 0 var(--space-2);
+  }
+  /* The theme's tagline or a room's lead: two lines at most. */
+  .ds-page-header__lead {
+    display: -webkit-box;
+    overflow: hidden;
+    margin: var(--space-2) 0 0;
+    max-width: 60ch;
+    color: var(--c-fg-muted);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  .ds-page-header__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .ds-page-header > .ds-hint {
+    flex-basis: 100%;
+  }
+  /* On the neutral ground: the room shows only in the icon (one accent per page). */
+  .ds-hint {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+    border: var(--border-hairline) solid var(--c-border-subtle);
+    border-radius: var(--radius-control);
+    background: var(--c-bg-surface);
+    color: var(--c-fg-default);
+    font: var(--text-body-s);
+  }
+  /* The icon and the first line are centred on the close button (40 px), however many lines. */
+  .ds-hint > .ds-icon {
+    flex: none;
+    margin-top: calc((40px - var(--icon-s)) / 2);
+    color: var(--c-room, var(--c-accent-fg));
+  }
+  .ds-hint__text {
+    display: flex;
+    flex: 1;
+    align-items: flex-start;
+    gap: var(--space-2);
+    min-width: 0;
+    padding-block: calc((40px - 1lh) / 2);
+  }
+  .ds-hint p {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+  }
+  .ds-hint__text > .ds-button {
+    flex: none;
+    min-height: 0;
+    padding-block: 0;
+  }
+  @media (max-width: 599.98px) {
+    .ds-hint .ds-hint__text p:not([data-open]) {
+      -webkit-line-clamp: 1;
+    }
+  }
+  .ds-hint p:not([data-open]) {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  /* ---------- sub-navigation and toolbar ---------- */
+  /* Tabs that don't fit scroll sideways; the tabs fade out at an edge where more are there. */
+  .ds-subnav {
+    border-bottom: var(--border-hairline) solid var(--c-border-subtle);
+    overflow-x: auto;
+    scrollbar-width: none;
+    /* On the page, over a theme's page picture: the quiet plaque behind the tabs too. */
+    background-color: var(--pv-quiet-fill, transparent);
+  }
+  /* More tabs past an edge (SubNav marks it): that edge fades, nothing painted over the page. */
+  .ds-subnav[data-more-before] {
+    mask-image: linear-gradient(to right, transparent, var(--c-fg-default) var(--space-6));
+  }
+  .ds-subnav[data-more-after] {
+    mask-image: linear-gradient(to left, transparent, var(--c-fg-default) var(--space-6));
+  }
+  .ds-subnav[data-more-before][data-more-after] {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      var(--c-fg-default) var(--space-6),
+      var(--c-fg-default) calc(100% - var(--space-6)),
+      transparent
+    );
+  }
+  .ds-subnav ul {
+    display: flex;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ds-subnav button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 44px;
+    padding: 0 var(--space-3);
+    border: 0;
+    border-bottom: var(--border-strong) solid transparent;
+    background: transparent;
+    color: var(--c-fg-muted);
+    font: var(--text-action);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .ds-subnav button:hover {
+    color: var(--c-fg-default);
+  }
+  .ds-subnav button[aria-current="page"] {
+    border-bottom-color: var(--c-room, var(--c-accent-solid));
+    color: var(--c-fg-default);
+  }
+  .ds-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  /* Filters in a toolbar share its width evenly, however they wrap. */
+  .ds-toolbar > .ds-select {
+    flex: 1 1 10rem;
+    min-width: 0;
+    max-width: 20rem;
+  }
+  .ds-toolbar > .ds-search {
+    flex: 1 1 16rem;
+    max-width: 40rem;
+  }
+
+  /* ---------- section ---------- */
+  .ds-section,
+  .ds-section__intro,
+  .ds-section__body {
+    display: grid;
+    align-content: start;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+  .ds-section__intro {
+    gap: var(--space-1);
+  }
+  .ds-section__body > .ds-button {
+    justify-self: start;
+  }
+  /* A title and its actions share a line while they fit, then the actions wrap under it:
+     never wider than the screen. */
+  .ds-section__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-3);
+    min-height: 40px;
+    min-width: 0;
+  }
+  .ds-section__head h2,
+  .ds-section__head h3 {
+    margin: 0;
+    font: var(--text-title-m);
+    letter-spacing: var(--text-title-m-tracking);
+  }
+  .ds-section[data-level="3"] .ds-section__head h3 {
+    font: var(--text-title-s);
+  }
+  .ds-section__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+  .ds-section__lead {
+    max-width: 72ch;
+    margin: 0;
+    color: var(--c-fg-muted);
+    font: var(--text-body-s);
+  }
+
+  /* ---------- rows ---------- */
+  .ds-list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ds-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 56px;
+    border-bottom: var(--border-hairline) solid var(--c-border-subtle);
+  }
+  .ds-row__control {
+    display: inline-flex;
+    flex: none;
+    padding-left: var(--space-1);
+  }
+  .ds-row:last-child {
+    border-bottom: 0;
+  }
+  .ds-row:has(> .ds-row__more) {
+    flex-wrap: wrap;
+  }
+  .ds-row__more {
+    flex-basis: 100%;
+    display: grid;
+    gap: var(--space-2);
+    padding: 0 var(--space-1) var(--space-3);
+  }
+  .ds-list__heading {
+    padding: var(--space-4) var(--space-1) var(--space-1);
+    color: var(--c-fg-subtle);
+    font: var(--text-label);
+    letter-spacing: var(--text-label-tracking);
+    text-transform: var(--text-label-case);
+    list-style: none;
+  }
+  .ds-row__main {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: var(--space-3);
+    min-width: 0;
+    min-height: inherit;
+    padding: var(--space-2) var(--space-1);
+    border: 0;
+    border-radius: var(--radius-control);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    text-decoration: none;
+  }
+  .ds-row[data-opens] .ds-row__main {
+    cursor: pointer;
+  }
+  .ds-row[data-opens] .ds-row__main:hover {
+    background: var(--c-bg-hover);
+  }
+  .ds-row[data-selected] .ds-row__main {
+    background: var(--c-bg-selected);
+  }
+  .ds-row__leading {
+    display: grid;
+    flex: none;
+    place-items: center;
+    color: var(--c-fg-muted);
+  }
+  .ds-row__text {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+  }
+  .ds-row__title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /* A detail may explain: two lines before it is cut, never one on a phone. */
+  .ds-row__detail {
+    display: -webkit-box;
+    overflow: hidden;
+    color: var(--c-fg-muted);
+    font: var(--text-body-s);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  /* Side text gives way before the title does. */
+  .ds-row__meta {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 45%;
+    overflow: hidden;
+    color: var(--c-fg-subtle);
+    font: var(--text-numeric);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ds-row__actions {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  /* In a narrow column the actions move under the text instead of crushing it to nothing. */
+  .ds-row:has(> .ds-row__actions) {
+    flex-wrap: wrap;
+  }
+  .ds-row:has(> .ds-row__actions) > .ds-row__main {
+    flex-basis: calc(var(--space-6) * 6);
+  }
+  .ds-row__actions:not(:first-child) {
+    margin-inline-start: auto;
+  }
+
+  /* ---------- media cards and shelves ---------- */
+  .ds-media-card {
+    display: grid;
+    align-content: start;
+    gap: var(--space-1);
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .ds-media-card__art {
+    position: relative;
+    display: block;
+  }
+  .ds-media-card__badge {
+    position: absolute;
+    top: var(--space-2);
+    left: var(--space-2);
+  }
+  .ds-media-card__title {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    font: var(--text-title-s);
+  }
+  .ds-media-card__meta {
+    color: var(--c-fg-muted);
+    font: var(--text-caption);
+  }
+  .ds-media-card:hover .ds-media-card__title {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .ds-shelf {
+    display: grid;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+  /* Rows of pictures on a quiet ground of their own when the theme has art behind the pages
+     (part.page.gallery): painted just outside the box, so nothing moves. */
+  .ds-shelf,
+  .ds-list {
+    border-radius: var(--part-panel-radius);
+    background: var(--pv-gallery, transparent);
+    outline: var(--space-3) solid var(--pv-gallery, transparent);
+  }
+  /* A panel, card or sheet is already a ground of its own. */
+  :is(.ds-panel, .ds-surface, .ds-sheet__panel, .ds-settings__detail) {
+    --pv-quiet-fill: transparent;
+    --pv-gallery: transparent;
+  }
+  .ds-shelf__items {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: var(--item);
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0 0 var(--space-2);
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+  }
+  .ds-shelf__items > li {
+    scroll-snap-align: start;
+  }
+  .ds-shelf__arrows {
+    display: none;
+  }
+  @media (min-width: 900px) {
+    .ds-shelf__arrows {
+      display: inline-flex;
+    }
+  }
+
+  /* ---------- forms ---------- */
+  .ds-form {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .ds-form__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-2);
+  }
+  .ds-emoji {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+  .ds-emoji > button {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: transparent;
+    font: var(--text-title-m);
+    cursor: pointer;
+  }
+  .ds-emoji > button:hover {
+    background: var(--c-bg-hover);
+  }
+
+  /* ---------- disclosure, and the end of a growing list ---------- */
+  .ds-disclosure > summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 44px;
+    color: var(--c-fg-default);
+    font: var(--text-label);
+    letter-spacing: var(--text-label-tracking);
+    list-style: none;
+    cursor: pointer;
+  }
+  .ds-disclosure > summary::-webkit-details-marker {
+    display: none;
+  }
+  .ds-disclosure > summary .ds-icon {
+    transition: rotate var(--dur-fast) var(--ease-standard);
+  }
+  .ds-disclosure[open] > summary .ds-icon {
+    rotate: 90deg;
+  }
+  .ds-disclosure__body {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-2) 0 var(--space-3) var(--space-6);
+  }
+  .ds-more {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: var(--space-2);
+    padding: var(--space-3) 0;
+    list-style: none;
+  }
+
+  /* ---------- tiles ---------- */
+  .ds-tile {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+    min-height: 104px;
+    padding: var(--space-4);
+    border: var(--mat-surface-border);
+    border-radius: var(--mat-surface-radius);
+    background: var(--mat-surface-bg) var(--mat-surface-texture);
+    box-shadow: var(--mat-surface-shadow);
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color var(--dur-fast) var(--ease-standard);
+  }
+  .ds-tile:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+  .ds-tile:hover {
+    border-color: var(--c-border-strong);
+  }
+  .ds-tile__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--c-fg-muted);
+  }
+  .ds-tile__title {
+    flex: 1;
+    min-width: 0;
+    font: var(--text-label);
+    letter-spacing: var(--text-label-tracking);
+    text-transform: var(--text-label-case);
+  }
+  .ds-tile__value {
+    font: var(--text-title-l);
+  }
+  .ds-tile__detail {
+    color: var(--c-fg-muted);
+    font: var(--text-body-s);
+  }
+
+  /* ---------- panels: a dashboard's modules ---------- */
+  .ds-panel {
+    display: grid;
+    align-content: start;
+    gap: var(--space-3);
+    min-width: 0;
+    padding: var(--space-4);
+    border: var(--pv-panel-edge);
+    border-top: var(--pv-panel-top);
+    border-radius: var(--pv-panel-radius);
+    background: var(--pv-panel-fill);
+    box-shadow: var(--pv-panel-shadow);
+  }
+  /* Panel variants (parts.panel), set where data-part-panel is (the page, or a preview in
+     another theme): a card; no card, a hairline above; or an edge only. Same boxes. Custom
+     properties, so the nearest choice wins inside a preview. */
+  [data-part-panel] {
+    --pv-panel-edge: var(--part-panel-border);
+    --pv-panel-top: var(--part-panel-border);
+    --pv-panel-radius: var(--part-panel-radius);
+    --pv-panel-fill: var(--part-panel-texture), var(--part-panel-bg);
+    --pv-panel-shadow: var(--part-panel-shadow);
+  }
+  [data-part-panel="flat"] {
+    --pv-panel-edge: 0 solid transparent;
+    --pv-panel-radius: 0;
+    --pv-panel-fill: none;
+    --pv-panel-shadow: none;
+  }
+  [data-part-panel="outlined"] {
+    --pv-panel-fill: none;
+    --pv-panel-shadow: none;
+  }
+  .ds-panel__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 32px;
+    color: var(--part-panel-head);
+  }
+  .ds-panel__head h2 {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    color: var(--c-fg-default);
+    font: var(--text-title-s);
+    letter-spacing: var(--text-title-s-tracking);
+  }
+  .ds-panel__more {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-block: calc(-1 * var(--space-2));
+    gap: var(--space-1);
+    color: var(--c-fg-link);
+    font: var(--text-body-s);
+    text-decoration: none;
+  }
+  .ds-panel__more:hover {
+    text-decoration: underline;
+  }
+
+  /* ---------- states and notices ---------- */
+  .ds-state {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-3);
+    padding: var(--space-7) var(--space-4);
+    text-align: center;
+  }
+  .ds-state[data-kind="loading"] {
+    justify-items: stretch;
+    padding: var(--space-4);
+  }
+  .ds-state__art {
+    color: var(--c-fg-subtle);
+  }
+  .ds-state[data-kind="error"] .ds-state__art {
+    color: var(--c-danger-solid);
+  }
+  .ds-state h3 {
+    margin: 0;
+    font: var(--text-title-m);
+  }
+  .ds-state__picture {
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
+  }
+  .ds-state__text {
+    max-width: 44ch;
+    color: var(--c-fg-muted);
+  }
+  /* The words first; the action sits beside them when the notice itself has room, under them
+     when it doesn't (a narrow column on a wide screen too), never squeezing the words. */
+  .ds-notice {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+    border: var(--border-hairline) solid var(--c-border-subtle);
+    border-radius: var(--radius-control);
+    background: var(--c-bg-surface);
+    color: var(--c-fg-default);
+  }
+  .ds-notice > .ds-icon {
+    margin-top: var(--space-1);
+    color: var(--c-info-fg);
+  }
+  .ds-notice__body {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    min-width: 0;
+  }
+  .ds-notice__text {
+    display: grid;
+    flex: 1 1 24ch;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+  .ds-notice__action {
+    flex: none;
+    max-width: 100%;
+  }
+  .ds-notice__action .ds-button {
+    max-width: 100%;
+    white-space: normal;
+    text-align: start;
+  }
+  /* Info and success stay neutral with a coloured icon; a warning or a danger keeps its colour
+     in the edge, the icon and a lighter wash of its tone. */
+  .ds-notice[data-tone="success"] > .ds-icon {
+    color: var(--c-success-fg);
+  }
+  .ds-notice[data-tone="warning"] {
+    border-color: var(--c-warning-border);
+    background: color-mix(in srgb, var(--c-warning-soft) 60%, var(--c-bg-surface));
+  }
+  .ds-notice[data-tone="warning"] > .ds-icon {
+    color: var(--c-warning-fg);
+  }
+  .ds-notice[data-tone="danger"] {
+    border-color: var(--c-danger-border);
+    background: color-mix(in srgb, var(--c-danger-soft) 60%, var(--c-bg-surface));
+  }
+  .ds-notice[data-tone="danger"] > .ds-icon {
+    color: var(--c-danger-fg);
+  }
+
+  .ds-quick-add {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    max-width: 40rem;
+  }
+  .ds-quick-add .ds-input {
+    flex: 1 1 14rem;
+  }
+  .ds-quick-add .ds-field__error {
+    flex-basis: 100%;
+  }
+
+  /* ---------- settings: list → place ---------- */
+  .ds-settings {
+    display: grid;
+    gap: var(--space-5);
+    /* Settings aren't in boxes: over a theme's page picture, one quiet ground behind them all
+       (part.page.gallery; painted outside the box, so nothing moves). */
+    border-radius: var(--part-panel-radius);
+    background: var(--pv-gallery, transparent);
+    outline: var(--space-4) solid var(--pv-gallery, transparent);
+  }
+  .ds-settings__group {
+    display: grid;
+    gap: var(--space-1);
+  }
+  .ds-settings__group + .ds-settings__group {
+    margin-top: var(--space-4);
+  }
+  .ds-settings__group h2 {
+    margin: 0 0 var(--space-1);
+    padding-inline: var(--space-3);
+    font: var(--text-label);
+    letter-spacing: var(--text-label-tracking);
+    text-transform: var(--text-label-case);
+    color: var(--c-fg-subtle);
+  }
+  .ds-settings__group ul {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ds-settings__nav button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    width: 100%;
+    min-height: 48px;
+    padding: 0 var(--space-3);
+    border: 0;
+    border-radius: var(--radius-control);
+    background: transparent;
+    color: var(--c-fg-default);
+    font: var(--text-body-m);
+    text-align: start;
+    cursor: pointer;
+  }
+  .ds-settings__label {
+    flex: 1;
+  }
+  .ds-settings__nav button:hover {
+    background: var(--c-bg-hover);
+  }
+  .ds-settings__nav button[aria-current="page"] {
+    background: var(--c-bg-current);
+    color: var(--c-fg-current);
+  }
+  .ds-settings__detail {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: var(--space-5);
+    min-width: 0;
+  }
+  .ds-settings__siblings {
+    min-width: 0;
+  }
+  /* Its arrow lines up with the page's left edge, not the button's padding. */
+  .ds-settings__back {
+    justify-self: start;
+    margin-left: calc(-1 * (var(--space-4) + var(--border-default)));
+  }
+  @media (max-width: 899.98px) {
+    /* A place open on a phone: its own title and the way back say enough; the page's header
+       would push the settings a screen down. */
+    .ds-page:has(.ds-settings[data-open]) > .ds-page-header {
+      display: none;
+    }
+    .ds-settings[data-open] .ds-settings__nav {
+      display: none;
+    }
+    .ds-settings:not([data-open]) .ds-settings__detail > :not(.ds-settings__overview) {
+      display: none;
+    }
+    /* Its overview links every place: no long list to scroll through first. */
+    .ds-settings[data-mapped]:not([data-open]) .ds-settings__nav {
+      display: none;
+    }
+  }
+  /* A settings page reads as an authored sheet: sections parted by a hairline, short fields in
+     pairs, and on wide screens each small section's title and lead beside its controls. */
+  /* A settings form's buttons sit at the start, right under its last field. */
+  .ds-settings__detail .ds-form__actions {
+    justify-content: flex-start;
+  }
+  .ds-settings__detail .ds-section + .ds-section {
+    padding-top: var(--space-5);
+    border-top: var(--border-hairline) solid var(--c-border-subtle);
+  }
+  @media (min-width: 900px) {
+    /* Only on the page itself: a card's own form (narrow) keeps one field per row. */
+    .ds-settings__detail .ds-section:not(.ds-surface *) > .ds-section__body,
+    .ds-settings__detail .ds-section:not(.ds-surface *) > .ds-section__body > .ds-form {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--space-4);
+    }
+    .ds-settings__detail .ds-section:not(.ds-surface *) > .ds-section__body > :not(.ds-field),
+    .ds-settings__detail
+      .ds-section:not(.ds-surface *)
+      > .ds-section__body
+      > .ds-form
+      > :not(.ds-field),
+    .ds-settings__detail
+      .ds-section:not(.ds-surface *)
+      > .ds-section__body
+      :is(.ds-field:has(textarea)) {
+      grid-column: 1 / -1;
+    }
+    /* Compact: every place in sight at once on a laptop, no scrolling the list. The groups are
+       parted by a hairline; their names stay for screen readers (the overview shows them). */
+    .ds-settings__nav button {
+      min-height: 28px;
+      font: var(--text-body-s);
+    }
+    .ds-settings__group ul {
+      gap: 0;
+    }
+    .ds-settings__group h2 {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+    .ds-settings__group + .ds-settings__group {
+      margin-top: var(--space-1);
+      padding-top: var(--space-1);
+      border-top: var(--border-hairline) solid var(--c-border-subtle);
+    }
+    .ds-settings__siblings {
+      display: none;
+    }
+  }
+  @media (min-width: 1232px) {
+    .ds-settings__detail .ds-section:is([data-level="3"], [data-aside]):has(> .ds-section__intro) {
+      grid-template-columns: minmax(160px, 220px) minmax(0, 1fr);
+      column-gap: var(--space-6);
+    }
+  }
+  @media (min-width: 900px) {
+    .ds-settings {
+      grid-template-columns: minmax(200px, 240px) minmax(0, 1fr);
+      align-items: start;
+      gap: var(--space-6);
+    }
+    /* A long list of places scrolls on its own, never under the Now bar. */
+    .ds-settings__nav {
+      position: sticky;
+      top: calc(var(--shell-top, 0px) + var(--space-4));
+      max-height: calc(100dvh - var(--shell-top, 0px) - var(--shell-bottom, 0px) - var(--space-6));
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+    }
+    .ds-settings__nav button .ds-icon:last-child,
+    .ds-settings__back {
+      display: none;
+    }
+  }
+}
+
+@layer patterns {
+  /* A part of the page drawn in another theme (the Workbench, the theme picker). */
+  .ds-scope {
+    padding: var(--space-5);
+    border-radius: var(--radius-card);
+    background: var(--mat-canvas-bg) var(--mat-canvas-texture);
+    color: var(--c-fg-default);
+    font: var(--text-body-m);
+  }
+  .ds-workbench__swatch {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-4);
+  }
+  .ds-workbench__row {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .ds-workbench__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font: var(--text-caption);
+  }
+  .ds-workbench__chip > i {
+    width: var(--space-6);
+    height: var(--space-6);
+    border-radius: var(--radius-control);
+    background: var(--swatch);
+  }
+  .ds-workbench__icons {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: var(--space-3);
+  }
+  .ds-workbench__icons > span {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-1);
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
+  /* Themes side by side on wide screens. */
+  .ds-workbench__compare {
+    display: grid;
+    gap: var(--space-5);
+  }
+  @media (min-width: 1232px) {
+    .ds-workbench__compare {
+      grid-template-columns: repeat(auto-fit, minmax(560px, 1fr));
+    }
+  }
+  .ds-details {
+    margin: 0;
+  }
+  .ds-details > div {
+    display: flex;
+    gap: var(--space-4);
+    justify-content: space-between;
+    padding-block: var(--space-2);
+    border-block-end: var(--border-hairline) solid var(--c-border-subtle);
+    font: var(--text-body-s);
+  }
+  .ds-details dt {
+    color: var(--c-fg-muted);
+    text-transform: capitalize;
+  }
+  .ds-details dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .ds-details ul {
+    margin: 0;
+    padding-inline-start: var(--space-4);
+  }
+  .ds-details .ds-details > div {
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+}
+
+/* Surfaces: a theme's picture for a part (slot "<part>.surface", see design/theme.ts
+   surfaceVars), on a layer of its own behind the part's content: cover, contain, stretch, or a
+   9-slice frame (corners whole, edges and middle stretched: a hand-drawn box of any size).
+   Transparent pixels show the part's own ground; a theme that sets part.<part>.bg to transparent
+   gets a shaped box. Only a part with a picture gets the layer (data-surface-<part>). */
+@layer patterns {
+  .shell__rail {
+    --surface: var(--surface-rail);
+    --surface-size: var(--surface-rail-size);
+    --surface-border: var(--surface-rail-border);
+    --surface-render: var(--surface-rail-render);
+    --surface-anchor: var(--surface-rail-anchor);
+  }
+  .shell__dock {
+    --surface: var(--surface-dock);
+    --surface-size: var(--surface-dock-size);
+    --surface-border: var(--surface-dock-border);
+    --surface-render: var(--surface-dock-render);
+    --surface-anchor: var(--surface-dock-anchor);
+  }
+  .shell__now {
+    --surface: var(--surface-nowbar);
+    --surface-size: var(--surface-nowbar-size);
+    --surface-border: var(--surface-nowbar-border);
+    --surface-render: var(--surface-nowbar-render);
+    --surface-anchor: var(--surface-nowbar-anchor);
+  }
+  .ds-panel {
+    --surface: var(--surface-panel);
+    --surface-size: var(--surface-panel-size);
+    --surface-border: var(--surface-panel-border);
+    --surface-render: var(--surface-panel-render);
+    --surface-anchor: var(--surface-panel-anchor);
+  }
+  .listen-deck {
+    --surface: var(--surface-deck);
+    --surface-size: var(--surface-deck-size);
+    --surface-border: var(--surface-deck-border);
+    --surface-render: var(--surface-deck-render);
+    --surface-anchor: var(--surface-deck-anchor);
+  }
+  .ds-sheet__panel {
+    --surface: var(--surface-sheet);
+    --surface-size: var(--surface-sheet-size);
+    --surface-border: var(--surface-sheet-border);
+    --surface-render: var(--surface-sheet-render);
+    --surface-anchor: var(--surface-sheet-anchor);
+  }
+  :is(
+    [data-surface-rail] .shell__rail,
+    [data-surface-dock] .shell__dock,
+    [data-surface-nowbar] .shell__now,
+    [data-surface-panel] .ds-panel,
+    [data-surface-sheet] .ds-sheet__panel,
+    [data-surface-deck] .listen-deck
+  ) {
+    isolation: isolate;
+  }
+  :is(
+    [data-surface-panel] .ds-panel,
+    [data-surface-sheet] .ds-sheet__panel,
+    [data-surface-deck] .listen-deck
+  ) {
+    position: relative;
+  }
+  :is(
+    [data-surface-rail] .shell__rail,
+    [data-surface-dock] .shell__dock,
+    [data-surface-nowbar] .shell__now,
+    [data-surface-panel] .ds-panel,
+    [data-surface-sheet] .ds-sheet__panel,
+    [data-surface-deck] .listen-deck
+  )::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-behind);
+    border-radius: inherit;
+    background: var(--surface, none) center var(--surface-anchor, center) /
+      var(--surface-size, cover) no-repeat;
+    border-image: var(--surface-border, none);
+    image-rendering: var(--surface-render, auto);
+    pointer-events: none;
+  }
+}
+
+/* Layers: a theme's moving pictures (theme.json "layers", design/theme_layers.tsx), each place's
+   on a layer of its own behind its content, never catching a click; `above` ones over the page,
+   faint (the kit caps their opacity). A piece ("natural" fit) is drawn at its size at its anchor. */
+@layer patterns {
+  .ds-layers {
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-behind);
+    overflow: hidden;
+    border-radius: inherit;
+    pointer-events: none;
+    container-type: size;
+  }
+  /* Over the place's own picture: the page's backdrop, Home's picture, the status strip (their
+     words stay above). */
+  :is(.shell__backdrop, .home-hero, .shell__status) > .ds-layers:not([data-under]) {
+    z-index: auto;
+  }
+  .ds-layers[data-above] {
+    position: fixed;
+    z-index: var(--z-nowbar);
+  }
+  :is(.listen-deck, .shell__rail, .shell__status, .home-hero, .ds-page-header):has(> .ds-layers) {
+    isolation: isolate;
+  }
+  .listen-deck:has(> .ds-layers) {
+    position: relative;
+  }
+  [data-surface-deck] .listen-deck {
+    padding: var(--space-4);
+  }
+  .ds-layer {
+    position: absolute;
+    inset: 0;
+    background: var(--layer-image) var(--layer-position) / var(--layer-size) var(--layer-repeat);
+    opacity: var(--layer-opacity);
+    mix-blend-mode: var(--layer-blend);
+    image-rendering: var(--layer-render);
+  }
+  .ds-layer[data-piece] {
+    inset: auto;
+    width: var(--layer-w);
+    height: var(--layer-h);
+    background-position: 0 0;
+  }
+  .ds-layer[data-piece]:is(
+      [data-anchor="top"],
+      [data-anchor="top-left"],
+      [data-anchor="top-right"]
+    ) {
+    top: 0;
+  }
+  .ds-layer[data-piece]:is(
+      [data-anchor="bottom"],
+      [data-anchor="bottom-left"],
+      [data-anchor="bottom-right"]
+    ) {
+    bottom: 0;
+  }
+  .ds-layer[data-piece]:is([data-anchor="center"], [data-anchor="left"], [data-anchor="right"]) {
+    top: calc(50% - var(--layer-h) / 2);
+  }
+  .ds-layer[data-piece]:is(
+      [data-anchor="left"],
+      [data-anchor="top-left"],
+      [data-anchor="bottom-left"]
+    ) {
+    left: 0;
+  }
+  .ds-layer[data-piece]:is(
+      [data-anchor="right"],
+      [data-anchor="top-right"],
+      [data-anchor="bottom-right"]
+    ) {
+    right: 0;
+  }
+  .ds-layer[data-piece]:is([data-anchor="center"], [data-anchor="top"], [data-anchor="bottom"]) {
+    left: calc(50% - var(--layer-w) / 2);
+  }
+  /* Crossing: it starts at the edge it comes from; the animation carries it across, and shows it
+     (never seen at rest). */
+  .ds-layer[data-crossing] {
+    opacity: 0;
+  }
+  .ds-layer[data-crossing]:is([data-crossing="left"], [data-crossing="right"]) {
+    left: 0;
+    right: auto;
+  }
+  .ds-layer[data-crossing]:is([data-crossing="top"], [data-crossing="bottom"]) {
+    top: 0;
+    bottom: auto;
+  }
+  /* A piece that answers a click (desktop): it takes the click, nothing else in the layer does. */
+  .ds-layer[data-poke] {
+    pointer-events: auto;
+  }
+  .ds-layer__bit {
+    position: absolute;
+    width: var(--layer-w);
+    height: var(--layer-h);
+    background: var(--layer-image) 0 0 / 100% 100% no-repeat;
+    image-rendering: pixelated;
+    pointer-events: none;
+  }
+  .ds-layer[data-particles] {
+    background: none;
+  }
+  .ds-layer[data-particles] > span {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--layer-w);
+    height: var(--layer-h);
+    background: var(--layer-image) 0 0 / 100% 100% no-repeat;
+    image-rendering: inherit;
+  }
+}

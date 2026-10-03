@@ -1,0 +1,6 @@
+# Windows (WSL 2): music plays on the Windows PC's own speakers through WSLg's sound server.
+# houseos.sh adds this file by itself when it runs inside WSL; see docs/WINDOWS.md.
+services:
+  audio:
+    volumes:
+      - /mnt/wslg:/run/wslg:ro

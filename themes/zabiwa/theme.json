@@ -1,0 +1,75 @@
+{
+  "$schema": "../_schema/theme.schema.json",
+  "id": "zabiwa",
+  "schema": 1,
+  "version": 1,
+  "names": {
+    "en": "Zabiwa",
+    "fr": "Zabiwa"
+  },
+  "description": {
+    "en": "Zabiwa's fresques on a black gallery wall.",
+    "fr": "Les fresques de Zabiwa sur un mur de galerie noir."
+  },
+  "schemes": [
+    "dark"
+  ],
+  "density": "comfortable",
+  "identity": "line",
+  "fonts": {
+    "display": "Instrument Serif",
+    "body": "Instrument Sans",
+    "mono": "JetBrains Mono"
+  },
+  "slots": {
+    "page.backdrop": {
+      "image": "art/page-saints.webp",
+      "rendering": "smooth",
+      "fit": "cover"
+    },
+    "home.hero.backdrop": {
+      "image": "art/hero-panorama-full.webp",
+      "rendering": "smooth",
+      "fit": "cover"
+    },
+    "header.banner": {
+      "image": "art/banner-spires.webp",
+      "rendering": "smooth",
+      "fit": "cover"
+    },
+    "auth.crest": {
+      "image": "art/crest-cross.webp",
+      "rendering": "smooth",
+      "fit": "contain"
+    },
+    "state.empty": {
+      "image": "art/crest-cross.webp",
+      "rendering": "smooth",
+      "fit": "cover"
+    },
+    "watch.tv.bezel": {
+      "image": "art/tv-helmet.webp",
+      "rendering": "smooth",
+      "fit": "cover"
+    },
+    "rail.surface": {
+      "image": "art/rail-nyc.webp",
+      "rendering": "smooth",
+      "fit": "cover",
+      "anchor": "bottom"
+    }
+  },
+  "credit": {
+    "en": "Theme by zabiwa.com",
+    "fr": "Thème par zabiwa.com"
+  },
+  "author": "Zabiwa",
+  "license": "Art © Zabiwa; theme data MIT",
+  "rooms": "unified",
+  "parts": {
+    "header": "framed",
+    "panel": "card",
+    "dock": "flush",
+    "nowbar": "docked"
+  }
+}
