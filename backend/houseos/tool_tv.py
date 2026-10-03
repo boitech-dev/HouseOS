@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from . import tv_remote
+from . import screen_tv, tv_remote
 from .auth import Input
 from .tool_home import score, words
 from .tool_setup import confirmation
@@ -97,7 +97,36 @@ def tv_film_input(body, actor, db):
     }
 
 
+class TvShowVideo(Input):
+    url: str = Field(min_length=10, max_length=2000, description="the YouTube link to show")
+
+
+def tv_show_video(body, actor, db):
+    tv_remote.allowed(actor)
+    video = screen_tv.youtube(body.url)
+    if not video:
+        return {"status": "failed", "detail": "Only YouTube video links can be shown on the TV this way."}
+    if not screen_tv.helper_up():
+        return {"status": "failed", "detail": "The computer isn't ready (its desktop helper isn't running)."}
+    # It may turn the TV on and replace what is on it: a card, as the remote's power button asks.
+    return confirmation(
+        actor,
+        db,
+        "assistant.tv_screen",
+        {"url": video["url"]},
+        "Show on the TV",
+        {"destination": "TV", "action": "show", "value": video["url"], "may_interrupt": True},
+    )
+
+
 TOOLS = {
+    "tv_show_video": (
+        TvShowVideo,
+        "Show a YouTube video on the TV, full screen, through the house computer's screen (the TV is "
+        "turned on and switched to it). A confirmation card; the result says it was sent, not that "
+        "it plays.",
+        tv_show_video,
+    ),
     "tv_film_input": (
         tv_remote.FilmInput,
         "Remember which TV input films switch to (where the Chromecast is plugged in): the TV is "

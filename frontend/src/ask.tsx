@@ -1058,6 +1058,7 @@ const deviceActionLabels: Record<string, string> = {
   reboot: "Restart",
   input: "Change HDMI input",
   volume: "Set volume",
+  show: "Show on the TV",
 };
 /** Nox's film ideas: real catalogue data, Nox's one-line reason, one tap to open in Watch. */
 function TitlesCard({ card }: { card: Obj }) {
