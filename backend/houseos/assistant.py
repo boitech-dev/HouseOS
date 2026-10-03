@@ -468,6 +468,10 @@ def confirm_message(identity: str, actor=Depends(require_actor), db=Depends(get_
         from .home import confirm
 
         return confirm(identity, actor, db)
+    if row and row.kind.startswith("custom."):  # prepared by an integration's House.ask_first
+        from . import custom
+
+        return custom.confirm(row, actor, db)
     if (
         not row
         or row.kind

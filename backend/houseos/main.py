@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse, FileResponse, HTMLResponse
 from . import __version__
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.concurrency import run_in_threadpool
-from . import access
+from . import access, custom, custom_admin  # noqa: F401 (custom_admin adds the install routes)
 from .config import settings
 
 app = FastAPI(title="HouseOS", version=__version__, docs_url=None, redoc_url=None, openapi_url=None)
@@ -22,6 +22,19 @@ def restartable():
 
     restart_on_request("api")
     threading.Thread(target=warm, name="warm-indexes", daemon=True).start()
+    threading.Thread(target=start_custom, name="custom-integrations", daemon=True).start()
+
+
+def start_custom():
+    """Your own integrations that are turned on (custom.py); one that fails only says why."""
+    from . import custom
+    from .db import SessionLocal
+
+    try:
+        with SessionLocal() as db:
+            custom.start(db)
+    except Exception as error:
+        logging.getLogger("houseos").warning("custom integrations didn't start: %s", type(error).__name__)
 
 
 def refused(request: Request, message: str, status: int):
@@ -67,7 +80,14 @@ async def boundaries(request: Request, call_next):
             request.url.path == "/api/v1/tv/screen/show"
             or request.url.path.startswith("/api/v1/tv/screen/jobs/")
         )
-        if origin not in trust["origins"] and not first_account and not screen_key:
+        # An integration's key routes (shortcuts, scripts, helpers) send its key and no cookie or
+        # Origin: no browser can forge that header across sites, and those routes take only the key.
+        custom_key = (
+            "authorization" in request.headers
+            and request.url.path.startswith("/api/v1/custom/")
+            and custom.key_route(request.url.path)
+        )
+        if origin not in trust["origins"] and not first_account and not screen_key and not custom_key:
             return refused(request, access.rejection("origin", request.headers.get("origin", "")), 403)
     try:
         response = await call_next(request)
@@ -170,9 +190,13 @@ for name in (
     "games",
     "tool_api",  # Nox's proposals: the browser takes and reports them
     "tool_code",  # Control Room → Changes
+    "custom",  # your own integrations: Capture's share buttons
 ):
     module = importlib.import_module("houseos." + name)
     app.include_router(module.router, prefix="/api/v1")
+app.include_router(custom.admin, prefix="/api/v1")  # installing them (custom_admin.py)
+custom.DISPATCH.overrides = app.dependency_overrides  # one set of overrides for the house and them
+app.mount("/api/v1/custom", custom.DISPATCH)  # their own routes, before the screens' catch-all
 app.include_router(importlib.import_module("houseos.themes").files)  # installed themes' CSS, fonts, art
 app.include_router(importlib.import_module("houseos.games").files)  # the emulator, fetched when needed
 

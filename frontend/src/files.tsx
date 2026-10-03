@@ -18,6 +18,7 @@ import {
   type Obj,
 } from "./api";
 import { go } from "./nav";
+import { ShareButtons } from "./custom_integrations";
 import { claimIncomingShare, localStore } from "./local";
 import { PeopleFilter, SortGenres } from "./music";
 import { OpenInPlayer } from "./player";
@@ -944,6 +945,8 @@ export function Capture({ offlineActor }: { offlineActor?: Obj } = {}) {
             )}
             {shown === "sent" && <Notice tone="success">{t("On its way to the TV.")}</Notice>}
             {shown && shown !== "sent" && <Notice tone="warning">{shown}</Notice>}
+            {/* Your own integrations' buttons for shared links (custom_integrations.tsx). */}
+            {text && <ShareButtons text={text} />}
           </Form>
         </Section>
         <div className="files-stack">
@@ -1460,7 +1463,8 @@ function IncomingShare({
 }) {
   const [incoming, setIncoming] = useState<Obj | null>(null),
     [error, setError] = useState(""),
-    [discarding, setDiscarding] = useState(false);
+    [discarding, setDiscarding] = useState(false),
+    [sent, setSent] = useState("");
   useEffect(() => {
     void localStore("get", "incoming:" + id)
       .then((v) => setIncoming(v || {}))
@@ -1470,7 +1474,9 @@ function IncomingShare({
   return (
     <Section title={t("Incoming share")} lead={t("On this device, not uploaded.")}>
       <Problem error={error} />
-      {!incoming ? (
+      {sent ? (
+        <Notice tone="success">{sent}</Notice>
+      ) : !incoming ? (
         <State kind="loading" title={t("Reading this device’s incoming share…")} />
       ) : !incoming.id ? (
         <Text>
@@ -1485,6 +1491,16 @@ function IncomingShare({
       ) : (
         <>
           <Text>{incoming.text}</Text>
+          {/* A shared link straight to an integration (Show on the TV…): nothing to keep after. */}
+          {!offline && incoming.text && (
+            <ShareButtons
+              text={incoming.text}
+              onSent={(message) => {
+                void localStore("delete", "incoming:" + id);
+                setSent(message);
+              }}
+            />
+          )}
           {incoming.files?.length > 0 && (
             <List label={t("Shared files")}>
               {incoming.files.map((f: File, i: number) => (
@@ -1517,7 +1533,7 @@ function IncomingShare({
           </Form>
         </>
       )}
-      {incoming?.id && (
+      {incoming?.id && !sent && (
         <div>
           <Button variant="quiet" icon="trash" onClick={() => setDiscarding(true)}>
             {t("Discard incoming share")}

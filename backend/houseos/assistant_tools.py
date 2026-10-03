@@ -1089,8 +1089,12 @@ def tool_registry(context):
         from .tool_themes import TOOLS
 
         return dict(TOOLS)
+    from . import custom
+
     catalogue = tool_catalogue()
     tools = {name: catalogue[name] for name in BUNDLES.get(context, BUNDLES["general"])}
+    if context != "setup":  # your own integrations' tools, in the bundles they chose
+        tools.update(custom.tools(context if context in BUNDLES else "general"))
     if "tv_devices" in tools:  # The TV bundle's device list is TV controls, under its usual name.
         tools = {("devices_list" if name == "tv_devices" else name): tool for name, tool in tools.items()}
     if context != "setup":  # setup mode keeps its own tools
