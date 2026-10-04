@@ -59,43 +59,6 @@ Wake on LAN to wake them:
 The power button then appears in HouseOS. Other brands that sleep the same way (some Sony and
 Philips) work the same.
 
-## Show on the TV (the computer's screen, through Moonlight)
-
-A YouTube link plays full screen on the house computer, and the TV shows that computer through
-Moonlight: your browser, your extensions, your YouTube account. One press from a phone's share
-sheet, a button on YouTube, or Nox ("show this on the TV"):
-
-1. HouseOS turns the TV on through Home Assistant (LG: Wake on LAN, above).
-2. It opens Moonlight on the TV straight on the computer's **Desktop** app. On LG webOS this uses
-   Moonlight TV's launch parameters (`host_uuid`, `host_app_id`), so nothing is pressed on the
-   TV. Other TVs get Moonlight through their input list; pick the computer there.
-3. The computer's helper waits for the stream, opens the video in a window of its own, brings it
-   to the front and puts it full screen, from where you were in it.
-
-What it needs:
-- The TV in Home Assistant, shown to HouseOS (Smart home), with **Moonlight** among its sources.
-- Sunshine on the computer (its **Desktop** app) and Moonlight paired with it once.
-- A Linux X11 desktop with a browser and `xdotool`, and someone signed in to it.
-
-Set up in **Control Room → Devices → Show on the TV**:
-- **The screen key.** Create it there (shown once). Phones, the YouTube button and the helper
-  send it; it reaches only the Show on the TV routes and acts as the administrator who made it.
-  Replacing it stops the old one everywhere.
-- **The computer:** from the HouseOS folder, as the desktop user,
-  `python3 docs/native/houseos_screen.py --setup` (asks for the address, `http://127.0.0.1:8990`
-  when HouseOS runs there, and the key; starts with the desktop from then on).
-  `--check` shows what it reports: Sunshine's host id, the Desktop app's id, whether a stream is on.
-- **iPhone, iPad:** a Shortcut in the share sheet, *Get Contents of URL*, POST to
-  `<HouseOS address>/api/v1/tv/screen/show`, header `Authorization: Bearer <key>`, JSON body
-  `{"url": Shortcut Input}`. The steps are on the Control Room card.
-- **Android:** install HouseOS from the browser, then in YouTube *Share → HouseOS → Show on the
-  TV from the computer*. For a single tap, the HTTP Shortcuts app can send the iPhone request.
-- **A computer:** the Tampermonkey script `/houseos-show-on-tv.user.js` (served by HouseOS) adds a
-  **Show on TV** button and Alt+T on YouTube; it asks for the address and the key once.
-
-Honest status: "sent" means the computer took the video; the Control Room card then shows whether
-it opened full screen. While a stream is on, the helper keeps the screen from blanking.
-
 ## Speakers on the server
 
 HouseOS plays through the computer's sound server (PipeWire or PulseAudio) when someone is logged
