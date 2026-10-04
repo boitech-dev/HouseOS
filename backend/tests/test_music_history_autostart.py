@@ -569,3 +569,34 @@ def test_worker_tolerates_briefly_busy_audio_bridge(music_domain, monkeypatch, t
     )
     worker.advance()
     assert worker.bridge_misses == 0 and q.desired == "playing"
+
+
+def test_the_house_sleep_timer_waits_for_nobody_touching_the_music(music_domain):
+    db, (alice, _, _), _ = music_domain
+    q = m.queue(db)
+    soon = utcnow() + timedelta(minutes=5)
+    q.sleep_at, q.desired = soon, "playing"
+    m.timer_by_hand(db, False)
+    db.commit()
+
+    def act(action, value=None):
+        m.control(
+            m.Control(action=action, value=value, expected_version=q.version, idempotency_key=new_id()),
+            alice,
+            db,
+        )
+        db.expire_all()
+
+    # Someone turns the volume up: the house's own timer starts over (5 h by default).
+    act("volume", 40)
+    assert q.sleep_at > utcnow() + timedelta(hours=4)
+    # A pause is not activity that keeps the music going.
+    q.sleep_at = soon
+    db.commit()
+    act("pause")
+    assert abs((q.sleep_at - soon).total_seconds()) < 2
+    # A timer set by hand ("stop in 30 minutes") stays as set, whatever happens next.
+    act("sleep", 30)
+    by_hand = q.sleep_at
+    act("volume", 50)
+    assert q.sleep_at == by_hand and m.timer_by_hand(db)

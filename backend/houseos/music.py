@@ -351,6 +351,31 @@ def start_sleep_timer(db, q):
 
         minutes = get_house_settings(db)["music_sleep_minutes"]
         q.sleep_at = utcnow() + timedelta(minutes=minutes) if minutes else None
+        timer_by_hand(db, False)
+
+
+def timer_by_hand(db, value=None):
+    """Whether the running sleep timer was set by someone ("stop in 30 minutes"); with a value,
+    records it. Kept with the house's playback settings."""
+    row = db.get(Integration, "music_playback", with_for_update=value is not None)
+    if value is None:
+        return bool((row.config or {}).get("sleep_by_hand")) if row else False
+    if row is None:
+        row = Integration(name="music_playback", config={})
+        db.add(row)
+    if bool((row.config or {}).get("sleep_by_hand")) != value:
+        row.config = {**(row.config or {}), "sleep_by_hand": value}
+
+
+def keep_awake(db, q):
+    """Someone is here (a song added, a skip, the volume…): the house's own sleep timer starts
+    over, so it stops the music only after that long with nobody touching it, never mid-session.
+    A timer someone set by hand stays as they set it."""
+    if q.sleep_at and q.sleep_at > utcnow() and not timer_by_hand(db):
+        from .house_settings import get_house_settings
+
+        minutes = get_house_settings(db)["music_sleep_minutes"]
+        q.sleep_at = utcnow() + timedelta(minutes=minutes) if minutes else None
 
 
 def activate_added(db, q, added, pending):
@@ -358,6 +383,7 @@ def activate_added(db, q, added, pending):
     The songs not started land where fair turns put them."""
     started = start_added(db, q, added, pending)
     place_fairly(db, q, added)
+    keep_awake(db, q)
     return started
 
 
@@ -921,6 +947,7 @@ def control_effect(db, actor, q, action, value):
         if value is not None and value > 1440:
             raise HTTPException(422, "Sleep timer is limited to 24 hours")
         q.sleep_at = utcnow() + timedelta(minutes=value or 0) if value else None
+        timer_by_hand(db, bool(value))
     elif action == "clear":
         q.desired, q.sleep_at = "paused", None
         for item in db.scalars(
@@ -929,6 +956,8 @@ def control_effect(db, actor, q, action, value):
             item.status = "removed"
     if action in {"play", "skip"}:
         start_sleep_timer(db, q)
+    if action not in {"pause", "clear", "sleep"}:
+        keep_awake(db, q)
     q.version += 1
     op = Operation(
         actor_id=actor.id, kind="music.control", state="accepted", data={"action": action, "value": value}
