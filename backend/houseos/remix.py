@@ -206,7 +206,7 @@ def upload_art(
         if image.format not in ("PNG", "JPEG", "WEBP", "GIF"):
             raise HTTPException(422, "A PNG, JPEG, WebP or GIF picture")
         image.load()
-    except (UnidentifiedImageError, OSError):
+    except (UnidentifiedImageError, OSError, Image.DecompressionBombError):
         raise HTTPException(422, "That file isn't a picture") from None
     image = image.convert("RGBA")
     image.thumbnail((SIDE_MAX, SIDE_MAX), Image.NEAREST if pixel else Image.LANCZOS)

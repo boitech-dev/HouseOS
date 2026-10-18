@@ -270,3 +270,78 @@ def test_a_queued_song_is_deleted_from_the_house_and_the_playing_one_plays_on(cl
         "removed",
     )
     assert c.delete(f"/api/v1/music/queue/{playing.id}/kept").status_code == 404  # already gone
+
+
+def test_a_private_events_reminder_reaches_its_author_alone(domain):
+    from datetime import timedelta
+
+    from sqlalchemy import select
+
+    from houseos.db import utcnow
+    from houseos.household import HouseholdNotification
+
+    db, (alice, bob, cara) = domain
+    start = (utcnow() + timedelta(days=10)).replace(microsecond=0)
+    end = start + timedelta(hours=1)
+    for private in (True, False):
+        household.create_record(
+            db,
+            alice,
+            "calendar",
+            household.CreateRecord(
+                data={
+                    "title": "Dentist" if private else "Dinner",
+                    "start": start.isoformat(),
+                    "end": end.isoformat(),
+                    "reminder_minutes": [10 * 24 * 60 + 5],  # due 5 minutes ago, 10 days ahead
+                    "private": private,
+                },
+                idempotency_key=new_id(),
+            ),
+        )
+    household.maintain_household(db)
+    told = db.scalars(
+        select(HouseholdNotification.user_id).where(
+            HouseholdNotification.category.in_(["reminder", "reminder_catchup"])
+        )
+    ).all()
+    people = {alice.id, bob.id, cara.id}
+    assert sorted(t for t in told if t in people) == sorted([alice.id, alice.id, bob.id, cara.id])
+
+
+def test_removing_a_repeating_task_removes_its_open_copies(domain):
+    from datetime import timedelta
+
+    from sqlalchemy import select
+
+    from houseos.household import HouseholdNotification, TaskOccurrence
+    from houseos.models import Record
+
+    db, (alice, bob, _) = domain
+    made = household.create_record(
+        db,
+        alice,
+        "tasks",
+        household.CreateRecord(
+            data={
+                "title": "Bins",
+                "recurrence": "daily",
+                "assignee_id": bob.id,
+                "due_date": household.house_today(db).isoformat(),
+            },
+            idempotency_key=new_id(),
+        ),
+    )
+    household.generate_occurrences(db, household.house_today(db) + timedelta(days=30))
+    copies = db.scalars(
+        select(TaskOccurrence.record_id).where(TaskOccurrence.template_id == made["id"])
+    ).all()
+    assert len(copies) > 20
+    told = db.scalars(select(HouseholdNotification).where(HouseholdNotification.user_id == bob.id)).all()
+    assert len(told) == 1  # told once, not once per copy
+    done = db.get(Record, copies[0])
+    done.data = {**done.data, "status": "done"}
+    db.commit()
+    household.remove("tasks", made["id"], made["version"], alice, db)
+    left = [db.get(Record, i) for i in copies]
+    assert [r.id for r in left if r.deleted_at is None] == [done.id]

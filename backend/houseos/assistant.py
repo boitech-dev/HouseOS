@@ -2347,9 +2347,13 @@ def close_turn(turn, db, completed):
     data.pop("pending_until", None)
     data.pop("progress", None)
     if not completed:
-        safe = "No household action was automatically retried. Check any operation already started before trying again."
+        safe = (
+            "Rien n’a été relancé automatiquement. Vérifie ce qui a déjà commencé avant de réessayer."
+            if turn.language == "fr"
+            else "No household action was automatically retried. Check any operation already started before trying again."
+        )
         reason = turn.failure or "This request did not complete."
-        turn.reply = reason if "automatically retried" in reason else f"{reason} {safe}"
+        turn.reply = reason if "automatically retried" in reason else f"{reason.rstrip('. ')}. {safe}"
     try:
         require_permission(refresh_actor(db, turn.actor), "assistant.use")
         may_write_reply = True

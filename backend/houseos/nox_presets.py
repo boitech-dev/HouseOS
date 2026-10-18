@@ -117,7 +117,7 @@ WORDS = {
         "tasks": "À faire :",
         "overdue": "en retard",
         "fav_done": "C'est parti pour {n} classiques de la maison 🎶",
-        "fav_empty": "Pas encore assez d'historique pour vos classiques : écoutez quelques morceaux et je m'en souviendrai 🎧",
+        "fav_empty": "Pas encore assez d'historique pour les classiques de la maison : écoute quelques morceaux et je m'en souviendrai 🎧",
     },
     "en": {
         "today": "Today",

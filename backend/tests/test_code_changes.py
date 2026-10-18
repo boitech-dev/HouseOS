@@ -571,3 +571,15 @@ def test_houseos_sh_parses_and_passes_shellcheck():
     if shutil.which("shellcheck"):
         found = subprocess.run(["shellcheck", "-S", "warning", script], capture_output=True, text=True)
         assert found.returncode == 0, found.stdout
+
+
+def test_a_request_the_house_computer_never_picked_up_fails_after_five_minutes(monkeypatch):
+    import time
+
+    from houseos import tool_code
+
+    monkeypatch.setattr(tool_code, "result", lambda request: None)
+    change = {"requests": [{"action": "apply", "id": "r", "at": time.time() - 60}]}
+    assert tool_code.state(change, False)["state"] == "working"
+    change["requests"][0]["at"] -= 600
+    assert tool_code.state(change, False)["state"] == "failed"  # Apply and Discard work again

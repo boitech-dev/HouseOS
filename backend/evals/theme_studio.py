@@ -7,8 +7,8 @@ order; whether the draft passed the checks) and then scored by a judge model on 
 Nox brainstorm across every aspect, raise the caveats the person didn't think of, keep it one
 world, and walk the person through without flooding them.
 
-    agent-secret-run houseos-providers env PYTHONPATH=backend \
-        /opt/houseos/state/venvs/app/bin/python backend/evals/theme_studio.py [name-filter]
+    (with the provider key, e.g. OPENROUTER_API_KEY, in the environment)
+    PYTHONPATH=backend .venv/bin/python backend/evals/theme_studio.py [name-filter]
 
 EVAL_MODEL (default anthropic/claude-opus-5.5, the studio's recommended model) and EVAL_JUDGE
 (default anthropic/claude-sonnet-5) pick the OpenRouter models. A full run costs a few dollars.

@@ -117,3 +117,16 @@ def test_an_unwritable_image_cache_still_serves_the_image(tmp_path, monkeypatch)
         patch("houseos.cinema.poster_jpeg", return_value=b"safe-jpeg"),
     ):
         assert cinema.cached_public_poster("https://example.com/p.jpg") == b"safe-jpeg"
+
+
+def test_a_picture_claiming_billions_of_pixels_is_refused_not_a_500():
+    import io
+
+    from PIL import Image
+
+    from houseos import cinema
+
+    out = io.BytesIO()
+    Image.new("1", (15000, 12000)).save(out, format="PNG")  # a few KB, 180 megapixels
+    with pytest.raises(ValueError):
+        cinema.poster_jpeg(out.getvalue())

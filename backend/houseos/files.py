@@ -2268,7 +2268,9 @@ async def expire_uploads(db: Session):
     rows = db.scalars(
         select(UploadReservation)
         .where(
-            UploadReservation.expires_at < utcnow(), UploadReservation.status.in_(["reserved", "uploading"])
+            UploadReservation.expires_at < utcnow(),
+            # finalizing too: a restart in the middle of it leaves it there, holding name and quota
+            UploadReservation.status.in_(["reserved", "uploading", "finalizing"]),
         )
         .limit(50)
     ).all()
@@ -2277,6 +2279,16 @@ async def expire_uploads(db: Session):
         for row in rows:
             try:
                 with upload_lock(row.id):
+                    if row.status == "finalizing" and db.get(FileEntry, row.id):
+                        row.status = "stored"  # it was stored; only this last word was lost
+                        db.commit()
+                        continue
+                    if row.status == "finalizing":  # moved into place but never recorded
+                        with subdir_fd("blobs") as blobfd:
+                            try:
+                                os.unlink(row.id, dir_fd=blobfd)
+                            except FileNotFoundError:
+                                pass
                     if row.tus_id:
                         try:
                             response = await client.delete(tus_url(row), headers=TUS_HEADERS)
@@ -2313,8 +2325,13 @@ def maintain_files(db: Session):
     removed = 0
     if policy.get("permanent_delete_enabled"):
         cutoff = now - timedelta(days=max(30, int(policy.get("trash_retention_days", 30))))
+        # Oldest first, active owners only: a removed account's files never hold up everyone else's.
         entries = db.scalars(
-            select(FileEntry).where(FileEntry.trashed_at <= cutoff, FileEntry.deleted_at.is_(None)).limit(20)
+            select(FileEntry)
+            .join(User, User.id == FileEntry.owner_id)
+            .where(FileEntry.trashed_at <= cutoff, FileEntry.deleted_at.is_(None), User.active.is_(True))
+            .order_by(FileEntry.trashed_at)
+            .limit(20)
         ).all()
         # Use the same persisted exact-scope deletion workflow as interactive confirmations.
         for entry in entries:

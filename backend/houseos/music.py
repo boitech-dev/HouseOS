@@ -679,6 +679,8 @@ def play_next(item_id: str, body: QueueVersion, actor=Depends(require_actor), db
     if not item or item.id == q.current_id or item.status not in {"ready", "pending_metadata"}:
         raise HTTPException(409, "Only a waiting song can move")
     if item.owner_id == actor.id and actor.role != "admin":
+        if item.metadata_json.get("pinned_at"):  # an admin already put it next
+            return {"status": "completed", "result": "pinned_next", "version": q.version}
         # Takes the place of your first waiting song; everyone else's songs stay where they are.
         line = waiting_line(db, q)
         first = next(row for row in line if row.owner_id == actor.id)

@@ -710,6 +710,14 @@ class Handler(socketserver.StreamRequestHandler):
                 "WEB_VIDEO_UNSUPPORTED",
                 "WEB_VIDEO_SIGN_IN",
                 "WEB_VIDEO_NOT_FOUND",
+                "RADIO_RESPONSE_TOO_LARGE",
+                "RADIO_DIRECTORY_UNAVAILABLE",
+                "RADIO_STATION_INVALID",
+                "RADIO_STREAM_UNSUPPORTED",
+                "RADIO_STATION_UNAVAILABLE",
+                "UNSUPPORTED_SOURCE",
+                "INVALID_SEARCH_LIMIT",
+                "INVALID_PLAYLIST_START",
                 "WEB_VIDEO_NOT_STREAMABLE",
             }
             code = str(exc) if isinstance(exc, ValueError) and str(exc) in known else "SOURCE_UNAVAILABLE"

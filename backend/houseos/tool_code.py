@@ -216,6 +216,15 @@ def state(change, backed_up):
         return {"state": "draft"}
     last = change["requests"][-1]
     done = result(last)
+    if not done and time.time() - last["at"] > 300:
+        # The helpers ignore a request older than 5 minutes: it will never run. Try again, or discard.
+        return {
+            "state": "applied" if backed_up else "failed",
+            "failed": True,
+            "action": last["action"],
+            "message": "The house computer never picked this up. Check that its helper runs, then try again.",
+            "log": "",
+        }
     if not done or done.get("state") == "running":
         return {
             "state": "working",

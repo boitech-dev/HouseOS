@@ -33,7 +33,14 @@ GAME_LINES = {
     "hidden": ("info", "Hid {title}"),
     "scanned": ("info", "Read the games folder {title}: {count} games"),
 }
-HOUSE_KINDS = {"groceries": "Groceries", "task": "Tasks", "event": "Calendar", "note": "Notes"}
+# The kinds household.changed names (household.KINDS).
+HOUSE_KINDS = {
+    "groceries": "Groceries",
+    "tasks": "Tasks",
+    "calendar": "Calendar",
+    "board": "Notes",
+    "messages": "Messages",
+}
 
 
 def note(text, level="info", **values):

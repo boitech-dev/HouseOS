@@ -3,6 +3,7 @@
 import os
 import shutil
 import stat
+from datetime import timedelta
 from pathlib import Path
 from typing import Literal
 
@@ -20,6 +21,7 @@ from .files import (
     media_usage,
     storage_check,
     unlink_blob,
+    ensure_unique_name,
     file_changed,
 )
 from .house_settings import get_house_settings
@@ -242,8 +244,13 @@ def reclaim(identity: str, body: Reclaim, actor=Depends(require_admin), db=Depen
                 raise HTTPException(409, "Move this file to Trash first")
             unlink_blob(row)
             row.deleted_at = row.storage_removed_at = utcnow()
+        elif body.action == "restore":  # as a person's own restore: a free name, time left
+            ensure_unique_name(db, row.owner_id, row.scope, row.parent_id, row.name, row.id)
+            row.trashed_at = None
+            if row.expires_at and row.expires_at <= utcnow():
+                row.expires_at = utcnow() + timedelta(days=7)
         else:
-            row.trashed_at = utcnow() if body.action == "trash" else None
+            row.trashed_at = utcnow()
         row.version += 1
         file_changed(db, row)
     elif body.kind == "music":

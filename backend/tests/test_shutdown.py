@@ -197,7 +197,20 @@ def test_prune_history_keeps_live_and_recent_rows(monkeypatch):
                 Job(logical_key="done", kind="k", state="done", next_run=old),
                 Job(logical_key="pending", kind="k", state="pending", next_run=old),
                 Operation(id="fin", actor_id="u", kind="k", state="completed", updated_at=old),
-                Operation(id="live", actor_id="u", kind="k", state="needs_confirmation", updated_at=old),
+                Operation(
+                    id="live",
+                    actor_id="u",
+                    kind="k",
+                    state="needs_confirmation",
+                    updated_at=old,
+                    expires_at=utcnow() + timedelta(minutes=5),
+                ),
+                Operation(
+                    id="unconfirmed", actor_id="u", kind="k", state="needs_confirmation", expires_at=old
+                ),
+                Operation(
+                    id="left", actor_id="u", kind="k", state="running", updated_at=old - timedelta(days=200)
+                ),
                 SessionToken(token_hash="gone", user_id="u", csrf_token="c", expires_at=old),
                 SessionToken(
                     token_hash="kept", user_id="u", csrf_token="c", expires_at=utcnow() + timedelta(days=1)

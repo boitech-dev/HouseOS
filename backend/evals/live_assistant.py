@@ -3,8 +3,8 @@
 Tool handlers are replaced by canned results, so no device, media, network source or
 production data is touched. Uses an in-memory database. Costs a few provider calls.
 
-    agent-secret-run houseos-providers env PYTHONPATH=backend \
-        /opt/houseos/state/venvs/app/bin/python backend/evals/live_assistant.py [name-filter]
+    (with the provider key, e.g. OPENROUTER_API_KEY, in the environment)
+    PYTHONPATH=backend .venv/bin/python backend/evals/live_assistant.py [name-filter]
 """
 
 import json

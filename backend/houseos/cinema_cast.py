@@ -176,6 +176,12 @@ def execute_cast(db, row, device, source, plan):
     config = cast_config(db)
     preflight_cast(config, source, plan)
     prepared = row.data.get("_prepared")
+    if prepared and prepared.get("path") and not prepared.get("web"):
+        from pathlib import Path
+
+        if not Path(prepared["path"]).is_file():  # a failed try's copy was cleaned up: prepare again
+            prepared = None
+            row.data = {**row.data, "_prepared": None}
     if plan.get("preparation_strategy") and not prepared:
         from .cinema import CinemaPreparation
         from .db import new_id

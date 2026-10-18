@@ -1072,6 +1072,18 @@ def remove(
     if result.rowcount != 1:
         db.rollback()
         raise HTTPException(409, "Record changed; refresh")
+    if kind == "tasks" and row.data.get("recurrence"):
+        # Its copies made ahead (about a month) go with it; done ones stay in the history.
+        db.execute(
+            update(Record)
+            .where(
+                Record.id.in_(select(TaskOccurrence.record_id).where(TaskOccurrence.template_id == row.id)),
+                Record.deleted_at.is_(None),
+                Record.data["status"].as_string() != "done",
+            )
+            .values(deleted_at=utcnow(), version=Record.version + 1)
+            .execution_options(synchronize_session=False)
+        )
     db.refresh(row)
     changed(db, actor, row)
     db.commit()
@@ -1190,8 +1202,7 @@ def generate_occurrences(db: Session, horizon: date):
                         TaskOccurrence(template_id=template.id, record_id=row.id, due_date=due.isoformat())
                     )
                     db.flush()
-                    if data.get("assignee_id"):
-                        notify(db, data["assignee_id"], row.id, "assignment", row.id)
+                    # No notice per copy: the assignee was told once, when the task was made.
                     emit(db, "household.changed", {"id": row.id, "kind": "tasks", "version": 1})
                 created += 1
             except IntegrityError:
@@ -1212,7 +1223,8 @@ def maintain_household(db: Session):
     for row in db.scalars(
         select(Record).where(Record.kind == "household.calendar", Record.deleted_at.is_(None))
     ).all():
-        for item in calendar_occurrences(row, today - timedelta(days=7), today + timedelta(days=1)):
+        # Up to a month ahead: a reminder may be set that long before its event.
+        for item in calendar_occurrences(row, today - timedelta(days=7), today + timedelta(days=31)):
             if item.get("schedule_error"):
                 continue
             if item["all_day"]:
@@ -1223,7 +1235,9 @@ def maintain_household(db: Session):
                 due = instant - timedelta(minutes=minutes)
                 if not now - timedelta(days=7) <= due <= now:
                     continue
-                for user_id in item.get("participants") or residents:
+                # Nobody invited: the house, unless the event is private (its author's alone).
+                everyone = [row.owner_id] if row.data.get("private") else residents
+                for user_id in item.get("participants") or everyone:
                     key = item["occurrence_id"] + ":reminder:" + str(minutes)
                     if not db.scalar(
                         select(HouseholdNotification.id).where(

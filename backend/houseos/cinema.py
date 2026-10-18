@@ -556,9 +556,10 @@ def collections(
 ):
     """This week's collections for the Watch home (cinema_collections.py)."""
     from . import cinema_collections
+    from .household import house_today
 
     allowed(actor)
-    return {"items": cinema_collections.this_week(kind)}
+    return {"items": cinema_collections.this_week(kind, house_today(db))}  # the house's week
 
 
 @router.get("/search")
@@ -3913,7 +3914,10 @@ def poster_jpeg(content, size=(360, 540)):
     import io
     from PIL import Image
 
-    image = Image.open(io.BytesIO(content))
+    try:
+        image = Image.open(io.BytesIO(content))
+    except Image.DecompressionBombError:  # a few bytes that claim billions of pixels
+        raise ValueError("Unsupported image") from None
     if image.format not in {"JPEG", "PNG", "WEBP", "GIF"} or image.width * image.height > 40_000_000:
         raise ValueError("Unsupported image")
     image.thumbnail(size)
@@ -4193,7 +4197,12 @@ def prepare_autoplay(db, row, actor):
         return None
     source = next(s for s in row.data["_sources"] if s["id"] == row.data["_selected_source"])
     parent = db.get(CinemaTitle, parent_id)
-    following = next_episode(parent_id, row.data["season"], row.data["episode"], actor, db)["episode"]
+    try:
+        following = next_episode(parent_id, row.data["season"], row.data["episode"], actor, db)["episode"]
+    except HTTPException:  # the series' list is unclear or unreachable: the film still ends
+        raise MediaError(
+            "AUTOPLAY_NEEDS_SELECTION", "Choose the next episode yourself.", "autoplay"
+        ) from None
     if not following:
         return None
     authorize_workflow(db, row)
@@ -4407,6 +4416,9 @@ def process_autoplay(db):
                 },
             )
         except MediaError as exc:
+            # The finished episode (or this one) gives the TV back: music and other films can use it.
+            if device and device.owner_workflow in {row.id, row.data.get("_autoplay_parent")}:
+                device.owner_workflow = None
             save_workflow(db, row, "recovery_required", {"error": exc.public()})
 
 

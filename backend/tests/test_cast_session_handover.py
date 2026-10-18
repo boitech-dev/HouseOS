@@ -26,7 +26,7 @@ def test_transport_fetches_session_before_pause(monkeypatch):
 
 
 @pytest.mark.parametrize("paused", [False, True])
-def test_load_switches_receiver_and_checks_exact_media(monkeypatch, paused):
+def test_load_switches_receiver_and_checks_exact_media(monkeypatch, paused, tmp_path):
     import hashlib
     from houseos.config import settings
     from houseos.db import new_id
@@ -51,10 +51,14 @@ def test_load_switches_receiver_and_checks_exact_media(monkeypatch, paused):
     from houseos import cinema
 
     monkeypatch.setattr(cinema, "authorize_workflow", lambda *a: None)
+    monkeypatch.setattr(settings, "runtime_root", tmp_path)
+    film = tmp_path / "cinema/test.mp4"  # the prepared copy is on disk
+    film.parent.mkdir()
+    film.touch()
     row = SimpleNamespace(
         id=new_id(),
         data={
-            "_prepared": {"path": str(settings.runtime_root / "cinema/test.mp4")},
+            "_prepared": {"path": str(film)},
             "_seek_previous": {"state": "paused"} if paused else None,
         },
     )
@@ -72,7 +76,7 @@ def test_load_switches_receiver_and_checks_exact_media(monkeypatch, paused):
     cast.disconnect.assert_called_once()
 
 
-def test_rejected_video_is_not_reported_as_loaded_subtitle_failure(monkeypatch):
+def test_rejected_video_is_not_reported_as_loaded_subtitle_failure(monkeypatch, tmp_path):
     import pytest
     from houseos.playback import MediaError
     from houseos.db import new_id
@@ -93,7 +97,8 @@ def test_rejected_video_is_not_reported_as_loaded_subtitle_failure(monkeypatch):
         cinema_cast, "integration_config", lambda *a, **k: {"receiver_base_url": "http://192.0.2.17:8991"}
     )
     monkeypatch.setattr(cinema, "authorize_workflow", lambda *a: None)
-    row = SimpleNamespace(id=new_id(), data={"_prepared": {"path": "/tmp/test.mp4"}})
+    (tmp_path / "test.mp4").touch()
+    row = SimpleNamespace(id=new_id(), data={"_prepared": {"path": str(tmp_path / "test.mp4")}})
     with pytest.raises(MediaError) as caught:
         cinema_cast.execute_cast(
             SimpleNamespace(add=Mock(), commit=Mock()),
@@ -174,3 +179,19 @@ def test_observing_home_screen_never_launches_cast():
     assert status.media_session_id is None and status.player_state == "IDLE"
     controller.update_status.assert_not_called()
     controller.send_message_nocheck.assert_not_called()
+
+
+def test_a_prepared_copy_that_was_cleaned_up_is_prepared_again(monkeypatch):
+    from unittest.mock import Mock
+
+    from houseos.db import new_id
+
+    monkeypatch.setattr(cinema_cast, "preflight_cast", lambda *a: None)
+    monkeypatch.setattr(cinema_cast, "cast_config", lambda db: {})
+    row = SimpleNamespace(
+        id=new_id(), owner_id="u", version=3, data={"_prepared": {"path": "/nowhere/gone.m3u8"}}
+    )
+    db = SimpleNamespace(add=Mock(), commit=Mock())
+    plan = {"preparation_strategy": "progressive"}
+    assert cinema_cast.execute_cast(db, row, SimpleNamespace(), {}, plan) is False  # queued again
+    assert row.data["_prepared"] is None and db.add.call_args[0][0].state == "queued"

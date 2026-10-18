@@ -276,7 +276,7 @@ def cinema_recommend(body, actor, db):
         )
     return {
         "status": "shown",
-        "shown": [t["title"] + (" (" + t["year"] + ")" if t.get("year") else "") for t in shown],
+        "shown": [f"{t['title']} ({t['year']})" if t.get("year") else t["title"] for t in shown],
         "not_found": missing,
         "card": {"kind": "titles", "domain": "cinema", "status": "completed", "items": shown},
     }

@@ -35,7 +35,8 @@ def prune(db, table, key, condition, batch=2000):
 
 def prune_history(db):
     """Hourly retention: live-update events 14 days, audit events 180 days, finished jobs
-    30 days, finished operations 90 days, expired sessions and stale login throttles 1 day."""
+    30 days, finished operations 90 days (unconfirmed ones a day after they expire, any a year
+    on), expired sessions and stale login throttles 1 day."""
     global last_prune
     if time.monotonic() - last_prune < 3600:
         return
@@ -50,6 +51,15 @@ def prune_history(db):
         Operation,
         Operation.id,
         Operation.state.not_in(LIVE_OPERATION_STATES) & (Operation.updated_at < now - timedelta(days=90)),
+    )
+    # A card nobody confirmed, a day past its expiry; and anything a year old, left open by a
+    # restart: neither can still finish.
+    prune(
+        db,
+        Operation,
+        Operation.id,
+        ((Operation.state == "needs_confirmation") & (Operation.expires_at < now - timedelta(days=1)))
+        | (Operation.updated_at < now - timedelta(days=365)),
     )
     prune(db, SessionToken, SessionToken.token_hash, SessionToken.expires_at < now - timedelta(days=1))
     prune(db, LoginAttempt, LoginAttempt.key, LoginAttempt.window_at < now - timedelta(days=1))

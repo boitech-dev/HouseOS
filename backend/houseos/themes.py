@@ -144,8 +144,12 @@ def import_pack(file: UploadFile = File(...), actor: Actor = Depends(require_act
         was = t.read(root() / theme_id / "theme.json").get("version") if previous else None
         try:
             theme_id, results = kit_pack.unpack(data, root(), theme_id)
-        except (t.ThemeError, KeyError, ValueError, TypeError, AttributeError) as error:
+        except t.ThemeError as error:
             raise HTTPException(422, f"Not a usable theme pack: {error}"[:300]) from None
+        except (KeyError, ValueError, TypeError, AttributeError):  # a part is missing or malformed
+            raise HTTPException(
+                422, "Not a usable theme pack: a part of it is missing or malformed"
+            ) from None
         keep(actor, theme_id, results, previous)
         emit(db, "themes.changed", {"id": theme_id}, user_id=actor.id)
         db.commit()
