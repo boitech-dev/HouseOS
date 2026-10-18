@@ -64,6 +64,8 @@ Key = Literal[REMOTE_KEYS + ("INPUT", "VOLUME_SET")]  # VOLUME_SET: an exact lev
 NAVIGATION = {"DPAD_UP", "DPAD_DOWN", "DPAD_LEFT", "DPAD_RIGHT", "DPAD_CENTER", "BACK", "HOME"}
 REMOTE_PORT = 6466
 STEP = 5  # volume step (percent) over Cast and DLNA
+# Home Assistant's states for a TV that is not on: Power turns it on ("unknown": just restarted).
+ASLEEP = {"off", "standby", "unknown"}
 PROBE_SECONDS = 10
 
 LOCK = threading.Lock()
@@ -316,7 +318,8 @@ def ha_buttons(db, device):
     if cached and time.monotonic() - cached[0] < BUTTONS_SECONDS:
         return cached[1]
     found = find_buttons(db, device)
-    BUTTONS[device.id] = (time.monotonic(), found)
+    if found:  # none (the TV is off, its buttons unavailable): ask again next time
+        BUTTONS[device.id] = (time.monotonic(), found)
     return found
 
 
@@ -378,6 +381,7 @@ def capabilities(adapter, paired, pairable):
     cast, dlna = adapter == "cast", adapter == "dlna"
     return {
         "dpad": paired,
+        "keys": sorted(NAVIGATION) if paired else [],
         "volume": paired or cast or dlna,
         "volume_level": cast or dlna,  # an exact level: a slider, not steps
         "mute": paired or cast or dlna,
@@ -394,6 +398,7 @@ def tv_capabilities(ha):
     features = ha.get("features") or 0
     return {
         "dpad": bool(ha.get("buttons")),
+        "keys": sorted(ha.get("buttons") or ()),  # some TVs have arrows and OK, no back or home
         "volume": bool(features & (VOLUME_SET | VOLUME_STEP)),
         # A soundbar plays the sound: the TV's own level changes nothing heard, only steps do.
         "volume_level": bool(features & VOLUME_SET) and not ha.get("external_speakers"),
@@ -408,7 +413,7 @@ def tv_capabilities(ha):
 
 def supports(caps, key):
     if key in NAVIGATION:
-        return caps["dpad"]
+        return caps["dpad"] and key in caps.get("keys", NAVIGATION)
     return {
         "VOLUME_UP": caps["volume"],
         "VOLUME_DOWN": caps["volume"],
@@ -452,7 +457,7 @@ def describe(db, devices):
                         "reachable": ha.get("state") not in {"unavailable", None},
                         "on": None
                         if ha.get("state") in {"unavailable", "unknown", None}
-                        else ha["state"] != "off",
+                        else ha["state"] not in ASLEEP,
                         "input": ha.get("input"),
                         "volume": round(level * 100) if isinstance(level, (int, float)) else None,
                         "muted": ha.get("muted"),
@@ -494,7 +499,8 @@ def dlna_volume(device, key):
     where = dlna.target(device)
     if key == "VOLUME_MUTE":
         muted = dlna.soap(where, dlna.RC, "GetMute", InstanceID=0, Channel="Master").get("CurrentMute")
-        dlna.soap(where, dlna.RC, "SetMute", InstanceID=0, Channel="Master", DesiredMute=int(muted != "1"))
+        on = str(muted).strip().lower() in {"1", "true", "yes"}  # UPnP booleans come both ways
+        dlna.soap(where, dlna.RC, "SetMute", InstanceID=0, Channel="Master", DesiredMute=int(not on))
         return
     level = int(
         dlna.soap(where, dlna.RC, "GetVolume", InstanceID=0, Channel="Master").get("CurrentVolume") or 0
@@ -524,11 +530,11 @@ def press_tv(db, device, key, value=None, times=1):
             raise MediaError("TV_INPUT_UNKNOWN", "Choose one of the inputs this TV reports.", "control")
         ha_service(db, device, "select_source", {"source": value})
     elif key == "POWER":
-        ha_service(db, device, "turn_on" if ha.get("state") == "off" else "turn_off", {})
+        ha_service(db, device, "turn_on" if ha.get("state") in ASLEEP else "turn_off", {})
     elif key == "VOLUME_SET":
         ha_service(db, device, "volume_set", {"volume_level": round(exact_volume(value) / 100, 2)})
     elif key in NAVIGATION:
-        ha_button(db, device, ha["buttons"][key], times)
+        ha_button(db, device, ha["buttons"][key], times)  # supports() checked it is there
     elif key == "VOLUME_MUTE":
         ha_service(db, device, "volume_mute", {"is_volume_muted": not ha.get("muted")})
     elif (ha.get("features") or 0) & VOLUME_STEP:
@@ -546,7 +552,7 @@ def film_input(device, ha):
     named after it (Chromecast, Google TV, Cast), else None."""
     inputs = (ha or {}).get("inputs") or []
     chosen = (device.capabilities or {}).get("tv_input")
-    if chosen in inputs:
+    if chosen and (chosen in inputs or not inputs):  # a TV just on may not list its inputs yet
         return chosen
     if chosen == "":  # "never switch"
         return None
@@ -564,7 +570,7 @@ def wake_for_film(db, device):
     if ha.get("state") in {"unavailable", "unknown", None}:
         return []
     done = []
-    if ha.get("state") == "off":
+    if ha.get("state") in ASLEEP:
         ha_service(db, device, "turn_on", {})
         done.append("turned on")
         deadline = time.monotonic() + 8  # the TV lists its inputs again once it is up
@@ -574,7 +580,7 @@ def wake_for_film(db, device):
                 ha = cinema_tv.tv_observation(db, device)
             except Exception:
                 continue
-            if ha.get("state") not in {"off", "unavailable"}:
+            if ha.get("state") not in {"off", "unavailable"} and ha.get("inputs"):
                 break
     target = film_input(device, ha)
     if target and ha.get("input") != target:
@@ -592,6 +598,17 @@ def exact_volume(value):
 
 def press(db, device, key, value=None, times=1, target="device"):
     """Send one allowlisted key the best way this target supports. Returns how it was sent."""
+    try:
+        return _press(db, device, key, value, times, target)
+    finally:
+        # After as well as before: a list read while the key was on its way kept the old state.
+        PROBES.pop(device.id, None)
+        LISTED.clear()
+        if key == "POWER":
+            BUTTONS.pop(device.id, None)
+
+
+def _press(db, device, key, value, times, target):
     PROBES.pop(device.id, None)
     LISTED.clear()
     if target == "tv":

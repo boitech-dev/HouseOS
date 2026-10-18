@@ -156,6 +156,12 @@ function Remote({ tv, onChanged }: { tv: Obj; onChanged: () => Promise<unknown> 
     [pairing, setPairing] = useState(false),
     [picked, setPicked] = useState("");
   useEffect(() => setPicked(""), [state.input]);
+  // The TV may accept the switch and stay where it was: after a moment, show where it really is.
+  useEffect(() => {
+    if (!picked) return;
+    const settle = setTimeout(() => setPicked(""), 6000);
+    return () => clearTimeout(settle);
+  }, [picked]);
   // Presses go out in order, never blocking the next tap.
   const queue = useRef<Promise<unknown>>(Promise.resolve());
   const refresh = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -203,9 +209,11 @@ function Remote({ tv, onChanged }: { tv: Obj; onChanged: () => Promise<unknown> 
       }
     });
   };
+  // Arrows, OK, back and home: the ones this TV really has (some have no back or home).
+  const navigable = (key: string) => can.dpad && (!can.keys || can.keys.includes(key));
   const has = (key: string) =>
     key.startsWith("DPAD_") || key === "BACK"
-      ? can.dpad
+      ? navigable(key)
       : key.startsWith("VOLUME_")
         ? can.volume
         : false;
@@ -242,6 +250,8 @@ function Remote({ tv, onChanged }: { tv: Obj; onChanged: () => Promise<unknown> 
     />
   );
   const play = can.playback && key("MEDIA_PLAY_PAUSE", "play", "is-play");
+  // An exact level once the TV reports one; until then (it just woke) the − and + steps.
+  const slider = can.volume_level && typeof state.volume === "number";
   const status =
     state.reachable === false
       ? t("Not reachable")
@@ -312,9 +322,9 @@ function Remote({ tv, onChanged }: { tv: Obj; onChanged: () => Promise<unknown> 
       </div>
       {can.dpad && (
         <div className="tv-remote__pad" role="group" aria-label={t("Arrows and OK")}>
-          {key("BACK", "undo", "is-back")}
+          {navigable("BACK") && key("BACK", "undo", "is-back")}
           {key("DPAD_UP", "chevron-up", "is-up")}
-          {key("HOME", "home", "is-home")}
+          {navigable("HOME") && key("HOME", "home", "is-home")}
           {key("DPAD_LEFT", "chevron-left", "is-left")}
           <Button
             variant="primary"
@@ -334,7 +344,7 @@ function Remote({ tv, onChanged }: { tv: Obj; onChanged: () => Promise<unknown> 
       <div className="tv-remote__rest">
         {/* The number follows the handle while dragging; an unknown level (the TV just
             woke) shows no slider rather than a false 0. */}
-        {can.volume_level && typeof state.volume === "number" && (
+        {slider && (
           <div className="tv-remote__volume">
             <Slider
               label={t("Volume")}
@@ -344,9 +354,9 @@ function Remote({ tv, onChanged }: { tv: Obj; onChanged: () => Promise<unknown> 
             />
           </div>
         )}
-        {((can.volume && !can.volume_level) || (!can.dpad && (mute || play))) && (
+        {((can.volume && !slider) || (!can.dpad && (mute || play))) && (
           <div className="tv-remote__row">
-            {can.volume && !can.volume_level && (
+            {can.volume && !slider && (
               <div className="tv-remote__rocker" role="group" aria-label={t("Volume")}>
                 {key("VOLUME_DOWN", "minus")}
                 <span className="tv-remote__level" aria-hidden="true">

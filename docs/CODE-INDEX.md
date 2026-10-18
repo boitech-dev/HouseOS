@@ -3650,68 +3650,69 @@ accepted it, never leaves the server and no endpoint returns it.
 Connections live in the api process: one asyncio loop thread, one connection per paired TV,
 kept up by the library's own reconnect loop.
 
-- [`unreachable()`](../backend/houseos/tv_remote.py#L84)
-- [`unpaired()`](../backend/houseos/tv_remote.py#L90)
-- [`unsupported()`](../backend/houseos/tv_remote.py#L96)
-- [`allowed(actor)`](../backend/houseos/tv_remote.py#L100)
+- [`unreachable()`](../backend/houseos/tv_remote.py#L86)
+- [`unpaired()`](../backend/houseos/tv_remote.py#L92)
+- [`unsupported()`](../backend/houseos/tv_remote.py#L98)
+- [`allowed(actor)`](../backend/houseos/tv_remote.py#L102)
   The Smart home permission, or the Cinema one that already covers the TV.
-- [`folder()`](../backend/houseos/tv_remote.py#L107)
-- [`paired_ids()`](../backend/houseos/tv_remote.py#L114)
-- [`set_paired(device_id, paired)`](../backend/houseos/tv_remote.py#L121)
-- [`run(coroutine, timeout)`](../backend/houseos/tv_remote.py#L129)
+- [`folder()`](../backend/houseos/tv_remote.py#L109)
+- [`paired_ids()`](../backend/houseos/tv_remote.py#L116)
+- [`set_paired(device_id, paired)`](../backend/houseos/tv_remote.py#L123)
+- [`run(coroutine, timeout)`](../backend/houseos/tv_remote.py#L131)
   Run a coroutine on the remote loop, at most `timeout` seconds; library errors become sentences.
-- [`client(address)`](../backend/houseos/tv_remote.py#L152)
-- [`forget(device_id)`](../backend/houseos/tv_remote.py#L165)
-- [`connected(device_id, address)`](../backend/houseos/tv_remote.py#L172)
+- [`client(address)`](../backend/houseos/tv_remote.py#L154)
+- [`forget(device_id)`](../backend/houseos/tv_remote.py#L167)
+- [`connected(device_id, address)`](../backend/houseos/tv_remote.py#L174)
   The live connection to a paired TV, (re)connecting when it is down.
-- [`send_keys(device_id, address, key, times)`](../backend/houseos/tv_remote.py#L194)
-- [`remote_state(device_id, address)`](../backend/houseos/tv_remote.py#L200)
-- [`start_pairing(device_id, address)`](../backend/houseos/tv_remote.py#L211)
-- [`finish_pairing(device_id, code)`](../backend/houseos/tv_remote.py#L220)
-- [`port_open(address, port, timeout=0.8)`](../backend/houseos/tv_remote.py#L237)
-- [`cast_state(address)`](../backend/houseos/tv_remote.py#L245)
-- [`probe(device_id, adapter, address, paired)`](../backend/houseos/tv_remote.py#L268)
+- [`send_keys(device_id, address, key, times)`](../backend/houseos/tv_remote.py#L196)
+- [`remote_state(device_id, address)`](../backend/houseos/tv_remote.py#L202)
+- [`start_pairing(device_id, address)`](../backend/houseos/tv_remote.py#L213)
+- [`finish_pairing(device_id, code)`](../backend/houseos/tv_remote.py#L222)
+- [`port_open(address, port, timeout=0.8)`](../backend/houseos/tv_remote.py#L239)
+- [`cast_state(address)`](../backend/houseos/tv_remote.py#L247)
+- [`probe(device_id, adapter, address, paired)`](../backend/houseos/tv_remote.py#L270)
   Network look at one TV (no database): reachability, pairability and cheap state.
-- [`ha_buttons(db, device)`](../backend/houseos/tv_remote.py#L311)
+- [`ha_buttons(db, device)`](../backend/houseos/tv_remote.py#L313)
   {key: (service path, data)} for the mapped TV's arrows, OK, back and home in Home
-- [`find_buttons(db, device)`](../backend/houseos/tv_remote.py#L323)
-- [`home_assistant(db, device)`](../backend/houseos/tv_remote.py#L355)
+- [`find_buttons(db, device)`](../backend/houseos/tv_remote.py#L326)
+- [`home_assistant(db, device)`](../backend/houseos/tv_remote.py#L358)
   The Home Assistant TV mapped to this device, or None.
-- [`capabilities(adapter, paired, pairable)`](../backend/houseos/tv_remote.py#L376)
+- [`capabilities(adapter, paired, pairable)`](../backend/houseos/tv_remote.py#L379)
   The cast/DLNA device's own remote.
-- [`tv_capabilities(ha)`](../backend/houseos/tv_remote.py#L392)
+- [`tv_capabilities(ha)`](../backend/houseos/tv_remote.py#L396)
   The TV itself, through Home Assistant.
-- [`supports(caps, key)`](../backend/houseos/tv_remote.py#L409)
-- [`tvs(db)`](../backend/houseos/tv_remote.py#L423)
+- [`supports(caps, key)`](../backend/houseos/tv_remote.py#L414)
+- [`tvs(db)`](../backend/houseos/tv_remote.py#L428)
   Devices shown as TVs: Cast and DLNA screens, not speakers or speaker groups.
-- [`describe(db, devices)`](../backend/houseos/tv_remote.py#L429)
-- [`ha_service(db, device, service, payload)`](../backend/houseos/tv_remote.py#L479)
-- [`dlna_volume(device, key)`](../backend/houseos/tv_remote.py#L491)
-- [`ha_button(db, device, press, times)`](../backend/houseos/tv_remote.py#L506)
-- [`press_tv(db, device, key, value=None, times=1)`](../backend/houseos/tv_remote.py#L513)
+- [`describe(db, devices)`](../backend/houseos/tv_remote.py#L434)
+- [`ha_service(db, device, service, payload)`](../backend/houseos/tv_remote.py#L484)
+- [`dlna_volume(device, key)`](../backend/houseos/tv_remote.py#L496)
+- [`ha_button(db, device, press, times)`](../backend/houseos/tv_remote.py#L512)
+- [`press_tv(db, device, key, value=None, times=1)`](../backend/houseos/tv_remote.py#L519)
   A key for the TV itself, through Home Assistant.
-- [`film_input(device, ha)`](../backend/houseos/tv_remote.py#L544)
+- [`film_input(device, ha)`](../backend/houseos/tv_remote.py#L550)
   The TV input this cast device is plugged into: the one a resident chose, else an input
-- [`wake_for_film(db, device)`](../backend/houseos/tv_remote.py#L557)
+- [`wake_for_film(db, device)`](../backend/houseos/tv_remote.py#L563)
   Before a film is cast: turn the mapped TV on and put it on the cast device's input. Best
-- [`exact_volume(value)`](../backend/houseos/tv_remote.py#L586)
+- [`exact_volume(value)`](../backend/houseos/tv_remote.py#L592)
   A volume level from a slider: a whole percent, 0–100, or refused.
-- [`press(db, device, key, value=None, times=1, target='device')`](../backend/houseos/tv_remote.py#L593)
+- [`press(db, device, key, value=None, times=1, target='device')`](../backend/houseos/tv_remote.py#L599)
   Send one allowlisted key the best way this target supports. Returns how it was sent.
-- [`device_or_404(db, device_id)`](../backend/houseos/tv_remote.py#L637)
-- [`call(function, *args)`](../backend/houseos/tv_remote.py#L644)
-- [`class Press`](../backend/houseos/tv_remote.py#L651)
-- [`class FilmInput`](../backend/houseos/tv_remote.py#L658)
-- [`class PairCode`](../backend/houseos/tv_remote.py#L666)
-- [`list_tvs(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/tv_remote.py#L671)
+- [`_press(db, device, key, value, times, target)`](../backend/houseos/tv_remote.py#L611)
+- [`device_or_404(db, device_id)`](../backend/houseos/tv_remote.py#L654)
+- [`call(function, *args)`](../backend/houseos/tv_remote.py#L661)
+- [`class Press`](../backend/houseos/tv_remote.py#L668)
+- [`class FilmInput`](../backend/houseos/tv_remote.py#L675)
+- [`class PairCode`](../backend/houseos/tv_remote.py#L683)
+- [`list_tvs(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/tv_remote.py#L688)
   HTTP: `router.get('')`
-- [`press_key(device_id: str, body: Press, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/tv_remote.py#L682)
+- [`press_key(device_id: str, body: Press, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/tv_remote.py#L699)
   HTTP: `router.post('/{device_id}/remote')`
-- [`pair(device_id: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/tv_remote.py#L691)
+- [`pair(device_id: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/tv_remote.py#L708)
   HTTP: `router.post('/{device_id}/remote/pair')`
-- [`pair_finish(device_id: str, body: PairCode, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/tv_remote.py#L699)
+- [`pair_finish(device_id: str, body: PairCode, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/tv_remote.py#L716)
   HTTP: `router.post('/{device_id}/remote/pair/finish')`
-- [`set_film_input(device_id: str, body: FilmInput, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/tv_remote.py#L710)
+- [`set_film_input(device_id: str, body: FilmInput, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/tv_remote.py#L727)
   The TV input a film switches to on this screen (HDMI 2 when the Chromecast is there).
   HTTP: `router.put('/{device_id}/film-input')`
 

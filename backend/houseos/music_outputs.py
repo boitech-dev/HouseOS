@@ -419,9 +419,9 @@ def step(db, now):
         control(address, "pause" if paused else "resume", 0)
     if volume is not None and volume != FOLLOW.get("volume"):
         # Moved from the device's own level, never jumped to the house's: a TV at 15 goes to
-        # 20 when the house slider moves up 5, not to 90.
-        if FOLLOW.get("level") is None:
-            FOLLOW["level"] = device_volume(adapter, address)
+        # 20 when the house slider moves up 5, not to 90. Read each time: its own remote (or
+        # HouseOS's) may have changed it since.
+        FOLLOW["level"] = device_volume(adapter, address)
         if FOLLOW["level"] is not None and FOLLOW.get("volume") is not None:
             FOLLOW["level"] = max(0, min(100, FOLLOW["level"] + volume - FOLLOW["volume"]))
             control(address, "volume", FOLLOW["level"])

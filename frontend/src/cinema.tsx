@@ -649,28 +649,29 @@ export function CinemaTransport({
         </form>
       )}
       <CinemaStop current={current} onChanged={onChanged} />
-      {tv
-        ? // Unknown for a moment (the TV just woke): no slider rather than a false 0.
-          tvLevel !== null && (
-            <Slider
-              label={t("TV volume")}
-              icon="volume"
-              value={tvLevel}
-              format={(v) => String(v)}
-              onCommit={(value) => void tvVolume(value)}
-            />
-          )
-        : current.volume_supported && (
-            <Slider
-              label={t("Movie volume")}
-              icon="volume"
-              value={current.volume ?? 30}
-              // The cap applies to raising it; a receiver already above shows where it really is.
-              max={Math.max(75, current.volume ?? 0)}
-              format={(v) => String(v)}
-              onCommit={(value) => void send("volume", Math.min(75, value))}
-            />
-          )}
+      {/* The TV's own volume when it reports one; unknown for a moment (it just woke), the
+          receiver's instead of nothing. */}
+      {tv && tvLevel !== null ? (
+        <Slider
+          label={t("TV volume")}
+          icon="volume"
+          value={tvLevel}
+          format={(v) => String(v)}
+          onCommit={(value) => void tvVolume(value)}
+        />
+      ) : (
+        current.volume_supported && (
+          <Slider
+            label={t("Movie volume")}
+            icon="volume"
+            // The house sets 75 at most here: a handle past it would only spring back.
+            value={Math.min(75, current.volume ?? 30)}
+            max={75}
+            format={(v) => String(v)}
+            onCommit={(value) => void send("volume", value)}
+          />
+        )
+      )}
       <Problem error={error} />
     </div>
   );

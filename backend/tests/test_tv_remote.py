@@ -160,6 +160,7 @@ def test_capabilities_cast_only_dlna_and_speakers_left_out(house):
     living, bedroom, kitchen = items["Living room TV"], items["Bedroom Chromecast"], items["Kitchen TV"]
     assert living["capabilities"] == {
         "dpad": False,
+        "keys": [],
         "volume": True,
         "volume_level": True,
         "mute": True,
@@ -498,3 +499,38 @@ def test_turning_a_paired_chromecast_on_brings_its_tv_up_on_its_input(house, mon
     sent = tv_remote.press_key(living.id, tv_remote.Press(key="POWER"), admin, db)
     assert woken == [living.id] and sent["tv"] == ["turned on"]
     assert FakeRemote.tv["keys"][-2:] == [("192.0.2.19", "POWER")] * 2
+
+
+def test_power_turns_a_tv_in_standby_on_and_missing_keys_are_not_offered(house, monkeypatch):
+    db, admin, devices, _ = house
+    living = devices["Living room TV"]
+    sent = []
+    arrows = {
+        k: ("/api/services/button/press", {"entity_id": "button.tv_" + k.lower()})
+        for k in ("DPAD_UP", "DPAD_DOWN", "DPAD_LEFT", "DPAD_RIGHT", "DPAD_CENTER")
+    }
+    for state in ("standby", "unknown", "on"):
+        ha = {"state": state, "features": 0, "inputs": ["HDMI1"], "buttons": arrows}
+        monkeypatch.setattr(tv_remote, "home_assistant", lambda db, device, ha=ha: ha)
+        monkeypatch.setattr(
+            tv_remote, "ha_service", lambda db, device, service, payload: sent.append(service)
+        )
+        tv_remote.press(db, living, "POWER", target="tv")
+    assert sent == ["turn_on", "turn_on", "turn_off"]
+    caps = tv_remote.tv_capabilities(ha)
+    assert caps["keys"] == sorted(arrows) and not tv_remote.supports(caps, "BACK")
+    from houseos.playback import MediaError
+
+    with pytest.raises(MediaError) as missing:  # a sentence, not a server error
+        tv_remote.press(db, living, "HOME", target="tv")
+    assert missing.value.code == "TV_KEY_UNSUPPORTED"
+
+
+def test_a_tv_whose_buttons_are_unavailable_is_asked_again(house, monkeypatch):
+    db, _, devices, _ = house
+    living = devices["Living room TV"]
+    answers = iter([{}, {"DPAD_UP": ("p", {})}])
+    monkeypatch.setattr(tv_remote, "find_buttons", lambda db, device: next(answers))
+    tv_remote.BUTTONS.clear()
+    assert tv_remote.ha_buttons(db, living) == {}  # the TV is off
+    assert tv_remote.ha_buttons(db, living) == {"DPAD_UP": ("p", {})}  # on: its arrows at once
