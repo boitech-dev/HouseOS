@@ -63,7 +63,9 @@ def timer_options(identity: str, actor: Actor = Depends(require_actor), db: Sess
 def set_timer(
     identity: str, body: SleepTimer, actor: Actor = Depends(require_actor), db: Session = Depends(get_db)
 ):
-    row = own_workflow(db, actor, identity, body.version)
+    # No version check: the receiver's reports move it on every few seconds, so the one on the
+    # screen is always a little old; a timer only needs the film still to be playing.
+    row = own_workflow(db, actor, identity)
     if body.minutes == 0:
         return save_workflow(db, row, row.state, {"sleep_timer": None})
     device = db.get(CinemaDevice, row.device_id) if row.device_id else None

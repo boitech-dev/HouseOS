@@ -255,7 +255,11 @@ def execute_cast(db, row, device, source, plan):
         expires_at=utcnow() + timedelta(seconds=max(3600, int(plan.get("duration") or 0) + 3600)),
     )
     db.add(relay)
-    row.data = {**row.data, "plan": {**plan, "expected_item": hashlib.sha256(relay_url.encode()).hexdigest()}}
+    item = hashlib.sha256(relay_url.encode()).hexdigest()
+    row.data = {**row.data, "plan": {**plan, "expected_item": item}}
+    if row.data.get("_seek_previous") and row.data.get("sleep_timer"):
+        # The same film loaded again for a seek: its sleep timer follows it.
+        row.data = {**row.data, "sleep_timer": {**row.data["sleep_timer"], "expected_item": item}}
     db.commit()
     # Only when a film starts: not on a seek (re-cast of the same film) nor on autoplay's next
     # episode (a TV someone switched off stays off).

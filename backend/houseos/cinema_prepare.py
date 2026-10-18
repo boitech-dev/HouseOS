@@ -116,7 +116,10 @@ def process_one_preparation(db):
                     db,
                     row,
                     "command_sent",
-                    {"observation": {"state": "command_sent", "physical_verification": "unverified"}},
+                    {
+                        "observation": {"state": "command_sent", "physical_verification": "unverified"},
+                        "_seek_previous": None,  # this seek is done: the next one may go
+                    },
                 )
                 return True
             from .cinema_progressive import start
@@ -319,8 +322,14 @@ def process_one_preparation(db):
             restored = False
             if previous:
                 try:
-                    current = cinema.inspect_destination(db, db.get(CinemaDevice, row.device_id))
+                    screen = db.get(CinemaDevice, row.device_id)
+                    current = cinema.inspect_destination(db, screen)
                     if current.get("item_id") == previous["plan"].get("expected_item"):
+                        # The seek paused it to wait: it plays on where it was.
+                        if previous.get("state") != "paused" and screen.adapter == "cast":
+                            from .cinema_cast import cast_control
+
+                            cast_control(screen.address, "resume", None)
                         save_workflow(
                             db,
                             row,

@@ -1307,7 +1307,8 @@ def current_playback(actor: Actor = Depends(require_actor), db: Session = Depend
                 "progress": download.get("bytes") / download["total"]
                 if download.get("total") and download.get("bytes")
                 else None,
-                "checkpoint": {},
+                # Where it starts (or where a seek goes): the bar shows that, not 0.
+                "checkpoint": {"position": (row.data.get("plan") or {}).get("position") or 0},
                 "observation": {},
                 "duration": (row.data.get("plan") or {}).get("duration"),
                 "can_seek": False,
@@ -1316,6 +1317,14 @@ def current_playback(actor: Actor = Depends(require_actor), db: Session = Depend
             }
         }
     return {"current": None}
+
+
+def watched_now(data, plan, position, duration):
+    """Watched once it reaches 95 %. Seen before and started again from earlier on, it is not,
+    until it gets there again: stopped halfway, it offers to resume."""
+    if duration > 0 and position / duration >= 0.95:
+        return True
+    return bool(data.get("watched")) and float(plan.get("position") or 0) >= 0.92 * duration
 
 
 def watched_through(data):
@@ -1918,7 +1927,13 @@ def prepare_plan(db, row, source):
         plan["warnings"].append(
             "This is a different release. Playback starts at the beginning; seek after verifying that its timeline matches."
         )
-    if not resume and state and state.data.get("release_key") == release_key:
+    # A film watched to the end starts again from the beginning, not at its credits.
+    if (
+        not resume
+        and state
+        and state.data.get("release_key") == release_key
+        and not watched_through(state.data)
+    ):
         resume = state.data.get("position", 0)
     if not checkpoint and row.data.get("_requested_position") is not None:
         resume = row.data["_requested_position"]
@@ -2447,24 +2462,14 @@ def observe(
         ):
             # It played: a buffering moment mid-film (the network, the stream catching up) is
             # normal, never a failure; giving up here stopped following a film still on the TV.
-            return save_workflow(
-                db,
-                row,
-                row.state,
-                {"observation": {**observation, "physical_verification": "unverified"}, "error": None},
-            )
+            return save_workflow(db, row, row.state, still_buffering(row, observation))
         elif (
             (row.data.get("_prepared") or {}).get("streaming")
             and observation.get("item_id") == expected
             and observation.get("state") == "buffering"
             and row.data.get("_observation_deadline", "") > utcnow().isoformat()
         ):
-            return save_workflow(
-                db,
-                row,
-                "command_sent",
-                {"observation": {**observation, "physical_verification": "unverified"}, "error": None},
-            )
+            return save_workflow(db, row, "command_sent", still_buffering(row, observation))
         elif observation.get("item_id") != expected or observation.get("state") not in {"active", "paused"}:
             raise MediaError(
                 "PLAYBACK_NOT_OBSERVED", "The receiver has not confirmed active playback.", "verify", True
@@ -2553,7 +2558,7 @@ def observe(
             "duration": duration,
             "release": row.data["_selected_source"],
             "release_key": plan.get("release_key"),
-            "watched": state.data.get("watched", False) or (duration > 0 and position / duration >= 0.95),
+            "watched": watched_now(state.data, plan, position, duration),
             "season": row.data.get("season"),
             "episode": row.data.get("episode"),
         }
@@ -2597,7 +2602,12 @@ def observe(
                 row,
                 "command_sent",
                 {
-                    "observation": {"state": "awaiting_observation", "physical_verification": "unverified"},
+                    # A seek or pause on its way: what was known of the film stays (the bar keeps it).
+                    "observation": {
+                        **(row.data.get("observation") or {}),
+                        "state": "awaiting_observation",
+                        "physical_verification": "unverified",
+                    },
                     "error": None,
                 },
             )
@@ -2779,6 +2789,7 @@ def control(
         raise HTTPException(
             409, "The requested position is buffering. Wait for this seek to finish before seeking again."
         )
+    seek_to = body.position  # where the film is asked to be (a stream's own time differs)
     if body.action == "seek" and (row.data.get("_prepared") or {}).get("streaming"):
         prepared = row.data["_prepared"]
         offset = float(prepared.get("position_offset", 0))
@@ -2918,6 +2929,17 @@ def control(
         {
             "_observation_deadline": (utcnow() + timedelta(seconds=45)).isoformat(),
             "error": None,
+            **(
+                {
+                    "checkpoint": {
+                        **(row.data.get("checkpoint") or {}),
+                        "position": seek_to,
+                        "at": utcnow().isoformat(),
+                    }
+                }
+                if body.action == "seek" and seek_to is not None
+                else {}
+            ),
             # The receiver's last matched observation stays until the next one arrives.
             "observation": {
                 **(row.data.get("observation") or {}),
@@ -2934,6 +2956,19 @@ def control(
             else {"state": "command_sent", "action": body.action, "physical_verification": "unverified"},
         },
     )
+
+
+def still_buffering(row, observation):
+    """A buffering report on our own film (after a seek, or the network catching up): what was
+    known stays (its identity, so the Now bar keeps it), the place stays where it is, still fresh."""
+    previous = row.data.get("observation") or {}
+    checkpoint = row.data.get("checkpoint") or {}
+    return {
+        "observation": {**previous, **observation, "physical_verification": "unverified"}
+        | ({"identity": previous["identity"]} if previous.get("identity") else {}),
+        "checkpoint": {**checkpoint, "at": utcnow().isoformat()} if checkpoint else checkpoint,
+        "error": None,
+    }
 
 
 def replacement_preview(db, row):
@@ -3913,7 +3948,7 @@ def checkpoint_participants(db, workflow, position, duration, plan):
             "duration": duration,
             "release": workflow.data["_selected_source"],
             "release_key": plan.get("release_key"),
-            "watched": state.data.get("watched", False) or (duration > 0 and position / duration >= 0.95),
+            "watched": watched_now(state.data, plan, position, duration),
             "season": workflow.data.get("season"),
             "episode": workflow.data.get("episode"),
         }

@@ -878,7 +878,14 @@ function TitleSheet({
               cloudId={cloudId}
               season={series ? season : undefined}
               episode={series ? episode : undefined}
-              resumeAt={!progress.watched && progress.position > 30 ? progress.position : 0}
+              resumeAt={
+                // Not near the end either (92 %, as the shelves count a film seen)
+                !progress.watched &&
+                progress.position > 30 &&
+                !(progress.duration && progress.position >= progress.duration * 0.92)
+                  ? progress.position
+                  : 0
+              }
               workflowId={workflowId}
               onWorkflow={setWorkflowId}
               onLaunched={onLaunched}

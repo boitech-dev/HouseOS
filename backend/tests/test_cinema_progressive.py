@@ -645,6 +645,7 @@ def test_a_seek_ahead_on_a_stream_the_chromecast_took_for_live_loads_it_again(tm
             assert process_one_preparation(db)
             play.assert_called_once()
             copy.assert_not_called()  # no second copy of the film
-            assert db.get(cinema.CinemaWorkflow, "workflow-one").state == "command_sent"
+            done = db.get(cinema.CinemaWorkflow, "workflow-one")
+            assert done.state == "command_sent" and done.data["_seek_previous"] is None  # next seek may go
     finally:
         f.tearDown()

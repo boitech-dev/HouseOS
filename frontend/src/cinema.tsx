@@ -520,7 +520,11 @@ export function filmPosition(current: Obj, now: number) {
     : 0;
   return Math.min(
     current.duration || Infinity,
-    (checkpoint.position || 0) + (current.state === "playing_observed" ? Math.min(since, 30) : 0),
+    (checkpoint.position || 0) +
+      // Moves on only while the receiver says it plays: buffering or a seek on its way holds still.
+      (current.state === "playing_observed" && (current.observation?.state ?? "active") === "active"
+        ? Math.min(since, 30)
+        : 0),
   );
 }
 
@@ -577,8 +581,10 @@ export function CinemaTransport({
         position,
       });
       setError(result.error?.message || "");
+      if (result.error) setAimed(null);
       onChanged(result);
     } catch (e) {
+      setAimed(null); // refused: the next jump starts from where the film really is
       setError((e as Error).message);
       onChanged({ error: { message: (e as Error).message } });
     } finally {
@@ -749,7 +755,8 @@ export function CinemaSleep({
       setBusy(false);
     }
   };
-  const timer = workflow.sleep_timer;
+  // The Now sheet's film has no timer field: the timer's own answer says it.
+  const timer = workflow.sleep_timer ?? options.data?.timer;
   return (
     <Disclosure summary={t("Movie sleep timer")}>
       <Text style="body-s" tone="muted">
