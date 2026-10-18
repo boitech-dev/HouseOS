@@ -217,7 +217,7 @@ def _run_job(job):
             from .house_settings import get_house_settings
 
             cap = get_house_settings(db)["music_volume_cap"]
-            data["value"] = min(data.get("value") or 0, cap)
+            data["value"] = int(min(data.get("value") or 0, cap))  # as the queue stores it
             q = db.get(QueueState, 1)
             if q and data["value"] != min(q.volume, cap):
                 row.state, row.error_code = "cancelled", "VOLUME_SUPERSEDED"
@@ -254,6 +254,14 @@ def _run_job(job):
     elif kind == "music.control":
         action = data["action"]
         if action == "previous":
+            # The song that was playing stops now; the earlier one starts once it is ready.
+            with SessionLocal() as db:
+                q = db.get(QueueState, 1)
+                now_id = q.current_id if q else None
+            loaded = bridge("state").get("item_id")
+            if loaded and loaded != now_id:
+                if bridge("stop").get("status") == "command_sent":
+                    fetch("live_stop", item_id=loaded)
             result = {
                 "status": "accepted",
                 "message": "Previous track is preparing; query playback for observation",
@@ -556,8 +564,17 @@ def radio_now_title(item_id, source_url):
     with SessionLocal() as db:
         item = db.get(QueueItem, item_id)
         if item and item.metadata_json.get("now_title") != title:
-            heard = item.metadata_json.get("titles_heard", 0) + bool(title)  # for the radio rotation
-            item.metadata_json = {**item.metadata_json, "now_title": title, "titles_heard": heard}
+            # For the radio rotation: a new song only when its title differs from the last one
+            # heard (a check that failed in between says nothing).
+            last = item.metadata_json.get("last_title")
+            new = bool(title) and title != last
+            heard = item.metadata_json.get("titles_heard", 0) + new
+            item.metadata_json = {
+                **item.metadata_json,
+                "now_title": title,
+                "titles_heard": heard,
+                "last_title": title or last,
+            }
             emit(db, "music.metadata", {"item_id": item.id, "status": item.status})
             db.commit()
 

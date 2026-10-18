@@ -173,6 +173,7 @@ def item_json(item):
         "pinned": bool(item.metadata_json.get("pinned_at")),
         "streamed": bool(item.metadata_json.get("long_stream")),
         "now_title": item.metadata_json.get("now_title"),  # what a radio says is on air
+        "resume_position": item.metadata_json.get("resume_position") or 0,  # where Play starts it
         "genre": item.metadata_json.get("genre"),
         "auto": item.metadata_json.get("auto"),  # queued by auto play, not by a person
     }
@@ -937,6 +938,11 @@ def control_effect(db, actor, q, action, value):
         )
         q.desired = "paused"
         activate_added(db, q, [item], pending)
+    elif action == "seek":
+        current = db.get(QueueItem, q.current_id) if q.current_id else None
+        if current and current.status in {"ready", "resolving", "buffering", "pending_metadata"}:
+            # Not on the speakers (stopped, or still loading): it starts there instead.
+            current.metadata_json = {**current.metadata_json, "resume_position": max(0.0, float(value or 0))}
     elif action == "repeat":
         # Locked: auto play keeps its plan in the same row; an unlocked write could undo it.
         row = db.get(Integration, "music_playback", with_for_update=True)

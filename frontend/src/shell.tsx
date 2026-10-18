@@ -1376,6 +1376,7 @@ function NowSheet({
 }) {
   const song = music.current;
   const { position } = usePosition(music);
+  const canControl = useCanControl(); // a guest who only sees the screen gets no buttons that refuse
   const [tab, setTab] = useState<"tv" | "music">(movie ? "tv" : "music");
   // A refused control (the queue moved, no speaker) says why instead of doing nothing.
   const [problem, setProblem] = useState("");
@@ -1454,7 +1455,7 @@ function NowSheet({
               )}
             </div>
           </div>
-          {song.duration > 0 && (
+          {song.duration > 0 && !song.streamed && !song.is_live && canControl && (
             <Slider
               label={t("Position")}
               value={Math.floor(position)}
@@ -1463,28 +1464,37 @@ function NowSheet({
               onCommit={(value) => act("seek", value)}
             />
           )}
-          <div className="shell__now-transport">
-            <IconButton
-              icon="previous"
-              size="l"
-              label={t("Previous track")}
-              disabled={song.is_live}
-              onClick={() => act("previous")}
+          {canControl && (
+            <div className="shell__now-transport">
+              <IconButton
+                icon="previous"
+                size="l"
+                label={t("Previous track")}
+                disabled={song.is_live}
+                onClick={() => act("previous")}
+              />
+              <IconButton
+                icon={music.playing ? "pause" : "play"}
+                size="l"
+                variant="primary"
+                label={t(music.playing ? "Pause" : "Play")}
+                onClick={() => act(music.playing ? "pause" : "play")}
+              />
+              <IconButton
+                icon="next"
+                size="l"
+                label={t("Next track")}
+                onClick={() => act("skip")}
+              />
+            </div>
+          )}
+          {canControl && (
+            <Slider
+              label={t("Volume")}
+              value={music.data?.volume ?? 60}
+              onCommit={(value) => act("volume", value)}
             />
-            <IconButton
-              icon={music.playing ? "pause" : "play"}
-              size="l"
-              variant="primary"
-              label={t(music.playing ? "Pause" : "Play")}
-              onClick={() => act(music.playing ? "pause" : "play")}
-            />
-            <IconButton icon="next" size="l" label={t("Next track")} onClick={() => act("skip")} />
-          </div>
-          <Slider
-            label={t("Volume")}
-            value={music.data?.volume ?? 60}
-            onCommit={(value) => act("volume", value)}
-          />
+          )}
           <Problem error={problem} />
           <StopAndClear music={music} />
           {upNext.length > 0 && (

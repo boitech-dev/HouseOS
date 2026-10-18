@@ -234,7 +234,8 @@ export function useMusicPlayback(enabled = true) {
   // A song the house is starting (or skipping to) counts as playing: no Play/Paused flicker.
   const starting =
     state.data?.desired === "playing" &&
-    (ahead > 0 || ["ready", "resolving", "buffering"].includes(current?.status));
+    (ahead > 0 ||
+      ["ready", "resolving", "buffering", "pending_metadata"].includes(current?.status));
   const playing = (running && !state.error && Date.now() - state.updatedAt <= 6000) || starting;
   const positionAt = (now: number) =>
     matches
@@ -243,7 +244,7 @@ export function useMusicPlayback(enabled = true) {
           Math.max(0, Number(observation.position) || 0) +
             (running ? Math.min(Math.max(0, now - state.updatedAt), 6000) / 1000 : 0),
         )
-      : 0;
+      : Number(current?.resume_position) || 0; // not on the speakers: where Play starts it
   const control = async (action: string, value?: number | string) => {
     if (action === "skip") {
       skips.waiting += 1;
@@ -1170,8 +1171,10 @@ export function Queue({ music, limit }: { music: Playback; limit?: number }) {
         </ListHeading>,
       );
     // Anyone moves any waiting song one step (songs pinned "right after this one" stay put).
-    const earlier = pending.slice(0, pending.indexOf(row)).filter((other) => !other.pinned);
-    const line = pending.filter((other) => !other.pinned);
+    // Only songs that will play move: a failed one has no place to move to, and none between.
+    const movable = (other: Obj) => !other.pinned && ["ready", "pending_metadata"].includes(other.status);
+    const earlier = pending.slice(0, pending.indexOf(row)).filter(movable);
+    const line = pending.filter(movable);
     const at = line.indexOf(row);
     rows.push(
       <QueueRow

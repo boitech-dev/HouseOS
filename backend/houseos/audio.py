@@ -215,7 +215,12 @@ def move_to(sink):
         return {"status": "blocked", "code": "LIVE_OUTPUT_SWITCH"}
     path, position = mpv(["get_property", "path"]), mpv(["get_property", "time-pos"]) or 0
     paused = mpv(["get_property", "pause"])
+    volume, levelled = mpv(["get_property", "volume"]), mpv(["get_property", "af"])
     start_player(sink)
+    # The new player starts at its default level: the song keeps its volume and its levelling.
+    if volume is not None:
+        mpv(["set_property", "volume", volume])
+    mpv(["set_property", "af", levelled or ""])
     mpv(["set_property", "start", str(position) if position else "none"])
     mpv(["loadfile", path, "replace"])
     mpv(["set_property", "pause", bool(paused)])
@@ -402,7 +407,10 @@ def execute(data):
         moved = move_to(sink)
         if moved:
             return moved
-        save_policy({"sink": sink, "verified": False, "volume_cap": selected.get("volume_cap", 100)})
+        # Everything else it was set to stays (levelling off stays off).
+        save_policy(
+            {**selected, "sink": sink, "verified": False, "volume_cap": selected.get("volume_cap", 100)}
+        )
         return {"status": "configured", "sink": sink, "physical_verified": False}
     if action == "verify_output":
         if selected.get("sink") != data.get("sink") or not selected.get("test_sent"):
