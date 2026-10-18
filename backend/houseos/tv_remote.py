@@ -611,8 +611,11 @@ def press(db, device, key, value=None, times=1, target="device"):
             raise unsupported()
         return {"status": "sent", "via": device.adapter, "key": key, "level": exact_volume(value)}
     if device.id in paired_ids():
+        waking = key == "POWER" and run(remote_state(device.id, device.address), 4)["on"] is False
         run(send_keys(device.id, device.address, key, times), 5)
-        return {"status": "sent", "via": "remote", "key": key}
+        # Turned on: the TV it is plugged into comes on too, on its input, so it shows at once.
+        done = wake_for_film(db, device) if waking else []
+        return {"status": "sent", "via": "remote", "key": key, **({"tv": done} if done else {})}
     if key in NAVIGATION or key == "POWER":
         raise unpaired() if device.adapter == "cast" else unsupported()
     if device.adapter == "cast":

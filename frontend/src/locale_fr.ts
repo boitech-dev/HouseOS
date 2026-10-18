@@ -2238,13 +2238,9 @@ const french: Record<string, string> = {
   "Smart TV (DLNA): volume only": "Télé connectée (DLNA) : volume seulement",
   "Only the Chromecast: its apps, volume and playback":
     "Seulement le Chromecast : ses applis, son volume et la lecture",
-  "Arrows, OK and back on this Chromecast need a one-time pairing: it shows a code.":
-    "Les flèches, OK et retour sur ce Chromecast demandent un appairage unique : il affiche un code.",
-  "The TV remote already steers what is on screen.":
-    "La télécommande de la télé pilote déjà ce qui est à l’écran.",
-  "Pair the Chromecast's own arrows (optional)": "Appairer les flèches du Chromecast (facultatif)",
+  "Power, arrows, OK and back on this Chromecast need a one-time pairing: the TV shows a code.":
+    "L’allumage, les flèches, OK et retour sur ce Chromecast demandent un appairage unique : la télé affiche un code.",
   "Pair its remote again": "Appairer sa télécommande à nouveau",
-  "Pair its own arrows (optional)": "Appairer ses propres flèches (facultatif)",
   "Even out songs": "Équilibrer les morceaux",
   "A song uploaded much quieter than the rest plays 20 % louder, and one mastered dangerously loud plays 15 % softer. One fixed setting per song: drops, bass and the mix are never touched. Radio plays as is.":
     "Un morceau publié bien plus bas que les autres passe 20 % plus fort, et un morceau masterisé dangereusement fort 15 % moins fort. Un seul réglage fixe par morceau : les drops, les basses et le mixage ne sont jamais touchés. La radio passe telle quelle.",

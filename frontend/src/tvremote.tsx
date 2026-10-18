@@ -70,11 +70,6 @@ const KEYBOARD: Record<string, string> = {
 };
 
 const PICKED = "houseos.tv-remote.target";
-/** True when this device's screen already has a TV remote with arrows (Home Assistant): then
- * pairing the device's own remote is optional, the TV's keys already reach what is on screen. */
-export function steersScreen(remotes: Obj[], device: Obj) {
-  return remotes.some((r) => r.id === device.id && r.target === "tv" && r.capabilities?.dpad);
-}
 const keyOf = (tv: Obj) => tv.id + ":" + tv.target;
 const CALLED = "houseos:tv-remote";
 /** Brings this TV up in the page's remote, scrolled into view and focused for its arrows. */
@@ -147,27 +142,12 @@ export function TvRemotes() {
           }))}
         />
       )}
-      {current && (
-        <Remote
-          key={keyOf(current)}
-          tv={current}
-          onChanged={reload}
-          covered={steersScreen(remotes, current)}
-        />
-      )}
+      {current && <Remote key={keyOf(current)} tv={current} onChanged={reload} />}
     </div>
   );
 }
 
-function Remote({
-  tv,
-  onChanged,
-  covered,
-}: {
-  tv: Obj;
-  onChanged: () => Promise<unknown>;
-  covered: boolean;
-}) {
+function Remote({ tv, onChanged }: { tv: Obj; onChanged: () => Promise<unknown> }) {
   const can: Obj = tv.capabilities || {};
   const state: Obj = tv.state || {};
   const [lit, setLit] = useState(""),
@@ -273,20 +253,17 @@ function Remote({
           ? (state.playing === false ? t("Paused") : t("Playing")) + " · " + state.title
           : appName(state.app) || (state.on ? t("On") : "");
   const quiet = state.reachable === false || state.on === false;
+  // The TV's own arrows steer the TV's menus, not the Google TV on its input: this one pairs.
   const pairingOffer = can.remote_pairable && !can.paired && (
     <>
       <Text style="body-s" tone="muted">
-        {covered
-          ? t("The TV remote already steers what is on screen.")
-          : t("Arrows, OK and back on this Chromecast need a one-time pairing: it shows a code.")}
+        {t(
+          "Power, arrows, OK and back on this Chromecast need a one-time pairing: the TV shows a code.",
+        )}
       </Text>
       <div>
-        <Button
-          variant={covered ? "secondary" : "primary"}
-          size={covered ? "s" : "m"}
-          onClick={() => setPairing(true)}
-        >
-          {covered ? t("Pair the Chromecast's own arrows (optional)") : t("Set up the remote")}
+        <Button variant="primary" onClick={() => setPairing(true)}>
+          {t("Set up the remote")}
         </Button>
       </div>
     </>
@@ -383,7 +360,7 @@ function Remote({
             {!can.dpad && play}
           </div>
         )}
-        {!covered && pairingOffer}
+        {pairingOffer}
         <Disclosure summary={t("About this remote")}>
           <Text style="caption" tone="muted">
             {tv.target === "tv"
@@ -419,7 +396,6 @@ function Remote({
               </Select>
             </Field>
           )}
-          {covered && pairingOffer}
         </Disclosure>
         {can.dpad && (
           <p className="tv-remote__hint" id={"tv-hint-" + tv.id}>

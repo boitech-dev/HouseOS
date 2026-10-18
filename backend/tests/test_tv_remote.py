@@ -31,7 +31,7 @@ class FakeRemote:
 
     def __init__(self, name, certfile, keyfile, host, **kw):
         self.name, self.certfile, self.keyfile, self.host = name, certfile, keyfile, host
-        self.is_on, self.current_app = True, "com.google.android.youtube.tv"
+        self.is_on, self.current_app = host not in self.tv.get("off", ()), "com.google.android.youtube.tv"
         self.volume_info = {"level": 12, "max": 100, "muted": False}
 
     async def async_generate_cert_if_missing(self):
@@ -480,3 +480,21 @@ def test_the_tv_list_is_reused_a_few_seconds_and_fresh_after_a_press(monkeypatch
     r.press(None, SimpleNamespace(id="tv"), "VOLUME_SET", 20, 1, "tv")
     r.list_tvs(actor, None)
     assert len(calls) == 2  # after a tap, what the TV says now
+
+
+def test_turning_a_paired_chromecast_on_brings_its_tv_up_on_its_input(house, monkeypatch):
+    db, admin, devices, _ = house
+    living = devices["Living room TV"]
+    tv_remote.pair(living.id, admin, db)
+    tv_remote.pair_finish(living.id, tv_remote.PairCode(code=CODE), admin, db)
+    woken = []
+    monkeypatch.setattr(
+        tv_remote, "wake_for_film", lambda db, device: woken.append(device.id) or ["turned on"]
+    )
+    sent = tv_remote.press_key(living.id, tv_remote.Press(key="POWER"), admin, db)  # it is on: off
+    assert woken == [] and "tv" not in sent
+    tv_remote.forget(living.id)
+    FakeRemote.tv["off"] = {"192.0.2.19"}
+    sent = tv_remote.press_key(living.id, tv_remote.Press(key="POWER"), admin, db)
+    assert woken == [living.id] and sent["tv"] == ["turned on"]
+    assert FakeRemote.tv["keys"][-2:] == [("192.0.2.19", "POWER")] * 2

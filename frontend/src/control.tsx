@@ -17,7 +17,7 @@ import { HouseActions } from "./house_actions";
 import { ChangesAdmin } from "./changes";
 import { HouseSettingsAdmin } from "./house_settings";
 import { StorageAdmin } from "./files";
-import { PairDialog, steersScreen } from "./tvremote";
+import { PairDialog } from "./tvremote";
 import { CustomIntegrations } from "./custom_integrations";
 import { Usage, ThemePicker, SchemeChoice, MadeHere, Studio } from "./me";
 import { StartTheme, ThemePreview } from "./theme_preview";
@@ -1552,11 +1552,7 @@ function DeviceAdmin() {
                 <>
                   {remote(d.id)?.remote_pairable && (
                     <Button size="s" variant="quiet" onClick={() => setPairing(d)}>
-                      {remote(d.id)?.paired
-                        ? t("Pair its remote again")
-                        : steersScreen(items(remotes.data), d)
-                          ? t("Pair its own arrows (optional)")
-                          : t("Set up the remote")}
+                      {remote(d.id)?.paired ? t("Pair its remote again") : t("Set up the remote")}
                     </Button>
                   )}
                   <Button size="s" icon="edit" onClick={() => setEdit(d)}>

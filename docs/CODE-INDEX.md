@@ -2172,66 +2172,66 @@ Smart home: the house's own Home Assistant (lights, switches, blinds, heating…
 admin exposure policy. Sensitive devices (locks, alarms…) always need a confirmed second step.
 Every answer reports the state Home Assistant shows after the command, never just "sent".
 
-- [`remote(entity_id)`](../backend/houseos/home.py#L234)
+- [`remote(entity_id)`](../backend/houseos/home.py#L229)
   (service domain, service, data, {key: name}) for this TV's arrows, or None.
-- [`available(db)`](../backend/houseos/home.py#L277)
+- [`available(db)`](../backend/houseos/home.py#L272)
   Home Assistant is connected (enabled, with a token): the Smart home room may show.
-- [`connection(db)`](../backend/houseos/home.py#L283)
-- [`ha(base, headers, path, **kwargs)`](../backend/houseos/home.py#L301)
+- [`connection(db)`](../backend/houseos/home.py#L278)
+- [`ha(base, headers, path, **kwargs)`](../backend/houseos/home.py#L296)
   One short request; failures become plain sentences without addresses or tokens.
-- [`policy(config)`](../backend/houseos/home.py#L318)
-- [`panel(config, entity_id)`](../backend/houseos/home.py#L326)
+- [`policy(config)`](../backend/houseos/home.py#L313)
+- [`panel(config, entity_id)`](../backend/houseos/home.py#L321)
   The controls an admin took off this device's panel (everything it can do shows otherwise).
-- [`sensitive(domain, attributes=None)`](../backend/houseos/home.py#L332)
+- [`sensitive(domain, attributes=None)`](../backend/houseos/home.py#L327)
   Locks and the like; also scripts (they can do anything) and garage doors, gates and doors.
-- [`number(value)`](../backend/houseos/home.py#L342)
-- [`actions(domain, attributes, entity_id='')`](../backend/houseos/home.py#L346)
-- [`kelvin_range(attributes)`](../backend/houseos/home.py#L374)
-- [`hex_color(rgb)`](../backend/houseos/home.py#L380)
-- [`controls(domain, attributes, entity_id='', hidden=())`](../backend/houseos/home.py#L386)
+- [`number(value)`](../backend/houseos/home.py#L337)
+- [`actions(domain, attributes, entity_id='')`](../backend/houseos/home.py#L341)
+- [`kelvin_range(attributes)`](../backend/houseos/home.py#L369)
+- [`hex_color(rgb)`](../backend/houseos/home.py#L375)
+- [`controls(domain, attributes, entity_id='', hidden=())`](../backend/houseos/home.py#L381)
   What the device's panel can draw, from what the device itself reports: each value control
-- [`entity_json(state, area=None, hidden_controls=())`](../backend/houseos/home.py#L407)
-- [`registry(base, token)`](../backend/houseos/home.py#L439)
+- [`entity_json(state, area=None, hidden_controls=())`](../backend/houseos/home.py#L402)
+- [`registry(base, token)`](../backend/houseos/home.py#L434)
   Each entity's area and whether Home Assistant marks it internal (a config or diagnostic
-- [`entities(base, token)`](../backend/houseos/home.py#L484)
+- [`entities(base, token)`](../backend/houseos/home.py#L479)
   Each entity's integration and device from Home Assistant's registry, read at most once
-- [`snapshot(base, headers, domains, refresh=False)`](../backend/houseos/home.py#L499)
+- [`snapshot(base, headers, domains, refresh=False)`](../backend/houseos/home.py#L494)
   Allowed states, their areas and HA's internal entities, shared for about 3 s between
-- [`fresh_snapshot(base, headers, domains, refresh, key, now)`](../backend/houseos/home.py#L514)
-- [`curated(config)`](../backend/houseos/home.py#L552)
+- [`fresh_snapshot(base, headers, domains, refresh, key, now)`](../backend/houseos/home.py#L509)
+- [`curated(config)`](../backend/houseos/home.py#L547)
   The entities an administrator chose to show, or None while nobody has chosen.
-- [`tv_twins(db, config)`](../backend/houseos/home.py#L557)
+- [`tv_twins(db, config)`](../backend/houseos/home.py#L552)
   Media players the TV section already shows: the one mapped to a HouseOS screen, and
-- [`overview(actor, db, refresh=False, choosing=False)`](../backend/houseos/home.py#L571)
+- [`overview(actor, db, refresh=False, choosing=False)`](../backend/houseos/home.py#L566)
   What the room shows: the admin's choice, else everything except Home Assistant's
-- [`home(refresh: bool=False, choose: bool=False, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/home.py#L607)
+- [`home(refresh: bool=False, choose: bool=False, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/home.py#L602)
   HTTP: `router.get('')`
-- [`class HomeAction`](../backend/houseos/home.py#L615)
-- [`exposed_domain(config, entity_id)`](../backend/houseos/home.py#L620)
-- [`service_call(state, action, value)`](../backend/houseos/home.py#L636)
+- [`class HomeAction`](../backend/houseos/home.py#L610)
+- [`exposed_domain(config, entity_id)`](../backend/houseos/home.py#L615)
+- [`service_call(state, action, value)`](../backend/houseos/home.py#L631)
   The exact Home Assistant service and data for one action, after checking the value.
-- [`reached(domain, action, value, before, after)`](../backend/houseos/home.py#L690)
+- [`reached(domain, action, value, before, after)`](../backend/houseos/home.py#L685)
   Whether the state Home Assistant now shows is the one the action asked for.
-- [`read_state(base, headers, entity_id)`](../backend/houseos/home.py#L753)
-- [`control(db, actor, entity_id, action, value=None, confirmed=False)`](../backend/houseos/home.py#L757)
+- [`read_state(base, headers, entity_id)`](../backend/houseos/home.py#L748)
+- [`control(db, actor, entity_id, action, value=None, confirmed=False)`](../backend/houseos/home.py#L752)
   Check policy and value, then either ask for a confirmation (sensitive devices) or act.
-- [`act(entity_id: str, body: HomeAction, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/home.py#L811)
+- [`act(entity_id: str, body: HomeAction, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/home.py#L806)
   HTTP: `router.post('/{entity_id}/action')`
-- [`confirm(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/home.py#L816)
+- [`confirm(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/home.py#L811)
   HTTP: `router.post('/confirmations/{identity}')`
-- [`class Selection`](../backend/houseos/home.py#L839)
-- [`choose(body: Selection, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/home.py#L844)
+- [`class Selection`](../backend/houseos/home.py#L834)
+- [`choose(body: Selection, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/home.py#L839)
   Administrators choose exactly what the room (and Nox) shows; new devices stay out until chosen.
   HTTP: `router.put('/selection')`
-- [`inspect(entity_id: str, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/home.py#L863)
+- [`inspect(entity_id: str, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/home.py#L858)
   Look closer at one device (admins): everything it reports, and every control HouseOS can
   HTTP: `router.get('/{entity_id}/inspect')`
-- [`class PanelControls`](../backend/houseos/home.py#L887)
-- [`choose_controls(entity_id: str, body: PanelControls, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/home.py#L892)
+- [`class PanelControls`](../backend/houseos/home.py#L882)
+- [`choose_controls(entity_id: str, body: PanelControls, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/home.py#L887)
   Administrators choose which of a device's controls its panel shows.
   HTTP: `router.put('/{entity_id}/controls')`
-- [`class Favorites`](../backend/houseos/home.py#L913)
-- [`favorites(body: Favorites, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/home.py#L918)
+- [`class Favorites`](../backend/houseos/home.py#L900)
+- [`favorites(body: Favorites, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/home.py#L905)
   Each resident's own devices pinned at the top of the room.
   HTTP: `router.put('/favorites')`
 
@@ -3452,12 +3452,12 @@ equally good matches are returned for the resident to choose, never guessed.
   Everything a resident may call a device: its name, area, id and kind.
 - [`entities(actor, db)`](../backend/houseos/tool_home.py#L66)
 - [`compact(item)`](../backend/houseos/tool_home.py#L70)
-- [`class HomeList`](../backend/houseos/tool_home.py#L98)
-- [`home_list(body, actor, db)`](../backend/houseos/tool_home.py#L105)
-- [`class HomeControl`](../backend/houseos/tool_home.py#L129)
-- [`resolve(body, items)`](../backend/houseos/tool_home.py#L146)
+- [`class HomeList`](../backend/houseos/tool_home.py#L94)
+- [`home_list(body, actor, db)`](../backend/houseos/tool_home.py#L101)
+- [`class HomeControl`](../backend/houseos/tool_home.py#L125)
+- [`resolve(body, items)`](../backend/houseos/tool_home.py#L142)
   One entity, or the reason to ask the resident.
-- [`home_control(body, actor, db)`](../backend/houseos/tool_home.py#L173)
+- [`home_control(body, actor, db)`](../backend/houseos/tool_home.py#L169)
 
 ## tool_household
 
@@ -3698,20 +3698,20 @@ kept up by the library's own reconnect loop.
   A volume level from a slider: a whole percent, 0–100, or refused.
 - [`press(db, device, key, value=None, times=1, target='device')`](../backend/houseos/tv_remote.py#L593)
   Send one allowlisted key the best way this target supports. Returns how it was sent.
-- [`device_or_404(db, device_id)`](../backend/houseos/tv_remote.py#L634)
-- [`call(function, *args)`](../backend/houseos/tv_remote.py#L641)
-- [`class Press`](../backend/houseos/tv_remote.py#L648)
-- [`class FilmInput`](../backend/houseos/tv_remote.py#L655)
-- [`class PairCode`](../backend/houseos/tv_remote.py#L663)
-- [`list_tvs(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/tv_remote.py#L668)
+- [`device_or_404(db, device_id)`](../backend/houseos/tv_remote.py#L637)
+- [`call(function, *args)`](../backend/houseos/tv_remote.py#L644)
+- [`class Press`](../backend/houseos/tv_remote.py#L651)
+- [`class FilmInput`](../backend/houseos/tv_remote.py#L658)
+- [`class PairCode`](../backend/houseos/tv_remote.py#L666)
+- [`list_tvs(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/tv_remote.py#L671)
   HTTP: `router.get('')`
-- [`press_key(device_id: str, body: Press, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/tv_remote.py#L679)
+- [`press_key(device_id: str, body: Press, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/tv_remote.py#L682)
   HTTP: `router.post('/{device_id}/remote')`
-- [`pair(device_id: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/tv_remote.py#L688)
+- [`pair(device_id: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/tv_remote.py#L691)
   HTTP: `router.post('/{device_id}/remote/pair')`
-- [`pair_finish(device_id: str, body: PairCode, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/tv_remote.py#L696)
+- [`pair_finish(device_id: str, body: PairCode, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/tv_remote.py#L699)
   HTTP: `router.post('/{device_id}/remote/pair/finish')`
-- [`set_film_input(device_id: str, body: FilmInput, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/tv_remote.py#L707)
+- [`set_film_input(device_id: str, body: FilmInput, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/tv_remote.py#L710)
   The TV input a film switches to on this screen (HDMI 2 when the Chromecast is there).
   HTTP: `router.put('/{device_id}/film-input')`
 
@@ -3873,7 +3873,7 @@ Source: [backend/houseos/worker.py](../backend/houseos/worker.py)
 - [theme_preview.tsx](../frontend/src/theme_preview.tsx): `handToNox`, `PREVIEW_PARTS`, `PreviewPart`, `ThemePreview`, `StartTheme`, `ThemeLook`, `LookPicker`
 - [tips.ts](../frontend/src/tips.ts): `useTip`
 - [tvremote.css](../frontend/src/tvremote.css): styles
-- [tvremote.tsx](../frontend/src/tvremote.tsx): `steersScreen`, `showRemote`, `TvRemotes`, `PairDialog`
+- [tvremote.tsx](../frontend/src/tvremote.tsx): `showRemote`, `TvRemotes`, `PairDialog`
 - [voice.tsx](../frontend/src/voice.tsx): `VoiceState`, `voiceSupported`, `VoiceButton`
 - [watch.css](../frontend/src/watch.css): styles
 - [watch.tsx](../frontend/src/watch.tsx): `Watch`, `WatchPanel`
