@@ -517,3 +517,56 @@ def test_decoded_flash_tone_and_subtitle_stay_in_sync_without_edit_lists(clip, t
     assert abs(video - audio) < 0.03, (video, audio)
     assert abs(video - cue) < 0.03, (video, cue)
     assert abs(video + offset - 12) < 0.03, (video, offset)
+
+
+def test_a_film_that_buffers_mid_way_stays_followed_and_an_unconfirmed_one_heals(tmp_path, monkeypatch):
+    # V for Vendetta played 6 minutes, buffered a moment, and the house stopped following it.
+    from unittest.mock import patch
+    from sqlalchemy.orm import Session
+    import test_cinema
+    from houseos import cinema
+
+    f = test_cinema.CinemaTests()
+    f.setUp()
+    f.workflow()
+    monkeypatch.setattr(cinema.settings, "runtime_root", tmp_path)
+    try:
+        with Session(f.engine, expire_on_commit=False) as db:
+            row = db.get(cinema.CinemaWorkflow, "workflow-one")
+            row.state, row.version = "playing_observed", 1
+            row.data = {**row.data, "_observation_deadline": "2020-01-01T00:00:00",
+                        "_selected_source": row.data.get("_selected_source") or row.data["_sources"][0]["id"],
+                        "plan": {"duration": 7000, "expected_item": "ours"}}  # fmt: skip
+            device = db.get(cinema.CinemaDevice, f.device_id)
+            device.owner_workflow, device.adapter = row.id, "cast"
+            db.commit()
+
+        def observe(state):
+            current = f.client.get("/api/v1/cinema/workflows/workflow-one").json()
+            with patch(
+                "houseos.cinema.inspect_destination",
+                return_value={
+                    "item_id": "ours",
+                    "state": state,
+                    "session_id": 1,
+                    "position": 379,
+                    "duration": 7000,
+                },
+            ):
+                return f.client.post(
+                    "/api/v1/cinema/workflows/workflow-one/observe", json={"version": current["version"]}
+                )
+
+        buffering = observe("buffering")
+        assert buffering.status_code == 200 and buffering.json()["state"] == "playing_observed"
+        # Marked unconfirmed (the old behaviour, or the receiver out of reach a moment): once the
+        # TV shows the film playing again, it is followed again.
+        with Session(f.engine) as db:
+            row = db.get(cinema.CinemaWorkflow, "workflow-one")
+            row.state = "recovery_required"
+            row.data = {**row.data, "error": {"code": "PLAYBACK_NOT_OBSERVED"}}
+            db.commit()
+        healed = observe("active")
+        assert healed.status_code == 200 and healed.json()["state"] == "playing_observed"
+    finally:
+        f.tearDown()

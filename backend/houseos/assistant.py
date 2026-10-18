@@ -1350,10 +1350,27 @@ STUDIO_LIMITS = {
 }
 
 
+# Setup mode diagnoses and configures: it reads statuses, logs and settings one call at a time,
+# so one question can take far more steps than "put some jazz on".
+SETUP_LIMITS = {
+    "rounds": 24,
+    "tool_calls": 40,
+    "planning": 150,
+    "turn": 180,
+    "round": None,
+    "output": None,
+    "history": 20000,
+    "background": False,
+    "lane": None,
+}
+
+
 def limits(purpose):
     """What one turn may take, by assistant purpose."""
     if purpose == "themes":
         return STUDIO_LIMITS
+    if purpose == "setup":
+        return SETUP_LIMITS
     return {
         "rounds": LOOP_ROUNDS,
         "tool_calls": LOOP_TOOL_CALLS,
@@ -2277,15 +2294,15 @@ FALLBACKS = {
         "queued": "Added {n} song(s) to the queue 🎶",
         "accepted": "On it. Details below.",
         "stopped": "This action could not be completed; nothing that depends on it was started.",
-        "limit": "I reached this turn's step limit (not a quota). Anything already started is shown below; the rest has not been scheduled.",
+        "limit": "I reached this turn's step limit (not a quota). Anything already started is shown below. Say “continue” and I'll pick up from here.",
     },
     "fr": {
-        "confirm": "Confirmez l’action ci-dessous.",
-        "choice": "Choisissez une option ci-dessous.",
+        "confirm": "Confirme l’action ci-dessous.",
+        "choice": "Choisis une option ci-dessous.",
         "queued": "{n} morceau(x) ajouté(s) à la file 🎶",
         "accepted": "C’est lancé. Détails ci-dessous.",
         "stopped": "Cette action n’a pas pu aboutir ; rien de ce qui en dépend n’a été lancé.",
-        "limit": "J’ai atteint la limite d’étapes de ce tour (pas un quota). Ce qui a déjà démarré est indiqué ci-dessous ; le reste n’est pas planifié.",
+        "limit": "J’ai atteint la limite d’étapes de ce tour (pas un quota). Ce qui a déjà démarré est indiqué ci-dessous. Dis « continue » et je reprends là où j’en étais.",
     },
 }
 

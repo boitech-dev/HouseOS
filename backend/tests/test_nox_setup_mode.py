@@ -290,3 +290,11 @@ def test_setup_mode_knows_games(setup, monkeypatch):
     assert (row.data["title"], row.data["state"], row.data["system"]) == ("My Game.iso", "downloading", "ps2")
     opened = tools["games_open"][2](tool_setup.GamesScreen(sheet="setup"), alice, db)
     assert opened["href"] == "/games?sheet=setup"
+
+
+def test_setup_mode_has_room_for_a_real_diagnosis():
+    from houseos import assistant
+
+    setup, everyday = assistant.limits("setup"), assistant.limits("general")
+    assert setup["tool_calls"] >= 3 * everyday["tool_calls"] and setup["rounds"] >= 3 * everyday["rounds"]
+    assert setup["planning"] < setup["turn"] and not setup["background"]

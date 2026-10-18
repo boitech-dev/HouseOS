@@ -2328,7 +2328,12 @@ def observe(
                 "DESTINATION_OWNERSHIP_LOST", "This workflow no longer controls that destination.", "observe"
             )
         )
-    if row.state not in {"command_sent", "playing_observed", "paused"}:
+    # A film whose playback went unconfirmed is still looked at: once the TV shows it playing
+    # again, it is followed (and controlled) as before.
+    unconfirmed = row.state == "recovery_required" and (row.data.get("error") or {}).get("code") == (
+        "PLAYBACK_NOT_OBSERVED"
+    )
+    if row.state not in {"command_sent", "playing_observed", "paused"} and not unconfirmed:
         return public_workflow(row)
     # Release the workflow lock during receiver I/O so controls never queue behind a
     # slow Cast connection; discard the observation if the workflow moved on meanwhile.
@@ -2434,6 +2439,19 @@ def observe(
                 raise MediaError(
                     "PLAYBACK_NOT_OBSERVED", "The player playback check-in is stale.", "verify", True
                 )
+        elif (
+            observation.get("item_id") == expected
+            and observation.get("state") == "buffering"
+            and row.state in {"playing_observed", "paused"}
+        ):
+            # It played: a buffering moment mid-film (the network, the stream catching up) is
+            # normal, never a failure; giving up here stopped following a film still on the TV.
+            return save_workflow(
+                db,
+                row,
+                row.state,
+                {"observation": {**observation, "physical_verification": "unverified"}, "error": None},
+            )
         elif (
             (row.data.get("_prepared") or {}).get("streaming")
             and observation.get("item_id") == expected
