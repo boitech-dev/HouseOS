@@ -570,3 +570,81 @@ def test_a_film_that_buffers_mid_way_stays_followed_and_an_unconfirmed_one_heals
         assert healed.status_code == 200 and healed.json()["state"] == "playing_observed"
     finally:
         f.tearDown()
+
+
+def test_a_seek_ahead_on_a_stream_the_chromecast_took_for_live_loads_it_again(tmp_path, monkeypatch):
+    """Loaded before it was complete, a stream has no length on the Chromecast: it then never
+    goes further ahead than the time since it was loaded (1:23:40 landed at 57 minutes)."""
+    from unittest.mock import patch
+    from sqlalchemy.orm import Session
+    import test_cinema
+    from houseos import cinema
+
+    f = test_cinema.CinemaTests()
+    f.setUp()
+    f.workflow()
+    monkeypatch.setattr(cinema.settings, "runtime_root", tmp_path)
+    output = tmp_path / "cinema" / "ready"
+    output.mkdir(parents=True)
+    (output / "master.m3u8").write_text("#EXTM3U\nvideo.m3u8\n")
+    (output / "video.m3u8").write_text("#EXTM3U\n#EXTINF:100.0,\nvideo0.m4s\n#EXT-X-ENDLIST\n")
+    prepared = {
+        "streaming": True,
+        "timeline_version": 2,
+        "path": str(output / "master.m3u8"),
+        "position_offset": 20,
+    }
+
+    def playing(receiver_duration):
+        with Session(f.engine) as db:
+            row = db.get(cinema.CinemaWorkflow, "workflow-one")
+            row.state, row.version = "playing_observed", 1
+            row.data = {
+                **row.data,
+                "_prepared": prepared,
+                "_seek_previous": None,
+                "plan": {"duration": 120, "expected_item": "ours", "preparation_strategy": "progressive_hls"},
+                "observation": {"state": "playing", "duration": receiver_duration},
+                "checkpoint": {"position": 30},
+                "_selected_source": row.data["_sources"][0]["id"],
+            }
+            device = db.get(cinema.CinemaDevice, f.device_id)
+            device.owner_workflow, device.adapter = row.id, "cast"
+            db.commit()
+
+    def seek(position):
+        return f.client.post(
+            "/api/v1/cinema/workflows/workflow-one/control",
+            json={"version": 1, "action": "seek", "position": position},
+        )
+
+    try:
+        fresh = {"item_id": "ours", "state": "playing", "session_id": 1}
+        with (
+            patch("houseos.cinema_cast.cast_control") as command,
+            patch("houseos.cinema.inspect_destination", return_value=fresh),
+        ):
+            playing(100.0)  # a normal film on the receiver: a seek in place
+            assert seek(90).json()["state"] == "command_sent"
+            assert command.call_args.args == ("192.0.2.17", "seek", 70)
+            playing(-1)  # taken for live: back is fine in place
+            assert seek(25).json()["state"] == "command_sent"
+            assert command.call_args.args == ("192.0.2.17", "seek", 5)
+            playing(-1)  # ahead: the same stream, loaded again there
+            moved = seek(90)
+            assert moved.json()["state"] == "preparing", moved.text
+        with Session(f.engine) as db:
+            row = db.get(cinema.CinemaWorkflow, "workflow-one")
+            assert row.data["_prepared"] == prepared and row.data["plan"]["position"] == 90
+        with (
+            Session(f.engine) as db,
+            patch("houseos.cinema_cast.execute_cast") as play,
+            patch("houseos.cinema_progressive.start") as copy,
+            patch("houseos.cinema.inspect_destination", return_value=fresh),
+        ):
+            assert process_one_preparation(db)
+            play.assert_called_once()
+            copy.assert_not_called()  # no second copy of the film
+            assert db.get(cinema.CinemaWorkflow, "workflow-one").state == "command_sent"
+    finally:
+        f.tearDown()

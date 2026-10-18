@@ -2783,12 +2783,22 @@ def control(
         prepared = row.data["_prepared"]
         offset = float(prepared.get("position_offset", 0))
         playlist = Path(prepared["path"]).with_name("video.m3u8")
-        buffered = (
-            sum(float(x) for x in re.findall(r"#EXTINF:([0-9.]+)", playlist.read_text()))
-            if playlist.is_file()
-            else 0
+        listed = playlist.read_text() if playlist.is_file() else ""
+        buffered = sum(float(x) for x in re.findall(r"#EXTINF:([0-9.]+)", listed))
+        within = prepared.get("timeline_version") == 2 and offset <= body.position < offset + max(
+            0, buffered - 4
         )
-        if prepared.get("timeline_version") == 2 and offset <= body.position < offset + max(0, buffered - 4):
+        # Loaded before it was complete, the Chromecast takes the stream for a live one (no
+        # length): it then never goes further ahead than the time since it was loaded, however
+        # much is ready. Ahead of the film, such a seek loads the stream again at that moment.
+        live = (
+            (row.data.get("observation") or {}).get("duration") == -1
+            and device.adapter == "cast"
+            and not prepared.get("web")
+        )
+        ahead = body.position > float((row.data.get("checkpoint") or {}).get("position") or 0) + 5
+        reload = within and live and ahead and "#EXT-X-ENDLIST" in listed
+        if within and not (live and ahead):
             body = body.model_copy(update={"position": body.position - offset})
         elif prepared.get("web"):  # a web video still downloading: nothing to prepare it from
             raise HTTPException(409, "That part isn't downloaded yet. Try again in a moment.")
@@ -2819,8 +2829,9 @@ def control(
                         "job_id": row.data.get("_stream_job_id"),
                     },
                     "plan": {**row.data["plan"], "position": body.position},
-                    "_prepared": None,
-                    "_stream_job_id": None,
+                    # Complete: the same stream, loaded again there (a normal film from now on).
+                    "_prepared": prepared if reload else None,
+                    "_stream_job_id": row.data.get("_stream_job_id") if reload else None,
                     "_destination_observation": fresh,
                     "error": None,
                 },

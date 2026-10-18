@@ -107,6 +107,18 @@ def process_one_preparation(db):
         plan = row.data["plan"]
         size = source.get("size")
         if plan.get("preparation_strategy") == "progressive_hls":
+            if (row.data.get("_prepared") or {}).get("streaming"):
+                # A seek on a stream already complete: no new copy, the receiver loads it again
+                # at the new moment (cinema.control decides).
+                execute_cast(db, row, device, source, plan)
+                job.state, job.finished_at = "done", utcnow()
+                save_workflow(
+                    db,
+                    row,
+                    "command_sent",
+                    {"observation": {"state": "command_sent", "physical_verification": "unverified"}},
+                )
+                return True
             from .cinema_progressive import start
 
             return start(db, row, device, source, plan, job)
