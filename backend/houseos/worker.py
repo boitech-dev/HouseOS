@@ -4,7 +4,7 @@ import time
 from collections import defaultdict
 from threading import Lock, RLock
 from datetime import timedelta
-from sqlalchemy import select, or_, and_, case, text
+from sqlalchemy import select, or_, and_, case, text, update
 from .db import SessionLocal, utcnow, new_id, engine
 from .models import Job, Operation, Record
 from .music import UNNAMED, QueueItem, QueueState, bridge
@@ -875,6 +875,20 @@ def cancel_removed_downloads():
             cancelled = fetch("cancel_download", item_id=item.id).get("status") == "completed"
             state = "cancelled" if cancelled else "cancel_failed"
             item.metadata_json = {**item.metadata_json, "download_state": state}
+        # A lookup whose song left the queue is never claimed again (claim takes queued songs
+        # only): close it, or it stays "running" for good and the house never looks idle.
+        db.execute(
+            update(Job)
+            .where(
+                Job.kind == "music.metadata",
+                or_(Job.state == "pending", and_(Job.state == "running", Job.lease_until < utcnow())),
+                Job.payload["item_id"]
+                .as_string()
+                .in_(select(QueueItem.id).where(QueueItem.status.in_(["removed", "skipped"]))),
+            )
+            .values(state="cancelled", error_code="ITEM_REMOVED"),
+            execution_options={"synchronize_session": False},
+        )
         db.commit()
 
 

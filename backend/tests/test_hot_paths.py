@@ -130,3 +130,50 @@ def test_a_removed_download_is_cancelled_once(monkeypatch):
     worker.cancel_removed_downloads()
     worker.cancel_removed_downloads()  # the fetcher is down: not asked again every tick
     assert asked == ["cancel_download"]
+
+
+def test_a_removed_songs_lookup_is_closed(monkeypatch):
+    from datetime import timedelta
+
+    from sqlalchemy.orm import Session
+
+    from houseos import worker
+    from houseos.db import utcnow
+    from houseos.models import Job
+    from houseos.music import QueueItem
+
+    engine = queue_db()
+    past, later = utcnow() - timedelta(days=1), utcnow() + timedelta(minutes=5)
+    with Session(engine) as db:
+        for i, status in enumerate(("removed", "skipped", "pending_metadata", "removed")):
+            db.add(
+                QueueItem(
+                    id=f"s{i}", owner_id="u", source_url="s", position=i, status=status, metadata_json={}
+                )
+            )
+        for i, (state, lease) in enumerate(
+            (("running", past), ("pending", None), ("running", past), ("running", later))
+        ):
+            db.add(
+                Job(
+                    id=f"j{i}",
+                    logical_key=f"metadata:s{i}",
+                    kind="music.metadata",
+                    actor_id="u",
+                    payload={"item_id": f"s{i}"},
+                    state=state,
+                    lease_until=lease,
+                    next_run=past,
+                )
+            )
+        db.commit()
+    monkeypatch.setattr(worker, "SessionLocal", lambda: Session(engine))
+    worker.cancel_removed_downloads()
+    with Session(engine) as db:
+        # gone songs closed; a queued song's lookup and one still truly running are left alone
+        assert [db.get(Job, f"j{i}").state for i in range(4)] == [
+            "cancelled",
+            "cancelled",
+            "running",
+            "running",
+        ]
