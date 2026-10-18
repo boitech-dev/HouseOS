@@ -92,7 +92,8 @@ function remembered() {
 /** The house's TV remotes, inline on Smart home: the one you chose last, and a small switcher
  *  when there are several (by name, or by what it controls when two share a name). */
 export function TvRemotes() {
-  const { data, error, reload } = useData<Obj>("/tv");
+  // Read again every few seconds: the TV's own remote changes volume and input too.
+  const { data, error, reload } = useData<Obj>("/tv", { interval: 4000 });
   const [chosen, setChosen] = useState(remembered),
     [called, setCalled] = useState(0);
   const box = useReveal<HTMLDivElement>(called, ".tv-remote");

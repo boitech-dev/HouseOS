@@ -4439,5 +4439,6 @@ const french: Record<string, string> = {
   "Check for an update": "Chercher une mise à jour",
   "Remove this integration?": "Retirer cette intégration ?",
   "Its code, keys and data go. What it wrote in the activity diary stays.": "Son code, ses clés et ses données partent. Ce qu’elle a écrit dans le journal de la maison reste.",
+  "TV volume": "Volume de la télé",
 };
 export default french;

@@ -489,6 +489,21 @@ export function CinemaTransport({
     const id = setInterval(() => !document.hidden && setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
+  // The TV itself, when Home Assistant reaches it: its own volume, the number the TV shows
+  // (the Chromecast's level is a second, separate one).
+  const tvs = useData<Obj>(current.device_id ? "/tv" : null, { interval: 5000 });
+  const tv = (tvs.data?.items || []).find(
+    (r: Obj) => r.id === current.device_id && r.target === "tv" && r.capabilities?.volume_level,
+  );
+  const tvVolume = async (level: number) => {
+    try {
+      await api("/tv/" + tv!.id + "/remote", "POST", { key: "VOLUME_SET", level, target: "tv" });
+      setError("");
+      await tvs.reload();
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  };
   const checkpoint = current.checkpoint || {};
   const since = checkpoint.at
     ? Math.max(
@@ -561,14 +576,24 @@ export function CinemaTransport({
         )}
       </div>
       <CinemaStop current={current} onChanged={onChanged} />
-      {current.volume_supported && (
+      {tv ? (
         <Slider
-          label={t("Movie volume")}
-          value={current.volume ?? 30}
-          max={75}
+          label={t("TV volume")}
+          value={typeof tv.state?.volume === "number" ? tv.state.volume : 0}
           format={(v) => String(v)}
-          onCommit={(value) => void send("volume", value)}
+          onCommit={(value) => void tvVolume(value)}
         />
+      ) : (
+        current.volume_supported && (
+          <Slider
+            label={t("Movie volume")}
+            value={current.volume ?? 30}
+            // The cap applies to raising it; a receiver already above shows where it really is.
+            max={Math.max(75, current.volume ?? 0)}
+            format={(v) => String(v)}
+            onCommit={(value) => void send("volume", Math.min(75, value))}
+          />
+        )
       )}
       <Problem error={error} />
     </div>

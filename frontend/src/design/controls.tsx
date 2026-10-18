@@ -508,9 +508,18 @@ export function Slider({
     setDraft(null);
   }, [value]);
   const shown = draft ?? value;
+  const settle = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(settle.current), []);
   const commit = (next: number) => {
     sent.current = true;
     onCommit?.(next);
+    // A device that reports the same level (or nothing) never clears the draft: after a few
+    // seconds the slider shows what the device says again, not the value it was dragged to.
+    clearTimeout(settle.current);
+    settle.current = setTimeout(() => {
+      sent.current = false;
+      setDraft(null);
+    }, 4000);
   };
   return (
     <label
@@ -618,7 +627,10 @@ export function ColorField({
             />
           );
         })}
-        <label className="ds-color__other" style={{ "--swatch": value || hueHex(40) } as CSSProperties}>
+        <label
+          className="ds-color__other"
+          style={{ "--swatch": value || hueHex(40) } as CSSProperties}
+        >
           <input
             ref={other}
             type="color"
@@ -735,7 +747,11 @@ export function Chip({
 }) {
   const inner = (
     <>
-      {selected && onToggle && !icon ? <Icon name="check" size="s" /> : icon && <Icon name={icon} size="s" />}
+      {selected && onToggle && !icon ? (
+        <Icon name="check" size="s" />
+      ) : (
+        icon && <Icon name={icon} size="s" />
+      )}
       <span className="ds-chip__label">{children}</span>
       {count !== undefined && <span className="ds-chip__count tabular">{count}</span>}
     </>
