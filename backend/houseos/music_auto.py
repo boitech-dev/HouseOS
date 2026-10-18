@@ -318,7 +318,9 @@ def rotation_over(db, item, now=None):
     since = item.metadata_json.get("auto_since")
     if not since:
         return False
-    elapsed = ((now or time.time()) - since) / 60
+    # Minutes heard (paused time left out); an older station without the count: since it began.
+    heard = item.metadata_json.get("auto_heard")
+    elapsed = heard / 60 if heard is not None else ((now or time.time()) - since) / 60
     songs, minutes = rotation.get("songs"), rotation.get("minutes")
     # The first title is a song already under way, so N songs end when title N+1 starts.
     if songs and item.metadata_json.get("titles_heard", 0) > songs:

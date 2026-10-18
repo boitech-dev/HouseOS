@@ -448,3 +448,27 @@ def test_auto_play_picks_always_wait_behind_requests(music_domain, monkeypatch):
     assert waiting_ids(db, alice) == [a1, b1, a2, pick.id]  # the pick took nobody's turn
     rounds = {i["id"]: i["round"] for i in m.state(alice, db)["items"]}
     assert rounds[pick.id] is None and rounds[a2] == 2
+
+
+def test_up_next_plays_in_the_order_shown_waiting_a_moment_for_a_song_being_looked_up(
+    music_domain, monkeypatch, tmp_path
+):
+    db, (alice, bob, _), q = music_domain
+    first = db.get(m.QueueItem, add(db, alice, song())["item_id"])
+    later = db.get(m.QueueItem, add(db, bob, song())["item_id"])
+    first.status, later.status = "pending_metadata", "ready"  # the next one is still being found
+    first.position, later.position = 1, 2
+    q.current_id, q.desired = None, "playing"
+    db.commit()
+    monkeypatch.setattr(worker, "SessionLocal", Session(db, q))
+    monkeypatch.setattr(settings, "runtime_root", tmp_path)
+    monkeypatch.setattr(settings, "audio_enabled", True)
+    monkeypatch.setattr(worker, "fetch", lambda *a, **k: {"status": "completed"})
+    monkeypatch.setattr(worker, "bridge", lambda action, **k: {"status": "command_sent"})
+    worker.advance()
+    assert q.current_id is None and later.status == "ready"  # waited: it doesn't jump the turn
+    first.metadata_json = {**first.metadata_json, "next_wait_from": time.time() - worker.NEXT_WAIT - 1}
+    db.commit()
+    worker.advance()
+    assert q.current_id == later.id  # too long: the next ready song plays meanwhile
+    assert first.status == "pending_metadata" and first.metadata_json["next_wait_from"] is None

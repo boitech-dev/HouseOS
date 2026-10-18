@@ -253,6 +253,10 @@ export function useMusicPlayback(enabled = true) {
       skips.burst ||= new Promise((resolve, reject) => {
         const send = async () => {
           const count = skips.waiting;
+          // The song the screen shows after every tap so far (this burst and any still on their
+          // way): the house skips up to it, never past it, so another phone's skip or a tap
+          // after the song changed skips nothing extra.
+          const aim = next[Math.min(skipsAhead(), next.length) - 1]?.id;
           skips.waiting = 0;
           skips.sending += count;
           skips.burst = null;
@@ -261,6 +265,7 @@ export function useMusicPlayback(enabled = true) {
               await api("/music/control", "POST", {
                 action: "skip",
                 value: count,
+                ...(aim ? { item_id: aim } : {}),
                 expected_version: state.data?.version,
                 idempotency_key: idempotency(),
               }),
@@ -1172,7 +1177,8 @@ export function Queue({ music, limit }: { music: Playback; limit?: number }) {
       );
     // Anyone moves any waiting song one step (songs pinned "right after this one" stay put).
     // Only songs that will play move: a failed one has no place to move to, and none between.
-    const movable = (other: Obj) => !other.pinned && ["ready", "pending_metadata"].includes(other.status);
+    const movable = (other: Obj) =>
+      !other.pinned && ["ready", "pending_metadata"].includes(other.status);
     const earlier = pending.slice(0, pending.indexOf(row)).filter(movable);
     const line = pending.filter(movable);
     const at = line.indexOf(row);

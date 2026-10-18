@@ -66,6 +66,11 @@ def test_library_and_radio_rotation(monkeypatch):
         assert music_auto.rotation_over(db, station, now)
         station.metadata_json = {**station.metadata_json, "titles_heard": 0}
         assert music_auto.rotation_over(db, station, now + 12 * 60)  # no titles: 6 minutes a song
+        # Paused 20 minutes in the middle: the turn counts what was heard (5 of its 12 minutes).
+        station.metadata_json = {**station.metadata_json, "auto_heard": 5 * 60}
+        assert not music_auto.rotation_over(db, station, now + 25 * 60)
+        station.metadata_json = {**station.metadata_json, "auto_heard": 12 * 60}
+        assert music_auto.rotation_over(db, station, now + 25 * 60)
         db.add(music.QueueItem(owner_id="two", source_url=rock, position=9, status="ready"))
         db.flush()
         assert music_auto.rotation_over(db, station, now)

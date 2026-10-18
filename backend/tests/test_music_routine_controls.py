@@ -80,3 +80,43 @@ def test_fast_skips_each_skip_one_song_at_once():
         statuses = [db.get(music.QueueItem, f"s{n}").status for n in range(1, 6)]
         assert statuses == ["skipped", "skipped", "skipped", "ready", "ready"]
         assert db.get(music.QueueState, 1).current_id == "s4"  # shown at once; the player loads it
+
+
+def test_a_skip_lands_on_the_song_the_screen_showed_never_past_it():
+    from sqlalchemy import select
+
+    from houseos.models import Job
+    from test_music_library import MusicLibraryTests
+
+    case = MusicLibraryTests()
+    case.setUp()
+    actor = Actor("one", "One", "resident", frozenset({"music.control"}))
+    with Session(case.engine, expire_on_commit=False) as db:
+        db.get(music.QueueItem, "track").status = "removed"
+        for n in range(1, 7):
+            db.add(music.QueueItem(id=f"s{n}", owner_id="one", source_url=f"https://x.invalid/{n}",
+                                   title=f"Song {n}", position=n, status="ready"))  # fmt: skip
+        q = db.get(music.QueueState, 1)
+        q.current_id, q.desired = "s1", "playing"
+        db.get(music.QueueItem, "s1").status = "playing"
+        db.commit()
+
+        def skip(aim, key, taps=1):
+            music.control(
+                music.Control(
+                    action="skip", value=taps, item_id=aim, expected_version=0, idempotency_key="skip-" + key
+                ),
+                actor,
+                db,
+            )
+
+        skip("s2", "phone-a")  # two phones both saw Song 1 and pressed Next
+        skip("s2", "phone-b")
+        assert db.get(music.QueueState, 1).current_id == "s2"
+        assert db.get(music.QueueItem, "s3").status == "ready"  # nobody meant to skip Song 2
+        skip("s5", "fast-taps", taps=3)  # three quick taps from Song 2
+        assert db.get(music.QueueState, 1).current_id == "s5"
+        jobs = len(db.scalars(select(Job).where(Job.kind == "music.control")).all())
+        skip("s4", "late-tap")  # a tap from a screen still showing Song 3: already past it
+        assert db.get(music.QueueState, 1).current_id == "s5"
+        assert len(db.scalars(select(Job).where(Job.kind == "music.control")).all()) == jobs  # nothing sent

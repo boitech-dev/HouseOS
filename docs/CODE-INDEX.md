@@ -2615,78 +2615,78 @@ Source: [backend/houseos/music.py](../backend/houseos/music.py)
   Repeat only a naturally finished song; skip and clear never call this.
 - [`class Control`](../backend/houseos/music.py#L842)
   Method: `check_value(self)`
-- [`control_effect(db, actor, q, action, value)`](../backend/houseos/music.py#L863)
-- [`control(body: Control, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L997)
+- [`control_effect(db, actor, q, action, value, aim=None)`](../backend/houseos/music.py#L864)
+- [`control(body: Control, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1015)
   HTTP: `router.post('/control')`
-- [`confirm(operation_id: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1037)
+- [`confirm(operation_id: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1057)
   HTTP: `router.post('/confirm/{operation_id}')`
-- [`history_key(source_url)`](../backend/houseos/music.py#L1055)
-- [`record_played(db, item, observation)`](../backend/houseos/music.py#L1059)
+- [`history_key(source_url)`](../backend/houseos/music.py#L1075)
+- [`record_played(db, item, observation)`](../backend/houseos/music.py#L1079)
   Called once only after the exact item is positively observed playing, under queue lock.
-- [`saved_records(db, actor)`](../backend/houseos/music.py#L1113)
-- [`source_metadata(db, sources)`](../backend/houseos/music.py#L1124)
+- [`saved_records(db, actor)`](../backend/houseos/music.py#L1133)
+- [`source_metadata(db, sources)`](../backend/houseos/music.py#L1144)
   One bounded batch; display data stays in the existing queue metadata cache.
-- [`history(offset: int=Query(0, ge=0), limit: int=Query(50, ge=1, le=100), actor=Depends(require_actor), db=Depends(get_db), by: str | None=Query(None, max_length=36), before: str | None=Query(None, max_length=200))`](../backend/houseos/music.py#L1163)
+- [`history(offset: int=Query(0, ge=0), limit: int=Query(50, ge=1, le=100), actor=Depends(require_actor), db=Depends(get_db), by: str | None=Query(None, max_length=36), before: str | None=Query(None, max_length=200))`](../backend/houseos/music.py#L1183)
   Newest first. `before` (from `next_before`) continues after a row, so plays that arrive
   HTTP: `router.get('/history')`
-- [`queue_favorites(db, actor, count=10)`](../backend/houseos/music.py#L1239)
+- [`queue_favorites(db, actor, count=10)`](../backend/houseos/music.py#L1259)
   The house's own greatest hits: `count` random picks from the 100 most played songs,
-- [`quick_songs(actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1287)
+- [`quick_songs(actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1307)
   Songs to start an empty queue with, drawn anew on each visit: two of the house's most
   HTTP: `router.get('/quick-songs')`
-- [`class Favorites`](../backend/houseos/music.py#L1330)
-- [`favorites_queue(body: Favorites, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1335)
+- [`class Favorites`](../backend/houseos/music.py#L1350)
+- [`favorites_queue(body: Favorites, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1355)
   HTTP: `router.post('/favorites/queue')`
-- [`source_genres(db, sources)`](../backend/houseos/music.py#L1340)
+- [`source_genres(db, sources)`](../backend/houseos/music.py#L1360)
   The genre the house worked out for each song lives on its history row.
-- [`saved(actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1352)
+- [`saved(actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1372)
   HTTP: `router.get('/saved')`
-- [`save_canonical_track(db, actor, url, item=None)`](../backend/houseos/music.py#L1374)
-- [`save_track(body: Add, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1394)
+- [`save_canonical_track(db, actor, url, item=None)`](../backend/houseos/music.py#L1394)
+- [`save_track(body: Add, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1414)
   HTTP: `router.post('/saved')`
-- [`current_favorite(actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1408)
+- [`current_favorite(actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1428)
   HTTP: `router.get('/current/favorite')`
-- [`class CurrentFavorite`](../backend/houseos/music.py#L1426)
-- [`favorite_current(body: CurrentFavorite, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1431)
+- [`class CurrentFavorite`](../backend/houseos/music.py#L1446)
+- [`favorite_current(body: CurrentFavorite, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1451)
   HTTP: `router.post('/current/favorite')`
-- [`search(q: str=Query(min_length=1, max_length=200), source: Literal['youtube', 'soundcloud']='youtube', actor=Depends(require_actor), db=Depends(get_db), limit: int=Query(default=5, ge=1, le=50))`](../backend/houseos/music.py#L1445)
+- [`search(q: str=Query(min_length=1, max_length=200), source: Literal['youtube', 'soundcloud']='youtube', actor=Depends(require_actor), db=Depends(get_db), limit: int=Query(default=5, ge=1, le=50))`](../backend/houseos/music.py#L1465)
   HTTP: `router.get('/search')`
-- [`kept_matches(db, query, most=3)`](../backend/houseos/music.py#L1473)
+- [`kept_matches(db, query, most=3)`](../backend/houseos/music.py#L1493)
   Songs kept on the house disk whose title or channel has every word searched (or a word
-- [`song_query(url: str, title: str, description: str)`](../backend/houseos/music.py#L1513)
+- [`song_query(url: str, title: str, description: str)`](../backend/houseos/music.py#L1533)
   Search words from a streaming service's page. Spotify's title is the song alone and its
-- [`link_song(url: str=Query(max_length=2048), actor=Depends(require_actor))`](../backend/houseos/music.py#L1524)
+- [`link_song(url: str=Query(max_length=2048), actor=Depends(require_actor))`](../backend/houseos/music.py#L1544)
   A Spotify, Apple Music, Deezer or Tidal link can't play here: the song it names, as words
   HTTP: `router.get('/link-song')`
-- [`class CandidateAdd`](../backend/houseos/music.py#L1536)
-- [`add_candidate(body: CandidateAdd, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1542)
+- [`class CandidateAdd`](../backend/houseos/music.py#L1556)
+- [`add_candidate(body: CandidateAdd, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1562)
   HTTP: `router.post('/candidates')`
-- [`class CandidateBatch`](../backend/houseos/music.py#L1557)
-- [`add_candidates(body: CandidateBatch, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1564)
+- [`class CandidateBatch`](../backend/houseos/music.py#L1577)
+- [`add_candidates(body: CandidateBatch, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1584)
   HTTP: `router.post('/candidates/batch')`
-- [`preview_playlist(body: Add, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1654)
+- [`preview_playlist(body: Add, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1674)
   HTTP: `router.post('/playlists/preview')`
-- [`queue_songs(db, q, owner_id, session_hash, role, candidates, pending, limit=500)`](../backend/houseos/music.py#L1685)
+- [`queue_songs(db, q, owner_id, session_hash, role, candidates, pending, limit=500)`](../backend/houseos/music.py#L1705)
   Queue new songs in order, skipping songs already waiting or playing. Stops at the
-- [`import_playlist(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1729)
+- [`import_playlist(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1749)
   Queue the first page now; the rest of a long playlist imports in the background.
   HTTP: `router.post('/playlists/{identity}/confirm')`
-- [`cancel_playlist_import(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1774)
+- [`cancel_playlist_import(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1794)
   Stop importing; songs already queued stay in the queue.
   HTTP: `router.post('/playlists/{identity}/cancel')`
-- [`import_playlist_page(job_id, generation, data)`](../backend/houseos/music.py#L1789)
+- [`import_playlist_page(job_id, generation, data)`](../backend/houseos/music.py#L1809)
   Worker step: fetch the next 50 songs of a playlist and queue them fairly.
-- [`unavailable(actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1858)
+- [`unavailable(actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1878)
   Your songs that turned out removed or private: they left the queue; pick another version.
   HTTP: `router.get('/unavailable')`
-- [`class Replacement`](../backend/houseos/music.py#L1870)
-- [`replace_unavailable(identity: str, body: Replacement, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1876)
+- [`class Replacement`](../backend/houseos/music.py#L1890)
+- [`replace_unavailable(identity: str, body: Replacement, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1896)
   Queue the chosen version, and put it in the gone song's place in its playlist.
   HTTP: `router.post('/unavailable/{identity}/replace')`
-- [`dismiss_unavailable(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1891)
+- [`dismiss_unavailable(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1911)
   HTTP: `router.delete('/unavailable/{identity}')`
-- [`own_unavailable(db, actor, identity)`](../backend/houseos/music.py#L1898)
-- [`delete_saved(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1906)
+- [`own_unavailable(db, actor, identity)`](../backend/houseos/music.py#L1918)
+- [`delete_saved(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1926)
   HTTP: `router.delete('/saved/{identity}')`
 
 ## music_auto
@@ -2726,14 +2726,14 @@ each play a few songs or a few minutes. A real request always goes first. No mod
   Called by the worker when music should play and nothing waits: queue one pick.
 - [`rotation_over(db, item, now=None)`](../backend/houseos/music_auto.py#L314)
   An auto station has had its turn: its songs or its minutes are done, or someone asked
-- [`queued_picks(db, actor)`](../backend/houseos/music_auto.py#L338)
+- [`queued_picks(db, actor)`](../backend/houseos/music_auto.py#L340)
   Auto play's picks already in the queue, in play order: the list goes on from them.
-- [`plan_view(db, actor, current, plan, songs)`](../backend/houseos/music_auto.py#L360)
-- [`upcoming(actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music_auto.py#L380)
+- [`plan_view(db, actor, current, plan, songs)`](../backend/houseos/music_auto.py#L362)
+- [`upcoming(actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music_auto.py#L382)
   What auto play will pick next, in order (library mode). Asking fixes the plan, so the
   HTTP: `router.get('/auto/upcoming')`
-- [`class Plan`](../backend/houseos/music_auto.py#L400)
-- [`change_upcoming(body: Plan, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music_auto.py#L408)
+- [`class Plan`](../backend/houseos/music_auto.py#L402)
+- [`change_upcoming(body: Plan, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music_auto.py#L410)
   Residents reorder, remove or reshuffle the next songs. A song removed stays out of the
   HTTP: `router.put('/auto/upcoming')`
 
@@ -3786,35 +3786,35 @@ Source: [backend/houseos/worker.py](../backend/houseos/worker.py)
 - [`preparation_window(db, limit=2)`](../backend/houseos/worker.py#L118)
   Current plus next two tracks, using the same fair order as playback.
 - [`claim(owner, kinds=('music.metadata', 'music.control', 'service.restart'))`](../backend/houseos/worker.py#L137)
-- [`fail_pending_item(db, job)`](../backend/houseos/worker.py#L186)
-- [`run_job(job)`](../backend/houseos/worker.py#L194)
-- [`_run_job(job)`](../backend/houseos/worker.py#L203)
-- [`item_authorized(db, item)`](../backend/houseos/worker.py#L431)
-- [`preparation_state(item_id, state, result=None)`](../backend/houseos/worker.py#L437)
-- [`paused_itself(db, code)`](../backend/houseos/worker.py#L453)
+- [`fail_pending_item(db, job)`](../backend/houseos/worker.py#L188)
+- [`run_job(job)`](../backend/houseos/worker.py#L196)
+- [`_run_job(job)`](../backend/houseos/worker.py#L205)
+- [`item_authorized(db, item)`](../backend/houseos/worker.py#L433)
+- [`preparation_state(item_id, state, result=None)`](../backend/houseos/worker.py#L439)
+- [`paused_itself(db, code)`](../backend/houseos/worker.py#L455)
   The house paused the music on its own: said in the log (why, and when it played again).
-- [`prepare_audio(source, item_id)`](../backend/houseos/worker.py#L458)
-- [`ready_from_cache(source, item_id, cached)`](../backend/houseos/worker.py#L479)
-- [`preload_count(db)`](../backend/houseos/worker.py#L495)
+- [`prepare_audio(source, item_id)`](../backend/houseos/worker.py#L460)
+- [`ready_from_cache(source, item_id, cached)`](../backend/houseos/worker.py#L481)
+- [`preload_count(db)`](../backend/houseos/worker.py#L497)
   How many songs to download ahead: the house's choice (None: the whole queue), at most 3
-- [`_prepare_audio(source, item_id)`](../backend/houseos/worker.py#L505)
-- [`renew_long_stream(item_id)`](../backend/houseos/worker.py#L539)
+- [`_prepare_audio(source, item_id)`](../backend/houseos/worker.py#L507)
+- [`renew_long_stream(item_id)`](../backend/houseos/worker.py#L541)
   Keep an hours-long mix flowing: extend its one-hour pipe lease before it lapses.
-- [`radio_now_title(item_id, source_url)`](../backend/houseos/worker.py#L554)
+- [`radio_now_title(item_id, source_url)`](../backend/houseos/worker.py#L556)
   Every 30 s, ask the station what song is on so the player can show (and find) it.
-- [`prefetch_next()`](../backend/houseos/worker.py#L585)
+- [`prefetch_next()`](../backend/houseos/worker.py#L587)
   Download the next few songs (house setting music_preload) so each starts at once. Auto
-- [`advance()`](../backend/houseos/worker.py#L668)
-- [`cancel_removed_downloads()`](../backend/houseos/worker.py#L881)
-- [`class WorkerTasks`](../backend/houseos/worker.py#L912)
+- [`advance()`](../backend/houseos/worker.py#L670)
+- [`cancel_removed_downloads()`](../backend/houseos/worker.py#L914)
+- [`class WorkerTasks`](../backend/houseos/worker.py#L945)
   Independent title lookup, sequential preloading and playback observation.
   Method: `__init__(self)`
   Method: `tick(self, owner)`
   Method: `close(self)`
-- [`planned_restart()`](../backend/houseos/worker.py#L958)
+- [`planned_restart()`](../backend/houseos/worker.py#L991)
   True once after `houseos.sh update` asked for it: music that was playing comes back.
-- [`reconcile_player_restart(observation)`](../backend/houseos/worker.py#L969)
-- [`main()`](../backend/houseos/worker.py#L1022)
+- [`reconcile_player_restart(observation)`](../backend/houseos/worker.py#L1002)
+- [`main()`](../backend/houseos/worker.py#L1055)
 
 # Frontend files and exports
 

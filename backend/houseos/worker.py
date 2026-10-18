@@ -179,6 +179,8 @@ def claim(owner, kinds=("music.metadata", "music.control", "service.restart")):
         return result
 
 
+NEXT_WAIT = 15  # seconds the next song in line is waited for while it is looked up
+
 # The fetcher was momentarily busy or restarting: worth another try, not a failure.
 TEMPORARY = {"SOURCE_BUSY", "FETCH_UNAVAILABLE", "YOUTUBE_RATE_LIMITED", "SOURCE_TIMEOUT"}
 
@@ -679,9 +681,13 @@ def advance():
             and current.status in {"playing", "paused", "buffering"}
             else None
         )
+        # Its titles count (a rotation by songs) only while the house plays it, not paused.
         radio = (
             (current.id, current.source_url)
-            if current and current.source_url.startswith("radio:") and current.status == "playing"
+            if current
+            and current.source_url.startswith("radio:")
+            and current.status == "playing"
+            and q.desired == "playing"
             else None
         )
     if streaming:  # paused or playing, an hours-long mix keeps its pipe
@@ -739,6 +745,17 @@ def advance():
                 if current.status != observed:
                     emit(db, "music.playback", {"item_id": current.id, "status": observed})
                 current.status = observed
+                if current.metadata_json.get("auto") == "radio":
+                    # A station's turn counts the time it is heard: a pause doesn't use it up.
+                    meta, now = current.metadata_json, time.time()
+                    heard = meta.get("auto_heard", 0) + (
+                        min(now - meta["auto_seen_at"], 10) if meta.get("auto_seen_at") else 0
+                    )
+                    current.metadata_json = {
+                        **meta,
+                        "auto_heard": heard if observed == "playing" else meta.get("auto_heard", 0),
+                        "auto_seen_at": now if observed == "playing" else None,
+                    }
                 if current.metadata_json.get("auto") == "radio" and observed == "playing":
                     from .music_auto import rotation_over
 
@@ -772,13 +789,29 @@ def advance():
             current.status = "ready"
         from .music import pending_order
 
-        ready = list(
-            db.scalars(select(QueueItem).where(QueueItem.status == "ready").order_by(QueueItem.position))
+        waiting = list(
+            db.scalars(
+                select(QueueItem)
+                .where(QueueItem.status.in_(["ready", "pending_metadata"]))
+                .order_by(QueueItem.position)
+            )
         )
+        line = pending_order(db, q, waiting)
+        first = line[0] if line else None
+        # Up next plays in the order shown: a song still being looked up is waited for a moment
+        # (its lookup goes first), then the next ready one plays meanwhile and it keeps its turn.
+        if not (current and current.status == "ready") and first and first.status == "pending_metadata":
+            since = first.metadata_json.get("next_wait_from")
+            if not since or time.time() - since < NEXT_WAIT:
+                if not since:
+                    first.metadata_json = {**first.metadata_json, "next_wait_from": time.time()}
+                db.commit()
+                return
+            first.metadata_json = {**first.metadata_json, "next_wait_from": None}  # waits again next time
         item = (
             current
             if current and current.status == "ready"
-            else next(iter(pending_order(db, q, ready)), None)
+            else next((row for row in line if row.status == "ready"), None)
         )
         if current and current.status in {"failed", "removed"}:
             q.current_id, q.desired = None, "paused"

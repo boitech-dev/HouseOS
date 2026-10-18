@@ -846,7 +846,8 @@ class Control(Input):
     value: Annotated[float, Field(ge=0, le=86400)] | Literal["off", "one", "queue"] | None = None
     expected_version: int
     # A seek names its song: checked against what plays, not the whole queue's version (a pause
-    # or a volume change just before raised it, and a second quick seek was refused).
+    # or a volume change just before raised it, and a second quick seek was refused). A skip
+    # names the song it lands on (what the screen showed after the taps).
     item_id: str | None = Field(default=None, max_length=36)
     idempotency_key: str = Field(min_length=8, max_length=100)
 
@@ -860,7 +861,7 @@ class Control(Input):
         return self
 
 
-def control_effect(db, actor, q, action, value):
+def control_effect(db, actor, q, action, value, aim=None):
     target = q.current_id
     if action in {"play", "pause"}:
         if action == "play" and not settings.audio_enabled:
@@ -877,7 +878,24 @@ def control_effect(db, actor, q, action, value):
         )
         if current is None and q.desired != "playing":
             line = []  # from silence, a skip starts the next song
-        skipped = line[: min(50, max(1, int(value or 1)))]
+        count = min(50, max(1, int(value or 1)))
+        if aim:
+            # Aimed at the song the screen showed after the taps: up to it, never past it. Another
+            # phone (or a tap after the song changed) aiming at what already plays skips nothing.
+            ids = [row.id for row in line]
+            count = ids.index(aim) if aim in ids else 0
+            if not count:  # already there (or past it): nothing to do, the song plays on
+                op = Operation(
+                    actor_id=actor.id,
+                    kind="music.control",
+                    state="completed",
+                    data={"action": action, "value": value},
+                    result={"skipped": 0},
+                )
+                db.add(op)
+                db.flush()
+                return op
+        skipped = line[:count]
         for row in skipped:
             row.status = "skipped"
         if skipped:
@@ -1027,7 +1045,9 @@ def control(body: Control, actor=Depends(require_actor), db=Depends(get_db)):
             "confirmation_id": op.id,
             "preview": {"action": body.action, "value": body.value},
         }
-    op = control_effect(db, actor, q, body.action, body.value)
+    op = control_effect(
+        db, actor, q, body.action, body.value, body.item_id if body.action == "skip" else None
+    )
     op.idempotency_key = body.idempotency_key
     db.commit()
     return {"status": "accepted", "operation_id": op.id}
