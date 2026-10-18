@@ -219,7 +219,13 @@ def frontend(path: str, request: Request):
     if path not in {"", "index.html", "sw.js"}:
         target = (root / path).resolve()
         if target.is_relative_to(root) and target.is_file():
-            return FileResponse(target)
+            # Built files carry their content's hash in the name: a new version is a new name,
+            # so a phone keeps them for good instead of asking again for each one.
+            immutable = path.startswith("assets/")
+            return FileResponse(
+                target,
+                headers={"Cache-Control": "public, max-age=31536000, immutable"} if immutable else None,
+            )
         # No files under assets-legacy/ (Legacy is a theme): a stale request gets a 404, not the page.
         if path.startswith(("assets/", "assets-legacy/", "art/")):
             return JSONResponse({"detail": "Not found"}, status_code=404)

@@ -354,3 +354,21 @@ def test_a_failed_query_names_each_service_and_its_answer(monkeypatch):
     with pytest.raises(ConnectionError) as failed:
         film_index.sparql("SELECT * WHERE {}")
     assert "query.wikidata.org: 429" in str(failed.value) and "qlever.dev: 429" in str(failed.value)
+
+
+def test_for_you_is_worked_out_once_per_person_and_index(monkeypatch):
+    from houseos import cinema_explore as e
+
+    e._for_you.cache_clear()
+    looked = []
+    monkeypatch.setattr(e, "stamp", lambda kind: ("index", 1))
+    monkeypatch.setattr(
+        e, "similar", lambda kind, cid, limit=30: looked.append(cid) or [{"canonical_id": "x" + cid}]
+    )
+    first = e.for_you("movie", ["a", "b"])
+    first[0]["poster"] = "changed by a caller"
+    assert e.for_you("movie", ["a", "b"]) == [{"canonical_id": "xa"}, {"canonical_id": "xb"}]
+    assert looked == ["a", "b"]  # the second call scanned nothing
+    e.for_you("movie", ["c"])
+    assert looked[-1] == "c"
+    e._for_you.cache_clear()

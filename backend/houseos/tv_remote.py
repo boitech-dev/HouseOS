@@ -72,6 +72,13 @@ REMOTES: dict = {}  # device id -> connected AndroidTVRemote
 UP: dict = {}  # device id -> connection currently up
 PAIRING: dict = {}  # device id -> (client waiting for the code, started at)
 PROBES: dict = {}  # device id -> (monotonic time, probe)
+# The whole list a few seconds: every open remote and Now bar asks every few seconds while a film
+# plays, and each answer asks Home Assistant and the Chromecast over the network. A press or a
+# setting drops it, so what follows a tap is always fresh.
+LIST_SECONDS = 3
+LISTED: dict = {}  # "tvs" -> (monotonic time, items)
+BUTTONS_SECONDS = 60  # a TV's arrows and OK don't change: its Home Assistant buttons, a minute
+BUTTONS: dict = {}  # device id -> (monotonic time, buttons)
 
 
 def unreachable():
@@ -115,6 +122,7 @@ def set_paired(device_id, paired):
     ids = paired_ids() | {device_id} if paired else paired_ids() - {device_id}
     write_json(folder() / "paired.json", sorted(ids))
     PROBES.pop(device_id, None)
+    LISTED.clear()
 
 
 # ---------- the connection loop ----------
@@ -304,6 +312,15 @@ def ha_buttons(db, device):
     """{key: (service path, data)} for the mapped TV's arrows, OK, back and home in Home
     Assistant: its integration's remote (LG, Samsung, Sony, Roku, Apple TV…, see home.REMOTES),
     else button entities named like its keys (Hisense VIDAA)."""
+    cached = BUTTONS.get(device.id)
+    if cached and time.monotonic() - cached[0] < BUTTONS_SECONDS:
+        return cached[1]
+    found = find_buttons(db, device)
+    BUTTONS[device.id] = (time.monotonic(), found)
+    return found
+
+
+def find_buttons(db, device):
     from . import home
 
     base, headers, entity = cinema_tv.bridge(db, device)
@@ -576,6 +593,7 @@ def exact_volume(value):
 def press(db, device, key, value=None, times=1, target="device"):
     """Send one allowlisted key the best way this target supports. Returns how it was sent."""
     PROBES.pop(device.id, None)
+    LISTED.clear()
     if target == "tv":
         return press_tv(db, device, key, value, times)
     if key == "INPUT":
@@ -649,7 +667,12 @@ class PairCode(Input):
 @router.get("")
 def list_tvs(actor: Actor = Depends(require_actor), db: Session = Depends(get_db)):
     allowed(actor)
-    return {"items": describe(db, tvs(db))}
+    cached = LISTED.get("tvs")
+    if cached and time.monotonic() - cached[0] < LIST_SECONDS:
+        return {"items": cached[1]}
+    items = describe(db, tvs(db))
+    LISTED["tvs"] = (time.monotonic(), items)
+    return {"items": items}
 
 
 @router.post("/{device_id}/remote")
@@ -689,4 +712,5 @@ def set_film_input(
     device = device_or_404(db, device_id)
     device.capabilities = {**(device.capabilities or {}), "tv_input": body.input}
     db.commit()
+    LISTED.clear()
     return {"film_input": body.input}

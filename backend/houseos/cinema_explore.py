@@ -344,7 +344,14 @@ def franchise(canonical_id, limit=12):
 
 def for_you(kind, seen, limit=24):
     """ "Recommended for you": what is most like the last titles watched (most recent first,
-    each counting a little less), without what was already seen."""
+    each counting a little less), without what was already seen. Remembered until the person
+    watches something else or the index changes (it scans the whole catalogue: ~0.3 s)."""
+    found = _for_you(kind, tuple(seen), limit, stamp(kind))
+    return [dict(item) for item in found]  # copies: callers may add to them
+
+
+@lru_cache(maxsize=32)
+def _for_you(kind, seen, limit, _stamp):
     scores, rows = {}, {}
     for rank, canonical in enumerate(seen[:5]):
         for position, item in enumerate(similar(kind, canonical, limit=30)):

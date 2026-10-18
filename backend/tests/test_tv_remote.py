@@ -462,3 +462,21 @@ def test_a_film_turns_the_tv_on_and_goes_to_the_chromecast_input(house, monkeypa
     assert tv_remote.film_input(bedroom, {"inputs": ["HDMI 1", "Chromecast"]}) is None
     bedroom.capabilities = {}
     assert tv_remote.film_input(bedroom, {"inputs": ["HDMI 1", "Chromecast"]}) == "Chromecast"
+
+
+def test_the_tv_list_is_reused_a_few_seconds_and_fresh_after_a_press(monkeypatch):
+    from types import SimpleNamespace
+    from houseos import tv_remote as r
+
+    calls = []
+    monkeypatch.setattr(r, "LISTED", {})
+    monkeypatch.setattr(r, "tvs", lambda db: [])
+    monkeypatch.setattr(r, "describe", lambda db, devices: calls.append(1) or [{"id": "tv"}])
+    actor = SimpleNamespace(role="admin", permissions=frozenset())
+    r.list_tvs(actor, None)
+    r.list_tvs(actor, None)
+    assert len(calls) == 1  # every open remote and Now bar polls: one look at the devices
+    monkeypatch.setattr(r, "press_tv", lambda *a: {"status": "sent"})
+    r.press(None, SimpleNamespace(id="tv"), "VOLUME_SET", 20, 1, "tv")
+    r.list_tvs(actor, None)
+    assert len(calls) == 2  # after a tap, what the TV says now

@@ -186,6 +186,8 @@ configs:
         tls {
           on_demand
         }
+        # The app's scripts and styles shrink about 4×; Caddy leaves video and audio as they are.
+        encode zstd gzip
         request_body {
           max_size 16MB
         }

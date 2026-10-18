@@ -678,7 +678,7 @@ def test_context_switch_does_not_reset_round_budget(domain, monkeypatch):
 
     monkeypatch.setattr(a, "provider_round", provider)
     result = a.chat(a.Chat(message="Switch topic", idempotency_key=new_id()), alice, db)
-    assert len(dispatched) == 8 and result["status"] == "limit_reached"
+    assert len(dispatched) == a.LOOP_ROUNDS and result["status"] == "limit_reached"
     assert "Unverified provider narrative" not in result["reply"]
 
 
