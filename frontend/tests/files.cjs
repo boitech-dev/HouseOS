@@ -22,7 +22,7 @@ const assert = require("node:assert/strict");
     buffer: Buffer.from("HouseOS browser upload test.\n"),
   });
   await p
-    .getByText("stored", { exact: true })
+    .getByText("Upload stored", { exact: true })
     .waitFor({ timeout: 10000 })
     .catch(async (e) => {
       console.log(await p.getByRole("alert").allTextContents());

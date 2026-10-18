@@ -101,11 +101,36 @@ export function Button({
   children,
   type = "button",
   disabled,
+  onClick,
   ...rest
 }: ButtonProps) {
+  // A click whose action returns a promise keeps the button busy until it settles: a double tap
+  // can't send the same request twice.
+  const [working, setWorking] = useState(false);
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => void (mounted.current = false);
+  }, []);
+  busy = busy || working;
   return (
     <button
       {...rest}
+      onClick={
+        onClick &&
+        ((e) => {
+          const result: unknown = onClick(e);
+          if (result instanceof Promise) {
+            setWorking(true);
+            const done = () => mounted.current && setWorking(false);
+            // An error stays unhandled as before: the page's notice still shows it.
+            result.then(done, (error) => {
+              done();
+              throw error;
+            });
+          }
+        })
+      }
       type={type}
       className={"ds-button" + (rest.className ? " " + rest.className : "")}
       data-variant={variant}

@@ -372,6 +372,12 @@ function HouseLanguages({ current }: { current: string }) {
             value={wanted}
             maxLength={40}
             onChange={(e) => setWanted(e.target.value)}
+            onKeyDown={(e) => {
+              // Enter asks Nox (the button beside it), not the whole settings form around it.
+              if (e.key !== "Enter") return;
+              e.preventDefault();
+              (e.currentTarget.nextElementSibling as HTMLButtonElement | null)?.click();
+            }}
           />
           <Button
             icon="sparkles"

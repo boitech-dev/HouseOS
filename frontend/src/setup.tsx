@@ -21,6 +21,7 @@ import {
   Status,
   Text,
   type Tone,
+  copyText,
 } from "./design";
 import "./setup.css";
 
@@ -417,8 +418,7 @@ export function AccessAdmin() {
                   location.protocol === "https:"
                     ? location.origin
                     : `https://${location.hostname}:8443`;
-                await navigator.clipboard?.writeText(https);
-                setCopied(true);
+                setCopied(await copyText(https));
               }}
             >
               {copied ? t("Copied") : t("Copy the secure address")}

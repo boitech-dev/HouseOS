@@ -1382,7 +1382,7 @@ function Tonight({
       {candidate &&
         (user?.role === "admin" || user?.permissions?.includes("files.shared.write")) && (
           <div>
-            <Button variant="link" size="s" icon="download" onClick={() => void keepCopy()}>
+            <Button variant="link" size="s" icon="download" onClick={keepCopy}>
               {t("Keep a copy at home")}
             </Button>
           </div>

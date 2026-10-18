@@ -2,7 +2,7 @@
 import { t } from "./i18n";
 import { useEffect, useState } from "react";
 import { useUser } from "./api";
-import { Button, IconButton, PageHeader, Sheet, Slider } from "./design";
+import { Button, IconButton, PageHeader, Sheet, Slider, toast } from "./design";
 import { go } from "./nav";
 import { JoinCode } from "./guest_code";
 import { AddBar, Deck, Queue, useMusicPlayback, useWakeLock } from "./music";
@@ -78,7 +78,11 @@ export function Party() {
           <Slider
             label={t("Volume")}
             value={music.data?.volume ?? 60}
-            onCommit={(value) => void music.control("volume", value)}
+            onCommit={(value) =>
+              void music
+                .control("volume", value)
+                .catch((e) => toast((e as Error).message, { tone: "danger" }))
+            }
           />
         </Sheet>
       )}

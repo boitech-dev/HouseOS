@@ -17,6 +17,8 @@ import {
   Surface,
   Switch,
   Text,
+  toast,
+  copyText,
 } from "./design";
 import "./setup.css";
 
@@ -44,7 +46,7 @@ function CopyCommand({ command }: { command: string }) {
         size="s"
         variant="quiet"
         icon={copied ? "check" : "copy"}
-        onClick={() => void navigator.clipboard?.writeText(command).then(() => setCopied(true))}
+        onClick={async () => setCopied(await copyText(command))}
       >
         {copied ? t("Copied") : t("Copy")}
       </Button>
@@ -150,8 +152,9 @@ export function HouseActions({ only }: { only?: string[] }) {
             try {
               await api("/admin/house-actions/check", "POST");
               setTimeout(() => void s.reload().finally(() => setChecking(false)), 8000);
-            } catch {
+            } catch (e) {
               setChecking(false);
+              toast((e as Error).message, { tone: "danger" });
             }
           }}
         >

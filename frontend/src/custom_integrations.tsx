@@ -29,6 +29,7 @@ import {
   Text,
   toast,
   type Tone,
+  copyText,
 } from "./design";
 
 /** An integration's own words: a string, or {en, fr, …} by language. */
@@ -66,7 +67,9 @@ export function CustomIntegrations() {
             <ListRow
               key={r.id}
               leading={<Icon name="plug" />}
-              title={(r.manifest?.name || r.id) + (r.manifest?.version ? " · " + r.manifest.version : "")}
+              title={
+                (r.manifest?.name || r.id) + (r.manifest?.version ? " · " + r.manifest.version : "")
+              }
               detail={r.manifest?.description}
               status={
                 r.problem
@@ -125,7 +128,13 @@ function Preview({ found }: { found: Obj }) {
   );
 }
 
-function AddIntegration({ onClose, onDone }: { onClose: () => void; onDone: (id: string) => unknown }) {
+function AddIntegration({
+  onClose,
+  onDone,
+}: {
+  onClose: () => void;
+  onDone: (id: string) => unknown;
+}) {
   const [found, setFound] = useState<Obj | null>(null),
     [failure, setFailure] = useState("");
   return (
@@ -149,15 +158,25 @@ function AddIntegration({ onClose, onDone }: { onClose: () => void; onDone: (id:
               }
             }}
           >
-            <Field label={t("Repository address")} hint={t("Its https address, as you would clone it.")}>
-              <Input name="url" type="url" required placeholder="https://git.example.net/me/my-integration.git" />
+            <Field
+              label={t("Repository address")}
+              hint={t("Its https address, as you would clone it.")}
+            >
+              <Input
+                name="url"
+                type="url"
+                required
+                placeholder="https://git.example.net/me/my-integration.git"
+              />
             </Field>
             <Field label={t("Branch or tag (optional)")}>
               <Input name="ref" />
             </Field>
             <Field
               label={t("Access token (optional)")}
-              hint={t("For a private repository: a read-only token. Kept encrypted, used only to download it.")}
+              hint={t(
+                "For a private repository: a read-only token. Kept encrypted, used only to download it.",
+              )}
             >
               <SecretInput name="token" />
             </Field>
@@ -200,7 +219,15 @@ function AddIntegration({ onClose, onDone }: { onClose: () => void; onDone: (id:
   );
 }
 
-function IntegrationSheet({ row, reload, onClose }: { row: Obj; reload: () => Promise<unknown>; onClose: () => void }) {
+function IntegrationSheet({
+  row,
+  reload,
+  onClose,
+}: {
+  row: Obj;
+  reload: () => Promise<unknown>;
+  onClose: () => void;
+}) {
   const [failure, setFailure] = useState(""),
     [update, setUpdate] = useState<Obj | null>(null),
     [checking, setChecking] = useState(false),
@@ -217,11 +244,7 @@ function IntegrationSheet({ row, reload, onClose }: { row: Obj; reload: () => Pr
       await reload();
     }
   };
-  const copy = (value: string) =>
-    void navigator.clipboard
-      ?.writeText(value)
-      .then(() => toast(t("Copied.")))
-      .catch(() => setFailure(t("Select the text and copy it by hand.")));
+  const copy = (value: string) => void copyText(value).then((done) => done && toast(t("Copied.")));
   const card = row.card || {};
   return (
     <Sheet title={row.manifest?.name || row.id} onClose={onClose} wide>
@@ -248,7 +271,13 @@ function IntegrationSheet({ row, reload, onClose }: { row: Obj; reload: () => Pr
             </ol>
           </Disclosure>
         )}
-        <Section level={3} title={t("Keys")} lead={t("For phone shortcuts, scripts and helpers on other computers, which can't sign in. A key only opens what this integration allows, and acts as you.")}>
+        <Section
+          level={3}
+          title={t("Keys")}
+          lead={t(
+            "For phone shortcuts, scripts and helpers on other computers, which can't sign in. A key only opens what this integration allows, and acts as you.",
+          )}
+        >
           {(row.keys || []).length > 0 && (
             <List label={t("Keys")}>
               {row.keys.map((k: Obj) => (
@@ -256,7 +285,13 @@ function IntegrationSheet({ row, reload, onClose }: { row: Obj; reload: () => Pr
                   key={k.id}
                   leading={<Icon name="key" />}
                   title={k.name}
-                  detail={t("Created by") + " " + k.by + ", " + time(new Date(k.created_at * 1000).toISOString())}
+                  detail={
+                    t("Created by") +
+                    " " +
+                    k.by +
+                    ", " +
+                    time(new Date(k.created_at * 1000).toISOString())
+                  }
                   actions={
                     <Button
                       size="s"
@@ -275,7 +310,9 @@ function IntegrationSheet({ row, reload, onClose }: { row: Obj; reload: () => Pr
             submit={t("Create a key")}
             onSubmit={(fields) =>
               act(async () => {
-                const made = await api<Obj>(base + "/keys", "POST", { name: String(fields.get("name") || "") });
+                const made = await api<Obj>(base + "/keys", "POST", {
+                  name: String(fields.get("name") || ""),
+                });
                 setKey(made.key);
               })
             }
@@ -302,7 +339,8 @@ function IntegrationSheet({ row, reload, onClose }: { row: Obj; reload: () => Pr
         <Section level={3} title={t("Source")}>
           <Text style="body-s" tone="muted">
             {row.source?.url}
-            {row.source?.ref ? " @ " + row.source.ref : ""} · {short(row.source?.commit)} {row.source?.subject}
+            {row.source?.ref ? " @ " + row.source.ref : ""} · {short(row.source?.commit)}{" "}
+            {row.source?.subject}
             {row.updated_at ? " · " + time(row.updated_at) : ""}
           </Text>
           {update && (
@@ -375,7 +413,13 @@ function IntegrationSheet({ row, reload, onClose }: { row: Obj; reload: () => Pr
 
 /** Capture: the share buttons turned-on integrations offer for this text. `onSent` takes over
  *  once one worked (an incoming share then clears itself); otherwise its reply shows here. */
-export function ShareButtons({ text, onSent }: { text: string; onSent?: (message: string) => void }) {
+export function ShareButtons({
+  text,
+  onSent,
+}: {
+  text: string;
+  onSent?: (message: string) => void;
+}) {
   const { data } = useData<Obj>("/custom-integrations/shares");
   const [busy, setBusy] = useState(""),
     [said, setSaid] = useState<{ tone: Tone; text: string } | null>(null);
@@ -398,7 +442,9 @@ export function ShareButtons({ text, onSent }: { text: string; onSent?: (message
             setBusy(s.integration + s.id);
             setSaid(null);
             try {
-              const reply = await api<Obj>(`/custom/${s.integration}${s.path}`, "POST", { [s.field]: text });
+              const reply = await api<Obj>(`/custom/${s.integration}${s.path}`, "POST", {
+                [s.field]: text,
+              });
               const message = own(reply?.message) || t("Sent.");
               if (onSent) onSent(message);
               else setSaid({ tone: "success", text: message });

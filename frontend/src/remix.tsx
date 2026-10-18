@@ -12,7 +12,7 @@ import {
   type PointerEvent,
 } from "react";
 import { api, useData, type Obj } from "./api";
-import { t } from "./i18n";
+import { t, plural } from "./i18n";
 import { go } from "./nav";
 import {
   Badge,
@@ -196,7 +196,11 @@ export function Remix() {
       const result = await api("/themes/remix/" + encodeURIComponent(id), "PUT", draft);
       if (!result.passed) {
         toast(
-          t("Not saved: {n} checks to fix.").replace("{n}", String(result.failures?.length ?? 1)),
+          plural(
+            result.failures?.length ?? 1,
+            "Not saved: {n} check to fix.",
+            "Not saved: {n} checks to fix.",
+          ),
           {
             tone: "danger",
           },
@@ -216,20 +220,26 @@ export function Remix() {
   };
   const wear = async () => {
     if (changed && !(await save())) return;
-    await api("/preferences", "PUT", { theme: id });
+    try {
+      await api("/preferences", "PUT", { theme: id });
+    } catch (e) {
+      return toast((e as Error).message, { tone: "danger" });
+    }
     dispatchEvent(new Event("house-settings-updated"));
     toast(t("You're wearing it."), { tone: "success" });
   };
+  // After a font, pattern or picture is added: its files are new, the rest of the draft (edits
+  // not saved yet) stays. Only a font changes the theme's own files (its fonts).
   const reload = async () => {
     const fresh = await api<Obj>("/themes/remix/" + encodeURIComponent(id));
-    setDraft({
-      theme: fresh.theme,
-      tokens: fresh.tokens,
-      tokens_light: fresh.tokens_light,
-      tokens_dark: fresh.tokens_dark,
-      flavor: fresh.flavor,
-      sprites: fresh.sprites,
-    });
+    setDraft(
+      (d) =>
+        d && {
+          ...d,
+          theme: { ...d.theme, fonts: fresh.theme.fonts },
+          tokens: { ...d.tokens, font: fresh.tokens?.font },
+        },
+    );
     setArt(fresh.art || []);
   };
   const failures = preview.failures ?? [];
@@ -295,7 +305,7 @@ export function Remix() {
               <Badge tone="success">{t("Every check passes")}</Badge>
             ) : (
               <Badge tone="danger">
-                {t("{n} checks to fix").replace("{n}", String(failures.length))}
+                {plural(failures.length, "{n} check to fix", "{n} checks to fix")}
               </Badge>
             )}
           </div>

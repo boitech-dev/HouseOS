@@ -23,7 +23,7 @@ import {
   useUser,
   type Obj,
 } from "./api";
-import { getLanguage, t, useI18n, type Language } from "./i18n";
+import { getLanguage, t, useI18n, type Language, plural } from "./i18n";
 import { CONTROL_PLACES, go } from "./nav";
 import {
   Avatar,
@@ -572,7 +572,9 @@ function StatusBar({
           </Status>
         )}
         {waiting > 0 && (
-          <Status tone="warning">{t("{n} changes waiting").replace("{n}", String(waiting))}</Status>
+          <Status tone="warning">
+            {plural(waiting, "{n} change waiting", "{n} changes waiting")}
+          </Status>
         )}
         <time className="shell__clock tabular">
           {new Intl.DateTimeFormat(preferences.language || "en-GB", {
@@ -1584,7 +1586,15 @@ function MeMenu({
         />
         <div>
           <strong>{user.name}</strong>
-          <small>{t(user.role === "admin" ? "Administrator" : "Resident")}</small>
+          <small>
+            {t(
+              user.role === "admin"
+                ? "Administrator"
+                : user.role === "guest"
+                  ? "Guest"
+                  : "Resident",
+            )}
+          </small>
         </div>
       </div>
       <List label={t("Your places")}>

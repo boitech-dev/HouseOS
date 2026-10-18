@@ -355,6 +355,18 @@ let toasts: Toast[] = [];
 const listeners = new Set<() => void>();
 const publish = () => listeners.forEach((listener) => listener());
 
+/** Copy to the clipboard; true when it worked. A plain http address has no clipboard: then it
+ *  says to copy by hand instead of failing silently. */
+export async function copyText(text: string) {
+  try {
+    await navigator.clipboard.writeText(text); // no clipboard on plain http: that throws too
+    return true;
+  } catch {
+    toast(t("Select the text and copy it by hand."), { tone: "neutral" });
+    return false;
+  }
+}
+
 /** Say what just happened ("Added to the queue."); success echoes the verb in the past tense. */
 export function toast(
   text: string,

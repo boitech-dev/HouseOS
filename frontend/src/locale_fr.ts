@@ -205,7 +205,7 @@ const french: Record<string, string> = {
   note: "note",
   event: "événement",
   task: "tâche",
-  item: "article",
+  item: "élément",
   "Edit this item": "Modifier cet élément",
   "Leave a house note": "Laisser une note à la maison",
   "Leave the first note for your housemates.": "Laisse la première note à tes colocataires.",
@@ -1545,7 +1545,6 @@ const french: Record<string, string> = {
     "Ouvre ce lien sur un téléphone ou un ordinateur connecté à la maison et touche Écouter ici. Il joue en même temps que la maison.",
   "Copy link": "Copier le lien",
   "Link copied.": "Lien copié.",
-  "Copy the link by hand.": "Copie le lien à la main.",
   "Play a test sound (optional)": "Jouer un son de test (facultatif)",
   "Music must be stopped. You will hear one quiet second on the speakers chosen above.":
     "La musique doit être arrêtée. Tu entendras une seconde discrète sur les enceintes choisies ci-dessus.",
@@ -4450,10 +4449,27 @@ const french: Record<string, string> = {
   "Type a time in the film, like 1:23:45, 83:20 or 45 (minutes).":
     "Tape un moment du film, comme 1:23:45, 83:20 ou 45 (minutes).",
   "Uploading…": "Envoi…",
-  "Could not copy. Use the address shown in your browser.":
-    "Copie impossible. Utilise l’adresse affichée dans ton navigateur.",
   "Can't reach the house. Check the connection and try again.":
     "La maison ne répond pas. Vérifie la connexion et réessaie.",
   "Could not load the snapshot. Try again.": "Impossible de charger la sauvegarde. Réessaie.",
+  "{name} is stored at home.": "{name} est rangé à la maison.",
+  "Your watch history will include this session.": "Cette séance comptera dans ton historique.",
+  "This session will no longer update your watch history.":
+    "Cette séance ne compte plus dans ton historique.",
+  "Set TV volume": "Régler le volume de la télé",
+  "Change input": "Changer d’entrée",
+  "{n} song": "{n} morceau",
+  "{n} title": "{n} titre",
+  "{n} play": "{n} écoute",
+  track: "morceau",
+  "{n} game": "{n} jeu",
+  "{n} problem": "{n} problème",
+  "{n} song added to the queue.": "{n} morceau ajouté à la file.",
+  "Not saved: {n} check to fix.": "Pas enregistré : {n} vérification à corriger.",
+  "{n} check to fix": "{n} vérification à corriger",
+  "{n} item": "{n} élément",
+  "{n} change waiting": "{n} changement en attente",
+  "{n} signed-in session": "{n} session ouverte",
+  "{n} thing Nox keeps in mind": "{n} chose que Nox garde en tête",
 };
 export default french;

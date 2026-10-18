@@ -1,6 +1,6 @@
 // Me: a person's own settings (profile, look, comfort, security, films, notifications, Nox's
 // memory and AI usage), as a list of places beside the chosen one (SettingsLayout).
-import { t, getLanguage } from "./i18n";
+import { t, getLanguage, plural } from "./i18n";
 import { useState, type CSSProperties, type ReactNode } from "react";
 import { AI_PROVIDERS } from "./providers";
 import { localStore } from "./local";
@@ -141,8 +141,8 @@ function MeOverview({
   const house = useData("/house-settings");
   const sessions = useData("/auth/sessions");
   const memories = useData(nox ? "/assistant/memories" : null);
-  const count = (template: string, n?: number | null) =>
-    n == null ? "…" : t(template).replace("{n}", String(n));
+  const count = (one: string, many: string, n?: number | null) =>
+    n == null ? "…" : plural(n, one, many);
   const current = useTheme().split("/")[0];
   const theme = allThemes().find((item) => item.id === current);
   return (
@@ -179,7 +179,11 @@ function MeOverview({
         <ListRow
           leading={<Icon name="lock" />}
           title={t("Security")}
-          detail={count("{n} signed-in sessions", sessions.data && items(sessions.data).length)}
+          detail={count(
+            "{n} signed-in session",
+            "{n} signed-in sessions",
+            sessions.data && items(sessions.data).length,
+          )}
           onOpen={() => onOpen("security")}
         />
         {nox && (
@@ -187,6 +191,7 @@ function MeOverview({
             leading={<Icon name="bot" />}
             title={t("Nox's memory")}
             detail={count(
+              "{n} thing Nox keeps in mind",
               "{n} things Nox keeps in mind",
               memories.data && items(memories.data).length,
             )}

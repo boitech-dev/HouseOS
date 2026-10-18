@@ -60,6 +60,7 @@ import {
   type Tone,
   tone,
   Toolbar,
+  copyText,
 } from "./design";
 import "./house.css";
 
@@ -1218,11 +1219,9 @@ export function Household({ storage = false }: { storage?: boolean }) {
       label: t("Copy link"),
       icon: "link",
       onSelect: () =>
-        void navigator.clipboard
-          ?.writeText(
-            location.origin + "/house?tab=" + encodeURIComponent(kind) + "&record=" + r.id,
-          )
-          .then(() => toast(t("Link copied."))),
+        void copyText(
+          location.origin + "/house?tab=" + encodeURIComponent(kind) + "&record=" + r.id,
+        ).then((done) => done && toast(t("Link copied."))),
     },
     ...(canRemove(r)
       ? [

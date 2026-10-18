@@ -1,7 +1,7 @@
 // Games (D33): the house's own games, like Watch for films. Shelves, search and filters; a game's
 // sheet with its versions, your saves and where to play it: here (in the browser, nothing to
 // install) or on the TV (Moonlight). Adding: an upload, a link, or a folder the admin points at.
-import { t } from "./i18n";
+import { t, plural } from "./i18n";
 import { useEffect, useState, type ReactNode } from "react";
 import {
   api,
@@ -1212,18 +1212,22 @@ function Uploads() {
 
 function LinkForm({ onDone }: { onDone: () => void }) {
   const [url, setUrl] = useState(""),
-    [error, setError] = useState("");
+    [error, setError] = useState(""),
+    [busy, setBusy] = useState(false);
   return (
     <form
       className="games-add"
       onSubmit={(e) => {
         e.preventDefault();
+        if (busy) return;
+        setBusy(true);
         void api("/games/link", "POST", { url: url.trim() })
           .then(() => {
             toast(t("Downloading it into the house…"));
             onDone();
           })
-          .catch((err) => setError(err.message));
+          .catch((err) => setError(err.message))
+          .finally(() => setBusy(false));
       }}
     >
       <Field
@@ -1240,7 +1244,7 @@ function LinkForm({ onDone }: { onDone: () => void }) {
         />
       </Field>
       <Problem error={error} />
-      <Button type="submit" variant="primary" icon="download" disabled={!url.trim()}>
+      <Button type="submit" variant="primary" icon="download" busy={busy} disabled={!url.trim()}>
         {t("Add")}
       </Button>
     </form>
@@ -1296,7 +1300,7 @@ function Folders() {
             detail={
               f.scanning
                 ? t("Looking through it… (starts within a minute)")
-                : t("{n} games").replace("{n}", String(f.count ?? 0)) +
+                : plural(f.count ?? 0, "{n} game", "{n} games") +
                   (f.skipped
                     ? " · " + t("{n} files it couldn't place").replace("{n}", String(f.skipped))
                     : "")

@@ -24,6 +24,9 @@ export function t(text: string): string {
     ? text
     : (/^\s/.test(text) ? " " : "") + result + (/\s$/.test(text) ? " " : "");
 }
+/** A count in words: plural(n, "{n} song", "{n} songs") reads "1 song", "2 songs". */
+export const plural = (n: number, one: string, many: string, shown: string = String(n)) =>
+  t(n === 1 ? one : many).replace("{n}", shown);
 function use(value: Language, strings: Record<string, string>) {
   translations = strings;
   currentLanguage = value;

@@ -14,7 +14,7 @@ import {
   Tile,
   type IconName,
 } from "./design";
-import { t } from "./i18n";
+import { t, plural } from "./i18n";
 import "./house_settings.css";
 import "./me.css";
 const TOP = 8;
@@ -58,7 +58,7 @@ export function StorageUsage() {
                   icon={KINDS[k.key]?.[1] || "storage"}
                   title={t(KINDS[k.key]?.[0] || k.key)}
                   value={bytes(k.bytes)}
-                  detail={t("{n} items").replace("{n}", String(k.count))}
+                  detail={plural(k.count, "{n} item", "{n} items")}
                   onOpen={
                     !k.count
                       ? undefined

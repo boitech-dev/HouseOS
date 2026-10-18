@@ -1255,7 +1255,16 @@ function DomainCard({ card, onConfirmed }: { card: Obj; onConfirmed?: () => Prom
       </div>
       {reported.count != null && (
         <Text>
-          <strong>{reported.count}</strong> {t(domain === "music" ? "tracks" : "items")}
+          <strong>{reported.count}</strong>{" "}
+          {t(
+            domain === "music"
+              ? reported.count === 1
+                ? "track"
+                : "tracks"
+              : reported.count === 1
+                ? "item"
+                : "items",
+          )}
         </Text>
       )}
       {Array.isArray(reported.items) && card.kind === "result" && (

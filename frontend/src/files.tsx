@@ -1,6 +1,6 @@
 import { transferFile, cancelUpload } from "./file_transfer";
 import { StorageUsage } from "./storage_admin";
-import { t } from "./i18n";
+import { t, plural } from "./i18n";
 import { useTip } from "./tips";
 import { useState, useRef, useEffect, type ReactNode } from "react";
 import {
@@ -63,6 +63,7 @@ import {
   toast,
   Toolbar,
   FileButton,
+  copyText,
 } from "./design";
 import "./files.css";
 
@@ -269,7 +270,9 @@ export function Files() {
         type="file"
         multiple
         onChange={async (e) => {
-          for (const f of Array.from(e.target.files || [])) await transfer(f);
+          const files = Array.from(e.currentTarget.files || []);
+          e.currentTarget.value = ""; // the same file can be picked again to retry
+          for (const f of files) await transfer(f);
         }}
       />
       <SubNav
@@ -561,7 +564,6 @@ export function Files() {
             setSelected(null);
             await reload();
           }}
-          onError={setError}
           onClose={() => setSelected(null)}
         />
       )}
@@ -598,7 +600,6 @@ function FileSheet({
   error,
   onPrepare,
   onSaved,
-  onError,
   onClose,
 }: {
   file: Obj;
@@ -611,7 +612,6 @@ function FileSheet({
   error: string;
   onPrepare: (action: string, extra?: Obj) => void;
   onSaved: () => Promise<void>;
-  onError: (message: string) => void;
   onClose: () => void;
 }) {
   const url = "/api/v1/files/" + file.id;
@@ -748,12 +748,9 @@ function FileSheet({
                         size="s"
                         icon="link"
                         onClick={() =>
-                          navigator.clipboard
-                            .writeText(location.origin + "/files?file=" + file.id)
-                            .then(() => toast(t("Link copied.")))
-                            .catch(() =>
-                              onError(t("Could not copy. Use the address shown in your browser.")),
-                            )
+                          copyText(location.origin + "/files?file=" + file.id).then(
+                            (done) => done && toast(t("Link copied.")),
+                          )
                         }
                       >
                         {t("Copy private file link")}
@@ -1246,7 +1243,7 @@ function DeviceOutbox({ actorId, offline }: { actorId: string; offline: boolean 
         },
       });
       await localStore("delete", prefix + row.id);
-      setNotice(row.name + " is stored at home.");
+      setNotice(t("{name} is stored at home.").replace("{name}", row.name));
       await reload();
     } catch (e) {
       setError((e as Error).message);
@@ -1667,7 +1664,9 @@ function HouseLibrary({ kind }: { kind: "music" | "movies" }) {
       />
       {head.data && (
         <Text style="body-s" tone="muted">
-          {head.data.total} {t(kind === "music" ? "songs" : "titles")}
+          {kind === "music"
+            ? plural(head.data.total, "{n} song", "{n} songs")
+            : plural(head.data.total, "{n} title", "{n} titles")}
         </Text>
       )}
       <Problem error={pages.error} onRetry={pages.reload} />
@@ -1871,7 +1870,7 @@ function Duplicates({
                       song.uploader,
                       clock(song.duration),
                       bytes(song.size),
-                      t("{n} plays").replace("{n}", String(song.plays || 0)),
+                      plural(song.plays || 0, "{n} play", "{n} plays"),
                       song.kept_at && t("kept {date}").replace("{date}", time(song.kept_at)),
                     ]
                       .filter(Boolean)

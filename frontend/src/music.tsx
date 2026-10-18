@@ -1,6 +1,6 @@
 // Listen: the house's shared music. The queue is the heart of it (everyone takes turns); around
 // it, one field to add anything, and the room's own places: My music, Radio, History, Auto play.
-import { t } from "./i18n";
+import { t, plural } from "./i18n";
 import { useState, useEffect, useRef, useSyncExternalStore, type ReactNode } from "react";
 import {
   api,
@@ -1676,7 +1676,7 @@ export function AddBar({
                     r.title
                   }
                   onClick={() =>
-                    void run(async () => {
+                    run(async () => {
                       await api("/music/candidates", "POST", {
                         candidate_id: r.id,
                         idempotency_key: idempotency(),
@@ -1770,10 +1770,15 @@ function PlaylistPreview({
                   "POST",
                 );
                 onDone(
-                  (r.status === "running"
-                    ? t("{n} songs added. The rest keeps coming in; follow it in activity.")
-                    : t("{n} songs added to the queue.")
-                  ).replace("{n}", String(r.added)),
+                  r.status === "running"
+                    ? t(
+                        "{n} songs added. The rest keeps coming in; follow it in activity.",
+                      ).replace("{n}", String(r.added))
+                    : plural(
+                        r.added,
+                        "{n} song added to the queue.",
+                        "{n} songs added to the queue.",
+                      ),
                 );
               } catch (e) {
                 setError(errorText(e));
@@ -1789,7 +1794,7 @@ function PlaylistPreview({
     >
       <Stack>
         <Text style="body-s" tone="muted">
-          {t("{n} songs").replace("{n}", String(total))}
+          {plural(total, "{n} song", "{n} songs")}
           {total > tracks.length && " · " + t("the rest is added in the background")}
         </Text>
         <ol className="listen-preview">
@@ -1871,7 +1876,7 @@ function RadioPlace({ idle }: { idle: boolean }) {
             size="s"
             aria-label={(idle ? t("Play") : t("Add")) + " · " + r.name}
             onClick={() =>
-              void run(async () => {
+              run(async () => {
                 await api(`/music/radio/${r.id}/queue`, "POST", { idempotency_key: idempotency() });
                 toast(
                   idle
@@ -2201,13 +2206,13 @@ function AutoPlace() {
                       <Input
                         type="number"
                         min={1}
-                        max={on.songs ? 50 : 240}
+                        max={on.songs != null ? 50 : 240}
                         aria-label={t("How long") + " · " + on.name}
                         value={on.songs ?? on.minutes ?? 30}
                         onChange={(e) =>
                           change(
                             on.id,
-                            on.songs
+                            on.songs != null // a cleared box (0) stays in songs
                               ? { songs: Number(e.target.value) }
                               : { minutes: Number(e.target.value) },
                           )
@@ -2215,7 +2220,7 @@ function AutoPlace() {
                       />
                       <Select
                         aria-label={t("Unit") + " · " + on.name}
-                        value={on.songs ? "songs" : "minutes"}
+                        value={on.songs != null ? "songs" : "minutes"}
                         onChange={(e) =>
                           change(
                             on.id,
@@ -2519,7 +2524,7 @@ function QueueReview({
     <Section
       title={review.names?.join(" + ")}
       lead={
-        t("{n} songs").replace("{n}", String(review.total)) +
+        plural(review.total, "{n} song", "{n} songs") +
         (review.total > songs.length
           ? " · " + t("the first {n} are added").replace("{n}", String(songs.length))
           : "")
@@ -2550,7 +2555,9 @@ function QueueReview({
                   "/music/playlists/" + review.confirmation_id + "/confirm",
                   "POST",
                 );
-                onClose(t("{n} songs added to the queue.").replace("{n}", String(r.added)));
+                onClose(
+                  plural(r.added, "{n} song added to the queue.", "{n} songs added to the queue."),
+                );
               })
             }
           >
@@ -2642,7 +2649,7 @@ function PlaylistView({
         <Section
           title={p?.name}
           lead={
-            t("{n} songs").replace("{n}", String(songs.length)) +
+            plural(songs.length, "{n} song", "{n} songs") +
             (minutes > 0 ? " · " + clock(minutes) : "") +
             (songs.length
               ? " · " +
@@ -3208,7 +3215,7 @@ function Library({ music, initial }: { music: Playback; initial: "playlists" | "
                   />
                 }
                 title={p.name}
-                detail={t("{n} songs").replace("{n}", String(p.items?.length || 0))}
+                detail={plural(p.items?.length || 0, "{n} song", "{n} songs")}
                 actions={
                   <>
                     <IconButton
@@ -3426,7 +3433,10 @@ export function Music() {
   const control = (action: string, value?: number | string) =>
     music.control(action, value).then(
       () => true,
-      () => false,
+      (e) => {
+        toast(errorText(e), { tone: "danger" });
+        return false;
+      },
     );
   return (
     <Page>

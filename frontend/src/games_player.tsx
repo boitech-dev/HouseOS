@@ -53,8 +53,15 @@ export function GamePlayer({ id }: { id: string }) {
       const print = bytes.length + ":" + bytes.reduce((sum, b, i) => (sum + b * (i + 1)) % 1e9, 0);
       if (print === last) return; // unchanged since the last sync
       last = print;
-      await upload("/games/" + id + "/save", bytes.slice());
+      try {
+        await upload("/games/" + id + "/save", bytes.slice());
+      } catch (e) {
+        last = ""; // try again at the next sync
+        toast((e as Error).message, { tone: "danger" });
+        return false;
+      }
       setSaved(Date.now() / 1000);
+      return true;
     };
     Object.assign(w, {
       EJS_player: "#games-stage",
@@ -115,8 +122,7 @@ export function GamePlayer({ id }: { id: string }) {
       },
       EJS_onSaveSave: async ({ save }: Anything) => {
         last = "";
-        await keep(save);
-        toast(t("Saved to the house."));
+        if (await keep(save)) toast(t("Saved to the house."));
       },
     });
     const script = document.createElement("script");

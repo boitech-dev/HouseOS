@@ -1,6 +1,6 @@
 import { t } from "./i18n";
 import { api, type Obj } from "./api";
-import { Button, toast } from "./design";
+import { Button, toast, copyText } from "./design";
 
 const PHONE = /Android|iPhone|iPad/.test(navigator.userAgent);
 
@@ -34,8 +34,8 @@ export function OpenInPlayer({
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   };
   const copy = async () => {
-    await navigator.clipboard.writeText(await link());
-    toast(t("Link copied: paste it in your player (it works for 12 hours)."));
+    if (await copyText(await link()))
+      toast(t("Link copied: paste it in your player (it works for 12 hours)."));
   };
   const run = (fn: () => Promise<void>) =>
     void fn().catch((e) => toast(e.message, { tone: "danger" }));

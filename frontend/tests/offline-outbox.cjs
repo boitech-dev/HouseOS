@@ -1,5 +1,5 @@
 // Offline-safe actions: a grocery ticked with no connection ticks at once, waits on the device
-// ("1 changes waiting"), and reaches the house exactly once when the connection is back.
+// ("1 change waiting"), and reaches the house exactly once when the connection is back.
 const { chromium } = require("/usr/lib/node_modules/playwright");
 const assert = require("node:assert/strict");
 (async () => {
@@ -24,10 +24,10 @@ const assert = require("node:assert/strict");
   await context.setOffline(true);
   await box.click();
   assert.equal(await box.isChecked(), true, "ticked at once, offline");
-  await page.getByText("1 changes waiting").waitFor();
+  await page.getByText("1 change waiting").waitFor();
   await context.setOffline(false);
   await page.evaluate(() => dispatchEvent(new Event("online")));
-  await page.getByText("1 changes waiting").waitFor({ state: "detached", timeout: 15000 });
+  await page.getByText("1 change waiting").waitFor({ state: "detached", timeout: 15000 });
   const saved = await (await context.request.get(base + "/api/v1/household/groceries/" + made.id)).json();
   assert.equal(saved.data.purchased, true);
   assert.equal(saved.version, made.version + 1, "sent once");

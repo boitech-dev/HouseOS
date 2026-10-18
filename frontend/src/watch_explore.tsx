@@ -1,4 +1,4 @@
-import { t } from "./i18n";
+import { t, plural } from "./i18n";
 import { useState, type ReactNode } from "react";
 import { number, useData, usePages, items, type Obj } from "./api";
 import {
@@ -410,7 +410,7 @@ export function DiscoverResults({
       <Problem error={pages.error} onRetry={pages.reload} />
       {total != null && (
         <Text style="body-s" tone="muted">
-          {t("{n} titles").replace("{n}", number(total))}
+          {plural(total, "{n} title", "{n} titles", number(total))}
         </Text>
       )}
       <ul className="watch-grid" aria-label={t("Search results")}>

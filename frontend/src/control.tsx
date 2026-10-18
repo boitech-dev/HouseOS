@@ -1,6 +1,6 @@
 // The Control Room (admins): the house's status, people, devices, AI and connections, storage and
 // the house itself, as a list of places beside the chosen one (SettingsLayout).
-import { t, getLanguage } from "./i18n";
+import { t, getLanguage, plural } from "./i18n";
 import { useState, useEffect, useId } from "react";
 import { AI_PROVIDERS, AiConnections } from "./providers";
 import { ShutdownHouseOS } from "./shutdown";
@@ -66,6 +66,7 @@ import {
   Tile,
   toast,
   type Tone,
+  copyText,
 } from "./design";
 import "./me.css";
 
@@ -170,7 +171,7 @@ function Overview({ onOpen }: { onOpen: (place: string) => void }) {
           icon="shield-check"
           title={t("Health")}
           value={
-            !health.data ? "…" : bad ? t("{n} problems").replace("{n}", String(bad)) : t("All good")
+            !health.data ? "…" : bad ? plural(bad, "{n} problem", "{n} problems") : t("All good")
           }
           detail={check ? t("{n} to check").replace("{n}", String(check)) : undefined}
           onOpen={() => onOpen("health")}
@@ -1503,7 +1504,7 @@ function DeviceAdmin() {
                   ) : saved.has(key(adapter(d), d.address, d.port)) ? (
                     <Badge tone="success">{t("Added")}</Badge>
                   ) : (
-                    <Button size="s" icon="add" onClick={() => void add(d)}>
+                    <Button size="s" icon="add" onClick={() => add(d)}>
                       {t("Add")}
                     </Button>
                   )
@@ -2310,12 +2311,7 @@ function AudioAdmin() {
               <Button
                 size="s"
                 icon="copy"
-                onClick={() =>
-                  void navigator.clipboard
-                    ?.writeText(link)
-                    .then(() => toast(t("Link copied.")))
-                    .catch(() => setError(t("Copy the link by hand.")))
-                }
+                onClick={async () => (await copyText(link)) && toast(t("Link copied."))}
               >
                 {t("Copy link")}
               </Button>
