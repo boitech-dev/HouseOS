@@ -154,7 +154,7 @@ function Familiar({ state }: { state: Mood }) {
   const words = MOOD_WORDS[state];
   return (
     <div className="ask-familiar" data-mood={state} aria-hidden="true">
-      <Mascot mood={state} size="l" />
+      <Mascot mood={state} size="m" />
       <Text style="label" tone="muted">
         {t(words)}
       </Text>
@@ -583,7 +583,8 @@ export function Assistant({
                           if (location.pathname === "/assistant")
                             history.replaceState({}, "", at(conversation.id));
                           setThread(conversation.id);
-                          if (innerWidth < 900) setShowList(false);
+                          // Beside the chat only on a wide full page: a panel or a phone shows the chat.
+                          if (!page || innerWidth < 900) setShowList(false);
                           setError("");
                         }
                   }

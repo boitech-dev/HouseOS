@@ -40,12 +40,14 @@
   .ask[data-page] .ds-page-header__actions {
     align-items: center;
   }
-  /* A phone: the three tools on one row, their names read aloud, not shown. */
+  /* A phone (the page or the panel): the three tools on one row, their names read aloud, not shown. */
   @media (max-width: 599.98px) {
-    .ask[data-page] .ask__tools {
+    .ask[data-page] .ask__tools,
+    .ds-sheet .ask__tools {
       flex-wrap: nowrap;
     }
-    .ask[data-page] .ask__tools .ds-button__label {
+    .ask[data-page] .ask__tools .ds-button__label,
+    .ds-sheet .ask__tools .ds-button__label {
       position: absolute;
       width: 1px;
       height: 1px;
@@ -139,7 +141,12 @@
     font: var(--text-title-m);
   }
   .ds-sheet .ask__presets {
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+  }
+  @media (min-width: 900px) {
+    .ds-sheet .ask__presets {
+      grid-template-columns: repeat(2, minmax(0, 1fr)); /* four openings: two by two */
+    }
   }
   .ask-card {
     display: grid;
@@ -278,11 +285,49 @@
       margin-inline-start: auto;
     }
   }
-  /* In the Ask panel, the conversation scrolls inside the sheet. */
+  /* In the Ask panel, as on the full page: the conversation takes the sheet's whole height and
+     scrolls, the composer stays at the bottom. Beside the page, the panel grows with the screen. */
+  .ds-sheet:has(.ask) .ds-sheet__body {
+    display: flex;
+    flex-direction: column;
+  }
+  .ds-sheet .ask {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .ds-sheet .ask__body {
+    flex: 1;
+    grid-template-rows: minmax(0, 1fr);
+    min-height: 0;
+  }
+  .ds-sheet .ask__body:has(> .ask__threads) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    align-items: stretch;
+  }
+  .ds-sheet .ask__threads {
+    max-height: 30dvh;
+  }
+  .ds-sheet .ask__chat {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
   .ds-sheet .ask-messages {
-    max-height: 52dvh;
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
+  }
+  .ds-sheet .ask-messages:has(> .ask__start) {
+    align-content: safe end; /* the openings sit by the composer, as on the page */
+  }
+  @media (min-width: 900px) {
+    .ds-sheet[data-place="side"]:has(.ask) {
+      width: min(clamp(540px, 36vw, 720px), 100vw); /* its three tools on one row */
+    }
   }
 }
 
