@@ -281,6 +281,23 @@ def load_secrets(folder):
     return values
 
 
+# Commits already in the public history whose author address is that contributor's own (they
+# chose it; it is on GitHub with every fork). History is never rewritten, so only these are
+# accepted, and only for the address in their author line: a new commit is checked as before.
+PUBLISHED = {
+    (f"git:{sha}:message", "email")
+    for sha in (
+        "14d93bfb753a",
+        "bc50e732adea",
+        "53176f4ddf56",
+        "94ec05026163",
+        "3c2fcf9cee80",
+        "8de6ef55e28d",
+        "44b288baa578",
+    )
+}
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("path", type=Path)
@@ -291,7 +308,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
     terms, secrets = load_terms(args.terms), load_secrets(args.secrets)
     own = host_terms() if args.terms else []
-    allowed = {tuple(entry.rsplit(":", 1)) for entry in args.allow}
+    allowed = {tuple(entry.rsplit(":", 1)) for entry in args.allow} | PUBLISHED
     findings, count = [], 0
     for name, data in entries(args.path, args.git):
         count += 1
