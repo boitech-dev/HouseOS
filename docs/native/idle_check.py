@@ -1,6 +1,7 @@
 """Read-only: is anything live in the house right now? Run before restarting services.
 
-    agent-secret-run db-houseos /opt/houseos/state/venvs/app/bin/python deploy/idle_check.py
+    (with the house's DATABASE_URL in the environment, never on the command line)
+    /opt/houseos/state/venvs/app/bin/python deploy/idle_check.py
 
 Exit 0 when idle, 1 when music, a film, a preparation, background work or a chat reply is
 in progress (the output says what). Never writes."""

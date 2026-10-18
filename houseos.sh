@@ -88,6 +88,8 @@ https_port() { # the HTTPS door's port; at its own address (compose.lan.yml) it 
   has compose.lan.yml || port=$(grep -s '^HOUSEOS_HTTPS_PORT=' .env | cut -d= -f2 || true)
   echo "${port:-8443}"
 }
+# Tracked files changed here; an agent's own notes (.agent/) don't count.
+edited() { git status --porcelain --untracked-files=no -- . ':!.agent'; }
 # ss lists listening ports; without it, nothing counts as taken and Docker says so if one is.
 port_taken() { ss -Hltn "( sport = :$1 )" 2>/dev/null | grep -q .; }
 check_ports() { # before the first start: a port another program holds stops HouseOS
@@ -100,7 +102,8 @@ check_ports() { # before the first start: a port another program holds stops Hou
     set_env HOUSEOS_HTTPS_PORT "$free"
     say "Port $port is used by another program, so HouseOS opens on port $free instead (allow it in your firewall if you run one)."
   fi
-  for port in 8990 8991; do
+  for port in 8990 8991 "$(grep -s '^HOUSEOS_DB_HOST_PORT=' .env | cut -d= -f2 || true)"; do
+    port=${port:-3307}
     [ "$port" = 8991 ] && has compose.lan.yml && continue   # the relay is at its own address then
     if port_taken "$port"; then
       fail "Port $port is used by another program on this computer, and HouseOS needs it. Find it with: sudo ss -ltnp 'sport = :$port', stop it, then run ./houseos.sh install again."
@@ -165,7 +168,11 @@ cmd_update() {
       || fail "A change made in Control Room → Changes is waiting for Keep or Undo: choose there, then update."
     if git merge-base --is-ancestor HEAD '@{upstream}' 2>/dev/null; then
       git merge --quiet --ff-only '@{upstream}'
-    elif [ -z "$(git status --porcelain --untracked-files=no)" ]; then
+    elif git merge-base --is-ancestor '@{upstream}' HEAD 2>/dev/null; then
+      :   # nothing new published; this copy's own commits stay as they are
+    elif git log --format=%s '@{upstream}..HEAD' | grep -qv '^Nox:'; then
+      fail "This copy has commits of its own, so the new version was not applied (they would be lost). Put them on top of it first: git rebase @{upstream}, then run ./houseos.sh update again."
+    elif [ -z "$(edited)" ]; then
       # The published history moved on (or was rewritten). Follow it; changes made here with Nox
       # ("Nox: …" commits) go back on top. .env, backups and data are not tracked and stay.
       local was mine commit
@@ -176,7 +183,7 @@ cmd_update() {
         if ! git -c user.name=Nox -c user.email=nox@example.invalid cherry-pick "$commit" >/dev/null 2>&1; then
           git cherry-pick --abort 2>/dev/null || true
           git reset --quiet --hard "$was"
-          fail "A change made with Nox ($(git log -1 --format=%s "$commit")) conflicts with the new version, so nothing was updated: see docs/CHANGING-HOUSEOS.md (Updates)."
+          fail "A change made with Nox ($(git log -1 --format=%s "$commit")) conflicts with the new version, so nothing was updated: see docs/CHANGING-HOUSEOS.md (Changes drafted by Nox)."
         fi
       done
     else
@@ -209,12 +216,17 @@ cmd_backup() {
   [ ! -f .env ] || install -m 600 .env "$dir/houseos.env"
   # Everything but the helper pauses for a minute so the copy is consistent.
   running=$(compose ps --services --status running | grep -vx helper || true)
-  [ -z "$running" ] || compose stop $running
+  if [ -n "$running" ]; then
+    compose stop $running
+    # A copy that fails (a full disk) still starts the house again.
+    stopped=$running
+    trap 'compose start $stopped' EXIT
+  fi
   compose run --rm --no-deps -u 0 -v "$dir":/b --entrypoint tar db czf /b/houseos-db.tgz -C /var/lib/mysql .
   # The speech model downloads again by itself; sockets and caches are rebuilt at start.
   compose run --rm --no-deps -u 0 -v "$dir":/b --entrypoint tar api czf /b/houseos-files.tgz \
     --exclude=state/models --exclude=state/run/.cache --exclude='*.sock' -C / state data
-  [ -z "$running" ] || compose start $running
+  [ -z "$running" ] || { compose start $running; trap - EXIT; }
   # Only the admin's "keep the last N" removes older backups: whole folders HouseOS made.
   if [ "$keep" -gt 0 ]; then
     ls -1d "$PWD"/backups/20*/ 2>/dev/null | sort | head -n -"$keep" | while read -r old; do
@@ -367,7 +379,7 @@ cmd_code() {
       [ -r "$change" ] || fail "This change is not here: apply it from Control Room → Changes."
       # Read once: everything below checks and writes this copy (it goes with the task's container).
       path=$(mktemp) && cp -- "$change" "$path" && change="$path" || fail "This change could not be read."
-      [ -z "$(git status --porcelain --untracked-files=no)" ] \
+      [ -z "$(edited)" ] \
         || fail "Files in this folder were edited, so the change was not applied. See them with: git status"
       [ "$(git rev-parse HEAD)" = "$(jq -r .base "$change")" ] \
         || fail "HouseOS changed since this was drafted: ask Nox to draft it again."
@@ -536,5 +548,5 @@ case "${1:-}" in
   helper) cmd_helper ;;
   "") if grep -qs '^HOUSEOS_DB_PASSWORD=' .env; then menu; else cmd_install; fi ;;
   code) cmd_code "${2:-}" "${3:-}" "${4:-}" ;;
-  *) sed -n '2,11p' "$0"; exit 1 ;;
+  *) sed -n '2,11p' houseos.sh; exit 1 ;;   # (run from its own folder: see the cd above)
 esac

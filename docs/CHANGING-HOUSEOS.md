@@ -63,7 +63,7 @@ and comes back at the same second. After editing code here yourself: `docker com
 built screens in `frontend/dist`: after changing `frontend/src`, build them (`npm run build`)
 before rebuilding the image.
 
-**Without Docker.** `deploy/release.py` copies the source and the built screens into a new
+**Without Docker.** `docs/native/release.py` copies the source and the built screens into a new
 folder under `<state>/releases/` and points `<state>/current` at it (`previous` keeps the one
 before). Then restart the app services. Before restarting the worker, create
 `<state>/run/resume-music`: the song playing pauses and resumes where it was. Never restart the

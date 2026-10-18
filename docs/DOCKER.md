@@ -19,7 +19,8 @@ card for voice if there is one; turn on the Control Room buttons, §9; with no o
 both answers are *no*), builds and starts HouseOS (10–20 minutes the first time), then prints **your one-time setup code** and the addresses to open.
 If port 8443 is already used by another program, it picks 9443 (or the next free one) and says so.
 Run it again later for a menu. Prefer plain Docker? `docker compose up -d --build`, then
-`docker compose exec api houseos-entrypoint setup-code` for the code: the result is the same.
+`docker compose exec api houseos-entrypoint setup-code` for the code: the result is the same, once
+`.env` has your own `HOUSEOS_DB_PASSWORD=` (the script makes one; plain Docker doesn't).
 
 Then open HouseOS in a browser, from any device on your network:
 

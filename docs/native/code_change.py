@@ -45,6 +45,8 @@ allowed, digest = rules.allowed, rules.digest
 
 RUNTIME = Path(os.environ.get("HOUSEOS_RUNTIME_ROOT", "/var/lib/houseos"))
 SOURCE = Path(os.environ.get("HOUSEOS_SOURCE_ROOT") or ".").resolve()
+# The deploy scripts in that checkout: a house's own deploy/, or the public docs/native/.
+TOOLS = "deploy" if (SOURCE / "deploy").is_dir() else "docs/native"
 PYTHON = str(RUNTIME / "venvs/app/bin/python")
 BROKER = "/run/houseos-control/control.sock"
 HEALTH = "http://127.0.0.1:8990/api/v1/health"
@@ -199,7 +201,7 @@ def checks(before):
         "backend/pyproject.toml",
         "backend/houseos",
         "backend/tests",
-        "deploy",
+        TOOLS,
         "--no-cache",
         jail=True,
     )
@@ -210,7 +212,7 @@ def checks(before):
 
 
 def deploy():
-    run("python3", "deploy/release.py")
+    run("python3", TOOLS + "/release.py")
 
 
 def film_on():

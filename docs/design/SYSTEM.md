@@ -7,7 +7,7 @@ touching a component. Read this before changing any style.
 
 | Path | What |
 |---|---|
-| `themes/` | The theme packs (data only): `base` (every token, neutral), `carved-night` (the default), `linen-morning` (warm and light), `canary` (debug). How to make one: `themes/README.md`. |
+| `themes/` | The theme packs (data only): `base` (every token, neutral), `zabiwa` (the default), the other looks beside it, `canary` (debug). How to make one: `themes/README.md`. |
 | `backend/houseos/theme_kit/` | The pipeline (Python standard library): colour maths, ramps, tokens, checks, CSS, packs. `PYTHONPATH=backend python3 -m houseos.theme_kit --help` |
 | `frontend/src/design/generated/` | `themes.css` and `themes.ts`, made by `theme_kit build` from `themes/` (committed; a backend test fails when stale). |
 | `frontend/src/design/layers.css` | The cascade order. |

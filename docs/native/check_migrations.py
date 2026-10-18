@@ -3,7 +3,8 @@
 Rebuilds the isolated houseos_migrate database from nothing with `alembic upgrade head`,
 then diffs it against the SQLAlchemy metadata. Refuses any other database.
 
-    agent-secret-run db-houseos_migrate /opt/houseos/state/venvs/app/bin/python deploy/check_migrations.py
+    (with that database's DATABASE_URL in the environment, never on the command line)
+    /opt/houseos/state/venvs/app/bin/python deploy/check_migrations.py
 """
 
 import os
