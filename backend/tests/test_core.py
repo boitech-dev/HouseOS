@@ -269,7 +269,14 @@ def test_admin_signs_someone_out_everywhere(client):
     other = User(name="Resident", username="resident-sign-out", password_hash="unused", role="resident")
     db.add(other)
     db.commit()
-    db.add(SessionToken(user_id=other.id, token_hash="fixture-sign-out", csrf_token="fixture", expires_at=utcnow() + timedelta(days=1)))
+    db.add(
+        SessionToken(
+            user_id=other.id,
+            token_hash="fixture-sign-out",
+            csrf_token="fixture",
+            expires_at=utcnow() + timedelta(days=1),
+        )
+    )
     db.commit()
     PRESENT[other.id] = 1e12
     assert c.post(f"/api/v1/admin/users/{me['id']}/sign-out").status_code == 409  # not yourself
@@ -280,3 +287,23 @@ def test_admin_signs_someone_out_everywhere(client):
     db.get(User, me["id"]).role = "resident"
     db.commit()
     assert c.post(f"/api/v1/admin/users/{other.id}/sign-out").status_code == 403
+
+
+def test_built_scripts_are_cached_for_good_and_compressed_on_request(tmp_path, monkeypatch):
+    import gzip
+    from fastapi.testclient import TestClient
+    from houseos import main
+    from houseos.config import settings
+
+    (tmp_path / "assets").mkdir()
+    (tmp_path / "assets" / "index-abc.js").write_text("console.log('house');" * 200)
+    (tmp_path / "index.html").write_text("<html></html>")
+    monkeypatch.setattr(settings, "frontend_dist", tmp_path)
+    monkeypatch.setattr(main.access, "_cache", {"at": 1e18, "open": True, "origins": set()})
+    client = TestClient(main.app)
+    small = client.get("/assets/index-abc.js", headers={"Accept-Encoding": "gzip"})
+    assert small.status_code == 200 and small.headers["content-encoding"] == "gzip"
+    assert "immutable" in small.headers["cache-control"] and small.text.startswith("console.log")
+    plain = client.get("/assets/index-abc.js", headers={"Accept-Encoding": "identity"})
+    assert "content-encoding" not in plain.headers and "immutable" in plain.headers["cache-control"]
+    assert len(gzip.compress(plain.content)) < len(plain.content) / 4

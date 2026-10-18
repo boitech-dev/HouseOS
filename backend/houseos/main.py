@@ -1,8 +1,9 @@
+import functools
 import importlib
 import logging
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse, FileResponse, HTMLResponse
+from fastapi.responses import JSONResponse, FileResponse, HTMLResponse, Response
 
 from . import __version__
 from sqlalchemy.exc import SQLAlchemyError
@@ -211,6 +212,19 @@ PLAYER_CSP = (
 )
 
 
+IMMUTABLE = {"Cache-Control": "public, max-age=31536000, immutable"}
+SHRINKS = {".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".json": "application/json"}
+
+
+@functools.lru_cache(maxsize=256)
+def gzipped(path, _mtime):
+    """A built script or style, compressed once (about 4× smaller), for when no proxy in front
+    compresses it (a Tailscale address straight to the app). Films and music never come here."""
+    import gzip
+
+    return gzip.compress(open(path, "rb").read(), compresslevel=6, mtime=0)
+
+
 @app.get("/{path:path}", include_in_schema=False)
 def frontend(path: str, request: Request):
     if path.startswith("api/"):
@@ -222,10 +236,14 @@ def frontend(path: str, request: Request):
             # Built files carry their content's hash in the name: a new version is a new name,
             # so a phone keeps them for good instead of asking again for each one.
             immutable = path.startswith("assets/")
-            return FileResponse(
-                target,
-                headers={"Cache-Control": "public, max-age=31536000, immutable"} if immutable else None,
-            )
+            kind = SHRINKS.get(target.suffix)
+            if immutable and kind and "gzip" in request.headers.get("accept-encoding", ""):
+                return Response(
+                    gzipped(str(target), target.stat().st_mtime),
+                    media_type=kind,
+                    headers={**IMMUTABLE, "Content-Encoding": "gzip", "Vary": "Accept-Encoding"},
+                )
+            return FileResponse(target, headers=IMMUTABLE if immutable else None)
         # No files under assets-legacy/ (Legacy is a theme): a stale request gets a 404, not the page.
         if path.startswith(("assets/", "assets-legacy/", "art/")):
             return JSONResponse({"detail": "Not found"}, status_code=404)
