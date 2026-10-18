@@ -198,6 +198,7 @@ function Remote({
         }
       } catch (e) {
         setSaid("");
+        setPicked(""); // a refused input switch: the menu shows the TV's real input again
         setError(sentence(e));
       }
     });
@@ -354,14 +355,16 @@ function Remote({
         </div>
       )}
       <div className="tv-remote__rest">
-        {can.volume_level && (
+        {/* The number follows the handle while dragging; an unknown level (the TV just
+            woke) shows no slider rather than a false 0. */}
+        {can.volume_level && typeof state.volume === "number" && (
           <div className="tv-remote__volume">
             <Slider
               label={t("Volume")}
-              value={typeof state.volume === "number" ? state.volume : 0}
+              value={state.volume}
+              format={(v) => String(v)}
               onCommit={setVolume}
             />
-            <b className="tabular">{typeof state.volume === "number" ? state.volume : ""}</b>
           </div>
         )}
         {((can.volume && !can.volume_level) || (!can.dpad && (mute || play))) && (

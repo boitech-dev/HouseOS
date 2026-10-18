@@ -600,3 +600,25 @@ def test_the_house_sleep_timer_waits_for_nobody_touching_the_music(music_domain)
     by_hand = q.sleep_at
     act("volume", 50)
     assert q.sleep_at == by_hand and m.timer_by_hand(db)
+
+
+def test_a_quick_second_seek_checks_its_song_not_the_queue_version(music_domain):
+    db, (alice, _, _), _ = music_domain
+    song = m.QueueItem(owner_id=alice.id, source_url=url(), title="Long song", position=1, status="playing",
+                       metadata_json={"duration": 300})  # fmt: skip
+    db.add(song)
+    db.flush()
+    q = m.queue(db)
+    q.current_id, q.desired = song.id, "playing"
+    db.commit()
+    stale = q.version - 1  # a pause or a volume change just before raised it
+    seek = m.Control(
+        action="seek", value=60, expected_version=stale, item_id=song.id, idempotency_key=new_id()
+    )
+    assert m.control(seek, alice, db)["status"] in {"accepted", "command_sent", "completed"}
+    other = m.Control(
+        action="seek", value=60, expected_version=q.version, item_id="another-song", idempotency_key=new_id()
+    )
+    with pytest.raises(HTTPException) as refused:
+        m.control(other, alice, db)
+    assert refused.value.status_code == 409

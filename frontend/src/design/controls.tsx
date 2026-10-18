@@ -502,8 +502,11 @@ export function Slider({
   // what you chose (no snap back while the device answers).
   const [draft, setDraft] = useState<number | null>(null);
   const sent = useRef(false);
+  // Let go of the chosen value once the device reports about it (a film's position ticks every
+  // second: any new value would snap back to the old place while the jump buffers).
   useEffect(() => {
-    if (!sent.current) return;
+    if (!sent.current || draft === null) return;
+    if (Math.abs(value - draft) > Math.max(step, (max - min) / 100)) return;
     sent.current = false;
     setDraft(null);
   }, [value]);
@@ -513,13 +516,13 @@ export function Slider({
   const commit = (next: number) => {
     sent.current = true;
     onCommit?.(next);
-    // A device that reports the same level (or nothing) never clears the draft: after a few
-    // seconds the slider shows what the device says again, not the value it was dragged to.
+    // A device that never gets there (it refused, or reports nothing new): after a while the
+    // slider shows what the device says again, not the value it was dragged to.
     clearTimeout(settle.current);
     settle.current = setTimeout(() => {
       sent.current = false;
       setDraft(null);
-    }, 4000);
+    }, 8000);
   };
   return (
     <label

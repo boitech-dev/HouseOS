@@ -355,7 +355,10 @@ function TVControls({ device }: { device: Obj }) {
     [result, setResult] = useState<Obj | null>(null),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
-  const observed = useData(open ? "/cinema/devices/" + device.id + "/tv" : null);
+  // Read again while open: the TV's own remote changes it too.
+  const observed = useData(open ? "/cinema/devices/" + device.id + "/tv" : null, {
+    interval: 5000,
+  });
   const actions = [
     ["power_on", "Turn on", "power_on"],
     ["power_off", "Turn off", "power_off"],
@@ -413,7 +416,8 @@ function TVControls({ device }: { device: Obj }) {
               showLabel
               label={t("TV volume percent")}
               min={0}
-              max={75}
+              // The cap is for raising it: a TV already louder shows where it really is.
+              max={Math.max(75, Math.round((tv.volume || 0) * 100))}
               value={volume ?? Math.round((tv.volume || 0) * 100)}
               onChange={setVolume}
               format={percent}
@@ -456,6 +460,7 @@ function TVControls({ device }: { device: Obj }) {
             setResult(
               await api("/cinema/device-confirmations/" + preview.confirmation_id, "POST", {}),
             );
+            setVolume(null); // the next review starts from what the TV reports
             await observed.reload();
           }}
         >
@@ -474,6 +479,41 @@ export function useCinemaCurrent(enabled = true) {
   });
 }
 
+/** The TV itself, when Home Assistant reaches it: its own volume, the number the TV shows (the
+ *  Chromecast's level is a second, separate one). Shared by the Now bar and the Now sheet. */
+export function useTvVolume(deviceId?: string) {
+  const tvs = useData<Obj>(deviceId ? "/tv" : null, { interval: 5000 });
+  const tv = (tvs.data?.items || []).find(
+    (r: Obj) => r.id === deviceId && r.target === "tv" && r.capabilities?.volume_level,
+  );
+  const level: number | null = typeof tv?.state?.volume === "number" ? tv.state.volume : null;
+  const set = async (value: number) => {
+    await api("/tv/" + tv!.id + "/remote", "POST", {
+      key: "VOLUME_SET",
+      level: value,
+      target: "tv",
+    });
+    await tvs.reload();
+  };
+  return { tv, level, set };
+}
+
+/** Where the film is now: the last report, moved on by the time since (it plays between
+ *  reports), never past the end. */
+export function filmPosition(current: Obj, now: number) {
+  const checkpoint = current.checkpoint || {};
+  const since = checkpoint.at
+    ? Math.max(
+        0,
+        (now - Date.parse(checkpoint.at + (checkpoint.at.endsWith("Z") ? "" : "Z"))) / 1000,
+      )
+    : 0;
+  return Math.min(
+    current.duration || Infinity,
+    (checkpoint.position || 0) + (current.state === "playing_observed" ? Math.min(since, 30) : 0),
+  );
+}
+
 export function CinemaTransport({
   current,
   onChanged,
@@ -489,32 +529,24 @@ export function CinemaTransport({
     const id = setInterval(() => !document.hidden && setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
-  // The TV itself, when Home Assistant reaches it: its own volume, the number the TV shows
-  // (the Chromecast's level is a second, separate one).
-  const tvs = useData<Obj>(current.device_id ? "/tv" : null, { interval: 5000 });
-  const tv = (tvs.data?.items || []).find(
-    (r: Obj) => r.id === current.device_id && r.target === "tv" && r.capabilities?.volume_level,
-  );
+  const { tv, level: tvLevel, set: setTvLevel } = useTvVolume(current.device_id);
   const tvVolume = async (level: number) => {
     try {
-      await api("/tv/" + tv!.id + "/remote", "POST", { key: "VOLUME_SET", level, target: "tv" });
+      await setTvLevel(level);
       setError("");
-      await tvs.reload();
     } catch (e) {
       setError((e as Error).message);
     }
   };
-  const checkpoint = current.checkpoint || {};
-  const since = checkpoint.at
-    ? Math.max(
-        0,
-        (now - Date.parse(checkpoint.at + (checkpoint.at.endsWith("Z") ? "" : "Z"))) / 1000,
-      )
-    : 0;
-  const position = Math.min(
-    current.duration || Infinity,
-    (checkpoint.position || 0) + (current.state === "playing_observed" ? Math.min(since, 30) : 0),
-  );
+  const position = filmPosition(current, now);
+  // Two quick ±30 s taps add up: the next jump starts where the last one aimed, until the
+  // receiver reports a new position (else both land on the same spot).
+  const [aimed, setAimed] = useState<{ to: number; at: number } | null>(null);
+  const from = aimed && now - aimed.at < 15000 ? aimed.to : position;
+  const jump = (to: number) => {
+    setAimed({ to, at: Date.now() });
+    void send("seek", to);
+  };
   const send = async (action: string, position?: number) => {
     setBusy(true);
     try {
@@ -554,7 +586,7 @@ export function CinemaTransport({
             size="l"
             disabled={busy}
             label={t("Back 30 seconds")}
-            onClick={() => void send("seek", Math.max(0, position - 30))}
+            onClick={() => jump(Math.max(0, from - 30))}
           />
         )}
         <IconButton
@@ -571,30 +603,31 @@ export function CinemaTransport({
             size="l"
             disabled={busy}
             label={t("Forward 30 seconds")}
-            onClick={() => void send("seek", Math.min(current.duration || 86400, position + 30))}
+            onClick={() => jump(Math.min(current.duration || 86400, from + 30))}
           />
         )}
       </div>
       <CinemaStop current={current} onChanged={onChanged} />
-      {tv ? (
-        <Slider
-          label={t("TV volume")}
-          value={typeof tv.state?.volume === "number" ? tv.state.volume : 0}
-          format={(v) => String(v)}
-          onCommit={(value) => void tvVolume(value)}
-        />
-      ) : (
-        current.volume_supported && (
-          <Slider
-            label={t("Movie volume")}
-            value={current.volume ?? 30}
-            // The cap applies to raising it; a receiver already above shows where it really is.
-            max={Math.max(75, current.volume ?? 0)}
-            format={(v) => String(v)}
-            onCommit={(value) => void send("volume", Math.min(75, value))}
-          />
-        )
-      )}
+      {tv
+        ? // Unknown for a moment (the TV just woke): no slider rather than a false 0.
+          tvLevel !== null && (
+            <Slider
+              label={t("TV volume")}
+              value={tvLevel}
+              format={(v) => String(v)}
+              onCommit={(value) => void tvVolume(value)}
+            />
+          )
+        : current.volume_supported && (
+            <Slider
+              label={t("Movie volume")}
+              value={current.volume ?? 30}
+              // The cap applies to raising it; a receiver already above shows where it really is.
+              max={Math.max(75, current.volume ?? 0)}
+              format={(v) => String(v)}
+              onCommit={(value) => void send("volume", Math.min(75, value))}
+            />
+          )}
       <Problem error={error} />
     </div>
   );

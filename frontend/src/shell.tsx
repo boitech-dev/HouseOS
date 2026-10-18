@@ -40,6 +40,7 @@ import {
   Mascot,
   Media,
   PageGuard,
+  Problem,
   Progress,
   rank,
   Segmented,
@@ -57,7 +58,14 @@ import type { ThemeInfo } from "./design/generated/themes";
 import { Slot } from "./design/slots";
 import { ThemeLayers } from "./design/theme_layers";
 import { OnAir, StopAndClear, useCanControl, useMusicPlayback, usePosition } from "./music";
-import { CinemaSleep, CinemaStop, CinemaTransport, useCinemaCurrent } from "./cinema";
+import {
+  CinemaSleep,
+  CinemaStop,
+  CinemaTransport,
+  filmPosition,
+  useCinemaCurrent,
+  useTvVolume,
+} from "./cinema";
 import { RELEASE, unseen } from "./whats_new";
 import { Assistant } from "./ask";
 import { useWaiting } from "./outbox";
@@ -1189,6 +1197,14 @@ function NowBar({
   const [prefer, setPrefer] = useState<"music" | "tv">("tv");
   const source = movie && song ? prefer : movie ? "tv" : song ? "music" : null;
   const songPosition = usePosition(music).position;
+  // The film's clock moves on between the receiver's reports, as in the Now sheet.
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    if (!movie) return;
+    const id = setInterval(() => !document.hidden && setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [!!movie]);
+  const tvVolume = useTvVolume(movie?.device_id);
   // The page keeps room at the bottom for the bar.
   const measure = useCallback((node: HTMLElement | null) => {
     const set = (height: number) =>
@@ -1221,7 +1237,7 @@ function NowBar({
     );
   const tv = source === "tv" && movie;
   const title = tv ? movie.title : song?.now_title || song?.title;
-  const position = tv ? movie.checkpoint?.position || 0 : songPosition;
+  const position = tv ? filmPosition(movie, now) : songPosition;
   const duration = tv ? movie.duration || 0 : song?.duration || 0;
   const playing = tv ? movie.state !== "paused" : music.playing;
   const detail = tv
@@ -1273,19 +1289,35 @@ function NowBar({
           ]}
         />
       )}
-      {(tv ? movie.volume_supported && !movie.phase : canControl) && (
-        <span className="shell__now-volume">
-          <Slider
-            label={tv ? t("Movie volume") : t("Volume")}
-            icon="volume"
-            value={tv ? (movie.volume ?? 30) : (music.data?.volume ?? 60)}
-            max={tv ? 75 : 100}
-            onCommit={(value) =>
-              tv ? void movieSend("volume", value) : void run(() => music.control("volume", value))
-            }
-          />
-        </span>
-      )}
+      {tv && tvVolume.tv
+        ? // The TV's own volume (Home Assistant): the number the TV shows, as in the Now sheet.
+          tvVolume.level !== null &&
+          !movie.phase && (
+            <span className="shell__now-volume">
+              <Slider
+                label={t("TV volume")}
+                icon="volume"
+                value={tvVolume.level}
+                onCommit={(value) => void run(() => tvVolume.set(value))}
+              />
+            </span>
+          )
+        : (tv ? movie.volume_supported && !movie.phase : canControl) && (
+            <span className="shell__now-volume">
+              <Slider
+                label={tv ? t("Movie volume") : t("Volume")}
+                icon="volume"
+                value={tv ? (movie.volume ?? 30) : (music.data?.volume ?? 60)}
+                // The film's cap is for raising it: a receiver already louder shows where it is.
+                max={tv ? Math.max(75, movie.volume ?? 0) : 100}
+                onCommit={(value) =>
+                  tv
+                    ? void movieSend("volume", Math.min(75, value))
+                    : void run(() => music.control("volume", value))
+                }
+              />
+            </span>
+          )}
       <span className="shell__now-keys">
         {!tv && canControl && (
           <IconButton
@@ -1343,6 +1375,13 @@ function NowSheet({
   const song = music.current;
   const { position } = usePosition(music);
   const [tab, setTab] = useState<"tv" | "music">(movie ? "tv" : "music");
+  // A refused control (the queue moved, no speaker) says why instead of doing nothing.
+  const [problem, setProblem] = useState("");
+  const act = (action: string, value?: number) =>
+    void music.control(action, value).then(
+      () => setProblem(""),
+      (e: unknown) => setProblem((e as Error).message),
+    );
   const shown = movie && song ? tab : movie ? "tv" : "music";
   const upNext = items(music.data)
     .filter((item) => item.id !== music.data?.current_id)
@@ -1419,7 +1458,7 @@ function NowSheet({
               value={Math.floor(position)}
               max={Math.floor(song.duration)}
               format={clock}
-              onCommit={(value) => void music.control("seek", value)}
+              onCommit={(value) => act("seek", value)}
             />
           )}
           <div className="shell__now-transport">
@@ -1428,27 +1467,23 @@ function NowSheet({
               size="l"
               label={t("Previous track")}
               disabled={song.is_live}
-              onClick={() => void music.control("previous")}
+              onClick={() => act("previous")}
             />
             <IconButton
               icon={music.playing ? "pause" : "play"}
               size="l"
               variant="primary"
               label={t(music.playing ? "Pause" : "Play")}
-              onClick={() => void music.control(music.playing ? "pause" : "play")}
+              onClick={() => act(music.playing ? "pause" : "play")}
             />
-            <IconButton
-              icon="next"
-              size="l"
-              label={t("Next track")}
-              onClick={() => void music.control("skip")}
-            />
+            <IconButton icon="next" size="l" label={t("Next track")} onClick={() => act("skip")} />
           </div>
           <Slider
             label={t("Volume")}
             value={music.data?.volume ?? 60}
-            onCommit={(value) => void music.control("volume", value)}
+            onCommit={(value) => act("volume", value)}
           />
+          <Problem error={problem} />
           <StopAndClear music={music} />
           {upNext.length > 0 && (
             <>

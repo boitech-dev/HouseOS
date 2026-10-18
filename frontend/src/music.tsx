@@ -281,6 +281,7 @@ export function useMusicPlayback(enabled = true) {
       action,
       value,
       expected_version: state.data?.version,
+      ...(action === "seek" ? { item_id: state.data?.current_id } : {}),
       idempotency_key: idempotency(),
     });
     await state.reload();

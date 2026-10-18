@@ -71,7 +71,7 @@ const shots = process.env.HOUSEOS_SHOTS || "";
   );
   await page.waitForTimeout(300);
   assert.equal(
-    await salon.locator(".tv-remote__volume b").innerText(),
+    await salon.locator(".tv-remote__volume output").innerText(),
     "33",
     "shows what the TV now reports",
   );

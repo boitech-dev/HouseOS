@@ -842,6 +842,9 @@ class Control(Input):
     ]
     value: Annotated[float, Field(ge=0, le=86400)] | Literal["off", "one", "queue"] | None = None
     expected_version: int
+    # A seek names its song: checked against what plays, not the whole queue's version (a pause
+    # or a volume change just before raised it, and a second quick seek was refused).
+    item_id: str | None = Field(default=None, max_length=36)
     idempotency_key: str = Field(min_length=8, max_length=100)
 
     @model_validator(mode="after")
@@ -995,7 +998,10 @@ def control(body: Control, actor=Depends(require_actor), db=Depends(get_db)):
         if existing.data.get("action") != body.action or existing.data.get("value") != body.value:
             raise HTTPException(409, "Idempotency key already used for another action")
         return {"status": existing.state, "operation_id": existing.id}
-    if body.action in {"seek", "previous", "clear"} and q.version != body.expected_version:
+    if body.action == "seek" and body.item_id:
+        if q.current_id != body.item_id:
+            raise HTTPException(409, "Another song plays now: seek in that one")
+    elif body.action in {"seek", "previous", "clear"} and q.version != body.expected_version:
         raise HTTPException(409, "Queue changed; refresh")
     if body.action == "clear":
         op = Operation(
