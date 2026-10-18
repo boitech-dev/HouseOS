@@ -1333,7 +1333,8 @@ def bounded_history(rows, card_resolver=None, limit=12000):
     return selected
 
 
-LOOP_ROUNDS, LOOP_TOOL_CALLS = 8, 12
+# A model often makes one tool call a round: 8 rounds stopped real requests (fix, then play).
+LOOP_ROUNDS, LOOP_TOOL_CALLS = 12, 16
 PLANNING_SECONDS, TURN_SECONDS = 70, 90  # start no new round after 70 s; hard stop at 90 s
 # Nox's theme studio designs and writes whole themes: longer rounds and turns, a bigger reply, more
 # history, run in the background (the page follows its progress), on the bridge's own lane.

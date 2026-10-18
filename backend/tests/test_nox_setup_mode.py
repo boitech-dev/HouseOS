@@ -296,5 +296,5 @@ def test_setup_mode_has_room_for_a_real_diagnosis():
     from houseos import assistant
 
     setup, everyday = assistant.limits("setup"), assistant.limits("general")
-    assert setup["tool_calls"] >= 3 * everyday["tool_calls"] and setup["rounds"] >= 3 * everyday["rounds"]
+    assert setup["tool_calls"] >= 2 * everyday["tool_calls"] and setup["rounds"] >= 2 * everyday["rounds"]
     assert setup["planning"] < setup["turn"] and not setup["background"]

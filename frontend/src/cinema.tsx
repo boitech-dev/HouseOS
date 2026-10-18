@@ -498,6 +498,16 @@ export function useTvVolume(deviceId?: string) {
   return { tv, level, set };
 }
 
+/** A time typed by a person, in seconds: "1:23:45", "83:20", or minutes alone ("45"). */
+export function typedTime(text: string): number | null {
+  const parts = text.trim().split(":");
+  if (!parts.length || parts.some((p) => !/^\d+$/.test(p)) || parts.length > 3) return null;
+  const n = parts.map(Number);
+  if (n.length === 1) return n[0] * 60;
+  if (n.slice(1).some((v) => v > 59)) return null;
+  return n.length === 2 ? n[0] * 60 + n[1] : n[0] * 3600 + n[1] * 60 + n[2];
+}
+
 /** Where the film is now: the last report, moved on by the time since (it plays between
  *  reports), never past the end. */
 export function filmPosition(current: Obj, now: number) {
@@ -546,6 +556,17 @@ export function CinemaTransport({
   const jump = (to: number) => {
     setAimed({ to, at: Date.now() });
     void send("seek", to);
+  };
+  // Go to a time typed in, while watching.
+  const [typed, setTyped] = useState("");
+  const goTo = () => {
+    const to = typedTime(typed);
+    if (to === null || to > (current.duration || 86400)) {
+      setError(t("Type a time in the film, like 1:23:45, 83:20 or 45 (minutes)."));
+      return;
+    }
+    setTyped("");
+    jump(to);
   };
   const send = async (action: string, position?: number) => {
     setBusy(true);
@@ -607,12 +628,33 @@ export function CinemaTransport({
           />
         )}
       </div>
+      {current.can_seek && (
+        <form
+          className="watch-transport__goto"
+          onSubmit={(e) => {
+            e.preventDefault();
+            goTo();
+          }}
+        >
+          <Input
+            aria-label={t("Go to a time")}
+            placeholder={t("Go to… 1:23:45")}
+            inputMode="numeric"
+            value={typed}
+            onChange={(e) => setTyped(e.target.value)}
+          />
+          <Button type="submit" size="s" disabled={busy || !typed.trim()}>
+            {t("Go")}
+          </Button>
+        </form>
+      )}
       <CinemaStop current={current} onChanged={onChanged} />
       {tv
         ? // Unknown for a moment (the TV just woke): no slider rather than a false 0.
           tvLevel !== null && (
             <Slider
               label={t("TV volume")}
+              icon="volume"
               value={tvLevel}
               format={(v) => String(v)}
               onCommit={(value) => void tvVolume(value)}
@@ -621,6 +663,7 @@ export function CinemaTransport({
         : current.volume_supported && (
             <Slider
               label={t("Movie volume")}
+              icon="volume"
               value={current.volume ?? 30}
               // The cap applies to raising it; a receiver already above shows where it really is.
               max={Math.max(75, current.volume ?? 0)}

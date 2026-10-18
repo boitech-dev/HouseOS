@@ -4440,5 +4440,9 @@ const french: Record<string, string> = {
   "Remove this integration?": "Retirer cette intégration ?",
   "Its code, keys and data go. What it wrote in the activity diary stays.": "Son code, ses clés et ses données partent. Ce qu’elle a écrit dans le journal de la maison reste.",
   "TV volume": "Volume de la télé",
+  "Go to a time": "Aller à un moment",
+  "Go to… 1:23:45": "Aller à… 1:23:45",
+  "Type a time in the film, like 1:23:45, 83:20 or 45 (minutes).":
+    "Tape un moment du film, comme 1:23:45, 83:20 ou 45 (minutes).",
 };
 export default french;

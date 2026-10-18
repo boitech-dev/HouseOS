@@ -93,6 +93,18 @@ const assert = require("node:assert/strict");
     writes.some((w) => w.action === "volume" && w.position === 31),
     JSON.stringify(writes),
   );
+  // Go to a time typed in, while watching: 0:45:30 is 2730 s; nonsense says how to write it.
+  await sheet.getByLabel("Go to a time").fill("0:45:30");
+  await sheet.getByRole("button", { name: "Go", exact: true }).click();
+  for (let i = 0; i < 20 && !writes.some((w) => w.action === "seek"); i++)
+    await page.waitForTimeout(100);
+  assert(
+    writes.some((w) => w.action === "seek" && w.position === 2730),
+    JSON.stringify(writes),
+  );
+  await sheet.getByLabel("Go to a time").fill("ten past");
+  await sheet.getByRole("button", { name: "Go", exact: true }).click();
+  await sheet.getByText("Type a time in the film", { exact: false }).waitFor();
   assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   await page.screenshot({ path: "evidence/latest/movie-banner-phone.png", fullPage: true });
   await sheet.getByRole("button", { name: "Stop the film and save my place" }).click();
