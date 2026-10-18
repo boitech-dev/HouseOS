@@ -299,7 +299,11 @@ function App() {
         (e.reason instanceof TypeError && /fetch|network/i.test(e.reason.message))
       ) {
         e.preventDefault();
-        setActionError(e.reason.message);
+        setActionError(
+          e.reason instanceof ApiError
+            ? e.reason.message
+            : t("Can't reach the house. Check the connection and try again."),
+        );
       }
     };
     addEventListener("unhandledrejection", onFailure);

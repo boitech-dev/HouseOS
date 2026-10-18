@@ -1015,7 +1015,6 @@ const french: Record<string, string> = {
   "Play on the TV": "Lancer sur la télé",
   "Keep a copy at home": "Garder une copie à la maison",
   commentary: "commentaire",
-  "Write a time like 1:13:36.": "Écris une heure comme 1:13:36.",
   "That is after the end.": "C’est après la fin.",
   "Start at a time": "Commencer à un moment précis",
   "Start time": "Heure de début",
@@ -4408,7 +4407,8 @@ const french: Record<string, string> = {
   "Copied.": "Copié.",
   "Copy the key": "Copier la clé",
   "Your own integrations": "Tes propres intégrations",
-  "Code you or someone you trust wrote for this house's own devices, installed from a git repository. It runs with HouseOS's full rights: add only what you trust.": "Du code écrit par toi ou par quelqu’un de confiance pour les appareils de cette maison, installé depuis un dépôt git. Il tourne avec tous les droits de HouseOS : n’ajoute que ce en quoi tu as confiance.",
+  "Code you or someone you trust wrote for this house's own devices, installed from a git repository. It runs with HouseOS's full rights: add only what you trust.":
+    "Du code écrit par toi ou par quelqu’un de confiance pour les appareils de cette maison, installé depuis un dépôt git. Il tourne avec tous les droits de HouseOS : n’ajoute que ce en quoi tu as confiance.",
   "Add from a repository": "Ajouter depuis un dépôt",
   "Didn't start": "N’a pas démarré",
   "Installed now": "Installée actuellement",
@@ -4418,16 +4418,20 @@ const french: Record<string, string> = {
   "Its https address, as you would clone it.": "Son adresse https, comme pour le cloner.",
   "Branch or tag (optional)": "Branche ou tag (facultatif)",
   "Access token (optional)": "Jeton d’accès (facultatif)",
-  "For a private repository: a read-only token. Kept encrypted, used only to download it.": "Pour un dépôt privé : un jeton en lecture seule. Gardé chiffré, utilisé seulement pour le télécharger.",
-  "Nothing from it has run yet. Once turned on, it runs inside HouseOS with access to the house's data and connections.": "Rien n’a encore été exécuté. Une fois activée, elle tourne dans HouseOS avec accès aux données et aux connexions de la maison.",
+  "For a private repository: a read-only token. Kept encrypted, used only to download it.":
+    "Pour un dépôt privé : un jeton en lecture seule. Gardé chiffré, utilisé seulement pour le télécharger.",
+  "Nothing from it has run yet. Once turned on, it runs inside HouseOS with access to the house's data and connections.":
+    "Rien n’a encore été exécuté. Une fois activée, elle tourne dans HouseOS avec accès aux données et aux connexions de la maison.",
   "Installed. Turn it on when you're ready.": "Installée. Active-la quand tu veux.",
   "Install, turned off": "Installer, désactivée",
   "Turned on": "Activée",
-  "Its routes, Nox tools, share buttons and card work only while it is on.": "Ses routes, ses outils pour Nox, ses boutons de partage et sa carte ne marchent que lorsqu’elle est activée.",
+  "Its routes, Nox tools, share buttons and card work only while it is on.":
+    "Ses routes, ses outils pour Nox, ses boutons de partage et sa carte ne marchent que lorsqu’elle est activée.",
   "It didn't start:": "Elle n’a pas démarré :",
   "How to use it": "Comment t’en servir",
-  "Keys": "Clés",
-  "For phone shortcuts, scripts and helpers on other computers, which can't sign in. A key only opens what this integration allows, and acts as you.": "Pour les raccourcis du téléphone, les scripts et les assistants sur d’autres ordinateurs, qui ne peuvent pas se connecter. Une clé n’ouvre que ce que cette intégration permet, et agit en ton nom.",
+  Keys: "Clés",
+  "For phone shortcuts, scripts and helpers on other computers, which can't sign in. A key only opens what this integration allows, and acts as you.":
+    "Pour les raccourcis du téléphone, les scripts et les assistants sur d’autres ordinateurs, qui ne peuvent pas se connecter. Une clé n’ouvre que ce que cette intégration permet, et agit en ton nom.",
   "Created by": "Créée par",
   "Create a key": "Créer une clé",
   "What it's for": "À quoi elle sert",
@@ -4438,11 +4442,18 @@ const french: Record<string, string> = {
   "Update to this version": "Passer à cette version",
   "Check for an update": "Chercher une mise à jour",
   "Remove this integration?": "Retirer cette intégration ?",
-  "Its code, keys and data go. What it wrote in the activity diary stays.": "Son code, ses clés et ses données partent. Ce qu’elle a écrit dans le journal de la maison reste.",
+  "Its code, keys and data go. What it wrote in the activity diary stays.":
+    "Son code, ses clés et ses données partent. Ce qu’elle a écrit dans le journal de la maison reste.",
   "TV volume": "Volume de la télé",
   "Go to a time": "Aller à un moment",
   "Go to… 1:23:45": "Aller à… 1:23:45",
   "Type a time in the film, like 1:23:45, 83:20 or 45 (minutes).":
     "Tape un moment du film, comme 1:23:45, 83:20 ou 45 (minutes).",
+  "Uploading…": "Envoi…",
+  "Could not copy. Use the address shown in your browser.":
+    "Copie impossible. Utilise l’adresse affichée dans ton navigateur.",
+  "Can't reach the house. Check the connection and try again.":
+    "La maison ne répond pas. Vérifie la connexion et réessaie.",
+  "Could not load the snapshot. Try again.": "Impossible de charger la sauvegarde. Réessaie.",
 };
 export default french;

@@ -46,7 +46,14 @@ import { useReveal } from "./design/motion";
 import { go } from "./nav";
 import { JoinCode } from "./guest_code";
 import { clock } from "./api";
-import { DownloadProgress, Screens, SubtitlePicker, downloadActive, trackLanguage } from "./cinema";
+import {
+  DownloadProgress,
+  Screens,
+  SubtitlePicker,
+  downloadActive,
+  trackLanguage,
+  typedTime,
+} from "./cinema";
 import { CinemaUpload } from "./cinema_upload";
 import { SharedWatchlist, ShareWatchlist } from "./shared_watchlist";
 import { WebPlace } from "./watch_web";
@@ -69,13 +76,6 @@ import { OpenInPlayer } from "./player";
 import "./watch.css";
 
 const errorText = (e: unknown) => (e as Error).message;
-/** "1:13:36", "73:36" or "4416" → seconds; null when it is not a time. */
-export function parseTime(text: string): number | null {
-  const parts = text.trim().split(":");
-  if (!parts.length || parts.length > 3 || parts.some((p) => !/^\d{1,5}$/.test(p))) return null;
-  return parts.reduce((total, part) => total * 60 + Number(part), 0);
-}
-
 /** A poster in a shelf or a grid: opens the title. `bar` is how far you got, in percent. */
 function Poster({
   title,
@@ -1561,8 +1561,9 @@ function StartSheet({
           className="watch-inline-form"
           onSubmit={(e) => {
             e.preventDefault();
-            const seconds = parseTime(text);
-            if (seconds == null) return setError(t("Write a time like 1:13:36."));
+            const seconds = typedTime(text);
+            if (seconds == null)
+              return setError(t("Type a time in the film, like 1:23:45, 83:20 or 45 (minutes)."));
             if (duration && seconds >= duration) return setError(t("That is after the end."));
             onPick(seconds);
           }}

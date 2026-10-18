@@ -101,16 +101,16 @@ export function GamePlayer({ id }: { id: string }) {
           setSaved(Date.now() / 1000);
           toast(t("Saved to the house."));
         } catch (e) {
-          toast((e as Error).message);
+          toast((e as Error).message, { tone: "danger" });
         }
       },
       EJS_onLoadState: async () => {
         const list = await api("/games/" + id + "/states");
         const newest = (list.states || []).find((s: Anything) => s.surface === "browser");
         if (!newest) return toast(t("No snapshot yet: save one first."));
-        const bytes = await fetch("/api/v1/games/" + id + "/states/" + newest.name).then((r) =>
-          r.arrayBuffer(),
-        );
+        const r = await fetch("/api/v1/games/" + id + "/states/" + newest.name);
+        if (!r.ok) return toast(t("Could not load the snapshot. Try again."), { tone: "danger" });
+        const bytes = await r.arrayBuffer();
         w.EJS_emulator.gameManager.loadState(new Uint8Array(bytes));
       },
       EJS_onSaveSave: async ({ save }: Anything) => {

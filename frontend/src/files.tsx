@@ -76,6 +76,13 @@ const SCOPES: [Scope, string, IconName, string][] = [
   ["media", "House media", "storage", "Imported media"],
   ["trash", "Trash", "trash", "Deleted, for 30 days"],
 ];
+const UPLOAD_SAYS: Record<string, string> = {
+  preparing: "Preparing upload…",
+  uploading: "Uploading…",
+  "server finalizing": "Finishing upload…",
+  stored: "Upload stored",
+  interrupted: "Upload interrupted. Reselect the same file to resume.",
+};
 const STATUS: Record<string, "info" | "success" | "warning" | "danger"> = {
   uploading: "info",
   preparing: "info",
@@ -339,7 +346,7 @@ export function Files() {
               <div className="files-upload__head">
                 <Text style="title-s">{upload.name}</Text>
                 <Status tone={STATUS[upload.status] || "info"} busy={upload.status === "uploading"}>
-                  {t(upload.status)}
+                  {t(UPLOAD_SAYS[upload.status] || upload.status)}
                 </Status>
               </div>
               <Progress label={t("Upload progress")} value={upload.offset / (upload.size || 1)} />
@@ -745,7 +752,7 @@ function FileSheet({
                             .writeText(location.origin + "/files?file=" + file.id)
                             .then(() => toast(t("Link copied.")))
                             .catch(() =>
-                              onError("Could not copy. Use the address shown in your browser."),
+                              onError(t("Could not copy. Use the address shown in your browser.")),
                             )
                         }
                       >

@@ -56,7 +56,9 @@ export async function flush() {
       try {
         await api(item.path, item.method, item.body);
       } catch (e) {
-        if (!(e instanceof ApiError)) break; // still unreachable: try again later
+        // Still unreachable, restarting (5xx) or signed out: keep it and try again later.
+        if (!(e instanceof ApiError) || e.status >= 500 || [401, 403, 429].includes(e.status))
+          break;
         // Changed meanwhile: read its version and send the same value once more.
         if (e.status === 409 && "version" in item.body) {
           const record = await api(item.path.replace(/\/action$/, "")).catch(() => null);
