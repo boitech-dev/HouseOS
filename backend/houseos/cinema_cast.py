@@ -132,18 +132,30 @@ def preflight_cast(config, source, plan):
         import shutil
 
         size = source.get("size")
-        if not size or size > 80 * 1024**3:
+        if not size:
             raise MediaError(
-                "RESOURCE_LIMIT", "Prepared playback requires a known source size at most 80 GiB.", "prepare"
+                "RESOURCE_LIMIT",
+                "This version doesn't say how big it is, so it can't be prepared. Choose another.",
+                "prepare",
             )
         from .cinema_progressive import supported
 
         incremental = supported(source, plan)
-        budget = int(size * (1.3 if incremental else 2.2))
-        if shutil.disk_usage(settings.runtime_root).free < budget + 20 * 1024**3:
+        # Streamed: the film is copied unchanged as it plays (its size, a little more). A complete
+        # copy first (a rare route) is bounded: it is made in full before anything plays.
+        if not incremental and size > 80 * 1024**3:
             raise MediaError(
                 "RESOURCE_LIMIT",
-                "Insufficient NVMe space for temporary media with 20 GiB safety headroom.",
+                "This version would need a complete copy first, and it is over 80 GB. Choose another version.",
+                "prepare",
+            )
+        budget = int(size * (STREAM_ROOM if incremental else 2.2))
+        free = shutil.disk_usage(settings.runtime_root).free
+        if free < budget + 20 * 1024**3:
+            raise MediaError(
+                "RESOURCE_LIMIT",
+                f"Not enough free space for this version: it needs about {round((budget + 20 * 1024**3) / 1e9)} GB "
+                f"on the house's disk and {round(free / 1e9)} GB are free. Choose a smaller version.",
                 "prepare",
             )
         plan["temporary_bytes"] = budget
@@ -167,6 +179,10 @@ def wake_screen(db, device):
         return
     if done:
         activity.note("TV ready for the film: {what}", what=", ".join(done))
+
+
+# A streamed film's copy, as a share of its size: the video unchanged, the sound often smaller.
+STREAM_ROOM = 1.1
 
 
 def execute_cast(db, row, device, source, plan):

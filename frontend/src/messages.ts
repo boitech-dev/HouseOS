@@ -20,6 +20,10 @@ const CODES: Record<string, () => string> = {
   AUDIO_FILE_MISSING: () => t("This song's file is missing. Add it again."),
   AUDIO_COMMAND_FAILED: () => t("The speakers didn't accept that command. Try again."),
   SERVICE_BROKER_UNAVAILABLE: () => t("Service control isn't available on this install."),
+  SUBTITLE_BURN_REQUIRED: () =>
+    t(
+      "These subtitles are pictures inside the file: this screen can't show them, and HouseOS can't draw them onto a film while streaming it. Turn the subtitles off, or choose another version or a text subtitle track.",
+    ),
   SOURCE_UNAVAILABLE: () => t("Can't be read right now. Try again, or another version."),
   SOURCE_REMOVED: () => t("This video was removed or made private."),
   PLAYLIST_NOT_FOUND: () =>

@@ -4467,5 +4467,8 @@ const french: Record<string, string> = {
   "{n} change waiting": "{n} changement en attente",
   "{n} signed-in session": "{n} session ouverte",
   "{n} thing Nox keeps in mind": "{n} chose que Nox garde en tête",
+  "These subtitles are pictures inside the file: this screen can't show them, and HouseOS can't draw them onto a film while streaming it. Turn the subtitles off, or choose another version or a text subtitle track.":
+    "Ces sous-titres sont des images dans le fichier : cet écran ne sait pas les afficher, et HouseOS ne peut pas les incruster dans un film pendant qu’il le diffuse. Coupe les sous-titres, ou choisis une autre version ou une piste de sous-titres en texte.",
+  "Turn the subtitles off": "Couper les sous-titres",
 };
 export default french;

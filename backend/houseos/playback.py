@@ -362,7 +362,7 @@ def compatibility(media: dict, capabilities: dict, request: dict) -> dict:
         else:
             raise MediaError(
                 "SUBTITLE_BURN_REQUIRED",
-                "This subtitle requires video burn-in. Choose a compatible text track or explicitly approve a different video plan.",
+                "These subtitles are pictures inside the file: this screen can't show them, and HouseOS can't draw them onto a film while streaming it. Turn the subtitles off, or choose another version or a text subtitle track.",
             )
     container_supported = (
         any(c in capabilities.get("containers", []) for c in media["container"].split(","))

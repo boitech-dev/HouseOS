@@ -195,3 +195,33 @@ def test_a_prepared_copy_that_was_cleaned_up_is_prepared_again(monkeypatch):
     plan = {"preparation_strategy": "progressive"}
     assert cinema_cast.execute_cast(db, row, SimpleNamespace(), {}, plan) is False  # queued again
     assert row.data["_prepared"] is None and db.add.call_args[0][0].state == "queued"
+
+
+def test_a_big_streamed_version_needs_only_room_on_the_disk(monkeypatch, tmp_path):
+    import shutil
+    from collections import namedtuple
+
+    import pytest
+
+    from houseos.config import settings
+
+    monkeypatch.setattr(settings, "runtime_root", tmp_path)
+    monkeypatch.setattr(settings, "encryption_key", "fixture-key")
+    gb = 1024**3
+    space = namedtuple("usage", "total used free")
+    plan = {
+        "mode": "audio_convert",
+        "audio": {"default": True},
+        "subtitle_mode": "off",
+        "video_copied": True,
+        "video": {"codec": "hevc"},
+        "warnings": [],
+    }
+    source = {"size": int(82.1 * gb)}  # 4K Dolby Vision, over the old 80 GiB cap
+    config = {"enabled": True, "receiver_base_url": "http://192.0.2.17:8991"}
+    monkeypatch.setattr(shutil, "disk_usage", lambda path: space(0, 0, 117 * gb))
+    cinema_cast.preflight_cast(config, source, dict(plan))  # streamed: fits in 117 GB free
+    monkeypatch.setattr(shutil, "disk_usage", lambda path: space(0, 0, 60 * gb))
+    with pytest.raises(cinema_cast.MediaError) as full:
+        cinema_cast.preflight_cast(config, source, dict(plan))
+    assert "GB are free" in full.value.message

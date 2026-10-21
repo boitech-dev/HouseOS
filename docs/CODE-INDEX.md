@@ -807,13 +807,13 @@ Narrow Cast transport. HouseOS must preflight and confirm before calling execute
 - [`cast_config(db)`](../backend/houseos/cinema_cast.py#L92)
   Casting works as soon as the media relay is running and knows its LAN address (it
 - [`preflight_cast(config, source, plan)`](../backend/houseos/cinema_cast.py#L102)
-- [`wake_screen(db, device)`](../backend/houseos/cinema_cast.py#L160)
+- [`wake_screen(db, device)`](../backend/houseos/cinema_cast.py#L172)
   The TV on, and on the Chromecast's input, before the film is sent (tv_remote).
-- [`execute_cast(db, row, device, source, plan)`](../backend/houseos/cinema_cast.py#L172)
-- [`cast_music(address, url, mime, position, paused, live, title)`](../backend/houseos/cinema_cast.py#L359)
+- [`execute_cast(db, row, device, source, plan)`](../backend/houseos/cinema_cast.py#L188)
+- [`cast_music(address, url, mime, position, paused, live, title)`](../backend/houseos/cinema_cast.py#L375)
   Load one song on the Cast media receiver; the music follower keeps it on the house clock.
-- [`cast_control(address, action, position)`](../backend/houseos/cinema_cast.py#L381)
-- [`abort_cast(address, expected_items)`](../backend/houseos/cinema_cast.py#L434)
+- [`cast_control(address, action, position)`](../backend/houseos/cinema_cast.py#L397)
+- [`abort_cast(address, expected_items)`](../backend/houseos/cinema_cast.py#L450)
   Close our receiver, including an idle failed load, without stopping another app.
 
 ## cinema_cleanup

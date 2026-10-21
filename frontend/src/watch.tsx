@@ -1086,7 +1086,8 @@ function Tonight({
     [subtitle, setSubtitle] = useState<string | null>(null),
     [deviceId, setDeviceId] = useState(""),
     [start, setStart] = useState<number>(resumeAt),
-    [askReplace, setAskReplace] = useState(false);
+    [askReplace, setAskReplace] = useState(false),
+    [pictureSubs, setPictureSubs] = useState(false); // the chosen subtitles can't be shown
   const screens = items(devices.data).filter((d) => d.adapter !== "dlna"); // music-only
   const screen = screens.find((d) => d.id === deviceId);
   useEffect(() => {
@@ -1183,6 +1184,7 @@ function Tonight({
           .replace("{screen}", screen?.name || t("the TV")),
       );
     } catch (e) {
+      setPictureSubs((e as { detail?: Obj }).detail?.code === "SUBTITLE_BURN_REQUIRED");
       setError(errorText(e));
       await flow.reload();
     } finally {
@@ -1337,6 +1339,17 @@ function Tonight({
             </Text>
           )}
           <Problem error={error || flow.error || op.error || devices.error} />
+          {pictureSubs && error && (
+            <Button
+              onClick={() => {
+                setSubtitle("off");
+                setPictureSubs(false);
+                setError("");
+              }}
+            >
+              {t("Turn the subtitles off")}
+            </Button>
+          )}
           <Button
             variant="primary"
             size="l"

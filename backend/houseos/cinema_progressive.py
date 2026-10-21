@@ -356,11 +356,9 @@ def start(db, row, device, source, plan, job):
     size = size or source["size"]
     if size != source["size"]:
         raise MediaError("PLAN_STALE", "Source size changed after preview.", "prepare")
-    if (
-        not size
-        or size > 80 * 1024**3
-        or shutil.disk_usage(settings.runtime_root).free < int(size * 1.3) + 20 * 1024**3
-    ):
+    from .cinema_cast import STREAM_ROOM
+
+    if not size or shutil.disk_usage(settings.runtime_root).free < int(size * STREAM_ROOM) + 20 * 1024**3:
         raise MediaError(
             "RESOURCE_LIMIT", "Temporary streaming media cannot fit within the disk budget.", "prepare"
         )
