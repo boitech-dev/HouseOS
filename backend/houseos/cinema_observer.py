@@ -68,7 +68,10 @@ def clear_watched_copies(db):
         .limit(50)
     ).all()
     for copy in copies:
-        ready_at = copy.data.get("ready_at") or ""
+        ready_at = copy.data.get("ready_at")
+        if not ready_at:  # finished before ready times were kept: its week starts now
+            copy.data = {**copy.data, "ready_at": utcnow().isoformat()}
+            continue
         seen = db.scalar(
             select(CinemaState).where(
                 CinemaState.owner_id == copy.owner_id, CinemaState.media_id == copy.data.get("media_id")
