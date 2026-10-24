@@ -4470,5 +4470,9 @@ const french: Record<string, string> = {
   "These subtitles are pictures inside the file: this screen can't show them, and HouseOS can't draw them onto a film while streaming it. Turn the subtitles off, or choose another version or a text subtitle track.":
     "Ces sous-titres sont des images dans le fichier : cet écran ne sait pas les afficher, et HouseOS ne peut pas les incruster dans un film pendant qu’il le diffuse. Coupe les sous-titres, ou choisis une autre version ou une piste de sous-titres en texte.",
   "Turn the subtitles off": "Couper les sous-titres",
+  "The sound is converted for this screen; the picture stays exactly as it is.":
+    "Le son est converti pour cet écran ; l’image reste exactement telle quelle.",
+  "Subtitles show as plain text at the bottom: their special positions and styles are lost.":
+    "Les sous-titres s’affichent en texte simple en bas : leurs positions et styles particuliers sont perdus.",
 };
 export default french;

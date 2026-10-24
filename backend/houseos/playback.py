@@ -340,7 +340,7 @@ def compatibility(media: dict, capabilities: dict, request: dict) -> dict:
     if audio_conversion:
         if "aac" not in capabilities.get("audio_codecs", []):
             raise MediaError("AUDIO_INCOMPATIBLE", "No supported audio conversion target is available.")
-        warnings.append("Audio conversion required; video will be copied unchanged.")
+        warnings.append("The sound is converted for this screen; the picture stays exactly as it is.")
     subtitle_mode = "off"
     if subtitle:
         if subtitle["codec"] in capabilities.get("embedded_subtitle_codecs", []):
@@ -348,7 +348,7 @@ def compatibility(media: dict, capabilities: dict, request: dict) -> dict:
         elif subtitle["codec"] in TEXT_SUBS and capabilities.get("external_webvtt"):
             subtitle_mode = "webvtt"
             if subtitle["codec"] in {"ass", "ssa"}:
-                warnings.append("WebVTT conversion loses ASS/SSA positioning and styling.")
+                warnings.append("Subtitles show as plain text at the bottom: their special positions and styles are lost.")
         elif (
             request.get("allow_video_transcode")
             and video.get("hdr") == "sdr"
