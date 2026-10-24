@@ -88,11 +88,14 @@ def send(action, arg="", request_id=None):
 
 
 def available():
-    """(current version, new version) when the helper's last look found one, else None."""
+    """(current version, new version, what it is) when the helper's last look found one, else None.
+    What it is: the newest published commit, so each new batch of fixes counts, the version
+    number staying the same (one master, no releases)."""
     about = (read(folder("helper-out") / "check.json") or {}).get("results", {})
     if about.get("behind") in (None, "", "0"):
         return None
-    return about.get("current") or "", about.get("latest") or about.get("behind") + " changes"
+    latest = about.get("latest") or about.get("behind") + " changes"
+    return about.get("current") or "", latest, about.get("upstream") or latest
 
 
 def house_busy(db, music=True):
@@ -126,24 +129,24 @@ def update_watch(db):
     from .household import notify
     from .house_settings import get_house_settings
 
-    current, latest = found
+    current, latest, update = found
     config = update_config(db)
-    if config.get("noticed") != latest:
+    if config.get("noticed") != update:  # once per new batch of changes, not per version number
         for admin in db.scalars(select(User).where(User.role == "admin")):
-            notify(db, admin.id, latest[:36], "update", "update:" + latest)
-        save_update_config(db, noticed=latest)
+            notify(db, admin.id, update[:36], "update", "update:" + update)
+        save_update_config(db, noticed=update)
     hour = (
         utcnow().replace(tzinfo=ZoneInfo("UTC")).astimezone(ZoneInfo(get_house_settings(db)["timezone"])).hour
     )
     if (
         config.get("auto")
-        and config.get("auto_started") != latest
+        and config.get("auto_started") != update
         and 3 <= hour < 5
         and helper_alive()
         and not house_busy(db)
     ):
         send("update")
-        save_update_config(db, auto_started=latest)
+        save_update_config(db, auto_started=update)
         emit(db, "audit.house_action_requested", {"action": "update", "automatic": True})
 
 

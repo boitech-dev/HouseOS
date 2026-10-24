@@ -2018,9 +2018,7 @@ export function InboxPage() {
                     leading={<Icon name={r.category === "update" ? "check" : "info"} size="s" />}
                     title={
                       r.category === "update"
-                        ? t(
-                            "Nox: HouseOS {version} is out. Update in Control Room, or ask me.",
-                          ).replace("{version}", r.record_id)
+                        ? t("Nox: a HouseOS update is ready. Update in Control Room, or ask me.")
                         : t(NOTICES[r.category] || "New notice")
                     }
                     detail={r.created_at ? when(r.created_at) : undefined}

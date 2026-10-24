@@ -2046,8 +2046,8 @@ const french: Record<string, string> = {
   "Update by itself at night": "Se mettre à jour toute seule la nuit",
   "Between 3 and 5 am, only when nothing is playing. Either way, admins get a note in their inbox when a new version is out, and Nox can update on request: “update HouseOS”.":
     "Entre 3 h et 5 h, seulement quand rien ne joue. Dans tous les cas, les admins reçoivent un mot dans leur boîte quand une nouvelle version sort, et Nox peut mettre à jour sur demande : « mets à jour HouseOS ».",
-  "Nox: HouseOS {version} is out. Update in Control Room, or ask me.":
-    "Nox : HouseOS {version} est sorti. Mets à jour dans Administration, ou demande-moi.",
+  "Nox: a HouseOS update is ready. Update in Control Room, or ask me.":
+    "Nox : une mise à jour de HouseOS est prête. Mets à jour dans l’administration, ou demande-moi.",
   "See the update": "Voir la mise à jour",
   "Back up now": "Sauvegarder maintenant",
   "Move voice to the graphics card": "Passer la voix sur la carte graphique",
@@ -4482,5 +4482,7 @@ const french: Record<string, string> = {
   "Ready to watch without buffering: {title}": "Prêt à regarder sans chargement : {title}",
   "None in the file: found online when it starts, if needed":
     "Aucun dans le fichier : trouvés en ligne au lancement, si besoin",
+  "An update is ready: {n} changes since yours.":
+    "Une mise à jour est prête : {n} changements depuis la tienne.",
 };
 export default french;

@@ -108,9 +108,14 @@ export function HouseActions({ only }: { only?: string[] }) {
                 "Installed from a ZIP: to update, unpack the new one over this folder, then run ./houseos.sh update on the server.",
               )
             : d.available
-              ? t("HouseOS {latest} is ready (you have {current}).")
-                  .replace("{latest}", d.available[1])
-                  .replace("{current}", d.available[0] || "?")
+              ? d.available[1] === d.available[0] // the same version number, newer fixes
+                ? t("An update is ready: {n} changes since yours.").replace(
+                    "{n}",
+                    String(about.behind),
+                  )
+                : t("HouseOS {latest} is ready (you have {current}).")
+                    .replace("{latest}", d.available[1])
+                    .replace("{current}", d.available[0] || "?")
               : d.checked
                 ? t("HouseOS is up to date.")
                 : t("Checking for a new version…")}

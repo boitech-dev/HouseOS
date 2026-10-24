@@ -1,6 +1,6 @@
 /* Public shell only. Private API responses and files are never cached.
    Its page is asked for without cookies and kept under "/". */
-const CACHE = "houseos-shell-0437702a8fc641aa";
+const CACHE = "houseos-shell-65e54ba9ad8df0ef";
 const shellPath = (p) =>
   p === "/" ||
   p === "/manifest.webmanifest" ||
@@ -23,7 +23,7 @@ self.addEventListener("install", (event) =>
       ].map((m) => m[1]);
       // Every built chunk (lazy rooms, the French dictionary), so they work offline too.
       paths.push(
-        ...["/assets/browser-BNPpcZ4g.js","/assets/control-BrAv8lKb.js","/assets/files-CGQ2Dq8t.js","/assets/files-D_wf3a4-.css","/assets/games-BLVi4Aje.css","/assets/games-DTsBYRyZ.js","/assets/games_player-DKzwTI4f.js","/assets/index-BDT-fa5d.css","/assets/index-qBiOqYN_.js","/assets/locale_fr-B9Ydd5RL.js","/assets/me-CRi_z-jZ.js","/assets/me-D-2i5kM4.css","/assets/me-sOiJ0kS1.css","/assets/onboarding-BYXpER5u.css","/assets/onboarding-FBnoGtn1.js","/assets/party-CeNkHV6t.js","/assets/personal_space-0BRrZ9Oh.js","/assets/personal_space-C_gPwBYc.css","/assets/remix-CaZ5uZ-S.js","/assets/setup-D0NuYZKo.css","/assets/setup-WeWY1Efr.js","/assets/smarthome-1aUkdr_-.js","/assets/smarthome-oyZJhs5g.css","/assets/theme_preview-7s_Ott8x.css","/assets/theme_preview-C3kX0ZJ1.js","/assets/tvremote-DhamYPCJ.js","/assets/tvremote-DjAAKyRp.css","/assets/workshop-Dl31XVv5.js","/assets/workshop-WDHM0GEx.css"],
+        ...["/assets/browser-Dx9czK6K.js","/assets/control-yXv48uBm.js","/assets/files-D_wf3a4-.css","/assets/files-YT0wkzuL.js","/assets/games-BLVi4Aje.css","/assets/games-D5e-PUqJ.js","/assets/games_player-BsOcNMHh.js","/assets/index-BDT-fa5d.css","/assets/index-D4sSJjzr.js","/assets/locale_fr-jhfVGFW-.js","/assets/me-D-2i5kM4.css","/assets/me-R_iftGC2.js","/assets/me-sOiJ0kS1.css","/assets/onboarding-BYXpER5u.css","/assets/onboarding-C9fYPJlS.js","/assets/party-D1uUn1-t.js","/assets/personal_space-C_gPwBYc.css","/assets/personal_space-CySa2ILd.js","/assets/remix-B4I8oVuo.js","/assets/setup-D0NuYZKo.css","/assets/setup-Shof9fHN.js","/assets/smarthome-_WnpAwow.js","/assets/smarthome-oyZJhs5g.css","/assets/theme_preview-7s_Ott8x.css","/assets/theme_preview-ClNulKb6.js","/assets/tvremote-BUfDc8Bw.js","/assets/tvremote-DjAAKyRp.css","/assets/workshop-WDHM0GEx.css","/assets/workshop-Y2m13i5A.js"],
         "/art/house-crest.png",
         "/art/icon-192.png",
       );

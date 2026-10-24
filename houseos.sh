@@ -318,6 +318,7 @@ cmd_check() { # what Control Room shows next to the buttons
     result current "$(house_version)"
     if timeout 60 git fetch --quiet 2>/dev/null; then
       result behind "$(git rev-list --count 'HEAD..@{upstream}' 2>/dev/null || echo "")"
+      result upstream "$(git rev-parse --short=12 '@{upstream}' 2>/dev/null || echo "")"   # what an update brings
       result latest "$(git show '@{upstream}:backend/houseos/__init__.py' 2>/dev/null \
         | sed -n 's/^__version__ = "\(.*\)".*/\1/p')"
     fi
