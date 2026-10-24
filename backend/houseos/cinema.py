@@ -2541,6 +2541,7 @@ def observe(
             }
         position = max(0, min(float(observation.get("position") or 0), float(plan.get("duration") or 86400)))
         duration = float(plan.get("duration") or 0)
+        look_ahead(db, row, actor, position)  # two minutes from the end: the next episode, found now
         last = row.data.get("checkpoint", {})
         progress_at = row.data.get("_progress_at", utcnow().isoformat())
         if abs(position - float(last.get("position") or 0)) > 0.5 or observation["state"] == "paused":
@@ -4232,18 +4233,26 @@ def boot_identity():
         return None
 
 
-def prepare_autoplay(db, row, actor):
-    """Continue only an already selected debrid pack, same source/policy/target, max3 episodes."""
+AUTOPLAY_EPISODES = 12  # in a row without a tap (each one renews the next three hours)
+LOOK_AHEAD = 120  # seconds before the end: the next episode is found while this one plays
+
+
+def autoplay_allowed(row):
+    request = row.data.get("request", {})
+    return (
+        request.get("autoplay")
+        and row.data.get("_autoplay_depth", 0) < AUTOPLAY_EPISODES
+        and row.data.get("_autoplay_expires_at", "") > utcnow().isoformat()
+        and row.data.get("_boot_id") == boot_identity()
+    )
+
+
+def find_next(db, row, actor):
+    """The next episode's file in the same release, inspected, with its plan: same audio and
+    subtitle languages as this one. None at the end of the series."""
     from .cinema_cast import cast_config, preflight_cast
 
     request = row.data.get("request", {})
-    if (
-        not request.get("autoplay")
-        or row.data.get("_autoplay_depth", 0) >= 3
-        or row.data.get("_autoplay_expires_at", "") <= utcnow().isoformat()
-        or row.data.get("_boot_id") != boot_identity()
-    ):
-        return None
     current_title = db.get(CinemaTitle, row.media_id)
     parent_id = current_title.data.get("parent_id") if current_title else None
     if not parent_id:
@@ -4270,13 +4279,24 @@ def prepare_autoplay(db, row, actor):
         candidates = StreamAddon(integration_config(db, "stream_addon")).streams(
             canonical, parent.kind, following["season"], following["episode"]
         )
-        matches = [
+        # The next file of the same pack, else the add-on's own "same release" group (as Stremio
+        # plays on): one file per episode releases continue too.
+        pack = [
             candidate
             for candidate in candidates
             if candidate.get("info_hash") == source.get("info_hash")
             and candidate.get("rd_cached") == source.get("rd_cached")
             and candidate.get("file_index") != source.get("file_index")
         ]
+        group = source.get("binge_group")
+        binge = [
+            candidate
+            for candidate in candidates
+            if group
+            and candidate.get("binge_group") == group
+            and candidate.get("rd_cached") == source.get("rd_cached")
+        ]
+        matches = pack if len(pack) == 1 else binge[:1]  # the add-on lists its best first
         if len(matches) != 1:
             raise MediaError(
                 "AUTOPLAY_NEEDS_SELECTION",
@@ -4325,21 +4345,46 @@ def prepare_autoplay(db, row, actor):
     next_request["audio_language"] = prior_plan["audio"].get("language")
     next_request["subtitles_on"] = prior_plan.get("subtitle") is not None
     next_request["subtitle_language"] = (prior_plan.get("subtitle") or {}).get("language")
+    # Same sound and subtitles as the episode before; whatever preparation it needs (sound
+    # converted, subtitles as text) is made as for any film: this screen plays it.
     plan = compatibility(inspection, device.capabilities, next_request)
-    request = next_request
     preflight_cast(cast_config(db), next_source, plan)
-    previous = row.data["plan"]
-    if (
-        plan.get("preparation_strategy")
-        or plan["mode"] != previous["mode"]
-        or plan["video"]["height"] != previous["video"]["height"]
-        or plan["video"]["hdr"] != previous["video"]["hdr"]
-    ):
-        raise MediaError(
-            "AUTOPLAY_NEEDS_CONFIRMATION",
-            "The next episode needs a materially different playback plan. Review it before playing.",
-            "autoplay",
-        )
+    return {"following": following, "source": next_source, "plan": plan, "request": next_request}
+
+
+def look_ahead(db, row, actor, position):
+    """Near the end of an episode: find the next one now, so it starts as soon as this ends."""
+    duration = float((row.data.get("plan") or {}).get("duration") or 0)
+    if not duration or position < duration - LOOK_AHEAD or row.data.get("_next") is not None:
+        return
+    if not autoplay_allowed(row) or not (db.get(CinemaTitle, row.media_id).data or {}).get("parent_id"):
+        return
+    try:
+        found = find_next(db, row, actor)
+    except (MediaError, HTTPException) as exc:
+        found = {"error": getattr(exc, "code", "AUTOPLAY_NEEDS_SELECTION")}
+    row.data = {**row.data, "_next": found or {"end": True}}
+
+
+def prepare_autoplay(db, row, actor):
+    """The next episode in the same release, same screen, sound and subtitles: found ahead
+    (look_ahead) or now, then a short countdown."""
+    if not autoplay_allowed(row):
+        return None
+    ahead = row.data.get("_next") or {}
+    if ahead.get("end"):
+        return None
+    found = ahead if ahead.get("source") else find_next(db, row, actor)
+    if not found:
+        return None
+    following, next_source, plan, request = (
+        found["following"],
+        found["source"],
+        found["plan"],
+        found["request"],
+    )
+    device = db.get(CinemaDevice, row.device_id)
+    parent_id = db.get(CinemaTitle, row.media_id).data.get("parent_id")
     parent = db.get(CinemaTitle, parent_id)
     title = upsert_title(
         db,
@@ -4369,13 +4414,13 @@ def prepare_autoplay(db, row, actor):
             "_sources": [next_source],
             "_selected_source": next_source["id"],
             "_boot_id": row.data["_boot_id"],
-            "_autoplay_expires_at": row.data["_autoplay_expires_at"],
+            "_autoplay_expires_at": (utcnow() + timedelta(hours=3)).isoformat(),
             "_autoplay_depth": row.data.get("_autoplay_depth", 0) + 1,
             "_autoplay_parent": row.id,
             "preview": {
                 "action": "Autoplay next episode",
                 "title": title.title,
-                "countdown_until": (utcnow() + timedelta(seconds=15)).isoformat(),
+                "countdown_until": (utcnow() + timedelta(seconds=8)).isoformat(),
                 "cancel_action": "cancel",
             },
             "plan": {

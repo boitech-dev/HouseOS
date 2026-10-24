@@ -221,6 +221,10 @@ def normalize_streams(raw, host, key, p2p=False):
                 "height_claim": int(quality.group(1)) if quality else None,
                 "seeders_claim": int(seeds.group(1)) if seeds else None,
                 "rd_cached": rd,
+                # The add-on's "same release, next episode" tag (as Stremio plays it on).
+                "binge_group": str(hints["bingeGroup"])[:200]
+                if isinstance(hints, dict) and hints.get("bingeGroup")
+                else None,
                 "cache_evidence": "addon_cached" if rd else "p2p",
                 "evidence": "provider_claim",
                 "state": "discovered",

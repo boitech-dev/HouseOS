@@ -418,3 +418,36 @@ def test_autoplay_async_preparation_is_not_reported_as_command_sent(autoplay_fix
         db.refresh(child)
         assert child.state == "preparing"
         assert child.data.get("observation", {}).get("state") != "command_sent"
+
+
+def test_autoplay_follows_the_addons_release_group_and_is_found_before_the_end(autoplay_fixture, monkeypatch):
+    """One file per episode (no season pack): the add-on's binge group says which file is the
+    same release; it is found two minutes before the end, so nothing is looked up when it ends."""
+    from sqlalchemy.orm import Session
+    from houseos import cinema
+
+    fixture, streams, resolve, _ = autoplay_fixture
+    with Session(fixture.engine, expire_on_commit=False) as db:
+        row = db.get(cinema.CinemaWorkflow, "workflow-one")
+        mine = {**row.data["_sources"][0], "binge_group": "torrentio|1080p|SubsPlease"}
+        row.data = {**row.data, "_sources": [mine]}
+        db.commit()
+    other_release = {**mine, "info_hash": "c" * 40, "file_index": 0, "binge_group": "torrentio|1080p|Erai"}
+    same_release = {**mine, "info_hash": "b" * 40, "file_index": 0, "release": "Episode 2"}
+    streams.return_value = [other_release, same_release]
+
+    def needs_preparation(config, source, plan):  # sound converted, subtitles as text: it still plays on
+        plan["preparation_strategy"] = "progressive_hls"
+
+    monkeypatch.setattr("houseos.cinema_cast.preflight_cast", needs_preparation)
+    with Session(fixture.engine, expire_on_commit=False) as db:
+        row = db.get(cinema.CinemaWorkflow, "workflow-one")
+        duration = float(row.data["plan"]["duration"])
+        cinema.look_ahead(db, row, fixture.actor, duration - 300)  # not yet
+        assert row.data.get("_next") is None
+        cinema.look_ahead(db, row, fixture.actor, duration - 60)
+        assert row.data["_next"]["source"]["info_hash"] == "b" * 40
+        identity = cinema.prepare_autoplay(db, row, fixture.actor)
+        child = db.get(cinema.CinemaWorkflow, identity)
+        assert child.state == "autoplay_countdown" and child.data["_sources"][0]["info_hash"] == "b" * 40
+    streams.assert_called_once()  # at the end: nothing more to look up
