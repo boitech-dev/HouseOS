@@ -324,6 +324,15 @@
     align-items: center;
     gap: var(--space-2);
   }
+  .watch-download-first {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+  }
+  .watch-download-first > .ds-text {
+    flex-basis: 100%;
+  }
   .watch-download {
     display: grid;
     gap: var(--space-1);

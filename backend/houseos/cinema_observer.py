@@ -2,6 +2,7 @@
 
 import logging
 import time
+from datetime import timedelta
 from sqlalchemy import select
 from .db import SessionLocal, utcnow
 from .cinema import CinemaWorkflow, CinemaRelay, reconcile_playback
@@ -35,6 +36,7 @@ def maintenance(db):
         ):
             record.data = {**record.data, "state": "expired"}
     maintain_cinema_cache(db)
+    clear_watched_copies(db)
     db.commit()
     if time.monotonic() - PRUNED["web"] > 300:  # Watch → Web's files, every five minutes
         from .cinema_web import prune_web_videos
@@ -44,6 +46,46 @@ def maintenance(db):
 
 
 PRUNED = {"web": 0.0}
+KEEP_UNWATCHED = timedelta(days=7)
+
+
+def clear_watched_copies(db):
+    """A film downloaded to watch without buffering ("Download first") goes once watched to the
+    end, or a week after it was ready; never while it plays (forget_movie refuses then)."""
+    from fastapi import HTTPException
+
+    from .cinema import CinemaState, watched_through
+    from .storage_admin import forget_movie
+
+    copies = db.scalars(
+        select(Record)
+        .where(
+            Record.kind == "cinema.local_media",
+            Record.deleted_at.is_(None),
+            Record.data["then_delete"].as_boolean().is_(True),
+            Record.data["state"].as_string() == "ready",
+        )
+        .limit(50)
+    ).all()
+    for copy in copies:
+        ready_at = copy.data.get("ready_at") or ""
+        seen = db.scalar(
+            select(CinemaState).where(
+                CinemaState.owner_id == copy.owner_id, CinemaState.media_id == copy.data.get("media_id")
+            )
+        )
+        watched = bool(
+            seen
+            and watched_through(seen.data)
+            and seen.last_watched_at
+            and seen.last_watched_at.isoformat() > ready_at
+        )
+        if watched or ready_at < (utcnow() - KEEP_UNWATCHED).isoformat():
+            try:
+                forget_movie(db, copy.id, copy.version)
+                db.commit()
+            except HTTPException:
+                db.rollback()  # playing or preparing right now: next time
 
 
 def main():

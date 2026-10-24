@@ -4192,6 +4192,9 @@ async def poster(identity: str, actor: Actor = Depends(require_actor), db: Sessi
 
 class SaveLocal(Version):
     source_id: str | None = Field(default=None, max_length=36)  # the release shown on the card
+    # Downloaded to watch without buffering (a heavy film), then deleted once watched or after a
+    # week (cinema_observer.clear_watched_copies), not kept in the library.
+    then_delete: bool = False
 
 
 @router.post("/workflows/{identity}/save-local")
@@ -4274,6 +4277,7 @@ def prepare_save_local(
             "size": size,
             "state": "reserved",
             "expires_at": (utcnow() + timedelta(minutes=3)).isoformat(),
+            "then_delete": body.then_delete,
         },
         version=1,
     )
@@ -4288,7 +4292,9 @@ def prepare_save_local(
             "action": "Save this exact release in the shared Cinema library",
             "release": source["release"],
             "bytes": size,
-            "effects": "Downloads the complete file to the approved storage drive. Verifies media and atomically publishes only a complete file. Does not start playback.",
+            "effects": "Downloads it to the house disk, where it plays without buffering; deleted once watched, or after a week."
+            if body.then_delete
+            else "Downloads the complete file to the approved storage drive. Verifies media and atomically publishes only a complete file. Does not start playback.",
         },
     )
 

@@ -127,3 +127,51 @@ def test_a_stream_the_chromecast_took_for_live_is_finished_when_it_runs_out_at_i
     (tmp_path / "video.m3u8").write_text("#EXTM3U\n#EXTINF:4.0,\nv0.m4s\n")  # still being made
     row.data = data
     assert not cinema.ran_out(row, empty)
+
+
+def test_a_film_downloaded_for_tonight_is_deleted_once_watched_or_after_a_week(monkeypatch):
+    from datetime import timedelta
+
+    from houseos import cinema_observer, storage_admin
+    from houseos.models import Record
+
+    f = test_cinema.CinemaTests()
+    f.setUp()
+    f.workflow()
+    try:
+        gone = []
+        monkeypatch.setattr(
+            storage_admin, "forget_movie", lambda db, identity, version: gone.append(identity)
+        )
+        now = cinema.utcnow()
+        with Session(f.engine) as db:
+            row = db.get(cinema.CinemaWorkflow, "workflow-one")
+            owner, media = row.owner_id, row.media_id
+
+            def copy(identity, ready, then_delete=True):
+                db.add(
+                    Record(
+                        id=identity, kind="cinema.local_media", owner_id=owner, visibility="house", version=1,
+                        data={"media_id": media, "state": "ready", "then_delete": then_delete,
+                              "ready_at": ready.isoformat()},
+                    )
+                )  # fmt: skip
+
+            copy("watched", now - timedelta(hours=3))
+            copy("kept", now - timedelta(days=30), then_delete=False)  # "Keep a copy at home": stays
+            db.commit()
+            state = cinema.own_state(db, owner, media)
+            state.data = {**state.data, "position": 5000, "duration": 5177, "watched": True}
+            state.last_watched_at = now - timedelta(hours=1)  # watched after it was ready
+            db.commit()
+            cinema_observer.clear_watched_copies(db)
+            assert gone == ["watched"]
+            gone.clear()
+            state.data, state.last_watched_at = {"position": 0, "duration": 5177}, None
+            copy("unwatched", now - timedelta(days=2))
+            copy("forgotten", now - timedelta(days=8))
+            db.commit()
+            cinema_observer.clear_watched_copies(db)
+            assert "unwatched" not in gone and "forgotten" in gone
+    finally:
+        f.tearDown()

@@ -1206,19 +1206,30 @@ function Tonight({
       setBusy(false);
     }
   };
-  const keepCopy = async () => {
+  // `forTonight`: downloaded to watch without buffering, then deleted once watched (or after a
+  // week); otherwise kept in the library.
+  const keepCopy = async (forTonight = false) => {
     try {
       const prepared = await api("/cinema/workflows/" + workflow!.id + "/save-local", "POST", {
         version: workflow!.version,
         source_id: candidate.id,
+        then_delete: forTonight,
       });
       if (prepared.confirmation_id)
         await api("/cinema/confirmations/" + prepared.confirmation_id, "POST");
-      toast(t("Saving a copy at home. Follow it in Sources, Copies at home."));
+      toast(
+        forTonight
+          ? t(
+              "Downloading it to the house. Activity says when it's ready; open the film again then and it plays from the house without buffering. It is deleted once you've watched it.",
+            )
+          : t("Saving a copy at home. Follow it in Sources, Copies at home."),
+      );
     } catch (e) {
       setError(errorText(e));
     }
   };
+  // A heavy version (over 25 GB) can outrun the house's connection while it streams.
+  const heavy = (candidate?.size || 0) > 25e9;
   const quality = (c: Obj) =>
     [
       // The server's class (a 1920×800 crop is 1080p); the height only for older answers.
@@ -1401,8 +1412,21 @@ function Tonight({
       )}
       {candidate &&
         (user?.role === "admin" || user?.permissions?.includes("files.shared.write")) && (
-          <div>
-            <Button variant="link" size="s" icon="download" onClick={keepCopy}>
+          <div className="watch-download-first">
+            {heavy && (
+              <Text style="body-s" tone="muted">
+                {t("A heavy version: download it first to watch it without buffering.")}
+              </Text>
+            )}
+            <Button
+              variant={heavy ? "secondary" : "link"}
+              size="s"
+              icon="download"
+              onClick={() => keepCopy(true)}
+            >
+              {t("Download first, then watch")}
+            </Button>
+            <Button variant="link" size="s" icon="download" onClick={() => keepCopy(false)}>
               {t("Keep a copy at home")}
             </Button>
           </div>

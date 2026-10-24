@@ -4474,5 +4474,11 @@ const french: Record<string, string> = {
     "Le son est converti pour cet écran ; l’image reste exactement telle quelle.",
   "Subtitles show as plain text at the bottom: their special positions and styles are lost.":
     "Les sous-titres s’affichent en texte simple en bas : leurs positions et styles particuliers sont perdus.",
+  "Downloading it to the house. Activity says when it's ready; open the film again then and it plays from the house without buffering. It is deleted once you've watched it.":
+    "Téléchargement vers la maison. L’activité dit quand c’est prêt ; rouvre alors le film et il se lance depuis la maison, sans chargement. Il est supprimé une fois regardé.",
+  "A heavy version: download it first to watch it without buffering.":
+    "Une version lourde : télécharge-la d’abord pour la regarder sans chargement.",
+  "Download first, then watch": "Télécharger d’abord, puis regarder",
+  "Ready to watch without buffering: {title}": "Prêt à regarder sans chargement : {title}",
 };
 export default french;

@@ -510,7 +510,12 @@ def download_local(db, row, job, user):
             "checksum": checksum.hexdigest(),
             "_path": str(root / name),
             "library_index": "pending_observation",
+            "ready_at": utcnow().isoformat(),
         }
+        if record.data.get("then_delete"):
+            from . import activity
+
+            activity.note("Ready to watch without buffering: {title}", title=title.title)
         job.state, job.finished_at = "done", utcnow()
         save_workflow(
             db,
