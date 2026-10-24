@@ -1,6 +1,7 @@
 """Incremental Cast packaging. Only the parent broker can access the exact source."""
 
 from __future__ import annotations
+import logging
 import shutil
 import json
 from fractions import Fraction
@@ -182,18 +183,33 @@ def write_master(directory, plan, size):
         )
     # Let the muxer declare the actual packaged codecs/profile; guessing HEVC as
     # H.264 makes adaptive receivers fail before they can expose subtitle tracks.
-    try:
-        variant = next(
-            line
-            for line in (directory / "av_master.m3u8").read_text().splitlines()
-            if line.startswith("#EXT-X-STREAM-INF:")
-        )
-        if "CODECS=" not in variant:
+    # FFmpeg can publish the media playlists a moment before its master: wait for it, and if
+    # it still is not there, write the variant line from the plan (the codecs still come from
+    # the packaged file).
+    variant = None
+    for _ in range(20):
+        try:
+            variant = next(
+                line
+                for line in (directory / "av_master.m3u8").read_text().splitlines()
+                if line.startswith("#EXT-X-STREAM-INF:")
+            )
+            break
+        except (OSError, StopIteration):
+            time.sleep(0.25)
+    if variant is None:
+        video = plan.get("video") or {}
+        variant = "#EXT-X-STREAM-INF:BANDWIDTH=1000000"
+        if video.get("width") and video.get("height"):
+            variant += f",RESOLUTION={video['width']}x{video['height']}"
+    if "CODECS=" not in variant:
+        try:
             variant += ',CODECS="' + packaged_codecs(directory) + '"'
-    except (OSError, StopIteration, ValueError, KeyError, subprocess.SubprocessError):
-        raise MediaError(
-            "PREPARATION_FAILED", "The stream codec manifest is not ready.", "prepare", True
-        ) from None
+        except (OSError, ValueError, KeyError, subprocess.SubprocessError) as error:
+            logging.getLogger(__name__).warning("Packaged codecs unreadable: %r", error)
+            raise MediaError(
+                "PREPARATION_FAILED", "The stream codec manifest is not ready.", "prepare", True
+            ) from None
     import re
 
     # Copied video often has no bitrate metadata; FFmpeg then reports audio only.
