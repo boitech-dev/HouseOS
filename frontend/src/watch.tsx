@@ -1150,7 +1150,9 @@ function Tonight({
   const subtitleTracks: Obj[] = attached || candidate?.subtitles || [];
   const audioId = audio ?? candidate?.suggested_audio?.id ?? candidate?.audio?.[0]?.id;
   const subtitleId =
-    subtitle ?? (candidate?.suggested_subtitle ? candidate.suggested_subtitle.id : "off");
+    // None in the file in your language: the house looks for one matched to this version when it
+    // starts ("auto"); "off" only when you turn them off.
+    subtitle ?? (candidate?.suggested_subtitle ? candidate.suggested_subtitle.id : "auto");
   const audioTrack = candidate?.audio?.find((a: Obj) => a.id === audioId);
   const subtitleTrack = subtitleTracks.find((s) => s.id === subtitleId);
   const noScreen = !!devices.data && !screens.length;
@@ -1335,7 +1337,15 @@ function Tonight({
                 ? t("original")
                 : undefined,
             )}
-            {row("subtitles", "Subtitles", candidate ? subtitleName(subtitleTrack) : "—")}
+            {row(
+              "subtitles",
+              "Subtitles",
+              !candidate
+                ? "—"
+                : subtitleId === "auto"
+                  ? t("None in the file: found online when it starts, if needed")
+                  : subtitleName(subtitleTrack),
+            )}
             {row(
               "screen",
               "Screen",

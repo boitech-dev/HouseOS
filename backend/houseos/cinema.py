@@ -51,6 +51,7 @@ from .cinema_suggest import NO_SUBTITLES, NOT_FOLLOWED
 from .playback import (
     MediaError,
     compatibility,
+    language,
     effective_request,
     exact_episode_file,
     select_candidate,
@@ -2133,6 +2134,92 @@ def play_selected(
     return confirm(prepared["confirmation_id"], actor, db)
 
 
+def found_subtitle(db, row, source, actor, audio_track=None):
+    """A subtitle for this exact file from the public OpenSubtitles add-on (cinema_community_subs),
+    attached as one of its tracks; None when nothing in sync was found."""
+    from .cinema_community_subs import find
+    from .cinema_sources import resolve_media
+    from .cinema_suggest import understood
+
+    title = db.get(CinemaTitle, row.media_id)
+    parent = (
+        db.get(CinemaTitle, title.data.get("parent_id")) if title and title.data.get("parent_id") else None
+    )
+    imdb = (parent or title).canonical_id if title else ""
+    if not imdb.startswith("tt"):
+        return None  # anime catalogues have no IMDb id for the add-on
+    request = row.data.get("request") or {}
+    inspection = source.get("inspection") or {}
+    spoken = language(
+        next(
+            (
+                a
+                for a in inspection.get("audio") or []
+                if a["id"] == (audio_track or request.get("audio_track"))
+            ),
+            (inspection.get("audio") or [{}])[0],
+        ).get("language")
+    )
+    if spoken in understood(request) and not request.get("always_subtitles"):
+        return None  # its sound is in a language you follow: no subtitles needed
+    wanted = language(request.get("subtitle_language")) or understood(request)[0]
+    try:
+        url, size = resolve_media(db, source)
+    except MediaError:
+        return None
+    found = find(
+        url,
+        size or source.get("size"),
+        imdb,
+        "movie" if not parent else "series",
+        row.data.get("season"),
+        row.data.get("episode"),
+        wanted,
+        (inspection.get("video") or {}).get("frame_rate"),
+        str(source.get("_addon_filename") or source.get("release") or ""),
+        float(inspection.get("duration") or 0),
+    )
+    if not found:
+        return None
+    text, item = found
+    subtitle = CinemaSubtitle(
+        id=new_id(),
+        owner_id=actor.id,
+        media_id=row.media_id,
+        data={
+            "language": wanted,
+            "release": str(item.get("movieReleaseName") or item.get("subtitleFileName") or "OpenSubtitles")[
+                :200
+            ],
+            "text": text,
+            "matched": "this file" if item.get("m") == "h" else "same release type and frame rate",
+            "sdh": ".hi." in str(item.get("subtitleFileName") or "").lower(),
+            "foreign_parts_only": False,
+            "season": row.data.get("season"),
+            "episode": row.data.get("episode"),
+        },
+        expires_at=utcnow() + timedelta(hours=12),
+    )
+    db.add(subtitle)
+    sources = copy.deepcopy(row.data["_sources"])
+    mine = next(s for s in sources if s["id"] == source["id"])
+    mine["inspection"]["subtitles"].append(
+        {
+            "id": subtitle.id,
+            "codec": "subrip",
+            "language": wanted,
+            "title": "OpenSubtitles · " + subtitle.data["matched"],
+            "external": True,
+            "sdh": subtitle.data["sdh"],
+            "forced": False,
+            "timing": "matched",
+        }
+    )
+    row.data = {**row.data, "_sources": sources}
+    db.flush()
+    return subtitle.id
+
+
 @router.post("/workflows/{identity}/launch")
 def launch(identity: str, body: Launch, actor: Actor = Depends(require_actor), db: Session = Depends(get_db)):
     """Play the reviewed suggestion (release, tracks, screen, start time) in one tap."""
@@ -2156,6 +2243,10 @@ def launch(identity: str, body: Launch, actor: Actor = Depends(require_actor), d
     device = db.get(CinemaDevice, body.device_id)
     if not source or not device:
         raise HTTPException(404, "Release or screen not found")
+    if body.subtitle_track == "auto":  # none in the file in the viewer's language: one matched to it
+        found = found_subtitle(db, row, source, actor, body.audio_track)
+        body = body.model_copy(update={"subtitle_track": found or "off"})
+        source = next(s for s in row.data["_sources"] if s["id"] == body.source_id)
     tracks = {
         "audio_track": body.audio_track,
         "subtitle_track": None if body.subtitle_track == "off" else body.subtitle_track,

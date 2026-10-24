@@ -22,6 +22,8 @@ def normalize_external(db, row, source, plan, directory):
         content = (
             selected.data["uploaded_vtt"].encode("utf-8")
             if selected.data.get("uploaded_vtt")
+            else selected.data["text"].encode("utf-8")  # found for this file (cinema_community_subs)
+            if selected.data.get("text")
             else OpenSubtitles(integration_config(db, "opensubtitles")).download(selected.data["file_id"])
         )
     return normalize_text(content, directory)

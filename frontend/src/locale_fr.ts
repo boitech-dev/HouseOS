@@ -4480,5 +4480,7 @@ const french: Record<string, string> = {
     "Une version lourde : télécharge-la d’abord pour la regarder sans chargement.",
   "Download first, then watch": "Télécharger d’abord, puis regarder",
   "Ready to watch without buffering: {title}": "Prêt à regarder sans chargement : {title}",
+  "None in the file: found online when it starts, if needed":
+    "Aucun dans le fichier : trouvés en ligne au lancement, si besoin",
 };
 export default french;
