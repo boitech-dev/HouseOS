@@ -649,3 +649,58 @@ def test_a_seek_ahead_on_a_stream_the_chromecast_took_for_live_loads_it_again(tm
             assert done.state == "command_sent" and done.data["_seek_previous"] is None  # next seek may go
     finally:
         f.tearDown()
+
+
+def test_a_complete_stream_the_chromecast_took_for_live_is_loaded_again_once(tmp_path, monkeypatch):
+    """Taken for live, the Chromecast chases the stream's newest point (an episode jumped ahead,
+    a seek back landed a minute later): once complete, it is loaded again where it plays."""
+    from unittest.mock import patch
+    from sqlalchemy.orm import Session
+    import test_cinema
+    from houseos import cinema
+
+    f = test_cinema.CinemaTests()
+    f.setUp()
+    f.workflow()
+    monkeypatch.setattr(cinema.settings, "runtime_root", tmp_path)
+    output = tmp_path / "cinema" / "ready"
+    output.mkdir(parents=True)
+    (output / "master.m3u8").write_text("#EXTM3U\nvideo.m3u8\n")
+    (output / "video.m3u8").write_text("#EXTM3U\n#EXTINF:100.0,\nvideo0.m4s\n#EXT-X-ENDLIST\n")
+    prepared = {
+        "streaming": True,
+        "timeline_version": 2,
+        "path": str(output / "master.m3u8"),
+        "position_offset": 0,
+    }
+    try:
+        with Session(f.engine) as db:
+            row = db.get(cinema.CinemaWorkflow, "workflow-one")
+            row.state = "playing_observed"
+            row.data = {
+                **row.data,
+                "_prepared": prepared,
+                "plan": {"duration": 120, "expected_item": "ours", "preparation_strategy": "progressive_hls"},
+                "observation": {"state": "active", "duration": -1},
+                "checkpoint": {"position": 40, "at": cinema.utcnow().isoformat()},
+            }
+            device = db.get(cinema.CinemaDevice, f.device_id)
+            device.owner_workflow, device.adapter = row.id, "cast"
+            db.commit()
+        fresh = {"item_id": "ours", "state": "playing", "session_id": 1}
+        with (
+            Session(f.engine) as db,
+            patch("houseos.cinema_cast.cast_control"),
+            patch("houseos.cinema.inspect_destination", return_value=fresh),
+        ):
+            row = db.get(cinema.CinemaWorkflow, "workflow-one")
+            device = db.get(cinema.CinemaDevice, f.device_id)
+            assert cinema.settle_stream(db, row, device)
+            row = db.get(cinema.CinemaWorkflow, "workflow-one")
+            assert row.state == "preparing" and row.data["_prepared"] == prepared
+            assert 40 <= row.data["plan"]["position"] <= 42  # where it plays now, not ahead
+            row.state = "playing_observed"
+            row.data = {**row.data, "_seek_previous": None}
+            assert not cinema.settle_stream(db, row, device)  # once
+    finally:
+        f.tearDown()

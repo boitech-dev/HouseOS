@@ -2822,50 +2822,7 @@ def control(
         elif prepared.get("web"):  # a web video still downloading: nothing to prepare it from
             raise HTTPException(409, "That part isn't downloaded yet. Try again in a moment.")
         else:
-            fresh = call(inspect_destination, db, device)
-            if fresh.get("item_id") != row.data["plan"].get("expected_item"):
-                failure(
-                    MediaError(
-                        "PLAN_STALE", "The screen is playing something else; no seek was sent.", "control"
-                    )
-                )
-            previous_state = "paused" if fresh.get("state") == "paused" else "playing_observed"
-            # Freeze the old buffer before stopping its producer; otherwise Cast
-            # can run off its end while the new seek position is being prepared.
-            if device.adapter == "cast" and previous_state != "paused":
-                from .cinema_cast import cast_control
-
-                call(cast_control, device.address, "pause", None)
-            save_workflow(
-                db,
-                row,
-                "preparing",
-                {
-                    "_seek_previous": {
-                        "prepared": prepared,
-                        "plan": row.data["plan"],
-                        "state": previous_state,
-                        "job_id": row.data.get("_stream_job_id"),
-                    },
-                    "plan": {**row.data["plan"], "position": body.position},
-                    # Complete: the same stream, loaded again there (a normal film from now on).
-                    "_prepared": prepared if reload else None,
-                    "_stream_job_id": row.data.get("_stream_job_id") if reload else None,
-                    "_destination_observation": fresh,
-                    "error": None,
-                },
-            )
-            db.add(
-                CinemaPreparation(
-                    id=new_id(),
-                    workflow_id=row.id,
-                    owner_id=row.owner_id,
-                    workflow_version=row.version,
-                    state="queued",
-                )
-            )
-            db.commit()
-            return public_workflow(row)
+            return public_workflow(seek_by_loading(db, row, device, body.position, prepared, reload))
     error = None
     try:
         if body.action == "stop":
@@ -2982,6 +2939,91 @@ def ran_out(row, observation):
     except OSError:
         complete = False
     return complete and (empty or waiting)
+
+
+def seek_by_loading(db, row, device, position, prepared, reload):
+    """A seek the receiver can't do in place: the stream is loaded again there (complete: the
+    same copy, `reload`; else prepared from that moment). The film pauses meanwhile."""
+    fresh = call(inspect_destination, db, device)
+    if fresh.get("item_id") != row.data["plan"].get("expected_item"):
+        failure(
+            MediaError("PLAN_STALE", "The screen is playing something else; no seek was sent.", "control")
+        )
+    previous_state = "paused" if fresh.get("state") == "paused" else "playing_observed"
+    # Freeze the old buffer before stopping its producer; otherwise Cast
+    # can run off its end while the new seek position is being prepared.
+    if device.adapter == "cast" and previous_state != "paused":
+        from .cinema_cast import cast_control
+
+        call(cast_control, device.address, "pause", None)
+    save_workflow(
+        db,
+        row,
+        "preparing",
+        {
+            "_seek_previous": {
+                "prepared": prepared,
+                "plan": row.data["plan"],
+                "state": previous_state,
+                "job_id": row.data.get("_stream_job_id"),
+            },
+            "plan": {**row.data["plan"], "position": position},
+            # Complete: the same stream, loaded again there (a normal film from now on).
+            "_prepared": prepared if reload else None,
+            "_stream_job_id": row.data.get("_stream_job_id") if reload else None,
+            "_destination_observation": fresh,
+            "error": None,
+        },
+    )
+    db.add(
+        CinemaPreparation(
+            id=new_id(),
+            workflow_id=row.id,
+            owner_id=row.owner_id,
+            workflow_version=row.version,
+            state="queued",
+        )
+    )
+    db.commit()
+    return row
+
+
+def settle_stream(db, row, device):
+    """Once a stream the Chromecast took for live is complete, it is loaded again where it is,
+    once: from then on it is a normal film (it stays where it is told, seeks work, it ends)."""
+    prepared = row.data.get("_prepared") or {}
+    observation = row.data.get("observation") or {}
+    if (
+        row.state != "playing_observed"
+        or device is None
+        or device.adapter != "cast"
+        or not prepared.get("streaming")
+        or prepared.get("web")
+        or observation.get("duration") != -1
+        or observation.get("state") != "active"
+        or row.data.get("_seek_previous")
+        or row.data.get("_settled") == prepared.get("path")
+    ):
+        return False
+    try:
+        complete = "#EXT-X-ENDLIST" in Path(prepared["path"]).with_name("video.m3u8").read_text()
+    except OSError:
+        return False
+    if not complete:
+        return False
+    from datetime import datetime
+
+    checkpoint = row.data.get("checkpoint") or {}
+    since = (
+        (utcnow() - datetime.fromisoformat(checkpoint["at"])).total_seconds() if checkpoint.get("at") else 0
+    )
+    position = float(checkpoint.get("position") or 0) + max(0.0, min(since, 10)) + 1
+    duration = float((row.data.get("plan") or {}).get("duration") or 0)
+    if duration and position > duration - 30:
+        return False  # nearly over: let it end
+    row.data = {**row.data, "_settled": prepared["path"]}
+    seek_by_loading(db, row, device, position, prepared, True)
+    return True
 
 
 def still_buffering(row, observation):
@@ -3713,6 +3755,8 @@ def reconcile_playback(db):
         actor = Actor(user.id, user.name, user.role, user_permissions(user))
         try:
             observe(row.id, Version(version=row.version), actor, db)
+            row = db.get(CinemaWorkflow, row.id)
+            settle_stream(db, row, db.get(CinemaDevice, row.device_id) if row.device_id else None)
         except HTTPException:
             db.rollback()
     return len(rows)
