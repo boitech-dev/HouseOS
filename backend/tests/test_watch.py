@@ -368,3 +368,19 @@ def test_launch_asks_before_replacing_what_is_on_the_screen():
         assert asked.json()["plan"]["interrupts"]
     finally:
         f.tearDown()
+
+
+def test_anime_plays_in_japanese_with_subtitles_even_when_the_dub_is_the_default():
+    # Mnemosyne: a dual-audio release marks its English dub as the default track.
+    from houseos.cinema_suggest import title_language
+
+    original = title_language("mal:3342:1:1")
+    dual = media(1080, audio=("en", "ja"), default=0, subtitles=[("en", "subrip")])
+    best = rank_inspected([source("dual", dual)], CAPS, {"languages": ["en"]}, original)[0]
+    assert best[1]["audio"]["language"] == "ja" and best[1]["subtitle"]["language"] == "en"
+    # Only an English track in the file: that one plays, rather than nothing.
+    dub = rank_inspected([source("dub", media(1080, audio=("en",)))], CAPS, {"languages": ["en"]}, original)[
+        0
+    ]
+    assert dub[1]["audio"]["language"] == "en"
+    assert title_language("tt0103064") is None  # a film keeps its file's own default

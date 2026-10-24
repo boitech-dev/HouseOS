@@ -586,141 +586,141 @@ Cinema domain: user-owned workflows, source choices, confirmations and watch sta
   HTTP: `router.post('/devices/{identity}/inspect')`
 - [`source_summary(source, plan)`](../backend/houseos/cinema.py#L825)
 - [`freeze_choices(row, device)`](../backend/houseos/cinema.py#L850)
-- [`source_order(source)`](../backend/houseos/cinema.py#L889)
-- [`exact_cached_file(rd, torrent_id, season, episode, title='', year=None)`](../backend/houseos/cinema.py#L915)
-- [`provisional_source(source)`](../backend/houseos/cinema.py#L938)
-- [`discover(body: Discover, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L962)
+- [`source_order(source)`](../backend/houseos/cinema.py#L896)
+- [`exact_cached_file(rd, torrent_id, season, episode, title='', year=None)`](../backend/houseos/cinema.py#L922)
+- [`provisional_source(source)`](../backend/houseos/cinema.py#L945)
+- [`discover(body: Discover, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L969)
   HTTP: `router.post('/discover')`
-- [`current_playback(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L1229)
+- [`current_playback(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L1236)
   HTTP: `router.get('/current')`
-- [`watched_now(data, plan, position, duration)`](../backend/houseos/cinema.py#L1322)
+- [`watched_now(data, plan, position, duration)`](../backend/houseos/cinema.py#L1329)
   Watched once it reaches 95 %. Seen before and started again from earlier on, it is not,
-- [`watched_through(data)`](../backend/houseos/cinema.py#L1330)
-- [`shelves(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L1336)
+- [`watched_through(data)`](../backend/houseos/cinema.py#L1337)
+- [`shelves(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L1343)
   Continue watching (one card per series: resume the episode or start the next one),
   HTTP: `router.get('/shelves')`
-- [`saved_on_disk(db)`](../backend/houseos/cinema.py#L1416)
+- [`saved_on_disk(db)`](../backend/houseos/cinema.py#L1423)
   Films and episodes saved on the house disk, one card per title (Files → Films).
-- [`tab_of(kind)`](../backend/houseos/cinema.py#L1437)
+- [`tab_of(kind)`](../backend/houseos/cinema.py#L1444)
   files.film_kind's film / series / anime as Watch's tabs (movie / series / anime).
-- [`connected_sources(db)`](../backend/houseos/cinema.py#L1442)
+- [`connected_sources(db)`](../backend/houseos/cinema.py#L1449)
   Where films can come from here, so Watch can show them (no secrets, only on/off).
-- [`workflows(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L1458)
+- [`workflows(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L1465)
   HTTP: `router.get('/workflows')`
-- [`downloads(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L1480)
+- [`downloads(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L1487)
   HTTP: `router.get('/downloads')`
-- [`source_page(identity: str, offset: int=Query(0, ge=0, le=100), resolution: int | None=Query(default=None, ge=0, le=4320), limit: int=Query(20, ge=1, le=20), actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L1500)
+- [`source_page(identity: str, offset: int=Query(0, ge=0, le=100), resolution: int | None=Query(default=None, ge=0, le=4320), limit: int=Query(20, ge=1, le=20), actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L1507)
   HTTP: `router.get('/workflows/{identity}/sources')`
-- [`workflow(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L1531)
+- [`workflow(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L1538)
   HTTP: `router.get('/workflows/{identity}')`
-- [`confirmation(db, row, action, preview, private=None)`](../backend/houseos/cinema.py#L1535)
-- [`validate_sources(identity: str, body: SourceValidation, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L1559)
+- [`confirmation(db, row, action, preview, private=None)`](../backend/houseos/cinema.py#L1542)
+- [`validate_sources(identity: str, body: SourceValidation, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L1566)
   HTTP: `router.post('/workflows/{identity}/validate')`
-- [`inspection_key(source)`](../backend/houseos/cinema.py#L1613)
+- [`inspection_key(source)`](../backend/houseos/cinema.py#L1620)
   The exact file: same torrent, same file inside it. None when that is not known.
-- [`cached_inspection(db, source)`](../backend/houseos/cinema.py#L1621)
-- [`remember_inspection(db, owner_id, source)`](../backend/houseos/cinema.py#L1629)
-- [`validate_rd(db, row, source_ids)`](../backend/houseos/cinema.py#L1648)
-- [`prepare_plan(db, row, source)`](../backend/houseos/cinema.py#L1888)
-- [`select_source(identity: str, body: Choice, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2006)
+- [`cached_inspection(db, source)`](../backend/houseos/cinema.py#L1628)
+- [`remember_inspection(db, owner_id, source)`](../backend/houseos/cinema.py#L1636)
+- [`validate_rd(db, row, source_ids)`](../backend/houseos/cinema.py#L1655)
+- [`prepare_plan(db, row, source)`](../backend/houseos/cinema.py#L1895)
+- [`select_source(identity: str, body: Choice, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2013)
   HTTP: `router.post('/workflows/{identity}/select')`
-- [`choose_destination(identity: str, body: DestinationChoice, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2041)
+- [`choose_destination(identity: str, body: DestinationChoice, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2048)
   HTTP: `router.post('/workflows/{identity}/destination')`
-- [`class ConfigureSource`](../backend/houseos/cinema.py#L2077)
-- [`configure_source(identity: str, body: ConfigureSource, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2082)
+- [`class ConfigureSource`](../backend/houseos/cinema.py#L2084)
+- [`configure_source(identity: str, body: ConfigureSource, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2089)
   HTTP: `router.post('/workflows/{identity}/configure')`
-- [`play_selected(identity: str, body: DestinationChoice, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2111)
+- [`play_selected(identity: str, body: DestinationChoice, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2118)
   HTTP: `router.post('/workflows/{identity}/play')`
-- [`launch(identity: str, body: Launch, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2130)
+- [`launch(identity: str, body: Launch, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2137)
   Play the reviewed suggestion (release, tracks, screen, start time) in one tap.
   HTTP: `router.post('/workflows/{identity}/launch')`
-- [`confirm(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2175)
+- [`confirm(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2182)
   HTTP: `router.post('/confirmations/{identity}')`
-- [`execute_play(db, row)`](../backend/houseos/cinema.py#L2263)
-- [`own_state(db, actor_id, media_id)`](../backend/houseos/cinema.py#L2318)
-- [`observe(identity: str, body: Version, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2336)
+- [`execute_play(db, row)`](../backend/houseos/cinema.py#L2270)
+- [`own_state(db, actor_id, media_id)`](../backend/houseos/cinema.py#L2325)
+- [`observe(identity: str, body: Version, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2343)
   HTTP: `router.post('/workflows/{identity}/observe')`
-- [`stop_cinema(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2626)
+- [`stop_cinema(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2633)
   Invalidate work first; then close owned receivers, including failed loads.
   HTTP: `router.post('/stop')`
-- [`cancel_workflow(identity: str, body: Version, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2737)
+- [`cancel_workflow(identity: str, body: Version, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2744)
   HTTP: `router.post('/workflows/{identity}/cancel')`
-- [`control(identity: str, body: Control, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2762)
+- [`control(identity: str, body: Control, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2769)
   HTTP: `router.post('/workflows/{identity}/control')`
-- [`still_buffering(row, observation)`](../backend/houseos/cinema.py#L2961)
+- [`still_buffering(row, observation)`](../backend/houseos/cinema.py#L2968)
   A buffering report on our own film (after a seek, or the network catching up): what was
-- [`replacement_preview(db, row)`](../backend/houseos/cinema.py#L2974)
+- [`replacement_preview(db, row)`](../backend/houseos/cinema.py#L2981)
   Keep the observed player and its delivery grant alive until replacement is approved.
-- [`change(identity: str, body: Change, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3011)
+- [`change(identity: str, body: Change, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3018)
   HTTP: `router.post('/workflows/{identity}/change')`
-- [`resume_settings(workflow, plan)`](../backend/houseos/cinema.py#L3048)
-- [`last_resume(db, actor, identity)`](../backend/houseos/cinema.py#L3062)
-- [`resume_offer(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3108)
+- [`resume_settings(workflow, plan)`](../backend/houseos/cinema.py#L3055)
+- [`last_resume(db, actor, identity)`](../backend/houseos/cinema.py#L3069)
+- [`resume_offer(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3115)
   HTTP: `router.get('/state/{identity}/resume')`
-- [`class ResumePlayback`](../backend/houseos/cinema.py#L3133)
-- [`resume_playback(identity: str, body: ResumePlayback, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3138)
+- [`class ResumePlayback`](../backend/houseos/cinema.py#L3140)
+- [`resume_playback(identity: str, body: ResumePlayback, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3145)
   HTTP: `router.post('/state/{identity}/resume')`
-- [`media_state(filter: Literal['continue', 'watchlist', 'favorites', 'history', 'all']='all', actor: Actor=Depends(require_actor), db: Session=Depends(get_db), offset: int=0)`](../backend/houseos/cinema.py#L3202)
+- [`media_state(filter: Literal['continue', 'watchlist', 'favorites', 'history', 'all']='all', actor: Actor=Depends(require_actor), db: Session=Depends(get_db), offset: int=0)`](../backend/houseos/cinema.py#L3209)
   HTTP: `router.get('/state')`
-- [`update_media_state(identity: str, body: StateUpdate, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3258)
+- [`update_media_state(identity: str, body: StateUpdate, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3265)
   HTTP: `router.put('/state/{identity}')`
-- [`remove_history(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3275)
+- [`remove_history(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3282)
   HTTP: `router.delete('/state/{identity}/history')`
-- [`health(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3313)
+- [`health(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3320)
   HTTP: `router.get('/health')`
-- [`receiver_media(token: str, name: str, request: Request, db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3458)
-- [`cloud_id(torrent_id)`](../backend/houseos/cinema.py#L3552)
-- [`cloud_inventory(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3557)
+- [`receiver_media(token: str, name: str, request: Request, db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3465)
+- [`cloud_id(torrent_id)`](../backend/houseos/cinema.py#L3559)
+- [`cloud_inventory(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3564)
   HTTP: `router.get('/cloud')`
-- [`subtitle_search(identity: str, language: str=Query(min_length=2, max_length=3, pattern='^[a-z]{2,3}$'), season: int | None=Query(default=None, ge=0, le=100), episode: int | None=Query(default=None, ge=1, le=1000), actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3579)
+- [`subtitle_search(identity: str, language: str=Query(min_length=2, max_length=3, pattern='^[a-z]{2,3}$'), season: int | None=Query(default=None, ge=0, le=100), episode: int | None=Query(default=None, ge=1, le=1000), actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3586)
   HTTP: `router.get('/titles/{identity}/subtitles')`
-- [`next_episode(identity: str, season: int=Query(ge=0, le=100), episode: int=Query(ge=1, le=1000), actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3612)
+- [`next_episode(identity: str, season: int=Query(ge=0, le=100), episode: int=Query(ge=1, le=1000), actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3619)
   HTTP: `router.get('/titles/{identity}/next')`
-- [`reconcile_playback(db)`](../backend/houseos/cinema.py#L3656)
+- [`reconcile_playback(db)`](../backend/houseos/cinema.py#L3663)
   Periodic read-only receiver observations/checkpoints; revocation stops new controls.
-- [`class AttachSubtitle`](../backend/houseos/cinema.py#L3695)
-- [`pick_source(row, source_id)`](../backend/houseos/cinema.py#L3700)
+- [`class AttachSubtitle`](../backend/houseos/cinema.py#L3702)
+- [`pick_source(row, source_id)`](../backend/houseos/cinema.py#L3707)
   Subtitles attach to the release the resident is looking at.
-- [`attach_subtitle(identity: str, body: AttachSubtitle, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3707)
+- [`attach_subtitle(identity: str, body: AttachSubtitle, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3714)
   HTTP: `router.post('/workflows/{identity}/subtitle')`
-- [`class SubtitleUpload`](../backend/houseos/cinema.py#L3762)
-- [`normalize_uploaded_subtitle(text)`](../backend/houseos/cinema.py#L3769)
-- [`upload_subtitle(identity: str, body: SubtitleUpload, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3818)
+- [`class SubtitleUpload`](../backend/houseos/cinema.py#L3769)
+- [`normalize_uploaded_subtitle(text)`](../backend/houseos/cinema.py#L3776)
+- [`upload_subtitle(identity: str, body: SubtitleUpload, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3825)
   HTTP: `router.post('/workflows/{identity}/subtitles/upload')`
-- [`current_destination(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3862)
+- [`current_destination(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3869)
   HTTP: `router.get('/devices/{identity}/current')`
-- [`class CoWatch`](../backend/houseos/cinema.py#L3879)
-- [`co_watch(identity: str, body: CoWatch, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3884)
+- [`class CoWatch`](../backend/houseos/cinema.py#L3886)
+- [`co_watch(identity: str, body: CoWatch, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3891)
   HTTP: `router.post('/workflows/{identity}/co-watch')`
-- [`checkpoint_participants(db, workflow, position, duration, plan)`](../backend/houseos/cinema.py#L3921)
-- [`poster_jpeg(content, size=(360, 540))`](../backend/houseos/cinema.py#L3959)
-- [`image_path(url)`](../backend/houseos/cinema.py#L3983)
-- [`image_on_disk(url)`](../backend/houseos/cinema.py#L3988)
-- [`cached_public_poster(url, freshness_bucket=None)`](../backend/houseos/cinema.py#L3998)
+- [`checkpoint_participants(db, workflow, position, duration, plan)`](../backend/houseos/cinema.py#L3928)
+- [`poster_jpeg(content, size=(360, 540))`](../backend/houseos/cinema.py#L3966)
+- [`image_path(url)`](../backend/houseos/cinema.py#L3990)
+- [`image_on_disk(url)`](../backend/houseos/cinema.py#L3995)
+- [`cached_public_poster(url, freshness_bucket=None)`](../backend/houseos/cinema.py#L4005)
   A public image as a sanitised JPEG, from disk or fetched once (`freshness_bucket` is
-- [`keep(path, content)`](../backend/houseos/cinema.py#L4025)
+- [`keep(path, content)`](../backend/houseos/cinema.py#L4032)
   Best effort: a cache that cannot be written only costs a fetch next time.
-- [`image_response(url, max_age=7 * 86400)`](../backend/houseos/cinema.py#L4036)
+- [`image_response(url, max_age=7 * 86400)`](../backend/houseos/cinema.py#L4043)
   Serve a public image: a disk hit at once, a miss fetched on the image threads.
-- [`poster_source(identity)`](../backend/houseos/cinema.py#L4053)
+- [`poster_source(identity)`](../backend/houseos/cinema.py#L4060)
   Where a title's poster comes from: (public URL, Jellyfin item id), or None.
-- [`jellyfin_poster(config, item)`](../backend/houseos/cinema.py#L4066)
-- [`poster(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4088)
+- [`jellyfin_poster(config, item)`](../backend/houseos/cinema.py#L4073)
+- [`poster(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4095)
   HTTP: `router.get('/titles/{identity}/poster')`
-- [`class SaveLocal`](../backend/houseos/cinema.py#L4114)
-- [`prepare_save_local(identity: str, body: SaveLocal, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4119)
+- [`class SaveLocal`](../backend/houseos/cinema.py#L4121)
+- [`prepare_save_local(identity: str, body: SaveLocal, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4126)
   HTTP: `router.post('/workflows/{identity}/save-local')`
-- [`boot_identity()`](../backend/houseos/cinema.py#L4221)
-- [`prepare_autoplay(db, row, actor)`](../backend/houseos/cinema.py#L4228)
+- [`boot_identity()`](../backend/houseos/cinema.py#L4228)
+- [`prepare_autoplay(db, row, actor)`](../backend/houseos/cinema.py#L4235)
   Continue only an already selected debrid pack, same source/policy/target, max3 episodes.
-- [`process_autoplay(db)`](../backend/houseos/cinema.py#L4401)
-- [`authorize_workflow(db, workflow)`](../backend/houseos/cinema.py#L4471)
+- [`process_autoplay(db)`](../backend/houseos/cinema.py#L4408)
+- [`authorize_workflow(db, workflow)`](../backend/houseos/cinema.py#L4478)
   Independent fresh DB transaction before external side effects/after slow work.
-- [`class PlayerLink`](../backend/houseos/cinema.py#L4498)
-- [`player_link(identity: str, body: PlayerLink, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4503)
+- [`class PlayerLink`](../backend/houseos/cinema.py#L4505)
+- [`player_link(identity: str, body: PlayerLink, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4510)
   VLC and other players send no sign-in cookie, so the link carries its own permission:
   HTTP: `router.post('/workflows/{identity}/player-link')`
-- [`player_stream(token: str, name: str, request: Request, db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4537)
+- [`player_stream(token: str, name: str, request: Request, db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4544)
 
 ## cinema_adapters
 
@@ -1114,11 +1114,13 @@ play it) still reject.
   The sources worth probing first, best first; never ones that already failed.
 - [`original_language(media)`](../backend/houseos/cinema_suggest.py#L70)
   The default audio track, else the first, is the original in almost every release.
-- [`best_plan(media, capabilities, request, original=None)`](../backend/houseos/cinema_suggest.py#L77)
+- [`title_language(canonical_id)`](../backend/houseos/cinema_suggest.py#L77)
+  The title's own language when its catalogue says it: anime (MyAnimeList) is Japanese.
+- [`best_plan(media, capabilities, request, original=None)`](../backend/houseos/cinema_suggest.py#L83)
   The most fitting plan for this source, and why. Raises MediaError only on hard limits.
-- [`consensus_language(sources)`](../backend/houseos/cinema_suggest.py#L145)
+- [`consensus_language(sources)`](../backend/houseos/cinema_suggest.py#L151)
   The original language: the one in the most releases (the original soundtrack is in
-- [`rank_inspected(sources, capabilities, request, original=None)`](../backend/houseos/cinema_suggest.py#L165)
+- [`rank_inspected(sources, capabilities, request, original=None)`](../backend/houseos/cinema_suggest.py#L171)
   Inspected sources ranked best first as (source, plan, score, reasons); rejects noted.
 
 ## cinema_tv

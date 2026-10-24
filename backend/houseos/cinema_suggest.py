@@ -74,6 +74,12 @@ def original_language(media):
     return language(chosen.get("language")) if chosen and chosen.get("language") else None
 
 
+def title_language(canonical_id):
+    """The title's own language when its catalogue says it: anime (MyAnimeList) is Japanese.
+    A dual-audio release often marks the English dub as its default track."""
+    return language("jpn") if str(canonical_id or "").startswith("mal:") else None
+
+
 def best_plan(media, capabilities, request, original=None):
     """The most fitting plan for this source, and why. Raises MediaError only on hard limits."""
     original = original or original_language(media)
@@ -164,7 +170,7 @@ def consensus_language(sources):
 
 def rank_inspected(sources, capabilities, request, original=None):
     """Inspected sources ranked best first as (source, plan, score, reasons); rejects noted."""
-    original = original or consensus_language(sources)
+    original = original or consensus_language(sources)  # the title's language first (title_language)
     ranked = []
     for source in sources:
         if not source.get("inspection") or source.get("error"):

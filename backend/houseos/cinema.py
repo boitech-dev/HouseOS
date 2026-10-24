@@ -848,13 +848,20 @@ def source_summary(source, plan):
 
 
 def freeze_choices(row, device):
-    from .cinema_suggest import rank_inspected
+    from sqlalchemy.orm import object_session
+
+    from .cinema_suggest import rank_inspected, title_language
 
     candidates = []
     sources = row.data.get("_sources", [])
     if device:
+        db = object_session(row)
+        title = db.get(CinemaTitle, row.media_id) if db and row.media_id else None
+        original = title_language(title.canonical_id) if title else None
         # Ranked by the household's defaults; taste never rejects, only hard limits do.
-        for source, plan, score, reasons in rank_inspected(sources, device.capabilities, row.data["request"]):
+        for source, plan, score, reasons in rank_inspected(
+            sources, device.capabilities, row.data["request"], original
+        ):
             candidates.append(
                 {
                     **source_summary(source, plan),
