@@ -199,6 +199,25 @@ def back_to_start(cast, wanted, settle=3.0):
     return False
 
 
+def stop_current(cast, wait=5.0):
+    """Whatever the screen still shows (the episode that just ended, the film being replaced) is
+    stopped first, as the Stop button does: a new LOAD over a live session is what goes wrong."""
+    try:
+        controller = cast.media_controller
+        controller.status = fresh_media_status(cast)
+        if controller.status.media_session_id is None or controller.status.player_state == "IDLE":
+            return
+        controller.stop()
+        deadline = time.monotonic() + wait
+        while time.monotonic() < deadline:
+            time.sleep(0.25)
+            controller.status = fresh_media_status(cast)
+            if controller.status.media_session_id is None or controller.status.player_state == "IDLE":
+                return
+    except Exception:
+        pass  # nothing to stop, or it went away: the load goes ahead either way
+
+
 def execute_cast(db, row, device, source, plan):
     from sqlalchemy import select
 
@@ -300,6 +319,8 @@ def execute_cast(db, row, device, source, plan):
     cast = connect(device.address)
     try:
         authorize_workflow(db, row)
+        if not row.data.get("_seek_previous"):
+            stop_current(cast)
         # Other apps (including Spotify) share the media namespace. Explicitly
         # select the Cast media receiver before sending a HouseOS LOAD.
         cast.start_app("CC1AD845", timeout=10)

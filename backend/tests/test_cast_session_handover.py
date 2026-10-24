@@ -239,3 +239,27 @@ def test_a_stream_the_chromecast_starts_at_its_newest_point_goes_back_to_where_i
     controller.status = SimpleNamespace(current_time=2.0)  # where it was asked: left alone
     assert not cinema_cast.back_to_start(cast, 0, settle=0.3)
     controller.seek.assert_not_called()
+
+
+def test_a_new_film_stops_what_the_screen_shows_before_loading(monkeypatch):
+    calls = []
+    controller = SimpleNamespace(stop=lambda: calls.append("stop"))
+    statuses = iter([("PLAYING", 7), ("IDLE", None)])
+
+    def fresh(cast):
+        state, session = next(statuses)
+        return SimpleNamespace(player_state=state, media_session_id=session)
+
+    monkeypatch.setattr(cinema_cast, "fresh_media_status", fresh)
+    cinema_cast.stop_current(SimpleNamespace(media_controller=controller), wait=1)
+    assert calls == ["stop"]
+    # An idle screen has nothing to stop; a receiver that will not answer does not block the load.
+    monkeypatch.setattr(
+        cinema_cast,
+        "fresh_media_status",
+        lambda c: SimpleNamespace(player_state="IDLE", media_session_id=None),
+    )
+    cinema_cast.stop_current(SimpleNamespace(media_controller=controller))
+    monkeypatch.setattr(cinema_cast, "fresh_media_status", Mock(side_effect=RuntimeError))
+    cinema_cast.stop_current(SimpleNamespace(media_controller=controller))
+    assert calls == ["stop"]

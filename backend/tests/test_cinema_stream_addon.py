@@ -443,7 +443,7 @@ def test_autoplay_follows_the_addons_release_group_and_is_found_before_the_end(a
     with Session(fixture.engine, expire_on_commit=False) as db:
         row = db.get(cinema.CinemaWorkflow, "workflow-one")
         duration = float(row.data["plan"]["duration"])
-        cinema.look_ahead(db, row, fixture.actor, duration - 300)  # not yet
+        cinema.look_ahead(db, row, fixture.actor, duration - 400)  # not yet
         assert row.data.get("_next") is None
         cinema.look_ahead(db, row, fixture.actor, duration - 60)
         assert row.data["_next"]["source"]["info_hash"] == "b" * 40

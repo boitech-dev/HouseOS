@@ -2641,7 +2641,7 @@ def observe(
             }
         position = max(0, min(float(observation.get("position") or 0), float(plan.get("duration") or 86400)))
         duration = float(plan.get("duration") or 0)
-        look_ahead(db, row, actor, position)  # two minutes from the end: the next episode, found now
+        look_ahead(db, row, actor, position)  # five minutes from the end: the next episode, found now
         last = row.data.get("checkpoint", {})
         progress_at = row.data.get("_progress_at", utcnow().isoformat())
         if abs(position - float(last.get("position") or 0)) > 0.5 or observation["state"] == "paused":
@@ -4402,7 +4402,7 @@ def boot_identity():
 
 
 AUTOPLAY_EPISODES = 12  # in a row without a tap (each one renews the next three hours)
-LOOK_AHEAD = 120  # seconds before the end: the next episode is found while this one plays
+LOOK_AHEAD = 300  # seconds before the end: the next episode is found while this one plays
 
 
 def autoplay_allowed(row):
@@ -4524,13 +4524,8 @@ def look_ahead(db, row, actor, position):
     """Near the end of an episode: find the next one now, so it starts as soon as this ends."""
     duration = float((row.data.get("plan") or {}).get("duration") or 0)
     ahead = row.data.get("_next")
-    # A failed look (the debrid file still waking up) is tried again, 30 s apart, three times.
-    retry = (
-        ahead is not None
-        and ahead.get("error")
-        and ahead.get("tries", 1) < 3
-        and time.time() - ahead.get("at", 0) > 30
-    )
+    # A failed look (the debrid file still waking up) is tried again every 20 s until the end.
+    retry = ahead is not None and ahead.get("error") and time.time() - ahead.get("at", 0) > 20
     if not duration or position < duration - LOOK_AHEAD or (ahead is not None and not retry):
         return
     if not autoplay_allowed(row) or not (db.get(CinemaTitle, row.media_id).data or {}).get("parent_id"):
