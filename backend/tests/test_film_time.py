@@ -107,3 +107,23 @@ def test_watching_again_from_earlier_offers_to_resume_until_the_end():
     assert cinema.watched_now(seen, {"position": 6900}, 6950, 7200)  # resumed near the end
     assert cinema.watched_now({}, {"position": 0}, 6900, 7200)  # 95 %
     assert not cinema.watched_now({}, {"position": 0}, 3600, 7200)
+
+
+def test_a_stream_the_chromecast_took_for_live_is_finished_when_it_runs_out_at_its_end(tmp_path):
+    from types import SimpleNamespace
+
+    (tmp_path / "video.m3u8").write_text("#EXTM3U\n#EXTINF:4.0,\nv0.m4s\n#EXT-X-ENDLIST\n")
+    data = {
+        "_prepared": {"streaming": True, "path": str(tmp_path / "master.m3u8")},
+        "plan": {"duration": 2732, "expected_item": "ours"},
+        "checkpoint": {"position": 2731},
+    }
+    row = SimpleNamespace(data=data)
+    empty = {"item_id": None, "state": "unknown"}  # Mnemosyne episode 1's end: an empty player
+    assert cinema.ran_out(row, empty)
+    assert cinema.ran_out(row, {"item_id": "ours", "state": "buffering"})
+    row.data = {**data, "checkpoint": {"position": 1200}}  # mid-episode: not finished
+    assert not cinema.ran_out(row, empty)
+    (tmp_path / "video.m3u8").write_text("#EXTM3U\n#EXTINF:4.0,\nv0.m4s\n")  # still being made
+    row.data = data
+    assert not cinema.ran_out(row, empty)

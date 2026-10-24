@@ -451,3 +451,30 @@ def test_autoplay_follows_the_addons_release_group_and_is_found_before_the_end(a
         child = db.get(cinema.CinemaWorkflow, identity)
         assert child.state == "autoplay_countdown" and child.data["_sources"][0]["info_hash"] == "b" * 40
     streams.assert_called_once()  # at the end: nothing more to look up
+
+
+def test_a_failed_look_at_the_next_episode_is_tried_again(autoplay_fixture, monkeypatch):
+    import time
+    from sqlalchemy.orm import Session
+    from houseos import cinema
+
+    fixture, _, _, _ = autoplay_fixture
+    calls = []
+
+    def flaky(db, row, actor):
+        calls.append(1)
+        if len(calls) == 1:
+            raise MediaError("MEDIA_PROBE_FAILED", "still waking up", "probe")
+        return None
+
+    monkeypatch.setattr(cinema, "find_next", flaky)
+    with Session(fixture.engine, expire_on_commit=False) as db:
+        row = db.get(cinema.CinemaWorkflow, "workflow-one")
+        end = float(row.data["plan"]["duration"]) - 60
+        cinema.look_ahead(db, row, fixture.actor, end)
+        assert row.data["_next"]["error"] == "MEDIA_PROBE_FAILED"
+        cinema.look_ahead(db, row, fixture.actor, end)  # too soon: not yet
+        assert len(calls) == 1
+        row.data = {**row.data, "_next": {**row.data["_next"], "at": time.time() - 31}}
+        cinema.look_ahead(db, row, fixture.actor, end)
+        assert len(calls) == 2 and row.data["_next"] == {"end": True}

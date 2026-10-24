@@ -2384,11 +2384,11 @@ def observe(
         authorize_workflow(db, row)
         plan = row.data["plan"]
         expected = plan.get("expected_item")
-        if (
-            device.adapter == "cast"
-            and observation.get("item_id") == expected
+        if device.adapter == "cast" and (
+            observation.get("item_id") == expected
             and observation.get("state") == "idle"
             and observation.get("idle_reason") == "FINISHED"
+            or ran_out(row, observation)
         ):
             if (row.data.get("_prepared") or {}).get("streaming") and "#EXT-X-ENDLIST" not in Path(
                 row.data["_prepared"]["path"]
@@ -2964,6 +2964,24 @@ def control(
             else {"state": "command_sent", "action": body.action, "physical_verification": "unverified"},
         },
     )
+
+
+def ran_out(row, observation):
+    """A stream the Chromecast took for live never says "finished": at its end the player empties
+    (or waits for more). Played to its last seconds and the stream complete: it is finished."""
+    prepared = row.data.get("_prepared") or {}
+    duration = float((row.data.get("plan") or {}).get("duration") or 0)
+    position = float((row.data.get("checkpoint") or {}).get("position") or 0)
+    if not prepared.get("streaming") or not duration or position < duration - 15:
+        return False
+    expected = (row.data.get("plan") or {}).get("expected_item")
+    empty = not observation.get("item_id") and observation.get("state") in {"idle", "unknown", None}
+    waiting = observation.get("item_id") == expected and observation.get("state") in {"buffering", "idle"}
+    try:
+        complete = "#EXT-X-ENDLIST" in Path(prepared["path"]).with_name("video.m3u8").read_text()
+    except OSError:
+        complete = False
+    return complete and (empty or waiting)
 
 
 def still_buffering(row, observation):
@@ -4355,14 +4373,23 @@ def find_next(db, row, actor):
 def look_ahead(db, row, actor, position):
     """Near the end of an episode: find the next one now, so it starts as soon as this ends."""
     duration = float((row.data.get("plan") or {}).get("duration") or 0)
-    if not duration or position < duration - LOOK_AHEAD or row.data.get("_next") is not None:
+    ahead = row.data.get("_next")
+    # A failed look (the debrid file still waking up) is tried again, 30 s apart, three times.
+    retry = (
+        ahead is not None
+        and ahead.get("error")
+        and ahead.get("tries", 1) < 3
+        and time.time() - ahead.get("at", 0) > 30
+    )
+    if not duration or position < duration - LOOK_AHEAD or (ahead is not None and not retry):
         return
     if not autoplay_allowed(row) or not (db.get(CinemaTitle, row.media_id).data or {}).get("parent_id"):
         return
     try:
         found = find_next(db, row, actor)
     except (MediaError, HTTPException) as exc:
-        found = {"error": getattr(exc, "code", "AUTOPLAY_NEEDS_SELECTION")}
+        tries = (ahead or {}).get("tries", 0) + 1
+        found = {"error": getattr(exc, "code", "AUTOPLAY_NEEDS_SELECTION"), "tries": tries, "at": time.time()}
     row.data = {**row.data, "_next": found or {"end": True}}
 
 
@@ -4487,13 +4514,18 @@ def process_autoplay(db):
             authorize_workflow(db, row)
             fresh = inspect_destination(db, device)
             parent = db.get(CinemaWorkflow, row.data["_autoplay_parent"])
-            if not parent or fresh.get("item_id") != parent.data.get("plan", {}).get("expected_item"):
+            # The screen still shows the finished episode, or nothing (a stream the Chromecast took
+            # for live ends with an empty player, not "finished").
+            empty = not fresh.get("item_id") and fresh.get("state") in {"idle", "unknown", None}
+            if not parent or (
+                fresh.get("item_id") != parent.data.get("plan", {}).get("expected_item") and not empty
+            ):
                 raise MediaError(
                     "DESTINATION_BUSY",
                     "The destination changed after the completed episode; autoplay stopped.",
                     "autoplay",
                 )
-            if fresh["state"] != "idle" or fresh.get("idle_reason") != "FINISHED":
+            if not empty and (fresh["state"] != "idle" or fresh.get("idle_reason") != "FINISHED"):
                 raise MediaError(
                     "DESTINATION_BUSY",
                     "The destination no longer reports the previous episode finished; autoplay stopped.",
