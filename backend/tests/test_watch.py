@@ -396,3 +396,48 @@ def test_a_signs_and_songs_track_is_never_the_default_subtitle():
     ]
     assert choose_track(tracks, None, "en", subtitles=True)["id"] == "4"
     assert choose_track(tracks[:1], None, "en", subtitles=True)["id"] == "3"  # the only one: still shown
+
+
+def test_replacing_a_film_pauses_it_and_keeps_its_stream_until_the_new_one_is_on_screen():
+    from datetime import timedelta
+
+    f = test_cinema.CinemaTests()
+    f.setUp()
+    f.workflow()
+    try:
+        with Session(f.engine) as db:
+            row = db.get(cinema.CinemaWorkflow, "workflow-one")
+            old = cinema.CinemaWorkflow(
+                id="old-film", owner_id=row.owner_id, media_id=row.media_id, device_id=f.device_id,
+                idempotency_key="old-film-key", state="playing_observed", version=3,
+                data={"plan": {"expected_item": "other"}},
+            )  # fmt: skip
+            db.add(old)
+            db.add(
+                cinema.CinemaRelay(
+                    token_hash="old-grant", workflow_id="old-film", device_address="192.0.2.17", path="/x",
+                    mime="video/mp4", expires_at=utcnow() + timedelta(hours=1),
+                )
+            )  # fmt: skip
+            device = db.get(cinema.CinemaDevice, f.device_id)
+            device.owner_workflow, device.adapter = "old-film", "cast"
+            db.commit()
+        body = {"version": 1, "source_id": "source-one", "device_id": f.device_id, "subtitle_track": "off"}
+        with (
+            patch.object(
+                cinema, "inspect_destination", return_value={"state": "playing", "item_id": "other"}
+            ),
+            patch.object(cinema, "execute_play", side_effect=lambda db, row: cinema.public_workflow(row)),
+            patch("houseos.cinema_cast.cast_control") as command,
+            patch("houseos.cinema_cast.preflight_cast", lambda *a: None),
+        ):
+            launched = f.client.post(
+                "/api/v1/cinema/workflows/workflow-one/launch", json={**body, "replace": True}
+            )
+        assert launched.status_code == 200, launched.text
+        command.assert_any_call("192.0.2.17", "pause", None)  # held, not cut
+        with Session(f.engine) as db:
+            assert db.get(cinema.CinemaRelay, "old-grant")  # its stream stays until the new one plays
+            assert db.get(cinema.CinemaWorkflow, "workflow-one").data["_release_after_load"] == "old-film"
+    finally:
+        f.tearDown()

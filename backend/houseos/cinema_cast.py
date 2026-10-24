@@ -200,6 +200,8 @@ def back_to_start(cast, wanted, settle=3.0):
 
 
 def execute_cast(db, row, device, source, plan):
+    from sqlalchemy import select
+
     from .cinema import CinemaRelay, authorize_workflow
     from .cinema_sources import resolve_media
 
@@ -353,6 +355,12 @@ def execute_cast(db, row, device, source, plan):
                         continue
                 if streaming:
                     back_to_start(cast, max(0, plan.get("position", 0) - prepared.get("position_offset", 0)))
+                replaced = row.data.get("_release_after_load")
+                if replaced:  # the new film is on the screen: the one it replaced lets its stream go
+                    for grant in db.scalars(select(CinemaRelay).where(CinemaRelay.workflow_id == replaced)):
+                        db.delete(grant)
+                    row.data = {**row.data, "_release_after_load": None}
+                    db.commit()
                 break
             cast.media_controller.update_status()
             time.sleep(0.25)

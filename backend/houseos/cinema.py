@@ -2220,8 +2220,17 @@ def confirm(identity: str, actor: Actor = Depends(require_actor), db: Session = 
                     )
                 # The confirmed preview names this exact session, not any later owner.
                 previous.state, previous.version = "superseded", previous.version + 1
-                for grant in db.scalars(select(CinemaRelay).where(CinemaRelay.workflow_id == previous.id)):
-                    db.delete(grant)
+                # It pauses and keeps its stream until the new film is on the screen: cut now, the
+                # Chromecast would lose it mid-play and drop to its home screen while the new one
+                # is prepared (cinema_cast.execute_cast lets it go).
+                row.data = {**row.data, "_release_after_load": previous.id}
+                if device.adapter == "cast":
+                    from .cinema_cast import cast_control
+
+                    try:
+                        cast_control(device.address, "pause", None)
+                    except MediaError:
+                        pass  # already stopped or gone: nothing to hold
         # This claim is committed before external work. An unknown outcome never repeats automatically.
         device.owner_workflow = row.id
     row.data = {**row.data, "_authorization_session": actor.session_hash}
