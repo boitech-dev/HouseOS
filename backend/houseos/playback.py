@@ -222,6 +222,14 @@ def effective_request(saved: dict, current: dict) -> dict:
     }
 
 
+PARTIAL = re.compile(r"\b(signs?|songs?|forced|karaoke)\b", re.I)
+
+
+def partial_subtitles(track):
+    """Only signs or lyrics, no dialogue: 'English (Signs / Songs)', 'Forced'."""
+    return bool(PARTIAL.search(str(track.get("title") or "")))
+
+
 def choose_track(tracks, requested_id, requested_language, *, subtitles=False, enabled=True):
     if subtitles and not enabled:
         return None
@@ -238,11 +246,12 @@ def choose_track(tracks, requested_id, requested_language, *, subtitles=False, e
             if subtitles
             else "The requested audio track is unavailable.",
         )
-    # Forced-only subtitles (signs, foreign lines) are never the quiet default.
+    # Forced-only subtitles (signs, foreign lines) are never the quiet default, nor a "Signs /
+    # Songs" track (made for a dub: no dialogue), whatever the release marks as its default.
     return sorted(
         matches,
         key=lambda t: (
-            subtitles and requested_id is None and bool(t.get("forced")),
+            subtitles and requested_id is None and (bool(t.get("forced")) or partial_subtitles(t)),
             not t.get("default"),
             bool(t.get("commentary")),
             t["id"],
@@ -348,7 +357,9 @@ def compatibility(media: dict, capabilities: dict, request: dict) -> dict:
         elif subtitle["codec"] in TEXT_SUBS and capabilities.get("external_webvtt"):
             subtitle_mode = "webvtt"
             if subtitle["codec"] in {"ass", "ssa"}:
-                warnings.append("Subtitles show as plain text at the bottom: their special positions and styles are lost.")
+                warnings.append(
+                    "Subtitles show as plain text at the bottom: their special positions and styles are lost."
+                )
         elif (
             request.get("allow_video_transcode")
             and video.get("hdr") == "sdr"

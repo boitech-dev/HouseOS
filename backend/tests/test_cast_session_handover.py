@@ -225,3 +225,17 @@ def test_a_big_streamed_version_needs_only_room_on_the_disk(monkeypatch, tmp_pat
     with pytest.raises(cinema_cast.MediaError) as full:
         cinema_cast.preflight_cast(config, source, dict(plan))
     assert "GB are free" in full.value.message
+
+
+def test_a_stream_the_chromecast_starts_at_its_newest_point_goes_back_to_where_it_was_asked():
+    from unittest.mock import Mock
+
+    controller = Mock()
+    controller.status = SimpleNamespace(current_time=443.7)  # asked for 0:00, it started at 7:23
+    cast = SimpleNamespace(media_controller=controller)
+    assert cinema_cast.back_to_start(cast, 0, settle=0.5)
+    controller.seek.assert_called_once_with(0)
+    controller.seek.reset_mock()
+    controller.status = SimpleNamespace(current_time=2.0)  # where it was asked: left alone
+    assert not cinema_cast.back_to_start(cast, 0, settle=0.3)
+    controller.seek.assert_not_called()

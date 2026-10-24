@@ -185,6 +185,20 @@ def wake_screen(db, device):
 STREAM_ROOM = 1.1
 
 
+def back_to_start(cast, wanted, settle=3.0):
+    """A stream loaded while it is still being prepared is a live one to the Chromecast, which
+    starts it at its newest point, not where it was asked: minutes ahead. Back to the start."""
+    until = time.monotonic() + settle
+    while time.monotonic() < until:
+        cast.media_controller.update_status()
+        at = cast.media_controller.status.current_time or 0
+        if at > wanted + 10:
+            cast.media_controller.seek(wanted)
+            return True
+        time.sleep(0.25)
+    return False
+
+
 def execute_cast(db, row, device, source, plan):
     from .cinema import CinemaRelay, authorize_workflow
     from .cinema_sources import resolve_media
@@ -337,6 +351,8 @@ def execute_cast(db, row, device, source, plan):
                         cast.media_controller.update_status()
                         time.sleep(0.25)
                         continue
+                if streaming:
+                    back_to_start(cast, max(0, plan.get("position", 0) - prepared.get("position_offset", 0)))
                 break
             cast.media_controller.update_status()
             time.sleep(0.25)

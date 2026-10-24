@@ -384,3 +384,15 @@ def test_anime_plays_in_japanese_with_subtitles_even_when_the_dub_is_the_default
     ]
     assert dub[1]["audio"]["language"] == "en"
     assert title_language("tt0103064") is None  # a film keeps its file's own default
+
+
+def test_a_signs_and_songs_track_is_never_the_default_subtitle():
+    # Mnemosyne: the release marks "English (Signs / Songs)" (for the dub, no dialogue) as default.
+    from houseos.playback import choose_track
+
+    tracks = [
+        {"id": "3", "language": "en", "title": "English (Signs / Songs)", "default": True},
+        {"id": "4", "language": "en", "title": "English", "default": False},
+    ]
+    assert choose_track(tracks, None, "en", subtitles=True)["id"] == "4"
+    assert choose_track(tracks[:1], None, "en", subtitles=True)["id"] == "3"  # the only one: still shown
