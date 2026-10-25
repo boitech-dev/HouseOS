@@ -4,7 +4,7 @@
 
 **[🔑 Install](#-install)** · **[✨ Features](#-features)** · **[🎨 Make it yours](#-make-it-yours)** · **[🐳 Running it](#-running-houseos)** · **[📖 In detail](#-in-detail)**
 
-<img src="https://img.shields.io/badge/version-1.0.0-2b2b2b?style=flat-square&labelColor=050505" alt="version 1.0.0"> <img src="https://img.shields.io/badge/local-100%25-c9a24a?style=flat-square&labelColor=050505" alt="100% local"> <img src="https://img.shields.io/badge/customizable-100%25-c9a24a?style=flat-square&labelColor=050505" alt="100% customizable"> <img src="https://img.shields.io/badge/language-multilingual-f2eee6?style=flat-square&labelColor=050505" alt="multilingual"> <img src="https://img.shields.io/badge/license-MIT-2b2b2b?style=flat-square&labelColor=050505" alt="MIT licence">
+<img src="https://img.shields.io/badge/version-1.1.0-2b2b2b?style=flat-square&labelColor=050505" alt="version 1.1.0"> <img src="https://img.shields.io/badge/local-100%25-c9a24a?style=flat-square&labelColor=050505" alt="100% local"> <img src="https://img.shields.io/badge/customizable-100%25-c9a24a?style=flat-square&labelColor=050505" alt="100% customizable"> <img src="https://img.shields.io/badge/language-multilingual-f2eee6?style=flat-square&labelColor=050505" alt="multilingual"> <img src="https://img.shields.io/badge/license-MIT-2b2b2b?style=flat-square&labelColor=050505" alt="MIT licence">
 
 </div>
 

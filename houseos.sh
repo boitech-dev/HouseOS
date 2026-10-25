@@ -319,6 +319,10 @@ cmd_check() { # what Control Room shows next to the buttons
     if timeout 60 git fetch --quiet 2>/dev/null; then
       result behind "$(git rev-list --count 'HEAD..@{upstream}' 2>/dev/null || echo "")"
       result upstream "$(git rev-parse --short=12 '@{upstream}' 2>/dev/null || echo "")"   # what an update brings
+      # Where to read those changes, for a copy cloned from GitHub: this copy's commit against the new one.
+      local repo; repo=$(git remote get-url origin 2>/dev/null | sed -E 's#^(https://github\.com/|git@github\.com:)##; s#\.git$##')
+      [[ "$repo" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]] && result changes \
+        "https://github.com/$repo/compare/$(git rev-parse --short=12 HEAD)...$(git rev-parse --short=12 '@{upstream}')"
       result latest "$(git show '@{upstream}:backend/houseos/__init__.py' 2>/dev/null \
         | sed -n 's/^__version__ = "\(.*\)".*/\1/p')"
     fi

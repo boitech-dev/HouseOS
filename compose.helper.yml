@@ -8,7 +8,7 @@
 services:
   helper:
     build: { context: ., dockerfile: docker/Dockerfile, target: helper }
-    image: houseos-helper:1.0
+    image: houseos-helper:1.1
     pull_policy: build
     restart: unless-stopped
     network_mode: none   # talks to Docker through the socket only

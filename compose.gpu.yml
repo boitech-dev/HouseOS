@@ -4,7 +4,7 @@
 services:
   voice:
     build: { context: ., dockerfile: docker/Dockerfile, target: voice-gpu }
-    image: houseos-voice-gpu:1.0
+    image: houseos-voice-gpu:1.1
     deploy:
       resources:
         reservations:

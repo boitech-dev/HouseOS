@@ -23,6 +23,13 @@ def test_actions_need_the_helper_and_reach_it_signed(client, monkeypatch, tmp_pa
     (out / "check.json").write_text(json.dumps({"state": "done", "results": {"behind": "2", "gpu": "off"}}))
     body = c.get("/api/v1/admin/house-actions").json()
     assert body["helper"] is True and body["about"]["behind"] == "2"
+    # A link to read the waiting changes: GitHub's comparison only, never any other address.
+    link = "https://github.com/someone/HouseOS/compare/327187cfe823...9d2fddb01234"
+    for given, shown in ((link, link), ("https://evil.example/compare/a...b", None)):
+        (out / "check.json").write_text(
+            json.dumps({"state": "done", "results": {"behind": "2", "changes": given}})
+        )
+        assert c.get("/api/v1/admin/house-actions").json()["about"].get("changes") == shown
     assert c.post("/api/v1/admin/house-actions/rm-rf/prepare", json={}).status_code == 404
     bad = c.post("/api/v1/admin/house-actions/own-address/prepare", json={"address": "8.8.8.8"})
     assert bad.status_code == 422

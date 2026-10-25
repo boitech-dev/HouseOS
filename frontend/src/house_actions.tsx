@@ -119,6 +119,14 @@ export function HouseActions({ only }: { only?: string[] }) {
               : d.checked
                 ? t("HouseOS is up to date.")
                 : t("Checking for a new version…")}
+          {d.available && about.changes && (
+            <>
+              {" "}
+              <a href={about.changes} target="_blank" rel="noopener noreferrer">
+                {t("See what changed")}
+              </a>
+            </>
+          )}
           {about.gpu_available === "yes" && (
             <>
               {" "}

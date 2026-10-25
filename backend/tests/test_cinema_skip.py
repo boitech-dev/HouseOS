@@ -7,7 +7,7 @@ from unittest.mock import Mock
 from houseos import cinema, cinema_skip
 from houseos.playback import MediaError
 
-KAIBA = [  # a real release's chapters
+EPISODE = [  # chapters as an anime release names them
     {"start": 0, "end": 30, "title": "Avant"},
     {"start": 30, "end": 120, "title": "OP"},
     {"start": 120, "end": 603, "title": "Part A"},
@@ -18,7 +18,7 @@ KAIBA = [  # a real release's chapters
 
 
 def test_chapters_name_the_opening_and_ending_and_nothing_else():
-    assert cinema_skip.from_chapters(KAIBA) == [
+    assert cinema_skip.from_chapters(EPISODE) == [
         {"kind": "op", "start": 30, "end": 120},
         {"kind": "ed", "start": 1345, "end": 1435},
     ]
@@ -35,14 +35,14 @@ def test_aniskip_times_count_only_for_an_episode_as_long_as_this_file(monkeypatc
         ]
     }
     monkeypatch.setattr(cinema_skip, "public_fetch", lambda url: (json.dumps(answer).encode(), {}))
-    assert cinema_skip.from_aniskip("mal:52991", 5, 1470) == [{"kind": "op", "start": 153.3, "end": 243.3}]
+    assert cinema_skip.from_aniskip("mal:1", 5, 1470) == [{"kind": "op", "start": 153.3, "end": 243.3}]
     assert cinema_skip.from_aniskip("tmdb:1", 5, 1470) == []  # only anime are listed there
 
     def missing(url):
         raise MediaError("SOURCE_NOT_READY", "404", "resolve")
 
     monkeypatch.setattr(cinema_skip, "public_fetch", missing)
-    assert cinema_skip.from_aniskip("mal:3701", 1, 1446) == []
+    assert cinema_skip.from_aniskip("mal:2", 1, 1446) == []
 
 
 def test_it_skips_each_mark_once_and_an_ending_lands_just_before_the_end(monkeypatch):

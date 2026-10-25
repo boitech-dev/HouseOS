@@ -1,6 +1,6 @@
 [project]
 name = "houseos"
-version = "1.0.0"
+version = "1.1.0"
 license = "MIT"
 requires-python = ">=3.13,<3.14"
 dependencies = [

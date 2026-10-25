@@ -9,6 +9,7 @@ import hashlib
 import hmac
 import ipaddress
 import json
+import re
 import time
 import uuid
 from datetime import timedelta
@@ -85,6 +86,11 @@ def send(action, arg="", request_id=None):
     (inbox / (request_id + ".tmp")).write_text(json.dumps({"body": note, "sig": signature}))
     (inbox / (request_id + ".tmp")).rename(inbox / (request_id + ".json"))
     return request_id
+
+
+CHANGES = re.compile(
+    r"https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/compare/[0-9a-f]{7,40}\.\.\.[0-9a-f]{7,40}"
+)
 
 
 def available():
@@ -182,13 +188,16 @@ def status(actor=Depends(require_admin), db=Depends(get_db)):
                 task["log"] = log.read_text()[-4000:] if log.exists() else ""
                 tasks.append(task)
     check = read(out / "check.json") or {}
+    about = dict(check.get("results", {}))
+    if not CHANGES.fullmatch(str(about.get("changes") or "")):  # only GitHub's list of the changes
+        about.pop("changes", None)
     auto = bool(update_config(db).get("auto"))
     db.rollback()
     return {
         "container": settings.storage_container,
         "auto": auto,
         "helper": helper_alive(),
-        "about": check.get("results", {}),
+        "about": about,
         "checked": check.get("state") == "done",
         "effects": EFFECTS,
         "available": available(),

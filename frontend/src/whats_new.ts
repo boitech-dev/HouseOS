@@ -4,11 +4,37 @@
 import type { GlyphName } from "./design";
 
 /** The release people are told about; bump it with a new entry below. */
-export const RELEASE = "1.0";
+export const RELEASE = "1.1";
 
 export type News = { glyph: GlyphName | "nox"; title: string; text: string; go?: string };
 
 export const WHATS_NEW: { version: string; items: News[] }[] = [
+  {
+    version: "1.1",
+    items: [
+      {
+        glyph: "room.watch",
+        title: "Series play on by themselves",
+        text: "The next episode starts after a short countdown, in the same sound and subtitles.",
+        go: "/watch?kind=series",
+      },
+      {
+        glyph: "room.watch",
+        title: "Skip openings and endings",
+        text: "A switch on an episode's card, for that episode and the ones after it.",
+      },
+      {
+        glyph: "room.watch",
+        title: "Download first, then watch",
+        text: "For a heavy film: it's saved to the house first, plays without buffering, then goes.",
+      },
+      {
+        glyph: "room.watch",
+        title: "Subtitles found for you",
+        text: "A version with none in your language gets subtitles made for that very file.",
+      },
+    ],
+  },
   {
     version: "1.0",
     items: [

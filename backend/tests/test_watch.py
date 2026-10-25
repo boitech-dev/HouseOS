@@ -371,10 +371,10 @@ def test_launch_asks_before_replacing_what_is_on_the_screen():
 
 
 def test_anime_plays_in_japanese_with_subtitles_even_when_the_dub_is_the_default():
-    # Mnemosyne: a dual-audio release marks its English dub as the default track.
+    # A dual-audio anime release marks its English dub as the default track.
     from houseos.cinema_suggest import title_language
 
-    original = title_language("mal:3342:1:1")
+    original = title_language("mal:1:1:1")
     dual = media(1080, audio=("en", "ja"), default=0, subtitles=[("en", "subrip")])
     best = rank_inspected([source("dual", dual)], CAPS, {"languages": ["en"]}, original)[0]
     assert best[1]["audio"]["language"] == "ja" and best[1]["subtitle"]["language"] == "en"
@@ -387,7 +387,7 @@ def test_anime_plays_in_japanese_with_subtitles_even_when_the_dub_is_the_default
 
 
 def test_a_signs_and_songs_track_is_never_the_default_subtitle():
-    # Mnemosyne: the release marks "English (Signs / Songs)" (for the dub, no dialogue) as default.
+    # An anime release marks "English (Signs / Songs)" (for the dub, no dialogue) as default.
     from houseos.playback import choose_track
 
     tracks = [

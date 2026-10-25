@@ -99,16 +99,21 @@ const { RELEASE, settled, until } = require("./session.cjs");
   await page.unroute("**/api/v1/account/profile");
 
   // ---- 2. What's new, once after an update ----
-  // A mark above the current release (a pre-release build's) counts as seen: nothing opens.
+  // A mark above the current release (a pre-release build's) counts as 1.0: only what came after.
   await prefs({ seen_release: "9.9" });
   await page.goto(base + "/listen");
-  await page.waitForTimeout(2000);
-  assert.equal(await page.locator("dialog[open]").count(), 0, "a newer mark shows nothing");
+  await dialog.waitFor();
+  assert(await dialog.getByText("Series play on by themselves", { exact: true }).isVisible());
+  assert.equal(await dialog.getByText("Any video link on the TV", { exact: true }).count(), 0);
+  await dialog.getByRole("button", { name: "Got it" }).click();
+  await page.waitForFunction(() => !document.querySelector("dialog[open]"));
   await prefs({ seen_release: "0.9" });
   await page.goto(base + "/listen");
   await dialog.waitFor();
   assert.equal(await title(), "What's new in HouseOS");
-  assert(await dialog.getByText("Any video link on the TV", { exact: true }).isVisible());
+  // Missed two releases: the newest open, the earlier one below it.
+  assert(await dialog.getByText("Series play on by themselves", { exact: true }).isVisible());
+  assert.equal(await dialog.getByText("Any video link on the TV", { exact: true }).count(), 1);
   await dialog.getByRole("button", { name: "Got it" }).click();
   await page.waitForFunction(() => !document.querySelector("dialog[open]"));
   assert(await until(async () => (await (await context.request.get(base + "/api/v1/preferences")).json()).seen_release === RELEASE));

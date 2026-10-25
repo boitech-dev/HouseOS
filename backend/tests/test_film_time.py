@@ -119,7 +119,7 @@ def test_a_stream_the_chromecast_took_for_live_is_finished_when_it_runs_out_at_i
         "checkpoint": {"position": 2731},
     }
     row = SimpleNamespace(data=data)
-    empty = {"item_id": None, "state": "unknown"}  # Mnemosyne episode 1's end: an empty player
+    empty = {"item_id": None, "state": "unknown"}  # an episode's end: an empty player
     assert cinema.ran_out(row, empty)
     assert cinema.ran_out(row, {"item_id": "ours", "state": "buffering"})
     row.data = {**data, "checkpoint": {"position": 1200}}  # mid-episode: not finished

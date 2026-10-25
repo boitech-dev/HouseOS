@@ -985,6 +985,7 @@ const french: Record<string, string> = {
   "Resume at": "Reprendre à",
   "Start at": "Commencer à",
   "From the beginning": "Depuis le début",
+  "See what changed": "Voir ce qui a changé",
   "Skip openings and endings": "Passer les génériques de début et de fin",
   "This episode and the next ones. Only where the episode marks them, or AniSkip knows them.":
     "Cet épisode et les suivants. Seulement là où l’épisode les indique, ou là où AniSkip les connaît.",
@@ -3791,6 +3792,16 @@ const french: Record<string, string> = {
   "Deleted from the house after watching: Play again downloads it again.":
     "Supprimée de la maison après visionnage : Relire la télécharge à nouveau.",
   "Any video link on the TV": "N’importe quel lien vidéo sur la télé",
+  "Series play on by themselves": "Les séries s’enchaînent toutes seules",
+  "The next episode starts after a short countdown, in the same sound and subtitles.":
+    "L’épisode suivant démarre après un court compte à rebours, avec le même son et les mêmes sous-titres.",
+  "A switch on an episode's card, for that episode and the ones after it.":
+    "Un interrupteur sur la fiche d’un épisode, pour cet épisode et les suivants.",
+  "For a heavy film: it's saved to the house first, plays without buffering, then goes.":
+    "Pour un film lourd : il est d’abord enregistré à la maison, se lit sans coupure, puis s’efface.",
+  "Subtitles found for you": "Des sous-titres trouvés pour toi",
+  "A version with none in your language gets subtitles made for that very file.":
+    "Une version sans sous-titres dans ta langue en reçoit, faits pour ce fichier précis.",
   "Watch → Web: paste a YouTube, TikTok or other link and it plays on the TV, no ads.":
     "Regarder → Web : colle un lien YouTube, TikTok ou autre et il passe sur la télé, sans pub.",
   "YouTube, TikTok, Instagram, Reddit, Dailymotion, a .mp4 link and many more. No ads: it starts in a few seconds while the house downloads it, and it's deleted 6 h after you watch it.":

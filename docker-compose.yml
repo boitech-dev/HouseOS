@@ -8,7 +8,7 @@
 
 x-houseos: &houseos
   build: { context: ., dockerfile: docker/Dockerfile, target: app }
-  image: houseos:1.0
+  image: houseos:1.1
   pull_policy: build   # built here from the source; there is no image to download
   restart: unless-stopped
   env_file: [{ path: .env, required: false }]
