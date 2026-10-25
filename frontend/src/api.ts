@@ -67,6 +67,8 @@ type Entry = {
   poll?: ReturnType<typeof setInterval>;
   debounce?: ReturnType<typeof setTimeout>;
   evict?: ReturnType<typeof setTimeout>;
+  retry?: ReturnType<typeof setTimeout>;
+  retries?: number;
 };
 const EMPTY: Snapshot = { data: null, error: "", loading: false, at: 0 };
 const cache = new Map<string, Entry>();
@@ -135,6 +137,7 @@ function load(path: string, force = false): Promise<void> {
       (data) => {
         if (seq === entry.seq) {
           entry.stale = false;
+          entry.retries = 0;
           // Unchanged answers keep the same object, so effects and lists do not re-run.
           const same = JSON.stringify(data) === JSON.stringify(entry.snap.data);
           update(entry, {
@@ -146,7 +149,18 @@ function load(path: string, force = false): Promise<void> {
         }
       },
       (e) => {
-        if (seq === entry.seq) update(entry, { error: (e as Error).message, loading: false });
+        if (seq !== entry.seq) return;
+        // No answer at all (the computer slept, the network or the house restarted): try again on
+        // its own, sooner then rarer, and keep showing what was there meanwhile.
+        const dropped = !(e instanceof ApiError) || [502, 503, 504].includes(e.status);
+        if (dropped && entry.listeners.size) {
+          clearTimeout(entry.retry);
+          const wait = Math.min(60000, 2000 * 2 ** (entry.retries ?? 0));
+          entry.retries = (entry.retries ?? 0) + 1;
+          entry.retry = setTimeout(() => !document.hidden && void load(path), wait);
+          if (entry.snap.data != null) return update(entry, { loading: false });
+        }
+        update(entry, { error: (e as Error).message, loading: false });
       },
     )
     .then(() => {
@@ -197,7 +211,15 @@ addEventListener("houseos:change", (e) => invalidate((e as CustomEvent).detail?.
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) return;
   for (const [path, entry] of cache)
-    if (entry.listeners.size && (entry.stale || entry.intervals.size)) void load(path);
+    if (
+      entry.listeners.size &&
+      (entry.stale || entry.intervals.size || entry.snap.error || entry.retries)
+    )
+      void load(path);
+});
+// Back online: whatever failed meanwhile loads again.
+addEventListener("online", () => {
+  for (const [path, entry] of cache) if (entry.listeners.size && entry.snap.error) void load(path);
 });
 function subscribe(path: string, listener: () => void) {
   const entry = entryFor(path);
