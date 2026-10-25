@@ -212,3 +212,34 @@ def test_actual_volume_adapter_commands_and_supported_range():
         )
     finally:
         f.tearDown()
+
+
+def test_a_playing_film_survives_a_short_loss_of_contact_but_not_a_long_one():
+    from sqlalchemy import select
+
+    from houseos.models import Event
+
+    f = test_cinema.CinemaTests()
+    f.setUp()
+    setup_active(f)
+    try:
+        lost = MediaError("PLAYBACK_NOT_OBSERVED", "The Cast receiver did not provide usable media status.")
+        with patch.object(c, "inspect_destination", side_effect=lost):
+            first = f.client.post("/api/v1/cinema/workflows/workflow-one/observe", json={"version": 1}).json()
+            assert first["state"] == "playing_observed"  # one unread report: still followed
+            with Session(f.engine) as db:
+                row = db.get(c.CinemaWorkflow, "workflow-one")
+                row.data = {**row.data, "_lost_since": (c.utcnow() - timedelta(seconds=31)).isoformat()}
+                db.commit()
+                version = row.version
+            later = f.client.post(
+                "/api/v1/cinema/workflows/workflow-one/observe", json={"version": version}
+            ).json()
+        assert later["state"] == "recovery_required"
+        with Session(f.engine) as db:
+            event = db.scalars(
+                select(Event).where(Event.topic == "cinema.workflow").order_by(Event.id.desc())
+            ).first()
+            assert event.payload["played"] is True  # the activity says contact was lost
+    finally:
+        f.tearDown()

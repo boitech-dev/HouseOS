@@ -110,6 +110,8 @@ def describe(event, found):
         )
     if topic == "cinema.workflow" and p.get("state") in FILM_STATES:
         level, template = FILM_STATES[p["state"]]
+        if p.get("played"):  # it played fine, then the TV stopped answering
+            template = "{title}: lost contact with the TV"
         film = "film:" + str(p.get("workflow_id"))
         return line(
             "films",

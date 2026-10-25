@@ -1879,6 +1879,7 @@ const french: Record<string, string> = {
   "{title}: checking versions": "{title} : vérification des versions",
   "{title}: ready to play": "{title} : prêt à lancer",
   "{title}: no version plays on this screen": "{title} : aucune version ne passe sur cet écran",
+  "{title}: lost contact with the TV": "{title} : contact perdu avec la télé",
   "{title}: sent to the TV": "{title} : envoyé à la télé",
   "{title}: playing on the TV": "{title} : en lecture sur la télé",
   "{title}: paused": "{title} : en pause",

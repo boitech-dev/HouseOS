@@ -201,12 +201,15 @@ def public_workflow(row):
 
 
 def save_workflow(db, row, state, data=None):
+    # A film that played and then went wrong is told apart from one that never started.
+    played = state == "recovery_required" and row.state in {"playing_observed", "paused"}
     row.state, row.version, row.updated_at = state, row.version + 1, utcnow()
     row.data = {**row.data, **(data or {})}
     emit(
         db,
         "cinema.workflow",
-        {"workflow_id": row.id, "state": state, "version": row.version},
+        {"workflow_id": row.id, "state": state, "version": row.version}
+        | ({"played": True} if played else {}),
         user_id=row.owner_id,
     )
     db.commit()
@@ -2496,6 +2499,8 @@ def observe(
         authorize_workflow(db, row)
         plan = row.data["plan"]
         expected = plan.get("expected_item")
+        if row.data.get("_lost_since") and observation.get("item_id") == expected:
+            row.data = {**row.data, "_lost_since": None}  # the TV shows it again
         if device.adapter == "cast" and (
             observation.get("item_id") == expected
             and observation.get("state") == "idle"
@@ -2731,12 +2736,22 @@ def observe(
                     "error": None,
                 },
             )
+        # A film that was playing: one odd or unread report (the TV's Wi-Fi, a pause from its own
+        # remote) is not the end of it; only one that lasts LOST_GRACE seconds is.
+        lost_since = row.data.get("_lost_since") or utcnow().isoformat()
+        if (
+            exc.code in {"PLAYBACK_NOT_OBSERVED", "TARGET_OFFLINE"}
+            and row.state in {"playing_observed", "paused"}
+            and lost_since > (utcnow() - timedelta(seconds=LOST_GRACE)).isoformat()
+        ):
+            return save_workflow(db, row, row.state, {"_lost_since": lost_since})
         return save_workflow(
             db,
             row,
             "recovery_required",
             {
                 "error": exc.public(),
+                "_lost_since": None,
                 "recovery_actions": ["inspect_destination", "change_destination", "choose_source"],
             },
         )
@@ -2957,7 +2972,7 @@ def control(
 
                     abort_cast(device.address, ours)
                     row.data = {**row.data, "_cast_closed": True}
-            elif fresh not in {"playing_observed", "paused"}:
+            elif fresh not in {"playing_observed", "paused"} or row.data.get("_lost_since"):
                 # Jellyfin's stop has no identity check: never stop an unverified player.
                 raise MediaError(
                     "STOP_SESSION_UNVERIFIED",
@@ -4418,6 +4433,7 @@ def boot_identity():
 
 AUTOPLAY_EPISODES = 12  # in a row without a tap (each one renews the next three hours)
 LOOK_AHEAD = 300  # seconds before the end: the next episode is found while this one plays
+LOST_GRACE = 30  # seconds a playing film may go unconfirmed before its session is given up
 
 
 def autoplay_allowed(row):
