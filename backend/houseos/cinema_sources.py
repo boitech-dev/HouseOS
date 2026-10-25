@@ -464,6 +464,7 @@ def probe_media(url, directory):
                     "10000000",
                     "-show_streams",
                     "-show_format",
+                    "-show_chapters",
                     "-of",
                     "json",
                     "INPUT",

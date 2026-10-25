@@ -130,6 +130,7 @@ class Preferences(Body):
     maximum_resolution: Literal[720, 1080, 2160, 4320] | None = None
     hdr: Literal["prefer", "require", "avoid", "auto"] | None = None
     autoplay: bool | None = None
+    skip_intros: bool | None = None
     preferred_device: str | None = Field(default=None, max_length=36)
     source_selection: Literal["ask", "best_compatible"] | None = None
     audio_track: str | None = Field(default=None, max_length=80)
@@ -190,6 +191,8 @@ class Launch(Version):
     position: float | None = Field(default=None, ge=0, le=86400)
     # Something else is on that screen: play only once the resident agreed to replace it.
     replace: bool = False
+    # Skip openings and endings in this episode and the ones played after it.
+    skip_intros: bool | None = None
 
 
 class Change(Version):

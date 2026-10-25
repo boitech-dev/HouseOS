@@ -126,25 +126,34 @@ const fs = require("node:fs");
               }
             : path === "/titles/film"
               ? film
-              : path === "/devices"
+              : path === "/titles/show"
                 ? {
-                    items: [
-                      {
-                        id: "tv",
-                        name: "Living-room TV",
-                        adapter: "cast",
-                        state: "idle",
-                        version: 1,
-                      },
-                    ],
+                    ...film,
+                    id: "show",
+                    title: "Fixture Show",
+                    kind: "series",
+                    progress: {},
+                    episodes: [1, 2, 3].map((episode) => ({ season: 1, episode })),
                   }
-                : path === "/preferences"
-                  ? { preferred_device: "tv" }
-                  : path === "/operations/op"
-                    ? { operation_id: "op", status: "completed", workflow_id: "wf" }
-                    : path === "/workflows/wf"
-                      ? workflow()
-                      : { items: [] };
+                : path === "/devices"
+                  ? {
+                      items: [
+                        {
+                          id: "tv",
+                          name: "Living-room TV",
+                          adapter: "cast",
+                          state: "idle",
+                          version: 1,
+                        },
+                      ],
+                    }
+                  : path === "/preferences"
+                    ? { preferred_device: "tv" }
+                    : path === "/operations/op"
+                      ? { operation_id: "op", status: "completed", workflow_id: "wf" }
+                      : path === "/workflows/wf"
+                        ? workflow()
+                        : { items: [] };
     await route.fulfill({ json });
   });
   await page.goto(base + "/watch");
@@ -161,6 +170,7 @@ const fs = require("node:fs");
   await card.getByText("Resume at 1:13:36", { exact: true }).waitFor();
   await card.getByText("French · in the file", { exact: false }).waitFor({ timeout: 10000 });
   assert(await play.isEnabled());
+  assert.equal(await card.getByRole("switch").count(), 0, "a film has no openings to skip");
   // Or on this device: VLC streams the chosen version as it is, nothing is kept.
   assert(await card.getByRole("button", { name: /VLC/ }).isVisible());
   assert(await card.getByRole("button", { name: "Copy a link for a player" }).isVisible());
@@ -221,6 +231,23 @@ const fs = require("node:fs");
     ["best", "tv", "1", "10", 2520],
   );
   assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+
+  // An episode: skipping openings and endings is chosen on the card, for the streak.
+  await page.goto(base + "/watch");
+  await page.getByText("Next · S1E3", { exact: true }).click();
+  const show = page.getByRole("dialog", { name: "Fixture Show" });
+  const episodeCard = show.getByRole("region", { name: "Tonight" });
+  const skip = episodeCard.getByRole("switch", { name: /Skip openings and endings/ });
+  await skip.waitFor({ timeout: 10000 });
+  assert(!(await skip.isChecked()), "off until the person turns it on");
+  await skip.check();
+  await episodeCard.screenshot({ path: "evidence/latest/watch-tonight-episode.png" });
+  await episodeCard.getByRole("button", { name: "Play on the TV", exact: true }).click();
+  await episodeCard.getByRole("button", { name: "Replace", exact: true }).click();
+  await page.getByText("Sending Fixture Show to Living-room TV…", { exact: true }).waitFor();
+  const episodeLaunch = writes.filter((w) => w.path === "/workflows/wf/launch").pop().body;
+  assert.equal(episodeLaunch.skip_intros, true);
+  assert.equal(launch.skip_intros, undefined, "a film's launch sends no choice");
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto(base + "/watch");
   await page.getByRole("heading", { name: "Your picks" }).waitFor();
@@ -228,7 +255,7 @@ const fs = require("node:fs");
   assert.deepEqual(errors, []);
   await browser.close();
   console.log(
-    "PASS shelves, checked suggestion, no auto-launch, version/start changes, replace shown in view, exact launch",
+    "PASS shelves, checked suggestion, no auto-launch, version/start changes, replace shown in view, exact launch, skip switch for episodes",
   );
 })().catch((e) => {
   console.error(String(e.message).split("Call log:")[0]);

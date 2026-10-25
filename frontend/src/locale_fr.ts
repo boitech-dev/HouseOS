@@ -985,6 +985,12 @@ const french: Record<string, string> = {
   "Resume at": "Reprendre à",
   "Start at": "Commencer à",
   "From the beginning": "Depuis le début",
+  "Skip openings and endings": "Passer les génériques de début et de fin",
+  "This episode and the next ones. Only where the episode marks them, or AniSkip knows them.":
+    "Cet épisode et les suivants. Seulement là où l’épisode les indique, ou là où AniSkip les connaît.",
+  "Skipped the opening.": "Générique de début passé.",
+  "Skipped the ending.": "Générique de fin passé.",
+  "Watch it": "Le regarder",
   Tonight: "Ce soir",
   "Checking versions for your TV… {n}/{total}":
     "Vérification des versions pour ta télé… {n}/{total}",

@@ -23,6 +23,7 @@ import {
   Input,
   List,
   ListRow,
+  Notice,
   Page,
   PageHeader,
   Problem,
@@ -592,8 +593,20 @@ export function CinemaTransport({
     }
   };
   const paused = current.state === "paused";
+  const skipped = current.skipped;
   return (
     <div className="watch-transport">
+      {skipped && (
+        <Notice
+          action={
+            <Button size="s" disabled={busy} onClick={() => void send("seek", skipped.from)}>
+              {t("Watch it")}
+            </Button>
+          }
+        >
+          {t(skipped.kind === "op" ? "Skipped the opening." : "Skipped the ending.")}
+        </Notice>
+      )}
       {current.duration > 0 && current.can_seek && (
         <Slider
           label={t("Movie position")}

@@ -169,6 +169,15 @@ def inspect_probe(raw: dict) -> dict:
         "duration": duration,
         "container": raw.get("format", {}).get("format_name", ""),
         "bit_rate": raw.get("format", {}).get("bit_rate"),
+        # Named parts (OP, ED…): skipping openings and endings follows them.
+        "chapters": [
+            {
+                "start": float(c.get("start_time") or 0),
+                "end": float(c.get("end_time") or 0),
+                "title": str((c.get("tags") or {}).get("title") or "")[:80],
+            }
+            for c in raw.get("chapters", [])[:60]
+        ],
         "evidence": "ffprobe",
     }
 
@@ -194,6 +203,7 @@ def probe_file(path: Path, *, timeout: int = 20) -> dict:
                     "10000000",
                     "-show_streams",
                     "-show_format",
+                    "-show_chapters",
                     "-of",
                     "json",
                     str(path.resolve()),

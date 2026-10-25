@@ -36,6 +36,7 @@ import {
   Sheet,
   Shelf,
   State,
+  Switch,
   Text,
   Chip,
   ChipGroup,
@@ -1087,6 +1088,7 @@ function Tonight({
     [deviceId, setDeviceId] = useState(""),
     [start, setStart] = useState<number>(resumeAt),
     [askReplace, setAskReplace] = useState(false),
+    [skip, setSkip] = useState<boolean | null>(null), // openings and endings, for this streak
     [pictureSubs, setPictureSubs] = useState(false); // the chosen subtitles can't be shown
   const screens = items(devices.data).filter((d) => d.adapter !== "dlna"); // music-only
   const screen = screens.find((d) => d.id === deviceId);
@@ -1159,6 +1161,7 @@ function Tonight({
   const onScreen = ["command_sent", "playing_observed", "paused"].includes(workflow?.state);
   const checking = !noScreen && (workflow?.state === "preparing" || (!workflow && !error));
   const progress = workflow?.suggestion_progress;
+  const skipIntros = skip ?? !!preferences.data?.skip_intros;
   const busyScreen = screen && !["idle", "stopped", "unknown", "unverified"].includes(screen.state);
   const launch = async (replace = false) => {
     setBusy(true);
@@ -1172,6 +1175,7 @@ function Tonight({
         subtitle_track: subtitleId,
         position: start,
         replace,
+        skip_intros: season != null ? skipIntros : undefined,
       });
       if (result.error) throw new Error(result.error.message);
       if (result.state === "awaiting_playback_confirmation") {
@@ -1354,6 +1358,16 @@ function Tonight({
             )}
             {row("start", "Start", startLabel)}
           </List>
+          {season != null && (
+            <Switch
+              label={t("Skip openings and endings")}
+              hint={t(
+                "This episode and the next ones. Only where the episode marks them, or AniSkip knows them.",
+              )}
+              checked={skipIntros}
+              onChange={setSkip}
+            />
+          )}
           {candidate?.warnings?.length > 0 && (
             <Text style="body-s" tone="muted">
               {candidate.warnings.map((w: string) => t(w)).join(" ")}

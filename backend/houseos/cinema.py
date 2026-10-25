@@ -1283,6 +1283,11 @@ def current_playback(actor: Actor = Depends(require_actor), db: Session = Depend
                 ),
                 "volume_supported": device.observation.get("volume_supported", False),
                 "volume": device.observation.get("volume"),
+                # Just skipped an opening or ending: the bar offers to go back and watch it.
+                "skipped": note
+                if (note := row.data.get("_skip_note"))
+                and note["at"] > (utcnow() - timedelta(seconds=20)).isoformat()
+                else None,
             }
         }
     # Not playing yet: a title on its way to a screen still belongs in the Player.
@@ -2254,6 +2259,13 @@ def launch(identity: str, body: Launch, actor: Actor = Depends(require_actor), d
         # The card already shows the resolution; a minimum must not refuse it now.
         "quality": None,
     }
+    if body.skip_intros is not None:  # for this episode and the ones autoplay starts after it
+        tracks["skip_intros"] = body.skip_intros
+        saved = db.get(CinemaPreference, actor.id)  # the card offers the same next time
+        if saved:
+            saved.data = {**saved.data, "skip_intros": body.skip_intros}
+        else:
+            db.add(CinemaPreference(owner_id=actor.id, data={"skip_intros": body.skip_intros}))
     initial = row.data.get("_initial_request", row.data["request"])
     row.device_id = device.id
     row.data = {
@@ -3857,6 +3869,9 @@ def reconcile_playback(db):
             observe(row.id, Version(version=row.version), actor, db)
             row = db.get(CinemaWorkflow, row.id)
             settle_stream(db, row, db.get(CinemaDevice, row.device_id) if row.device_id else None)
+            from .cinema_skip import skip_now
+
+            skip_now(db, db.get(CinemaWorkflow, row.id), actor)
         except HTTPException:
             db.rollback()
     return len(rows)
