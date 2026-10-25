@@ -934,7 +934,7 @@ export function Capture({ offlineActor }: { offlineActor?: Obj } = {}) {
                 [
                   ["upload", "Upload a file", "/files"],
                   ["music", "Queue some music", "/listen"],
-                  ["pin", "Leave a house note", "/house"],
+                  ["pin", "Leave a house note", "/house?tab=board"],
                   ["send", "Send to a resident", "/inbox"],
                 ] as const
               ).map(([icon, label, href]) => (

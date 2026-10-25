@@ -92,11 +92,11 @@ const insertInto = (box: React.RefObject<HTMLTextAreaElement | null>) => (text: 
 // ---------- the room's places ----------
 type Place = "board" | "groceries" | "tasks" | "calendar" | "numbers" | "messages";
 const PLACES: [Place, string][] = [
+  ["numbers", "Numbers"],
   ["board", "House Wall"],
   ["groceries", "Groceries"],
   ["tasks", "Tasks"],
   ["calendar", "Calendar"],
-  ["numbers", "Numbers"],
   ["messages", "Inbox"],
 ];
 
@@ -1051,7 +1051,7 @@ export function Household({ storage = false }: { storage?: boolean }) {
       setCalendarDate(dayKey(new Date(), calendarZone));
   }, [preferences.data?.timezone]);
   const [kind, setKind] = useState<Place>(
-      (new URLSearchParams(location.search).get("tab") as Place) || "board",
+      (new URLSearchParams(location.search).get("tab") as Place) || "numbers",
     ),
     [editor, setEditor] = useState<Obj | boolean>(false),
     [removing, setRemoving] = useState<Obj | null>(null),
@@ -1066,7 +1066,7 @@ export function Household({ storage = false }: { storage?: boolean }) {
     const follow = () => {
       if (location.pathname !== "/house") return;
       const url = new URLSearchParams(location.search);
-      setKind((url.get("tab") as Place) || "board");
+      setKind((url.get("tab") as Place) || "numbers");
       setView("open");
       setCompose(url.has("new"));
     };
