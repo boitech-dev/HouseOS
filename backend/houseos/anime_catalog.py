@@ -42,7 +42,8 @@ def _jikan(path: str, bucket: int):
             with httpx.stream(
                 "GET",
                 _JIKAN + path,
-                timeout=8,
+                # A catalog that doesn't even answer is down: 3 s to connect, not the full 8.
+                timeout=httpx.Timeout(8, connect=3),
                 trust_env=False,
                 headers={"User-Agent": "HouseOS/1", "Accept": "application/json"},
             ) as response:

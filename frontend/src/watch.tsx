@@ -1128,7 +1128,7 @@ function Tonight({
   }, [deviceId, workflowId]);
   const op = useData(operation && !workflowId ? "/cinema/operations/" + operation : null, {
     interval: (data) =>
-      (!data || !["failed", "unverified", "cancelled"].includes(data.status)) && 1500,
+      (!data || !["failed", "unverified", "cancelled"].includes(data.status)) && 750,
   });
   useEffect(() => {
     const result = op.data;
@@ -1141,7 +1141,7 @@ function Tonight({
     interval: (data) =>
       !!data &&
       ["preparing", "discovered", "awaiting_preparation_confirmation"].includes(data.state) &&
-      2000,
+      1000,
   });
   const workflow = flow.data;
   const candidates: Obj[] = workflow?.choice_set?.candidates || [];

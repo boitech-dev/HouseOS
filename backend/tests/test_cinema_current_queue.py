@@ -243,3 +243,27 @@ def test_a_playing_film_survives_a_short_loss_of_contact_but_not_a_long_one():
             assert event.payload["played"] is True  # the activity says contact was lost
     finally:
         f.tearDown()
+
+
+def test_a_series_seen_lately_opens_without_asking_its_catalogue_again():
+    f = test_cinema.CinemaTests()
+    f.setUp()
+    try:
+        with Session(f.engine) as db:
+            db.add(c.CinemaTitle(id="show", canonical_id="tt0000001", title="Show", kind="series", data={}))
+            db.commit()
+        episodes = {"episodes": [{"id": "tt0000001:1:1", "season": 1, "episode": 1}]}
+        with patch.object(c.Cinemeta, "details", return_value=episodes) as catalogue:
+            for _ in range(3):
+                shown = f.client.get("/api/v1/cinema/titles/show").json()
+                assert [e["episode"] for e in shown["episodes"]] == [1] and "_episodes_at" not in shown
+            assert catalogue.call_count == 1  # opened again: the saved list
+            with Session(f.engine) as db:
+                title = db.get(c.CinemaTitle, "show")
+                old = (c.utcnow() - c.EPISODES_KEPT - timedelta(minutes=1)).isoformat()
+                title.data = {**title.data, "_episodes_at": old}
+                db.commit()
+            f.client.get("/api/v1/cinema/titles/show")
+            assert catalogue.call_count == 2  # half a day later: new episodes are looked for
+    finally:
+        f.tearDown()

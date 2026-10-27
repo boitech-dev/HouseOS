@@ -596,13 +596,19 @@ def search(
     return {"items": list(items.values())[:30], "errors": errors}
 
 
+# A series' episode list is asked of its catalogue again only after this: opening a show seen
+# lately is instant (a catalogue that is slow or down no longer holds it up).
+EPISODES_KEPT = timedelta(hours=12)
+
+
 @router.get("/titles/{identity}")
 def details(identity: str, actor: Actor = Depends(require_actor), db: Session = Depends(get_db)):
     allowed(actor)
     title = db.get(CinemaTitle, identity)
     if not title:
         raise HTTPException(404, "Title not found")
-    if title.kind == "series":
+    fetched = str((title.data or {}).get("_episodes_at") or "")
+    if title.kind == "series" and fetched < (utcnow() - EPISODES_KEPT).isoformat():
         db.commit()  # no connection held while the catalogue answers
         if title.canonical_id.startswith("tt"):
             data = call(Cinemeta().details, title.canonical_id, title.kind)
@@ -625,6 +631,8 @@ def details(identity: str, actor: Actor = Depends(require_actor), db: Session = 
                     for e in entries
                 ],
             }
+        if title.data.get("episodes"):
+            title.data = {**title.data, "_episodes_at": utcnow().isoformat()}
         db.commit()
     result = public_title(title)
     personal = db.scalar(
