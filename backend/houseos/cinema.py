@@ -230,8 +230,9 @@ def upsert_title(db, canonical, title, kind, data):
                 raise
     else:
         old_layers = row.data.get("layers", [])
-        row.data = {**row.data, **data, "layers": list(dict.fromkeys(old_layers + data.get("layers", [])))}
-        row.updated_at = utcnow()
+        merged = {**row.data, **data, "layers": list(dict.fromkeys(old_layers + data.get("layers", [])))}
+        if merged != row.data:  # unchanged (most lists shown again): no write, no row lock
+            row.data, row.updated_at = merged, utcnow()
     db.flush()
     return row
 
@@ -598,6 +599,29 @@ def search(
     return {"items": list(items.values())[:30], "errors": errors}
 
 
+def series_details(db, title):
+    """What the series' catalogue says now: its episodes (and, for anime, its details)."""
+    if title.canonical_id.startswith("tt"):
+        return {"episodes": call(Cinemeta().details, title.canonical_id, title.kind).get("episodes", [])}
+    if title.canonical_id.startswith("mal:"):
+        return call(AnimeCatalog().details, title.canonical_id, title.kind)
+    if title.data.get("jellyfin_id"):
+        jf = call(Jellyfin, integration_config(db, "jellyfin"))
+        entries = call(jf.episodes, title.data["jellyfin_id"])
+        return {
+            "episodes": [
+                {
+                    "id": e["Id"],
+                    "title": e.get("Name"),
+                    "season": e.get("ParentIndexNumber"),
+                    "episode": e.get("IndexNumber"),
+                }
+                for e in entries
+            ]
+        }
+    return {}
+
+
 # A series' episode list is asked of its catalogue again only after this: opening a show seen
 # lately is instant (a catalogue that is slow or down no longer holds it up).
 EPISODES_KEPT = timedelta(hours=12)
@@ -612,29 +636,22 @@ def details(identity: str, actor: Actor = Depends(require_actor), db: Session = 
     fetched = str((title.data or {}).get("_episodes_at") or "")
     if title.kind == "series" and fetched < (utcnow() - EPISODES_KEPT).isoformat():
         db.commit()  # no connection held while the catalogue answers
-        if title.canonical_id.startswith("tt"):
-            data = call(Cinemeta().details, title.canonical_id, title.kind)
-            title.data = {**title.data, "episodes": data.get("episodes", [])}
-        elif title.canonical_id.startswith("mal:"):
-            data = call(AnimeCatalog().details, title.canonical_id, title.kind)
-            title.data = {**title.data, **data}
-        elif title.data.get("jellyfin_id"):
-            jf = call(Jellyfin, integration_config(db, "jellyfin"))
-            entries = call(jf.episodes, title.data["jellyfin_id"])
-            title.data = {
-                **title.data,
-                "episodes": [
-                    {
-                        "id": e["Id"],
-                        "title": e.get("Name"),
-                        "season": e.get("ParentIndexNumber"),
-                        "episode": e.get("IndexNumber"),
-                    }
-                    for e in entries
-                ],
-            }
+        saved = title.data.get("episodes") or []
+        try:
+            fresh = series_details(db, title)
+        except (HTTPException, MediaError):
+            if not saved:
+                raise
+            # The catalogue is down: the saved list, asked again in half an hour.
+            fresh, retry = {}, utcnow() - EPISODES_KEPT + timedelta(minutes=30)
+        else:
+            retry = utcnow()
+        # An empty answer (a backup catalogue that lists no episodes) never replaces a real list.
+        if saved and not fresh.get("episodes"):
+            fresh.pop("episodes", None)
+        title.data = {**title.data, **fresh}
         if title.data.get("episodes"):
-            title.data = {**title.data, "_episodes_at": utcnow().isoformat()}
+            title.data = {**title.data, "_episodes_at": retry.isoformat()}
         db.commit()
     result = public_title(title)
     personal = db.scalar(

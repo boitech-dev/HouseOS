@@ -2021,8 +2021,16 @@ class NotDuplicates(BaseModel):
 def library_duplicates(actor: Actor = Depends(require_admin), db: Session = Depends(get_db)):
     """Admins: kept songs that may be one song twice. Each group lists the one to keep first
     (most played, then kept first); `delete` is the library's own DELETE for that song."""
-    from .music_duplicates import dismissed, groups
+    from .music_duplicates import KIND, dismissed, groups
 
+    # The scan reads the whole library (Home asks on every open): it runs again only when a kept
+    # song or a "not duplicates" choice changed, and at least every five minutes.
+    changed = db.execute(
+        select(func.count(), func.max(Record.updated_at)).where(Record.kind.in_(["music.download", KIND]))
+    ).one()
+    key = (tuple(changed), int(time.time() // 300))
+    if DUPLICATES.get("key") == key:
+        return DUPLICATES["answer"]
     found = []
     for group in groups(library_songs(db), dismissed(db)):
         group.sort(key=lambda s: (-(s["plays"] or 0), str(s["created_at"])))
@@ -2036,7 +2044,11 @@ def library_duplicates(actor: Actor = Depends(require_admin), db: Session = Depe
             for n, song in enumerate(group)
         ]
         found.append({"ids": sorted(song["id"] for song in group), "songs": songs})
-    return {"groups": found, "count": len(found)}
+    DUPLICATES.update(key=key, answer={"groups": found, "count": len(found)})
+    return DUPLICATES["answer"]
+
+
+DUPLICATES: dict = {}
 
 
 @router.post("/library/duplicates/dismiss")
@@ -2053,6 +2065,7 @@ def not_duplicates(body: NotDuplicates, actor: Actor = Depends(require_admin), d
         db.add(row)
     row.data = {"ids": ids, "dismissed": True}
     db.commit()
+    DUPLICATES.clear()  # the same second as the last change: the key alone wouldn't see it
     return {"status": "completed"}
 
 

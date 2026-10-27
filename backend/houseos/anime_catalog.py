@@ -76,8 +76,14 @@ def _jikan(path: str, bucket: int):
 
 @lru_cache(maxsize=2)
 def _mappings(bucket: int):
-    raw, _ = public_fetch(_MAPPING, limit=16_000_000)
+    """MyAnimeList → Kitsu ids, downloaded once a day; the last good copy is kept on disk and used
+    when the download fails (every anime source search needs it)."""
+    from .atomic import write_json
+    from .config import settings
+
+    kept = settings.runtime_root / "cinema" / "catalog-cache" / "anime-kitsu-map.json"
     try:
+        raw, _ = public_fetch(_MAPPING, limit=16_000_000)
         rows = json.loads(raw)
         if not isinstance(rows, list):
             raise ValueError()
@@ -88,8 +94,14 @@ def _mappings(bucket: int):
             mal, kitsu = row.get("mal_id"), row.get("kitsu_id")
             if type(mal) is int and mal > 0 and type(kitsu) is int and kitsu > 0:
                 result.setdefault(mal, set()).add(kitsu)
+        if result:
+            write_json(kept, {str(mal): sorted(ids) for mal, ids in result.items()})
         return result
-    except (ValueError, TypeError):
+    except (MediaError, ValueError, TypeError):
+        try:
+            return {int(mal): set(ids) for mal, ids in json.loads(kept.read_text()).items()}
+        except (OSError, ValueError, TypeError, AttributeError):
+            pass
         raise MediaError(
             "ANIME_MAPPING_UNAVAILABLE", "Anime source matching is temporarily unavailable.", "identify", True
         ) from None

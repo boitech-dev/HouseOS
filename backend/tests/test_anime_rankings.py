@@ -39,3 +39,27 @@ def test_a_ranking_keeps_its_order_and_combines_with_other_filters(monkeypatch):
         r["canonical_id"] for r in cinema_explore.matching("anime", ranking="popular", tag="shounen")
     ] == ["mal:3"]
     assert cinema_explore.discover("anime", ranking="rated")["items"] == []  # not downloaded yet: empty
+
+
+def test_the_anime_id_map_is_kept_and_used_when_its_download_fails(monkeypatch, tmp_path):
+    import json
+
+    import pytest
+
+    from houseos import anime_catalog
+    from houseos.config import settings
+    from houseos.playback import MediaError
+
+    monkeypatch.setattr(settings, "runtime_root", tmp_path)
+    answer = json.dumps([{"mal_id": 1, "kitsu_id": 2}, {"mal_id": 3}]).encode()
+    monkeypatch.setattr(anime_catalog, "public_fetch", lambda url, limit: (answer, {}))
+    assert anime_catalog._mappings.__wrapped__(1) == {1: {2}}
+
+    def down(url, limit):
+        raise MediaError("PROVIDER_UNAVAILABLE", "down", "resolve")
+
+    monkeypatch.setattr(anime_catalog, "public_fetch", down)
+    assert anime_catalog._mappings.__wrapped__(2) == {1: {2}}  # yesterday's copy
+    (tmp_path / "cinema/catalog-cache/anime-kitsu-map.json").unlink()
+    with pytest.raises(MediaError):
+        anime_catalog._mappings.__wrapped__(3)

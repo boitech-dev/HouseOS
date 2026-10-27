@@ -265,5 +265,14 @@ def test_a_series_seen_lately_opens_without_asking_its_catalogue_again():
                 db.commit()
             f.client.get("/api/v1/cinema/titles/show")
             assert catalogue.call_count == 2  # half a day later: new episodes are looked for
+        # The catalogue down, or answering with no episodes: the saved list stays.
+        for answer in (MediaError("PROVIDER_UNAVAILABLE", "down"), {"episodes": []}):
+            with Session(f.engine) as db:
+                title = db.get(c.CinemaTitle, "show")
+                title.data = {**title.data, "_episodes_at": old}
+                db.commit()
+            with patch.object(c.Cinemeta, "details", side_effect=[answer]):
+                shown = f.client.get("/api/v1/cinema/titles/show")
+            assert shown.status_code == 200 and [e["episode"] for e in shown.json()["episodes"]] == [1]
     finally:
         f.tearDown()

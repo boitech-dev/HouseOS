@@ -22,10 +22,19 @@ def station_id(value):
     return str(UUID(value))
 
 
+_down_until = [0.0]
+
+
 def directory(path, params=None):
+    # Every server failed a moment ago: say so at once instead of waiting on each again.
+    if time.monotonic() < _down_until[0]:
+        raise ValueError("RADIO_DIRECTORY_UNAVAILABLE")
     for server in SERVERS:
         try:
-            with httpx.Client(timeout=8, follow_redirects=False, trust_env=False) as client:
+            # A server that doesn't even answer is down: 3 s to connect, not the full 8.
+            with httpx.Client(
+                timeout=httpx.Timeout(8, connect=3), follow_redirects=False, trust_env=False
+            ) as client:
                 with client.stream(
                     "GET",
                     "https://" + server + "/json/" + path,
@@ -45,6 +54,7 @@ def directory(path, params=None):
                         return result
         except (httpx.HTTPError, ValueError):
             continue
+    _down_until[0] = time.monotonic() + 120
     raise ValueError("RADIO_DIRECTORY_UNAVAILABLE")
 
 
