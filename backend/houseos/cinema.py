@@ -431,6 +431,7 @@ def explore(
     max_episodes: int | None = Query(None, ge=1, le=3000),
     airing: bool | None = None,
     season: Literal["", "WINTER", "SPRING", "SUMMER", "FALL"] = "",
+    ranking: Literal["", "popular", "airing", "rated", "movies"] = "",
     sort: str = Query("known", max_length=10),
     offset: int = Query(0, ge=0, le=100000),
     actor: Actor = Depends(require_actor),
@@ -455,6 +456,7 @@ def explore(
         max_episodes=max_episodes,
         airing=airing if isinstance(airing, bool) else None,
         season=season if isinstance(season, str) else "",
+        ranking=ranking if isinstance(ranking, str) else "",
     )
     local = bool(cinema_explore.index(kind)) or kind == "anime"
     if not local and not (q.strip() or year_from or year_to or tag or person or award or max_minutes):

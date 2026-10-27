@@ -2298,6 +2298,13 @@ const french: Record<string, string> = {
   "Best Picture Oscar": "Oscar du meilleur film",
   "Best Picture Oscars": "Oscars du meilleur film",
   "Best rated anime": "Les animes les mieux notés",
+  "Popular this season": "Populaires cette saison",
+  "Most popular anime": "Les animes les plus populaires",
+  "Top anime films": "Les meilleurs films d’animation japonaise",
+  Shounen: "Shōnen",
+  Seinen: "Seinen",
+  Shoujo: "Shōjo",
+  Josei: "Josei",
   "Body horror": "Horreur corporelle",
   "Chosen by shared themes, genres and people.":
     "Choisis par thèmes, genres et artistes en commun.",

@@ -14,7 +14,7 @@ from .notifications import deliver_pending
 from .control_room import reconcile_restarts
 from .house_actions import update_watch
 from .personal_space import refresh_configured_spaces
-from . import anime_offline, film_index, languages
+from . import anime_offline, anime_rankings, film_index, languages
 from .music_catalog import enrich
 
 
@@ -95,6 +95,7 @@ STEPS = (
     film_index.refresh,
     languages.refresh,
     anime_offline.refresh,  # daily, so nobody waits for the anime list's download in Watch
+    anime_rankings.refresh,  # daily: most popular, airing, top rated and top films (Kitsu)
     games_sweep,  # games folders rescanned daily; new games named and pictured
 )
 

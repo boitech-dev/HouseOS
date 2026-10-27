@@ -161,8 +161,13 @@ def _has(values, wanted):
 
 
 def matching(kind, q="", year_from=None, year_to=None, genre="", tag="", person="", award="",
-             max_minutes=None, max_episodes=None, airing=None, season=""):  # fmt: skip
+             max_minutes=None, max_episodes=None, airing=None, season="", ranking=""):  # fmt: skip
     rows = index(kind)
+    if ranking and kind == "anime":  # one of anime_rankings' lists: its titles, in its order
+        from .anime_rankings import order
+
+        place = order(ranking)
+        rows = sorted((r for r in rows if r["canonical_id"] in place), key=lambda r: place[r["canonical_id"]])
     if q:
         rows = [r for r in rows if _has([r["title"], r["title_fr"], *r.get("synonyms", [])], q)]
     if year_from:
@@ -200,7 +205,9 @@ def ordered(rows, sort):
 
 
 def discover(kind, sort="known", offset=0, **filters):
-    rows = ordered(matching(kind, **filters), sort if sort in SORTS else "known")
+    rows = matching(kind, **filters)
+    if not filters.get("ranking"):
+        rows = ordered(rows, sort if sort in SORTS else "known")
     page = rows[offset : offset + PAGE]
     return {
         "items": [catalog_item(row) for row in page],

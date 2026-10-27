@@ -42,6 +42,20 @@ COLLECTIONS = [
         filters={"airing": True, "season": "this_season"},
         pinned=True,
     ),
+    dict(
+        key="anime-airing",
+        title="Popular this season",
+        kinds=("anime",),
+        filters={"ranking": "airing"},
+        pinned=True,
+    ),
+    dict(
+        key="anime-popular",
+        title="Most popular anime",
+        kinds=("anime",),
+        filters={"ranking": "popular"},
+        pinned=True,
+    ),
     # Awards
     dict(
         key="best-picture", title="Best Picture Oscars", kinds=("movie",), filters={"award": "best-picture"}
@@ -121,7 +135,12 @@ COLLECTIONS = [
         kinds=("anime",),
         filters={"max_episodes": 13},
     ),
-    dict(key="anime-rated", title="Best rated anime", kinds=("anime",), filters={}, sort="rated"),
+    dict(key="anime-rated", title="Best rated anime", kinds=("anime",), filters={"ranking": "rated"}),
+    dict(key="anime-films", title="Top anime films", kinds=("anime",), filters={"ranking": "movies"}),
+    dict(key="shounen", title="Shounen", kinds=("anime",), filters={"tag": "shounen"}),
+    dict(key="seinen", title="Seinen", kinds=("anime",), filters={"tag": "seinen"}),
+    dict(key="shoujo", title="Shoujo", kinds=("anime",), filters={"tag": "shoujo"}),
+    dict(key="josei", title="Josei", kinds=("anime",), filters={"tag": "josei"}),
     dict(key="ghibli", title="Studio Ghibli", kinds=("anime",), filters={"person": "Studio Ghibli"}),
     dict(key="kyoani", title="Kyoto Animation", kinds=("anime",), filters={"person": "Kyoto Animation"}),
     dict(key="ufotable", title="ufotable", kinds=("anime",), filters={"person": "ufotable"}),

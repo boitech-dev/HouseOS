@@ -61,6 +61,10 @@ TAGS = {
     "pirates": ("Pirates", {"pirates"}),
     "crime": ("Crime and yakuza", {"crime", "yakuza"}),
     "school": ("School life", {"school life", "high school"}),
+    "shounen": ("Shounen", {"shounen"}),
+    "seinen": ("Seinen", {"seinen"}),
+    "shoujo": ("Shoujo", {"shoujo"}),
+    "josei": ("Josei", {"josei"}),
 }
 _CORPORATE = re.compile(r"(,? (co\.,? ?ltd\.?|inc\.?|ltd\.?|llc|corporation|corp\.?)|\.)$")
 # Studio names as people write them (the dataset is lower case, with company suffixes).
@@ -127,6 +131,7 @@ def _read(path, stamp):
 
 
 _retry_at = 0.0
+VERSION = 3  # raise it when the themes kept per anime change: the list is downloaded again
 
 
 def refresh(db=None):
@@ -135,7 +140,9 @@ def refresh(db=None):
     global _retry_at
     path = settings.runtime_root / "cinema" / "catalog-cache" / "anime-catalog.json"
     try:
-        if time.time() - path.stat().st_mtime < 86400:
+        with open(path, "rb") as start:  # the version leads the file: no 40 MB read to know it
+            current = start.read(16).startswith(b'{"version":%d,' % VERSION)
+        if current and time.time() - path.stat().st_mtime < 86400:
             return
     except OSError:
         pass
@@ -153,7 +160,7 @@ def _entries():
             cached = json.loads(path.read_text())
             if not isinstance(cached, dict) or not isinstance(cached.get("items"), list):
                 cached = None
-            elif cached.get("version") != 2:  # older cache without tags or studios: refresh
+            elif cached.get("version") != VERSION:  # older cache, without the newer themes: refresh
                 cached["stale"] = True
             elif time.time() - path.stat().st_mtime < 86400 and not cached.get("stale"):
                 return cached["items"]
@@ -210,7 +217,7 @@ def _entries():
             )
         # Do not mislabel combined-provider scores as MAL scores/popularity.
         items.sort(key=lambda row: (-float(row["_score"]), row["title"]))
-        write_json(path, {"version": 2, "items": items})
+        write_json(path, {"version": VERSION, "items": items})
         return items
     except (MediaError, OSError, ValueError, KeyError, TypeError):
         if cached:
