@@ -32,15 +32,20 @@ def test_load_switches_receiver_and_checks_exact_media(monkeypatch, paused, tmp_
     from houseos.db import new_id
 
     controller = SimpleNamespace(
-        status=SimpleNamespace(content_id=None, media_session_id=None, player_state="IDLE"),
-        update_status=Mock(),
+        status=SimpleNamespace(content_id=None, media_session_id=None, player_state="IDLE", current_time=0)
+    )
+    # Its clock moves while it plays (the load is checked to really play).
+    controller.update_status = lambda: setattr(
+        controller.status, "current_time", controller.status.current_time + 1
     )
     cast = SimpleNamespace(media_controller=controller, start_app=Mock(), disconnect=Mock())
 
     def play(url, *args, **kwargs):
         cast.start_app.assert_called_once_with("CC1AD845", timeout=10)
         assert kwargs["autoplay"] is not paused
-        controller.status = SimpleNamespace(content_id=url, media_session_id=1, player_state="PLAYING")
+        controller.status = SimpleNamespace(
+            content_id=url, media_session_id=1, player_state="PLAYING", current_time=0
+        )
 
     controller.play_media = play
     monkeypatch.setattr(cinema_cast, "connect", lambda _: cast)
@@ -273,37 +278,112 @@ def test_a_new_film_closes_the_receiver_app_before_loading(monkeypatch):
     assert closed == [1]
 
 
-def test_a_new_film_that_arrives_paused_is_played(monkeypatch, tmp_path):
-    from houseos import cinema
-    from houseos.db import new_id
-
-    played = []
-    controller = SimpleNamespace(status=None, update_status=Mock(), play=lambda: played.append(1))
-
-    def load(url, *a, **kw):  # the Chromecast shows the new film, but paused
-        controller.status = SimpleNamespace(content_id=url, media_session_id=1, player_state="PAUSED")
-
-    controller.play_media = load
+def fake_receiver(behaviour):
+    """A Chromecast whose loads behave as `behaviour(n)` says: "playing", "paused" or "ended"."""
+    loads, quits = [], []
+    controller = SimpleNamespace(status=None)
     cast = SimpleNamespace(media_controller=controller, start_app=Mock(), disconnect=Mock())
+
+    def load(url, *a, **kw):
+        loads.append(url)
+        state = behaviour(len(loads))
+        controller.status = SimpleNamespace(
+            content_id=url, media_session_id=1, current_time=0.0,
+            player_state={"playing": "PLAYING", "paused": "PAUSED", "ended": "BUFFERING"}[state],
+        )  # fmt: skip
+        controller.state = state
+
+    def update_status():
+        status = controller.status
+        if controller.state == "playing":
+            status.current_time += 1
+        elif controller.state == "ended" and status.player_state == "BUFFERING":
+            status.player_state, status.content_id = "IDLE", None  # reported, then gone at once
+
+    controller.play_media, controller.update_status = load, update_status
+    controller.play = lambda: setattr(controller, "state", controller.state)  # ignored, as it was
+    cast.quit_app = lambda timeout: quits.append(timeout)
+    return cast, loads, quits
+
+
+def cast_setup(monkeypatch, tmp_path, cast):
+    from houseos import cinema
+
     monkeypatch.setattr(cinema_cast, "connect", lambda _: cast)
     monkeypatch.setattr(cinema_cast, "stop_current", lambda c: None)
     monkeypatch.setattr(cinema_cast, "preflight_cast", lambda *a: None)
+    monkeypatch.setattr(cinema_cast, "SETTLE", 0)
+    monkeypatch.setattr(cinema_cast.time, "sleep", lambda s: None)
     monkeypatch.setattr(
         cinema_cast, "integration_config", lambda *a, **k: {"receiver_base_url": "http://192.0.2.17:8991"}
     )
     monkeypatch.setattr(cinema, "authorize_workflow", lambda *a: None)
     (tmp_path / "film.mp4").touch()
-    for paused_before, expected in ((None, [1]), ({"state": "paused"}, [])):
-        played.clear()
-        row = SimpleNamespace(
-            id=new_id(),
-            data={"_prepared": {"path": str(tmp_path / "film.mp4")}, "_seek_previous": paused_before},
-        )
-        cinema_cast.execute_cast(
-            SimpleNamespace(add=Mock(), commit=Mock()),
-            row,
-            SimpleNamespace(address="192.0.2.19"),
-            {"inspection": {"container": "mp4"}},
-            {"duration": 20},
-        )
-        assert played == expected  # a film paused before a reload stays paused
+
+
+def send(tmp_path, seek_previous=None):
+    from houseos.db import new_id
+
+    row = SimpleNamespace(
+        id=new_id(), data={"_prepared": {"path": str(tmp_path / "film.mp4")}, "_seek_previous": seek_previous}
+    )
+    return cinema_cast.execute_cast(
+        SimpleNamespace(add=Mock(), commit=Mock()),
+        row,
+        SimpleNamespace(address="192.0.2.19"),
+        {"inspection": {"container": "mp4"}},
+        {"duration": 20},
+    )
+
+
+def test_a_load_that_does_not_really_play_is_loaded_once_more(monkeypatch, tmp_path):
+    import pytest
+
+    from houseos.playback import MediaError
+
+    # Paused at the start, then playing on the second load (the Stop then Play that works by hand).
+    cast, loads, quits = fake_receiver(lambda n: "paused" if n == 1 else "playing")
+    cast_setup(monkeypatch, tmp_path, cast)
+    assert send(tmp_path) and len(loads) == 2 and len(quits) == 1
+    # Playing at once: one load, nothing closed.
+    cast, loads, quits = fake_receiver(lambda n: "playing")
+    cast_setup(monkeypatch, tmp_path, cast)
+    assert send(tmp_path) and len(loads) == 1 and not quits
+    # A film paused before a seek's reload stays paused: no second load.
+    cast, loads, quits = fake_receiver(lambda n: "paused")
+    cast_setup(monkeypatch, tmp_path, cast)
+    assert send(tmp_path, {"state": "paused"}) and len(loads) == 1
+    # Never playing, twice: said so, not reported as playing.
+    cast, loads, quits = fake_receiver(lambda n: "paused")
+    cast_setup(monkeypatch, tmp_path, cast)
+    with pytest.raises(MediaError):
+        send(tmp_path)
+    assert len(loads) == 2
+
+
+def test_a_slow_file_is_sent_once_complete_a_fast_one_at_once(monkeypatch, tmp_path):
+    from houseos import cinema_progressive as p
+
+    playlist = tmp_path / "video.m3u8"
+
+    def grows(by):
+        def sleep(seconds):
+            playlist.write_text(playlist.read_text() + "#EXTINF:%.1f,\nseg.m4s\n" % (by * seconds))
+
+        return sleep
+
+    playlist.write_text("#EXTM3U\n#EXTINF:4.0,\nseg0.m4s\n")
+    monkeypatch.setattr(p.time, "sleep", grows(2))  # 2 s of film per second: slower than it plays well
+    assert p.slow(tmp_path) and p.prepared_seconds(tmp_path) == 10
+    monkeypatch.setattr(p.time, "sleep", grows(30))
+    assert not p.slow(tmp_path)
+    playlist.write_text(playlist.read_text() + "#EXT-X-ENDLIST\n")
+    assert p.complete(tmp_path) and not p.slow(tmp_path)
+
+
+def test_a_slow_start_still_buffering_is_not_loaded_again():
+    status = SimpleNamespace(content_id="u", player_state="BUFFERING", current_time=0)
+    cast = SimpleNamespace(media_controller=SimpleNamespace(status=status, update_status=lambda: None))
+    assert cinema_cast.playing(cast, "u", seconds=0.6)  # buffering the whole time: left to play
+    status.player_state = "IDLE"
+    assert not cinema_cast.playing(cast, "u", seconds=0.6)  # gone: loaded again

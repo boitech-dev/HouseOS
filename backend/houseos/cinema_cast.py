@@ -199,6 +199,35 @@ def back_to_start(cast, wanted, settle=3.0):
     return False
 
 
+SETTLE = 2.0  # seconds the Google TV Streamer needs once its player app has closed
+
+
+def playing(cast, url, seconds=10.0):
+    """The film really plays: our item, its clock moving. False only for what a fresh receiver
+    does wrong: the load gone (ended at once) or held paused at the start, the screen dark. A film
+    still buffering (a slow start) counts as playing: it is not loaded again for that."""
+    first, paused_since, until = None, None, time.monotonic() + seconds
+    while time.monotonic() < until:
+        cast.media_controller.update_status()
+        status = cast.media_controller.status
+        if status.content_id != url or status.player_state == "IDLE":
+            return False
+        if status.player_state == "PAUSED":
+            paused_since = paused_since or time.monotonic()
+            if time.monotonic() - paused_since >= 3:
+                return False
+        else:
+            paused_since = None
+        if status.player_state == "PLAYING":
+            at = status.current_time or 0
+            if first is None:
+                first = at
+            elif at > first + 0.5:
+                return True
+        time.sleep(0.5)
+    return True
+
+
 def stop_current(cast, wait=5.0):
     """Whatever the screen still shows (the film being replaced) goes first, as the Stop button
     does it: the receiver app is closed, and the load opens it fresh. Only stopping its media
@@ -213,6 +242,7 @@ def stop_current(cast, wait=5.0):
         deadline = time.monotonic() + wait
         while time.monotonic() < deadline and cast.status.app_id == "CC1AD845":
             time.sleep(0.25)
+        time.sleep(SETTLE)  # a load sent at once landed while the Streamer was still settling
     except Exception:
         pass  # nothing to close, or it went away: the load goes ahead either way
 
@@ -320,23 +350,29 @@ def execute_cast(db, row, device, source, plan):
         authorize_workflow(db, row)
         if not row.data.get("_seek_previous"):
             stop_current(cast)
-        # Other apps (including Spotify) share the media namespace. Explicitly
-        # select the Cast media receiver before sending a HouseOS LOAD.
-        cast.start_app("CC1AD845", timeout=10)
-        cast.media_controller.play_media(
-            relay_url,
-            mime,
-            current_time=max(0, plan.get("position", 0) - prepared.get("position_offset", 0))
-            if streaming
-            else plan.get("position", 0),
-            stream_type="BUFFERED",
-            autoplay=(row.data.get("_seek_previous") or {}).get("state") != "paused",
-            subtitles=relay_url.replace("/media.mp4", "/subtitle.vtt")
-            if prepared and prepared.get("subtitle_path")
-            else None,
-            subtitles_lang=(plan.get("subtitle") or {}).get("language") or "und",
-            media_info={"hlsSegmentFormat": "FMP4", "hlsVideoSegmentFormat": "FMP4"} if streaming else None,
-        )
+
+        def load():
+            # Other apps (including Spotify) share the media namespace. Explicitly
+            # select the Cast media receiver before sending a HouseOS LOAD.
+            cast.start_app("CC1AD845", timeout=10)
+            cast.media_controller.play_media(
+                relay_url,
+                mime,
+                current_time=max(0, plan.get("position", 0) - prepared.get("position_offset", 0))
+                if streaming
+                else plan.get("position", 0),
+                stream_type="BUFFERED",
+                autoplay=(row.data.get("_seek_previous") or {}).get("state") != "paused",
+                subtitles=relay_url.replace("/media.mp4", "/subtitle.vtt")
+                if prepared and prepared.get("subtitle_path")
+                else None,
+                subtitles_lang=(plan.get("subtitle") or {}).get("language") or "und",
+                media_info={"hlsSegmentFormat": "FMP4", "hlsVideoSegmentFormat": "FMP4"}
+                if streaming
+                else None,
+            )
+
+        load()
         deadline = time.monotonic() + 15
         subtitle_attempts, next_subtitle_attempt = 0, 0.0
         should_play, nudged = (row.data.get("_seek_previous") or {}).get("state") != "paused", False
@@ -413,6 +449,21 @@ def execute_cast(db, row, device, source, plan):
                 "play",
                 True,
             )
+        if should_play and not row.data.get("_seek_previous") and not playing(cast, relay_url):
+            # Loaded but not playing (ended at once, or paused at the start, the screen dark):
+            # closed and loaded again, the Stop then Play that always worked by hand.
+            cast.quit_app(timeout=5)
+            time.sleep(SETTLE + 1)
+            load()
+            if not playing(cast, relay_url, 20):
+                raise MediaError(
+                    "PLAYBACK_NOT_OBSERVED",
+                    "The receiver took the video but did not play it, twice. Try Stop, then Play.",
+                    "play",
+                    True,
+                )
+            if streaming:
+                back_to_start(cast, max(0, plan.get("position", 0) - prepared.get("position_offset", 0)))
     except MediaError:
         raise
     except Exception:

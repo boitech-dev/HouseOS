@@ -4,6 +4,7 @@ from __future__ import annotations
 import logging
 import shutil
 import json
+import re
 from fractions import Fraction
 from statistics import median
 from datetime import timedelta
@@ -169,6 +170,34 @@ def packaged_codecs(directory):
         else:
             raise ValueError("Unsupported codec declaration")
     return ",".join(codecs)
+
+
+SLOW = 4.0  # prepared at less than this many times real time: sent once complete
+RATE_WINDOW = 3.0  # seconds the preparation speed is measured over, once it has started
+
+
+def prepared_seconds(directory):
+    try:
+        text = (directory / "video.m3u8").read_text()
+    except OSError:
+        return 0.0
+    return sum(float(x) for x in re.findall(r"#EXTINF:([0-9.]+)", text))
+
+
+def complete(directory):
+    try:
+        return "#EXT-X-ENDLIST" in (directory / "video.m3u8").read_text()
+    except OSError:
+        return False
+
+
+def slow(directory):
+    """Is this file prepared slower than it would be watched (with room to spare)?"""
+    if complete(directory):
+        return False
+    before = prepared_seconds(directory)
+    time.sleep(RATE_WINDOW)
+    return not complete(directory) and (prepared_seconds(directory) - before) / RATE_WINDOW < SLOW
 
 
 def write_master(directory, plan, size):
@@ -445,6 +474,32 @@ def start(db, row, device, source, plan, job):
         db.rollback()
         db.expire_all()
         row = db.get(CinemaWorkflow, workflow_id)
+        if slow(output):
+            # Sent unfinished, the Chromecast takes the stream for a live one, and at its first
+            # stall jumps to the newest second prepared, minutes ahead, again and again. A file
+            # that comes in slowly is sent once it is all prepared (the Now bar shows how far).
+            duration = float(plan.get("duration") or 0) or 1
+            while not complete(output):
+                if cancelled():
+                    raise MediaError(
+                        "PREPARATION_CANCELLED", "Streaming preparation was cancelled.", "prepare"
+                    )
+                if process.poll() is not None and not complete(output):
+                    raise MediaError(
+                        "STREAM_PREPARATION_FAILED",
+                        "The film stopped coming in before it was ready. Try another version.",
+                        "prepare",
+                        True,
+                    )
+                done = min(duration, prepared_seconds(output))
+                row.data = {
+                    **row.data,
+                    "download": {"phase": "preparing", "bytes": int(done), "total": int(duration)},
+                }
+                db.commit()
+                time.sleep(5)
+            row.data = {k: v for k, v in row.data.items() if k != "download"}
+            db.commit()
         if check_authorized():
             raise MediaError("PREPARATION_CANCELLED", "Streaming preparation was cancelled.", "prepare")
         observation = inspect_destination(db, device)
