@@ -241,28 +241,36 @@ def test_a_stream_the_chromecast_starts_at_its_newest_point_goes_back_to_where_i
     controller.seek.assert_not_called()
 
 
-def test_a_new_film_stops_what_the_screen_shows_before_loading(monkeypatch):
-    calls = []
-    controller = SimpleNamespace(stop=lambda: calls.append("stop"))
-    statuses = iter([("PLAYING", 7), ("IDLE", None)])
+def test_a_new_film_closes_the_receiver_app_before_loading(monkeypatch):
+    closed = []
+    cast = SimpleNamespace(
+        media_controller=SimpleNamespace(stop=Mock()),
+        status=SimpleNamespace(app_id="CC1AD845"),
+    )
 
-    def fresh(cast):
-        state, session = next(statuses)
-        return SimpleNamespace(player_state=state, media_session_id=session)
+    def quit_app(timeout):
+        closed.append(timeout)
+        cast.status.app_id = None  # the app is gone
 
-    monkeypatch.setattr(cinema_cast, "fresh_media_status", fresh)
-    cinema_cast.stop_current(SimpleNamespace(media_controller=controller), wait=1)
-    assert calls == ["stop"]
-    # An idle screen has nothing to stop; a receiver that will not answer does not block the load.
+    cast.quit_app = quit_app
+    monkeypatch.setattr(
+        cinema_cast,
+        "fresh_media_status",
+        lambda c: SimpleNamespace(player_state="PLAYING", media_session_id=7),
+    )
+    cinema_cast.stop_current(cast, wait=1)
+    assert closed == [1] and not cast.media_controller.stop.called  # closed, as Stop does: not paused
+    # An idle screen (an episode that ended) has nothing to close; a receiver that will not
+    # answer does not block the load.
     monkeypatch.setattr(
         cinema_cast,
         "fresh_media_status",
         lambda c: SimpleNamespace(player_state="IDLE", media_session_id=None),
     )
-    cinema_cast.stop_current(SimpleNamespace(media_controller=controller))
+    cinema_cast.stop_current(cast)
     monkeypatch.setattr(cinema_cast, "fresh_media_status", Mock(side_effect=RuntimeError))
-    cinema_cast.stop_current(SimpleNamespace(media_controller=controller))
-    assert calls == ["stop"]
+    cinema_cast.stop_current(cast)
+    assert closed == [1]
 
 
 def test_a_new_film_that_arrives_paused_is_played(monkeypatch, tmp_path):
