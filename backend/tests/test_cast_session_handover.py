@@ -263,3 +263,39 @@ def test_a_new_film_stops_what_the_screen_shows_before_loading(monkeypatch):
     monkeypatch.setattr(cinema_cast, "fresh_media_status", Mock(side_effect=RuntimeError))
     cinema_cast.stop_current(SimpleNamespace(media_controller=controller))
     assert calls == ["stop"]
+
+
+def test_a_new_film_that_arrives_paused_is_played(monkeypatch, tmp_path):
+    from houseos import cinema
+    from houseos.db import new_id
+
+    played = []
+    controller = SimpleNamespace(status=None, update_status=Mock(), play=lambda: played.append(1))
+
+    def load(url, *a, **kw):  # the Chromecast shows the new film, but paused
+        controller.status = SimpleNamespace(content_id=url, media_session_id=1, player_state="PAUSED")
+
+    controller.play_media = load
+    cast = SimpleNamespace(media_controller=controller, start_app=Mock(), disconnect=Mock())
+    monkeypatch.setattr(cinema_cast, "connect", lambda _: cast)
+    monkeypatch.setattr(cinema_cast, "stop_current", lambda c: None)
+    monkeypatch.setattr(cinema_cast, "preflight_cast", lambda *a: None)
+    monkeypatch.setattr(
+        cinema_cast, "integration_config", lambda *a, **k: {"receiver_base_url": "http://192.0.2.17:8991"}
+    )
+    monkeypatch.setattr(cinema, "authorize_workflow", lambda *a: None)
+    (tmp_path / "film.mp4").touch()
+    for paused_before, expected in ((None, [1]), ({"state": "paused"}, [])):
+        played.clear()
+        row = SimpleNamespace(
+            id=new_id(),
+            data={"_prepared": {"path": str(tmp_path / "film.mp4")}, "_seek_previous": paused_before},
+        )
+        cinema_cast.execute_cast(
+            SimpleNamespace(add=Mock(), commit=Mock()),
+            row,
+            SimpleNamespace(address="192.0.2.19"),
+            {"inspection": {"container": "mp4"}},
+            {"duration": 20},
+        )
+        assert played == expected  # a film paused before a reload stays paused

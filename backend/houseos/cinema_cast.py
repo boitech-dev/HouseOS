@@ -340,6 +340,7 @@ def execute_cast(db, row, device, source, plan):
         )
         deadline = time.monotonic() + 15
         subtitle_attempts, next_subtitle_attempt = 0, 0.0
+        should_play, nudged = (row.data.get("_seek_previous") or {}).get("state") != "paused", False
         while time.monotonic() < deadline:
             status = cast.media_controller.status
             if getattr(status, "idle_reason", None) == "ERROR" and status.content_id == relay_url:
@@ -349,6 +350,16 @@ def execute_cast(db, row, device, source, plan):
                     "play",
                     True,
                 )
+            if (
+                should_play
+                and not nudged
+                and status.content_id == relay_url
+                and status.media_session_id is not None
+                and status.player_state == "PAUSED"
+            ):
+                # Asked to play, it shows the new film paused: play it (once).
+                cast.media_controller.play()
+                nudged = True
             if (
                 status.content_id == relay_url
                 and status.media_session_id is not None

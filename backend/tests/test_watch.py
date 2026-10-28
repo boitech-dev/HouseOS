@@ -398,7 +398,7 @@ def test_a_signs_and_songs_track_is_never_the_default_subtitle():
     assert choose_track(tracks[:1], None, "en", subtitles=True)["id"] == "3"  # the only one: still shown
 
 
-def test_replacing_a_film_pauses_it_and_keeps_its_stream_until_the_new_one_is_on_screen():
+def test_replacing_a_film_lets_it_play_and_keeps_its_stream_until_the_new_one_is_on_screen():
     from datetime import timedelta
 
     f = test_cinema.CinemaTests()
@@ -435,7 +435,8 @@ def test_replacing_a_film_pauses_it_and_keeps_its_stream_until_the_new_one_is_on
                 "/api/v1/cinema/workflows/workflow-one/launch", json={**body, "replace": True}
             )
         assert launched.status_code == 200, launched.text
-        command.assert_any_call("192.0.2.17", "pause", None)  # held, not cut
+        # Not paused: the load stops it just before (paused, the new film started paused).
+        assert ("192.0.2.17", "pause", None) not in [c.args for c in command.call_args_list]
         with Session(f.engine) as db:
             assert db.get(cinema.CinemaRelay, "old-grant")  # its stream stays until the new one plays
             assert db.get(cinema.CinemaWorkflow, "workflow-one").data["_release_after_load"] == "old-film"
