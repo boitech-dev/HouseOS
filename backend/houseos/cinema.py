@@ -3899,6 +3899,12 @@ def reconcile_playback(db):
                 },
             )
             continue
+        device = db.get(CinemaDevice, row.device_id) if row.device_id else None
+        if not device or device.owner_workflow != row.id:
+            # Another film took this screen (or it is gone): this one is over, not "on its way"
+            # for good (it showed in the Now bar as still loading).
+            save_workflow(db, row, "superseded", {"_observation_deadline": None})
+            continue
         actor = Actor(user.id, user.name, user.role, user_permissions(user))
         try:
             observe(row.id, Version(version=row.version), actor, db)

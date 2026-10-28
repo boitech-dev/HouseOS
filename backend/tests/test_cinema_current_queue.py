@@ -276,3 +276,21 @@ def test_a_series_seen_lately_opens_without_asking_its_catalogue_again():
             assert shown.status_code == 200 and [e["episode"] for e in shown.json()["episodes"]] == [1]
     finally:
         f.tearDown()
+
+
+def test_a_film_whose_screen_another_took_is_closed_not_left_on_its_way():
+    f = test_cinema.CinemaTests()
+    f.setUp()
+    setup_active(f)
+    try:
+        with Session(f.engine) as db:
+            db.get(c.CinemaWorkflow, "workflow-one").state = "command_sent"
+            db.get(c.CinemaDevice, f.device_id).owner_workflow = "a-later-film"
+            db.commit()
+            c.reconcile_playback(db)
+            assert db.get(c.CinemaWorkflow, "workflow-one").state == "superseded"
+            from houseos.core import ACTIVITY_WORKFLOWS
+
+            assert "superseded" not in ACTIVITY_WORKFLOWS  # no "sending to the TV" in the tray
+    finally:
+        f.tearDown()
