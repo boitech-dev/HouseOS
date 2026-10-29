@@ -18,7 +18,8 @@ from .music_genre import deezer, genre_of, youtube_thumbnail
 BATCH = 20  # songs per minute: a few Deezer requests each, far under its 50 per 5 s
 # Bumped when the matching improves: songs still "other", or filed by a guess Deezer never
 # confirmed, are looked at once more.
-MATCHER = 4  # 3: the artist's genre when Deezer lacks the song; 4: Deezer asked whatever the guess
+MATCHER = 5  # 3: the artist's genre when Deezer lacks the song; 4: Deezer asked whatever the guess;
+# 5: the artist's genre when the song's album has none, then MusicBrainz's
 state = {"idle_until": 0.0}
 
 
@@ -63,6 +64,18 @@ def evidence_for(db, url, item, lookup, client, known=None):
     if lookup and not found.get("genre") and not found.get("genres"):
         match = deezer(found["title"], found["uploader"], found.get("artist", ""), client)
         found.update({key: match[key] for key in ("genres", "cover") if match.get(key)})
+        # Only the artist's genre to go by (Deezer has none for the song itself): MusicBrainz's
+        # community genres are finer than Deezer's broad album labels ("chanson", not "pop").
+        if not found.get("genres") or match.get("by_artist"):
+            from .music_genre import artist_and_track, channel_artist, musicbrainz
+
+            name = (
+                match.get("artist")
+                or artist_and_track(found["title"], found["uploader"], found.get("artist", ""))[0]
+            )
+            genres = musicbrainz(name or channel_artist(found["uploader"]), client)
+            if genres:
+                found.update(genres=genres, by_artist=True, source="musicbrainz")
     return found
 
 
@@ -95,6 +108,15 @@ def songs(db):
         and history_key(data["source_url"]) not in seen
     ]
     return played + kept
+
+
+def unsorted(db):
+    return sum(
+        1
+        for _, data in songs(db)
+        if (data.get("genre") or "other") == "other"
+        and (data.get("evidence") or {}).get("matcher", 0) < MATCHER
+    )
 
 
 def sort_requested(db):

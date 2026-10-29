@@ -3011,7 +3011,8 @@ export function SortGenres() {
   const auto = useData<Obj>("/music/auto", { interval: (d) => d?.sorting && 20000 });
   const { run, error, busy } = useAction(auto.reload);
   const state = auto.data;
-  const other = state?.genres_kept?.find((g: Obj) => g.genre === "other")?.count || 0;
+  // Only "other" songs not yet looked at the current way: the rest have no genre anywhere.
+  const other = state?.unsorted || 0;
   if (state?.sorting)
     return (
       <Status tone="info" busy>

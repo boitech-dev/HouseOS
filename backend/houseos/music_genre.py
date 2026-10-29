@@ -240,6 +240,7 @@ def deezer(title, uploader="", artist="", client=None):
             same(got_title, track) and (not name or same(got_artist, name) or same(got_artist, channel))
         ) or (name and same(got_title, name) and same(got_artist, track))
 
+    found = {}  # the song, found but its album without genres: the artist's genre below
     try:
         queries = [f'artist:"{name}" track:"{track}"', f"{name} {track}", track] if name else [track]
         for query in dict.fromkeys(queries):
@@ -253,11 +254,16 @@ def deezer(title, uploader="", artist="", client=None):
                 album.raise_for_status()
                 genres = [str(g.get("name"))[:40] for g in (album.json().get("genres") or {}).get("data", [])]
                 cover = str((hit.get("album") or {}).get("cover_medium") or "")
-                return {
+                found = {
                     "genres": genres[:5],
                     "cover": cover if cover.startswith("https://") and len(cover) < 500 else None,
                     "artist": hit_artist[:200],
                 }
+                if genres:
+                    return found
+                break  # many albums carry no genre on Deezer: the artist's other albums may
+            if found:
+                break
             time.sleep(0.1)
         # No such song on Deezer (a live take, a remix, a fan upload): the artist's own genre.
         for query in dict.fromkeys(f'artist:"{artist}"' for artist in (name, channel) if artist):
@@ -273,12 +279,45 @@ def deezer(title, uploader="", artist="", client=None):
                 if genres:
                     return {
                         "genres": genres[:5],
-                        "cover": None,
+                        "cover": found.get("cover"),
                         "artist": hit_artist[:200],
                         "by_artist": True,
                     }
             time.sleep(0.1)
-        return {}
+        return found
+    finally:
+        if client is None:
+            http.close()
+
+
+MUSICBRAINZ = "https://musicbrainz.org/ws/2/artist/"
+_musicbrainz_at = [0.0]
+
+
+def musicbrainz(artist, client=None):
+    """The artist's genres on MusicBrainz (free, no key; its community tags, most voted first),
+    when Deezer has none: strong where Deezer is thin (chanson, world, jazz, local scenes).
+    [] when unknown; network errors raise (tried later). MusicBrainz allows one request a second."""
+    import httpx
+
+    artist = clean(artist)
+    if not artist:
+        return []
+    http = client or httpx.Client(timeout=6)
+    try:
+        time.sleep(max(0.0, _musicbrainz_at[0] + 1.1 - time.monotonic()))
+        _musicbrainz_at[0] = time.monotonic()
+        response = http.get(
+            MUSICBRAINZ,
+            params={"query": f'artist:"{artist}"', "fmt": "json", "limit": 3},
+            headers={"User-Agent": "HouseOS/1.1 (https://github.com/boitech-dev/HouseOS)"},
+        )
+        response.raise_for_status()
+        for hit in response.json().get("artists") or []:
+            if int(hit.get("score") or 0) >= 95 and same(hit.get("name", ""), artist):
+                tags = sorted(hit.get("tags") or [], key=lambda t: -int(t.get("count") or 0))
+                return [str(t["name"])[:40] for t in tags if int(t.get("count") or 0) > 0][:6]
+        return []
     finally:
         if client is None:
             http.close()

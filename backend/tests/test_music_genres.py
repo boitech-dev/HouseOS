@@ -10,6 +10,14 @@ from houseos.music_genre import artist_and_track, deezer, genre_of, same
 from test_house_features import played, song
 
 
+@pytest.fixture(autouse=True)
+def no_musicbrainz(monkeypatch):
+    """Tests here never reach MusicBrainz: it knows nothing unless a test says otherwise."""
+    from houseos import music_genre
+
+    monkeypatch.setattr(music_genre, "musicbrainz", lambda *a: [])
+
+
 def test_families_house_genres_and_names():
     assert genre_of({"title": "Jujutsu Kaisen - Opening 2 | Full"}) == "anime"
     assert genre_of({"genres": ["Rap/Hip Hop", "French Rap"]}) == "rap / hip-hop"
@@ -178,8 +186,10 @@ def test_kept_songs_never_played_get_a_genre_and_the_button_looks_again(catalog,
     monkeypatch.setattr(music_catalog, "deezer", lambda *a: {})  # Deezer knows nothing yet
     music_catalog.enrich(db, limit=10000)
     assert dict((u, g) for u, _, g in music_auto.kept_songs(db))[url] == "other"
+    assert music_catalog.unsorted(db) == 0  # looked at: no genre anywhere, nothing for the button
     # The button: every "other" song is looked at once more, even while the routine naps.
     assert music_catalog.sort_again(db) >= 1
+    assert music_catalog.unsorted(db) >= 1
     db.commit()
     assert music_catalog.sort_requested(db)
     monkeypatch.setitem(music_catalog.state, "idle_until", float("inf"))

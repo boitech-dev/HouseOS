@@ -197,6 +197,9 @@ def auto_state(actor=Depends(require_actor), db=Depends(get_db)):
         ),
         "can_change": actor.role != "guest",
         "sorting": music_catalog.sort_requested(db),
+        # "Other" songs not yet looked at the current way: what the button can still sort (the
+        # rest are songs nobody knows a genre for; looking again would find nothing new).
+        "unsorted": music_catalog.unsorted(db),
     }
 
 
