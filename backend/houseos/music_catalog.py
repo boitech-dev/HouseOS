@@ -67,13 +67,20 @@ def evidence_for(db, url, item, lookup, client, known=None):
         # Only the artist's genre to go by (Deezer has none for the song itself): MusicBrainz's
         # community genres are finer than Deezer's broad album labels ("chanson", not "pop").
         if not found.get("genres") or match.get("by_artist"):
+            import httpx
+
             from .music_genre import artist_and_track, channel_artist, musicbrainz
 
             name = (
                 match.get("artist")
                 or artist_and_track(found["title"], found["uploader"], found.get("artist", ""))[0]
             )
-            genres = musicbrainz(name or channel_artist(found["uploader"]), client)
+            try:
+                genres = musicbrainz(name or channel_artist(found["uploader"]), client)
+            except httpx.HTTPError:
+                if not found.get("genres"):
+                    raise  # nothing at all yet: asked again later
+                genres = []  # MusicBrainz busy: Deezer's artist genre stands meanwhile
             if genres:
                 found.update(genres=genres, by_artist=True, source="musicbrainz")
     return found
@@ -186,8 +193,10 @@ def enrich(db, limit=BATCH):
                     "genre": genre_of(evidence, house["music_genres"]),
                 }
             except (httpx.HTTPError, ValueError, KeyError, TypeError):
-                evidence = {}  # try again in a few hours; the first guess stays meanwhile
-                update = {"evidence": {"retry_at": (utcnow() + timedelta(hours=6)).isoformat() + "Z"}}
+                # Tried again in an hour; what was known (and the first guess) stays meanwhile.
+                evidence = {}
+                retry = (utcnow() + timedelta(hours=1)).isoformat() + "Z"
+                update = {"evidence": {**(row.data.get("evidence") or {}), "retry_at": retry}}
             give_artwork(db, url, item, evidence)
             row = db.get(Record, identity, with_for_update=True, populate_existing=True)
             row.data = {**row.data, **update}

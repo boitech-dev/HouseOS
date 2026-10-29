@@ -2,6 +2,7 @@
 the maintenance catch-up with artwork, and stats by time listened (radio included)."""
 
 import httpx
+from sqlalchemy import select
 import pytest
 
 from houseos import music as m, music_catalog, music_genre, radio, stats
@@ -227,3 +228,30 @@ def test_deezer_decides_over_a_title_or_tag_guess_and_old_guesses_are_checked_ag
     genres = dict((u, g) for u, _, g in music_auto.kept_songs(db))
     assert genres[swing] == "pop" and genres[label] == "pop"
     assert set(asked) >= {"Mark Knopfler - Sultans Of Swing", "ROSALÍA - De Plata"}
+
+
+def test_a_failed_lookup_keeps_what_was_known_and_tries_again_in_an_hour(catalog, monkeypatch):
+    from datetime import timedelta
+
+    from houseos.db import utcnow
+
+    db, (alice, _, _), _ = catalog
+    url = "https://www.youtube.com/watch?v=failedlooku"
+    db.add(Record(kind="music.download", owner_id=alice.id,
+                  data={"state": "ready", "source_url": url, "title": "Song", "uploader": "Artist",
+                        "evidence": {"title": "Song", "uploader": "Artist", "matcher": 0}}))  # fmt: skip
+    db.commit()
+
+    def down(*a):
+        raise httpx.ConnectError("down")
+
+    monkeypatch.setattr(music_catalog, "deezer", down)
+    music_catalog.enrich(db, limit=10000)
+    row = next(
+        r
+        for r in db.scalars(select(Record).where(Record.kind == "music.download"))
+        if r.data["source_url"] == url
+    )
+    evidence = row.data["evidence"]
+    assert evidence["title"] == "Song" and evidence["uploader"] == "Artist"  # nothing wiped
+    assert evidence["retry_at"] < (utcnow() + timedelta(hours=1, minutes=1)).isoformat() + "Z"

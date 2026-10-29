@@ -54,3 +54,20 @@ def test_an_album_without_genre_uses_the_artist_and_musicbrainz_is_finer(monkeyp
     assert found["genres"] == ["Pop"]
     # Nobody knows: no genre (the song stays "other", never a guess).
     assert not look(FakeHttp([], [], [])).get("genres")
+
+
+def test_musicbrainz_busy_keeps_deezer_s_artist_genre_and_nothing_known_is_asked_again(monkeypatch):
+    import httpx
+    import pytest
+
+    monkeypatch.setattr(music_genre.time, "sleep", lambda s: None)
+
+    class Busy(FakeHttp):
+        def get(self, url, params=None, headers=None):
+            if "musicbrainz" in url:
+                raise httpx.ConnectError("busy")
+            return super().get(url, params, headers)
+
+    assert look(Busy([], ["Pop"], []))["genres"] == ["Pop"]  # Deezer's artist genre stands
+    with pytest.raises(httpx.HTTPError):  # nothing known: the lookup is tried again later
+        look(Busy([], [], []))
