@@ -172,7 +172,8 @@ def packaged_codecs(directory):
     return ",".join(codecs)
 
 
-SLOW = 4.0  # prepared at less than this many times real time: sent once complete
+SLOW = 4.0  # prepared at less than this many times real time: sent once complete, however long
+FULL_WAIT = 90.0  # seconds a fast file is given to be all prepared before it is sent anyway
 RATE_WINDOW = 3.0  # seconds the preparation speed is measured over, once it has started
 
 
@@ -198,6 +199,14 @@ def slow(directory):
     before = prepared_seconds(directory)
     time.sleep(RATE_WINDOW)
     return not complete(directory) and (prepared_seconds(directory) - before) / RATE_WINDOW < SLOW
+
+
+def keep_waiting(directory, slow_file, seeking, since):
+    """Before a film is sent: until it is all prepared (a slow file however long, a fast one up
+    to FULL_WAIT; a seek from a new moment only when slow)."""
+    if complete(directory):
+        return False
+    return slow_file or (not seeking and time.monotonic() - since < FULL_WAIT)
 
 
 def write_master(directory, plan, size):
@@ -474,30 +483,33 @@ def start(db, row, device, source, plan, job):
         db.rollback()
         db.expire_all()
         row = db.get(CinemaWorkflow, workflow_id)
-        if slow(output):
-            # Sent unfinished, the Chromecast takes the stream for a live one, and at its first
-            # stall jumps to the newest second prepared, minutes ahead, again and again. A file
-            # that comes in slowly is sent once it is all prepared (the Now bar shows how far).
-            duration = float(plan.get("duration") or 0) or 1
-            while not complete(output):
-                if cancelled():
-                    raise MediaError(
-                        "PREPARATION_CANCELLED", "Streaming preparation was cancelled.", "prepare"
-                    )
-                if process.poll() is not None and not complete(output):
-                    raise MediaError(
-                        "STREAM_PREPARATION_FAILED",
-                        "The film stopped coming in before it was ready. Try another version.",
-                        "prepare",
-                        True,
-                    )
-                done = min(duration, prepared_seconds(output))
-                row.data = {
-                    **row.data,
-                    "download": {"phase": "preparing", "bytes": int(done), "total": int(duration)},
-                }
-                db.commit()
-                time.sleep(5)
+        # Sent unfinished, the Chromecast takes the stream for a live one: its clock runs ahead of
+        # the film, it jumps to the newest second at a stall, and the reload that makes it a normal
+        # film once complete (a short pause) lands where it jumped. So a film is sent once it is
+        # all prepared: a fast file is within a minute here, a slow one whatever it takes (the Now
+        # bar shows how far); only a fast file still unfinished after FULL_WAIT goes as it is. A
+        # seek prepared from a new moment starts at once, as before (a slow one still waits).
+        slow_file = slow(output)
+        waited = time.monotonic()
+        duration = float(plan.get("duration") or 0) or 1
+        while keep_waiting(output, slow_file, bool(row.data.get("_seek_previous")), waited):
+            if cancelled():
+                raise MediaError("PREPARATION_CANCELLED", "Streaming preparation was cancelled.", "prepare")
+            if process.poll() is not None and not complete(output):
+                raise MediaError(
+                    "STREAM_PREPARATION_FAILED",
+                    "The film stopped coming in before it was ready. Try another version.",
+                    "prepare",
+                    True,
+                )
+            done = min(duration, prepared_seconds(output))
+            row.data = {
+                **row.data,
+                "download": {"phase": "preparing", "bytes": int(done), "total": int(duration)},
+            }
+            db.commit()
+            time.sleep(2)
+        if "download" in row.data:
             row.data = {k: v for k, v in row.data.items() if k != "download"}
             db.commit()
         if check_authorized():

@@ -387,3 +387,18 @@ def test_a_slow_start_still_buffering_is_not_loaded_again():
     assert cinema_cast.playing(cast, "u", seconds=0.6)  # buffering the whole time: left to play
     status.player_state = "IDLE"
     assert not cinema_cast.playing(cast, "u", seconds=0.6)  # gone: loaded again
+
+
+def test_a_film_is_sent_once_all_prepared_unless_that_takes_too_long(tmp_path):
+    import time
+
+    from houseos import cinema_progressive as p
+
+    (tmp_path / "video.m3u8").write_text("#EXTM3U\n#EXTINF:4.0,\nseg0.m4s\n")
+    now = time.monotonic()
+    assert p.keep_waiting(tmp_path, False, False, now)  # fast, unfinished: wait for the rest
+    assert not p.keep_waiting(tmp_path, False, False, now - p.FULL_WAIT - 1)  # too long: send it
+    assert not p.keep_waiting(tmp_path, False, True, now)  # a seek: at once
+    assert p.keep_waiting(tmp_path, True, True, now - 3600)  # slow: always waited for
+    (tmp_path / "video.m3u8").write_text("#EXTM3U\n#EXTINF:4.0,\nseg0.m4s\n#EXT-X-ENDLIST\n")
+    assert not p.keep_waiting(tmp_path, True, False, now)  # all prepared: sent
