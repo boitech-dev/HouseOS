@@ -2614,6 +2614,8 @@ def observe(
             and row.data.get("_observation_deadline", "") > utcnow().isoformat()
         ):
             return save_workflow(db, row, "command_sent", still_buffering(row, observation))
+        elif dropped(row, device, observation):
+            return reload_dropped(db, row, device)
         elif observation.get("item_id") != expected or observation.get("state") not in {"active", "paused"}:
             raise MediaError(
                 "PLAYBACK_NOT_OBSERVED", "The receiver has not confirmed active playback.", "verify", True
@@ -3066,6 +3068,49 @@ def control(
             }
             if row.state in {"playing_observed", "paused", "command_sent"}
             else {"state": "command_sent", "action": body.action, "physical_verification": "unverified"},
+        },
+    )
+
+
+RELOADS = 2  # a film the Chromecast dropped is sent again at most this often in ten minutes
+
+
+def dropped(row, device, observation):
+    """The Chromecast dropped a film that was playing (its Wi-Fi, a player error): our player is
+    still open but empty, the cast logo on the screen. Not a stop from another phone, a film that
+    replaced it, the end, or another app: those are left alone."""
+    recent = [t for t in row.data.get("_reloads", []) if t > (utcnow() - timedelta(minutes=10)).isoformat()]
+    return (
+        device.adapter == "cast"
+        and row.state == "playing_observed"
+        and observation.get("app_id") == "CC1AD845"
+        and observation.get("state") == "idle"
+        and observation.get("idle_reason") not in {"CANCELLED", "INTERRUPTED", "FINISHED"}
+        and len(recent) < RELOADS
+    )
+
+
+def reload_dropped(db, row, device):
+    """Sent again where it was (a few seconds back), as one would by hand."""
+    from .cinema_cast import execute_cast
+
+    position = max(0.0, float((row.data.get("checkpoint") or {}).get("position") or 0) - 5)
+    plan = {**row.data["plan"], "position": position}
+    row.data = {
+        **row.data,
+        "plan": plan,
+        "_lost_since": None,
+        "_reloads": [*row.data.get("_reloads", []), utcnow().isoformat()][-RELOADS:],
+    }
+    source = next(s for s in row.data["_sources"] if s["id"] == row.data["_selected_source"])
+    execute_cast(db, row, device, source, plan)
+    return save_workflow(
+        db,
+        row,
+        "command_sent",
+        {
+            "_observation_deadline": (utcnow() + timedelta(seconds=45)).isoformat(),
+            "observation": {**(row.data.get("observation") or {}), "state": "command_sent"},
         },
     )
 

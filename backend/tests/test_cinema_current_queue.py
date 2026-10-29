@@ -294,3 +294,46 @@ def test_a_film_whose_screen_another_took_is_closed_not_left_on_its_way():
             assert "superseded" not in ACTIVITY_WORKFLOWS  # no "sending to the TV" in the tray
     finally:
         f.tearDown()
+
+
+def test_a_film_the_chromecast_dropped_is_sent_again_where_it_was_but_never_against_a_stop():
+    f = test_cinema.CinemaTests()
+    f.setUp()
+    setup_active(f)
+    try:
+        with Session(f.engine) as db:
+            db.get(c.CinemaDevice, f.device_id).adapter = "cast"
+            db.commit()
+        sent = []
+        empty = {"app_id": "CC1AD845", "state": "idle", "item_id": None, "idle_reason": "ERROR"}
+
+        def observe(idle_reason, app="CC1AD845"):
+            with (
+                patch.object(c, "inspect_destination", return_value={**empty, "idle_reason": idle_reason, "app_id": app}),
+                patch("houseos.cinema_cast.execute_cast", lambda db, row, device, source, plan: sent.append(plan["position"])),
+            ):  # fmt: skip
+                with Session(f.engine) as db:
+                    version = db.get(c.CinemaWorkflow, "workflow-one").version
+                return f.client.post(
+                    "/api/v1/cinema/workflows/workflow-one/observe", json={"version": version}
+                ).json()
+
+        # Stopped from another phone, or another app opened: left alone (never a fight).
+        assert observe("CANCELLED")["state"] == "playing_observed" and sent == []
+        assert observe(None, app="OTHERAPP")["state"] == "playing_observed" and sent == []
+        # Dropped (the cast logo on the screen): sent again a few seconds back.
+        assert observe("ERROR")["state"] == "command_sent" and sent == [37]
+        with Session(f.engine) as db:
+            row = db.get(c.CinemaWorkflow, "workflow-one")
+            row.state = "playing_observed"
+            db.commit()
+        observe(None)
+        assert len(sent) == 2
+        with Session(f.engine) as db:
+            row = db.get(c.CinemaWorkflow, "workflow-one")
+            row.state, row.data = "playing_observed", {**row.data, "_lost_since": None}
+            db.commit()
+        observe("ERROR")
+        assert len(sent) == 2  # twice in ten minutes at most: not a loop
+    finally:
+        f.tearDown()
