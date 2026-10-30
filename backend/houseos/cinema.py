@@ -2216,11 +2216,24 @@ def found_subtitle(db, row, source, actor, audio_track=None):
     )
     if not found:
         return None
+    sources = copy.deepcopy(row.data["_sources"])
+    mine = next(s for s in sources if s["id"] == source["id"])
+    track = keep_found(
+        db, actor.id, row.media_id, wanted, found, row.data.get("season"), row.data.get("episode")
+    )
+    mine["inspection"]["subtitles"].append(track)
+    row.data = {**row.data, "_sources": sources}
+    db.flush()
+    return track["id"]
+
+
+def keep_found(db, owner_id, media_id, wanted, found, season=None, episode=None):
+    """An online subtitle found for one file, kept (12 h) and described as a track of it."""
     text, item = found
     subtitle = CinemaSubtitle(
         id=new_id(),
-        owner_id=actor.id,
-        media_id=row.media_id,
+        owner_id=owner_id,
+        media_id=media_id,
         data={
             "language": wanted,
             "release": str(item.get("movieReleaseName") or item.get("subtitleFileName") or "OpenSubtitles")[
@@ -2230,29 +2243,22 @@ def found_subtitle(db, row, source, actor, audio_track=None):
             "matched": "this file" if item.get("m") == "h" else "same release type and frame rate",
             "sdh": ".hi." in str(item.get("subtitleFileName") or "").lower(),
             "foreign_parts_only": False,
-            "season": row.data.get("season"),
-            "episode": row.data.get("episode"),
+            "season": season,
+            "episode": episode,
         },
         expires_at=utcnow() + timedelta(hours=12),
     )
     db.add(subtitle)
-    sources = copy.deepcopy(row.data["_sources"])
-    mine = next(s for s in sources if s["id"] == source["id"])
-    mine["inspection"]["subtitles"].append(
-        {
-            "id": subtitle.id,
-            "codec": "subrip",
-            "language": wanted,
-            "title": "OpenSubtitles · " + subtitle.data["matched"],
-            "external": True,
-            "sdh": subtitle.data["sdh"],
-            "forced": False,
-            "timing": "matched",
-        }
-    )
-    row.data = {**row.data, "_sources": sources}
-    db.flush()
-    return subtitle.id
+    return {
+        "id": subtitle.id,
+        "codec": "subrip",
+        "language": wanted,
+        "title": "OpenSubtitles · " + subtitle.data["matched"],
+        "external": True,
+        "sdh": subtitle.data["sdh"],
+        "forced": False,
+        "timing": "matched",
+    }
 
 
 @router.post("/workflows/{identity}/launch")
@@ -4636,7 +4642,41 @@ def find_next(db, row, actor):
     next_request["subtitle_language"] = (prior_plan.get("subtitle") or {}).get("language")
     # Same sound and subtitles as the episode before; whatever preparation it needs (sound
     # converted, subtitles as text) is made as for any film: this screen plays it.
-    plan = compatibility(inspection, device.capabilities, next_request)
+    try:
+        plan = compatibility(inspection, device.capabilities, next_request)
+    except MediaError as exc:
+        # No subtitles in this language in the next file: found online for that file, as they
+        # were for the episode before (the same sound and subtitles, as Stremio does).
+        wanted = next_request.get("subtitle_language")
+        if (
+            exc.code != "SUBTITLE_UNAVAILABLE"
+            or not wanted
+            or not next_request.get("subtitles_on")
+            or not parent.canonical_id.startswith("tt")  # the add-on knows IMDb ids only
+        ):
+            raise
+        from .cinema_community_subs import find
+
+        found = find(
+            url,
+            next_source.get("size"),
+            parent.canonical_id,
+            "series",
+            following["season"],
+            following["episode"],
+            wanted,
+            (inspection.get("video") or {}).get("frame_rate"),
+            str(next_source.get("_addon_filename") or next_source.get("release") or ""),
+            float(inspection.get("duration") or 0),
+        )
+        if not found:
+            raise
+        track = keep_found(
+            db, row.owner_id, row.media_id, wanted, found, following["season"], following["episode"]
+        )
+        inspection["subtitles"].append(track)
+        next_source.update(inspection=inspection)
+        plan = compatibility(inspection, device.capabilities, {**next_request, "subtitle_track": track["id"]})
     preflight_cast(cast_config(db), next_source, plan)
     return {"following": following, "source": next_source, "plan": plan, "request": next_request}
 
