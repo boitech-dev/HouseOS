@@ -337,3 +337,40 @@ def test_a_film_the_chromecast_dropped_is_sent_again_where_it_was_but_never_agai
         assert len(sent) == 2  # twice in ten minutes at most: not a loop
     finally:
         f.tearDown()
+
+
+def test_play_after_a_long_pause_loads_the_film_fresh_where_it_was():
+    f = test_cinema.CinemaTests()
+    f.setUp()
+    setup_active(f)
+    try:
+        with Session(f.engine) as db:
+            db.get(c.CinemaDevice, f.device_id).adapter = "cast"
+            row = db.get(c.CinemaWorkflow, "workflow-one")
+            row.state = "paused"
+            row.data = {**row.data, "_prepared": {"streaming": True, "path": "/x/ready/master.m3u8"}}
+            db.commit()
+
+        def press_play(paused_minutes):
+            with Session(f.engine) as db:
+                row = db.get(c.CinemaWorkflow, "workflow-one")
+                row.state = "paused"
+                since = (c.utcnow() - timedelta(minutes=paused_minutes)).isoformat()
+                row.data = {**row.data, "_paused_since": since}
+                db.commit()
+                version = row.version
+            loads, plays = [], []
+            with (
+                patch("houseos.cinema_cast.execute_cast", lambda db, row, d, s, plan: loads.append(plan["position"])),
+                patch("houseos.cinema_cast.cast_control", lambda address, action, position: plays.append(action)),
+            ):  # fmt: skip
+                f.client.post(
+                    "/api/v1/cinema/workflows/workflow-one/control",
+                    json={"version": version, "action": "resume"},
+                )
+            return loads, plays
+
+        assert press_play(2) == ([], ["resume"])  # a short pause: just play
+        assert press_play(30) == ([42], [])  # a long one: loaded fresh at its place (42 s)
+    finally:
+        f.tearDown()

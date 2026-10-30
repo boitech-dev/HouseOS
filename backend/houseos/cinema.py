@@ -2736,6 +2736,9 @@ def observe(
             "paused" if observation["state"] == "paused" else "playing_observed",
             {
                 "checkpoint": {"position": position, "duration": duration, "at": utcnow().isoformat()},
+                "_paused_since": (row.data.get("_paused_since") or utcnow().isoformat())
+                if observation["state"] == "paused"
+                else None,
                 "observation": {
                     **observation,
                     "physical_video": "unverified",
@@ -3014,6 +3017,10 @@ def control(
             Jellyfin(integration_config(db, "jellyfin")).control(
                 device.session_id, body.action, body.position
             )
+        elif body.action == "resume" and long_paused(row, device):
+            # After a long pause the Chromecast's player can be stuck (its screensaver on, "play"
+            # left buffering for good): the film is loaded fresh where it was, as Stop then Play.
+            return reload_at(db, row, device, float((row.data.get("checkpoint") or {}).get("position") or 0))
         else:
             from .cinema_cast import cast_control
 
@@ -3097,18 +3104,34 @@ def dropped(row, device, observation):
     )
 
 
+LONG_PAUSE = timedelta(minutes=10)
+
+
+def long_paused(row, device):
+    since = row.data.get("_paused_since")
+    return (
+        device.adapter == "cast"
+        and row.state == "paused"
+        and bool(since)
+        and since < (utcnow() - LONG_PAUSE).isoformat()
+        and bool((row.data.get("_prepared") or {}).get("streaming"))
+    )
+
+
 def reload_dropped(db, row, device):
     """Sent again where it was (a few seconds back), as one would by hand."""
+    row.data = {**row.data, "_reloads": [*row.data.get("_reloads", []), utcnow().isoformat()][-RELOADS:]}
+    return reload_at(
+        db, row, device, max(0.0, float((row.data.get("checkpoint") or {}).get("position") or 0) - 5)
+    )
+
+
+def reload_at(db, row, device, position):
+    """The film loaded fresh at `position`: its player closed first (as Stop does), it plays."""
     from .cinema_cast import execute_cast
 
-    position = max(0.0, float((row.data.get("checkpoint") or {}).get("position") or 0) - 5)
     plan = {**row.data["plan"], "position": position}
-    row.data = {
-        **row.data,
-        "plan": plan,
-        "_lost_since": None,
-        "_reloads": [*row.data.get("_reloads", []), utcnow().isoformat()][-RELOADS:],
-    }
+    row.data = {**row.data, "plan": plan, "_lost_since": None, "_paused_since": None}
     source = next(s for s in row.data["_sources"] if s["id"] == row.data["_selected_source"])
     execute_cast(db, row, device, source, plan)
     return save_workflow(
