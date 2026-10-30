@@ -168,6 +168,22 @@ def consensus_language(sources):
     return max(present, key=lambda code: (present[code], first.get(code, 0), code != "fr"))
 
 
+SLOW_START = 70  # a version that plays only after a complete copy (minutes): below one that streams
+
+
+def waits_for_a_copy(source, plan):
+    """Would this version need a complete copy before anything plays (not streamed as it plays)?"""
+    from .cinema_progressive import supported
+
+    direct = plan["mode"] == "direct" and plan["audio"].get("default")
+    if plan.get("subtitle_mode") == "embedded":
+        return False  # a screen that draws the file's subtitles itself: nothing is prepared
+    if direct and (plan.get("subtitle") or {}).get("external") and plan.get("subtitle_mode") == "webvtt":
+        return False  # only a small subtitle file beside it (cinema_cast.preflight_cast)
+    prepared = not direct or plan.get("subtitle_mode") != "off"
+    return prepared and not supported(source, plan)
+
+
 def rank_inspected(sources, capabilities, request, original=None):
     """Inspected sources ranked best first as (source, plan, score, reasons); rejects noted."""
     original = original or consensus_language(sources)  # the title's language first (title_language)
@@ -182,5 +198,8 @@ def rank_inspected(sources, capabilities, request, original=None):
             continue
         if source.get("rd_cached") or source.get("layer") in {"LOCAL", "RD_CLOUD"}:
             score += 100
+        if waits_for_a_copy(source, plan):
+            score -= SLOW_START
+            reasons.append("starts only after a complete copy")
         ranked.append((source, plan, score - (source.get("size") or 0) / 1e12, reasons))
     return sorted(ranked, key=lambda entry: -entry[2])

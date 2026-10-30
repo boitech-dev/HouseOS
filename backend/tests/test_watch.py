@@ -442,3 +442,16 @@ def test_replacing_a_film_lets_it_play_and_keeps_its_stream_until_the_new_one_is
             assert db.get(cinema.CinemaWorkflow, "workflow-one").data["_release_after_load"] == "old-film"
     finally:
         f.tearDown()
+
+
+def test_a_version_that_plays_only_after_a_complete_copy_ranks_below_one_that_streams():
+    # AV1 can't be streamed as it plays (only H.264 and HEVC are): with French subtitles in both,
+    # the AV1 4K one would start minutes later; the 1080p H.264 one goes first.
+    caps = {**CAPS, "video_codecs": ["h264", "hevc", "av1"], "embedded_subtitle_codecs": []}  # a Chromecast
+    sources = [
+        source("av1-4k", media(2160, codec="av1", subtitles=[("fr", "subrip")]), size=3e9),
+        source("h264-1080", media(1080, codec="h264", subtitles=[("fr", "subrip")]), size=8e9),
+    ]
+    ranked = rank_inspected(sources, caps, {"languages": ["fr", "en"]})
+    assert [entry[0]["id"] for entry in ranked] == ["h264-1080", "av1-4k"]
+    assert "starts only after a complete copy" in ranked[1][3]

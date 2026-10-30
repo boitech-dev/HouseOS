@@ -509,8 +509,11 @@ def start(db, row, device, source, plan, job):
             raise MediaError("PREPARATION_CANCELLED", "Streaming preparation was cancelled.", "prepare")
         observation = inspect_destination(db, device)
         old = row.data["_destination_observation"]
-        if observation.get("item_id") != old.get("item_id") or (
-            not row.data.get("_seek_previous") and observation.get("session_id") != old.get("session_id")
+        # Replacing a film: what it shows may change meanwhile (its one reload once complete), and
+        # the load closes it anyway. Otherwise a change means someone else took the screen.
+        if not row.data.get("_release_after_load") and (
+            observation.get("item_id") != old.get("item_id")
+            or (not row.data.get("_seek_previous") and observation.get("session_id") != old.get("session_id"))
         ):
             raise MediaError("PLAN_STALE", "The destination changed during buffering.", "prepare")
         if check_authorized():
