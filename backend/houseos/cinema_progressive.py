@@ -173,7 +173,6 @@ def packaged_codecs(directory):
 
 
 SLOW = 4.0  # prepared at less than this many times real time: sent once complete, however long
-FULL_WAIT = 90.0  # seconds a fast file is given to be all prepared before it is sent anyway
 RATE_WINDOW = 3.0  # seconds the preparation speed is measured over, once it has started
 
 
@@ -201,12 +200,11 @@ def slow(directory):
     return not complete(directory) and (prepared_seconds(directory) - before) / RATE_WINDOW < SLOW
 
 
-def keep_waiting(directory, slow_file, seeking, since):
-    """Before a film is sent: until it is all prepared (a slow file however long, a fast one up
-    to FULL_WAIT; a seek from a new moment only when slow)."""
-    if complete(directory):
-        return False
-    return slow_file or (not seeking and time.monotonic() - since < FULL_WAIT)
+def keep_waiting(directory, slow_file):
+    """Before a film is sent: a slow file until it is all prepared (sent unfinished, the
+    Chromecast catches up with its end and jumps minutes ahead, again and again). A fast one goes
+    at once; the short reload once it is complete keeps its place (cinema.kept_place)."""
+    return slow_file and not complete(directory)
 
 
 def write_master(directory, plan, size):
@@ -483,16 +481,11 @@ def start(db, row, device, source, plan, job):
         db.rollback()
         db.expire_all()
         row = db.get(CinemaWorkflow, workflow_id)
-        # Sent unfinished, the Chromecast takes the stream for a live one: its clock runs ahead of
-        # the film, it jumps to the newest second at a stall, and the reload that makes it a normal
-        # film once complete (a short pause) lands where it jumped. So a film is sent once it is
-        # all prepared: a fast file is within a minute here, a slow one whatever it takes (the Now
-        # bar shows how far); only a fast file still unfinished after FULL_WAIT goes as it is. A
-        # seek prepared from a new moment starts at once, as before (a slow one still waits).
+        # A slow file is sent once it is all prepared (the Now bar shows how far): sent unfinished,
+        # the Chromecast would catch up with its end and jump ahead, again and again.
         slow_file = slow(output)
-        waited = time.monotonic()
         duration = float(plan.get("duration") or 0) or 1
-        while keep_waiting(output, slow_file, bool(row.data.get("_seek_previous")), waited):
+        while keep_waiting(output, slow_file):
             if cancelled():
                 raise MediaError("PREPARATION_CANCELLED", "Streaming preparation was cancelled.", "prepare")
             if process.poll() is not None and not complete(output):

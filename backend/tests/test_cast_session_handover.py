@@ -389,16 +389,31 @@ def test_a_slow_start_still_buffering_is_not_loaded_again():
     assert not cinema_cast.playing(cast, "u", seconds=0.6)  # gone: loaded again
 
 
-def test_a_film_is_sent_once_all_prepared_unless_that_takes_too_long(tmp_path):
-    import time
-
+def test_only_a_slow_file_waits_to_be_all_prepared(tmp_path):
     from houseos import cinema_progressive as p
 
     (tmp_path / "video.m3u8").write_text("#EXTM3U\n#EXTINF:4.0,\nseg0.m4s\n")
-    now = time.monotonic()
-    assert p.keep_waiting(tmp_path, False, False, now)  # fast, unfinished: wait for the rest
-    assert not p.keep_waiting(tmp_path, False, False, now - p.FULL_WAIT - 1)  # too long: send it
-    assert not p.keep_waiting(tmp_path, False, True, now)  # a seek: at once
-    assert p.keep_waiting(tmp_path, True, True, now - 3600)  # slow: always waited for
+    assert p.keep_waiting(tmp_path, True)  # slow, unfinished: waited for
+    assert not p.keep_waiting(tmp_path, False)  # fast: at once
     (tmp_path / "video.m3u8").write_text("#EXTM3U\n#EXTINF:4.0,\nseg0.m4s\n#EXT-X-ENDLIST\n")
-    assert not p.keep_waiting(tmp_path, True, False, now)  # all prepared: sent
+    assert not p.keep_waiting(tmp_path, True)  # all prepared: sent
+
+
+def test_the_place_kept_never_runs_ahead_of_time_while_the_stream_is_live():
+    from datetime import timedelta
+
+    from houseos import cinema
+    from houseos.db import utcnow
+
+    ten_seconds_ago = (utcnow() - timedelta(seconds=10)).isoformat()
+    row = SimpleNamespace(
+        data={"checkpoint": {"position": 1020, "at": ten_seconds_ago}, "observation": {"state": "active"}}
+    )
+    live = {"duration": -1}
+    assert 1031 <= cinema.kept_place(row, live, 1350) <= 1033  # the live clock jumped: 17:00 + 10 s
+    assert cinema.kept_place(row, live, 1025) == 1025  # a normal step: as reported
+    assert cinema.kept_place(row, {"duration": 5400}, 1350) == 1350  # a normal film: trusted
+    row.data["observation"] = {"state": "paused"}
+    assert cinema.kept_place(row, live, 1350) == 1022  # paused meanwhile: no time passed
+    row.data["_seek_previous"] = {"state": "active"}
+    assert cinema.kept_place(row, live, 1350) == 1350  # a seek sets the place itself

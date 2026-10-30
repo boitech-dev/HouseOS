@@ -2679,6 +2679,7 @@ def observe(
                 + float(row.data["_prepared"].get("position_offset", 0)),
             }
         position = max(0, min(float(observation.get("position") or 0), float(plan.get("duration") or 86400)))
+        position = kept_place(row, observation, position)
         duration = float(plan.get("duration") or 0)
         look_ahead(db, row, actor, position)  # five minutes from the end: the next episode, found now
         last = row.data.get("checkpoint", {})
@@ -3178,6 +3179,24 @@ def seek_by_loading(db, row, device, position, prepared, reload):
     )
     db.commit()
     return row
+
+
+def kept_place(row, observation, position):
+    """Where the film really is. A stream the Chromecast takes for live (sent before it was all
+    prepared) has a clock that runs ahead of the film; the reload that then makes it a normal film
+    (settle_stream) went there, minutes ahead. So until then the place kept never moves faster
+    than time itself: it lands where the film really was. A seek sets the place itself."""
+    last = row.data.get("checkpoint") or {}
+    if observation.get("duration") != -1 or row.data.get("_seek_previous"):
+        return position
+    if not last.get("at") or last.get("position") is None:
+        return position
+    from datetime import datetime
+
+    elapsed = max(0.0, (utcnow() - datetime.fromisoformat(last["at"])).total_seconds())
+    if (row.data.get("observation") or {}).get("state") == "paused":
+        elapsed = 0.0  # paused since: no film time has passed
+    return min(position, float(last["position"]) + elapsed + 2)
 
 
 def settle_stream(db, row, device):
