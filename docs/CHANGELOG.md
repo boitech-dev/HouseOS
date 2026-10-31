@@ -7,6 +7,20 @@ keep landing there between version numbers. Control Room → Update (or `./house
 brings them; Control Room says when changes are waiting, with *See what changed* to read them.
 Newest first.
 
+### 2026-11-01
+
+- **Assistants play a film in one call**: `cinema_play` (Nox and MCP clients) takes a title (a
+  name, an IMDb id or the house's id) and only what was asked: subtitles in a language (from the
+  file or found online), a dub, 4K, the smallest file, a start, skip openings. It finds the
+  title, checks versions (a few more when the best don't fit), picks, launches and answers in
+  one line what plays, or one question. `cinema_versions` lists every version, checked or not,
+  by resolution, size or subtitles inside, and checks the ones chosen.
+- **IMDb ids work** wherever a title is asked for (`cinema_discover` too).
+- **Changing the subtitles of a film that failed to start** prepares its stream again: the last
+  one, with the old subtitles built in, made the TV refuse the new ones.
+- **Long answers to other assistants stay valid**: lists are shortened (with how many were left
+  out) instead of the text being cut in the middle.
+
 ### 2026-10-31
 
 - **Subtitles in the language asked for**: "VO with French subtitles" never falls back to the

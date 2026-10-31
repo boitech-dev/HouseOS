@@ -644,6 +644,8 @@ BUNDLES = {
         "users_lookup",
     ),
     "cinema": (
+        "cinema_play",
+        "cinema_versions",
         "cinema_browse",
         "cinema_search",
         "cinema_filter",
@@ -678,6 +680,7 @@ BUNDLES = {
         "cinema_next_episode",
     ),
     "tv": (
+        "cinema_play",
         "tv_devices",
         "tv_get_state",
         "tv_control",
@@ -701,6 +704,7 @@ BUNDLES = {
 def tool_catalogue():
     """Every assistant tool once: name -> (input model, description, handler)."""
     from . import (
+        cinema_play,
         music,
         household,
         cinema,
@@ -859,6 +863,20 @@ def tool_catalogue():
             CatalogBrowse,
             "Browse titles: catalog top=popular, imdbRating=featured, year=release year (genre=e.g. 2026). Genres: Action, Animation, Comedy, Drama, Sci-Fi, Thriller. Returns title IDs.",
             browse_catalog,
+        ),
+        "cinema_play": (
+            cinema_play.Play,
+            "Play a film or an episode on a screen in one call: the title (name, IMDb id or house "
+            "id) and, if the person said so, subtitles (language, inside the file), resolution or "
+            "smallest file. Finds, checks, picks and launches; answers in one line what plays, or "
+            'a question. Status "working": call again with the same arguments.',
+            cinema_play.play,
+        ),
+        "cinema_versions": (
+            cinema_play.Versions,
+            "Every version of a film or episode (checked or not), filtered by resolution or "
+            "subtitles inside, sorted best, smallest or largest; check=[ids] checks chosen ones.",
+            cinema_play.versions,
         ),
         "cinema_search": (
             CinemaSearch,

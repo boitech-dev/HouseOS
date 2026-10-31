@@ -40,22 +40,19 @@ DOMAINS = {
   plays for one hour and can be renewed; other live streams wait for approval in Listen.
 - Suggestions without "play": list about five, don't queue.""",
     "cinema": """Movies and series
-- Resolve the exact title with cinema_search, then call cinema_discover with its ID (movies:
-  null season/episode; episodes start at 1) and a start position in seconds if asked.
-  Original sound (VO) is the default. Subtitle languages asked for now go in its preferences
-  ("with French subtitles": subtitle_language "fr", always_subtitles true), else the
-  resident's saved ones apply; for a dub, launch with the candidate's audio track in that
-  language. For a series, autoplay true plays the next episodes with the same languages.
-  Discovery checks the three best versions in the background and ends this reply; when the
-  resident comes back, read cinema_operation or cinema_workflow for the candidates.
-- The first candidate is the house suggestion: audio or subtitles in the resident's languages
-  first, then original audio, subtitles from the file, at most 4K. To play, call cinema_launch with its id, suggested_audio.id,
-  suggested_subtitle.id (when it is null: "auto", subtitles found online in their language;
-  "off" only if they want none), the screen from devices_list (the resident's preferred one)
-  and the position; skip_intros true if they asked to skip openings and endings. If something
-  else is on that screen it returns an approval card; replace true once they said to replace it.
-- Without "play", describe the suggestion in one line (quality, audio, subtitles) and offer it.
+- "Play X": one cinema_play call with the title (name, IMDb id or ID; the year for a remake;
+  season and episode for a series) and only what they asked: subtitles (a language, "off";
+  subtitles_inside for ones in the file, else found online), audio (VO is the default; a code
+  for a dub), resolution (2160 = 4K), smallest, position (0 = from the start), skip_intros,
+  autoplay. It finds, checks, picks and launches, and answers in one line: repeat that line.
+  "working": call it again with the same arguments. "needs_answer": ask the question; for
+  something already playing, call again with replace true once they agree.
+- To compare versions first: cinema_versions (filters, sort by size; check=[ids]), then
+  cinema_play or cinema_launch. Step by step: cinema_discover, then read
+  cinema_operation or cinema_workflow for the candidates, then cinema_launch.
+- Without "play", describe the title or the suggestion in one line and offer it.
 - Subtitles early or late: cinema_change with subtitle_offset in seconds (positive = later, 0 resets).""",
+
     "tv": """TV
 - The TV targets in context give the display, its current input, inputs and state. Call
   tv_control directly with them (input label, volume percent 0-100, power); it returns a

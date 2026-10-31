@@ -53,8 +53,13 @@ class AgentDiscover(cinema.Discover):
 def discover(body: AgentDiscover, actor, db):
     cinema.allowed(actor)
     title = db.get(cinema.CinemaTitle, body.media_id)
+    if not title and body.media_id.startswith("tt"):  # an IMDb id works too
+        from .cinema_play import Play, find_title
+
+        title = find_title(db, actor, Play(title=body.media_id, season=body.season))[0]
     if not title:
         raise HTTPException(404, "Title not found. Search for the exact movie or series first.")
+    body = body.model_copy(update={"media_id": title.id})
     payload = body.model_dump(exclude_unset=True)
     payload["suggest"] = True  # check the three best versions right away, like the Watch page
     if title.kind == "movie":

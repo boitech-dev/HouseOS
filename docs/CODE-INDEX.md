@@ -103,31 +103,33 @@ permissions, in the tool groups it was given. The handlers are Nox's (tool_catal
 two never drift; the person's permission checks run inside them as for the app's screens.
 Never through here: setup, settings, secrets, addresses, code, files, backups or shutdown.
 
-- [`actor_for(db, authorization)`](../backend/houseos/agent_mcp.py#L179)
+- [`actor_for(db, authorization)`](../backend/houseos/agent_mcp.py#L182)
   (token record, Actor) for a valid bearer token, else None.
-- [`allowed_tools(row)`](../backend/houseos/agent_mcp.py#L197)
-- [`flat(schema, defs=None)`](../backend/houseos/agent_mcp.py#L205)
+- [`allowed_tools(row)`](../backend/houseos/agent_mcp.py#L200)
+- [`flat(schema, defs=None)`](../backend/houseos/agent_mcp.py#L208)
   A tool's input schema the way every model reads it: no $ref, no anyOf, only common keys.
-- [`merged(forms)`](../backend/houseos/agent_mcp.py#L231)
+- [`merged(forms)`](../backend/houseos/agent_mcp.py#L234)
   Objects: every field of every form, required only when all require it. Choices: all of
-- [`tool_list(tools)`](../backend/houseos/agent_mcp.py#L248)
-- [`carried_out(name, result, actor, db)`](../backend/houseos/agent_mcp.py#L287)
+- [`tool_list(tools)`](../backend/houseos/agent_mcp.py#L251)
+- [`carried_out(name, result, actor, db)`](../backend/houseos/agent_mcp.py#L290)
   A card waiting for the person's tap, tapped (DOES_IT tools only): the confirmation's own
-- [`run(name, arguments, tools, actor, db)`](../backend/houseos/agent_mcp.py#L304)
+- [`run(name, arguments, tools, actor, db)`](../backend/houseos/agent_mcp.py#L307)
   (text, is_error) of one call: Nox's handler, with Nox's argument handling.
-- [`answer(message_id, result=None, error=None)`](../backend/houseos/agent_mcp.py#L345)
-- [`handle(message, row, actor, db)`](../backend/houseos/agent_mcp.py#L351)
-- [`mcp(request: Request, request_body: dict | list=Body(...), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L395)
+- [`fitted(result, limit=4000)`](../backend/houseos/agent_mcp.py#L347)
+  The result as JSON within `limit` characters, still valid JSON: long lists are shortened
+- [`answer(message_id, result=None, error=None)`](../backend/houseos/agent_mcp.py#L371)
+- [`handle(message, row, actor, db)`](../backend/houseos/agent_mcp.py#L377)
+- [`mcp(request: Request, request_body: dict | list=Body(...), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L421)
   HTTP: `router.post('/mcp', include_in_schema=False)`
-- [`mcp_other()`](../backend/houseos/agent_mcp.py#L422)
+- [`mcp_other()`](../backend/houseos/agent_mcp.py#L448)
   No event stream and no sessions: everything is answered on the POST.
-- [`class NewAgent`](../backend/houseos/agent_mcp.py#L427)
-- [`shown(row, db)`](../backend/houseos/agent_mcp.py#L433)
-- [`list_agents(actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L447)
+- [`class NewAgent`](../backend/houseos/agent_mcp.py#L453)
+- [`shown(row, db)`](../backend/houseos/agent_mcp.py#L459)
+- [`list_agents(actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L473)
   HTTP: `admin.get('')`
-- [`create_agent(body: NewAgent, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L466)
+- [`create_agent(body: NewAgent, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L492)
   HTTP: `admin.post('')`
-- [`revoke_agent(identity: str, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L493)
+- [`revoke_agent(identity: str, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L519)
   HTTP: `admin.delete('/{identity}')`
 
 ## anime_catalog
@@ -346,11 +348,11 @@ System prompts, tool-bundle routing and reply language for the household assista
 Hard safety limits live in code (permissions, confirmations, versions, the reboot gate);
 the prompt only explains how to be useful with the tools that are loaded.
 
-- [`system_prompt(context)`](../backend/houseos/assistant_prompt.py#L182)
-- [`initial_context(message)`](../backend/houseos/assistant_prompt.py#L293)
+- [`system_prompt(context)`](../backend/houseos/assistant_prompt.py#L179)
+- [`initial_context(message)`](../backend/houseos/assistant_prompt.py#L290)
   Tool bundle a request clearly needs, or None to keep the conversation's current one
-- [`restart_requested(message)`](../backend/houseos/assistant_prompt.py#L310)
-- [`reply_language(message, default)`](../backend/houseos/assistant_prompt.py#L441)
+- [`restart_requested(message)`](../backend/houseos/assistant_prompt.py#L307)
+- [`reply_language(message, default)`](../backend/houseos/assistant_prompt.py#L438)
   Language of the resident's latest message for deterministic replies; default when unclear.
 
 ## assistant_tools
@@ -413,21 +415,21 @@ Every handler calls the same permission-checked service the app's own screens us
 - [`class MusicControl`](../backend/houseos/assistant_tools.py#L545)
   Assistant music control. The queue version only guards a stale screen; a spoken
 - [`music_control(body, actor, db)`](../backend/houseos/assistant_tools.py#L557)
-- [`tool_catalogue()`](../backend/houseos/assistant_tools.py#L701)
+- [`tool_catalogue()`](../backend/houseos/assistant_tools.py#L704)
   Every assistant tool once: name -> (input model, description, handler).
-- [`tool_registry(context)`](../backend/houseos/assistant_tools.py#L1055)
-- [`class CinemaSearch`](../backend/houseos/assistant_tools.py#L1103)
-- [`class WorkflowVersion`](../backend/houseos/assistant_tools.py#L1107)
-- [`class CinemaLaunch`](../backend/houseos/assistant_tools.py#L1112)
-- [`class CinemaChange`](../backend/houseos/assistant_tools.py#L1116)
-- [`omit_default_nulls(value, schema)`](../backend/houseos/assistant_tools.py#L1120)
+- [`tool_registry(context)`](../backend/houseos/assistant_tools.py#L1073)
+- [`class CinemaSearch`](../backend/houseos/assistant_tools.py#L1121)
+- [`class WorkflowVersion`](../backend/houseos/assistant_tools.py#L1125)
+- [`class CinemaLaunch`](../backend/houseos/assistant_tools.py#L1130)
+- [`class CinemaChange`](../backend/houseos/assistant_tools.py#L1134)
+- [`omit_default_nulls(value, schema)`](../backend/houseos/assistant_tools.py#L1138)
   Undo strict-provider null placeholders, including nested union/list models.
-- [`tool_schemas(registry)`](../backend/houseos/assistant_tools.py#L1171)
+- [`tool_schemas(registry)`](../backend/houseos/assistant_tools.py#L1189)
   What a provider sees of each tool. idempotency_key is left out: execute_tool always
-- [`compact_schema(schema)`](../backend/houseos/assistant_tools.py#L1183)
+- [`compact_schema(schema)`](../backend/houseos/assistant_tools.py#L1201)
   Pydantic's schema without titles, defaults or additionalProperties (the models forbid
-- [`strict_schema(schema)`](../backend/houseos/assistant_tools.py#L1206)
-- [`action_recap(name, args, result, actor, db)`](../backend/houseos/assistant_tools.py#L1282)
+- [`strict_schema(schema)`](../backend/houseos/assistant_tools.py#L1224)
+- [`action_recap(name, args, result, actor, db)`](../backend/houseos/assistant_tools.py#L1300)
 
 ## atomic
 
@@ -701,123 +703,123 @@ Cinema domain: user-owned workflows, source choices, confirmations and watch sta
 - [`launch(identity: str, body: Launch, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2268)
   Play the reviewed suggestion (release, tracks, screen, start time) in one tap.
   HTTP: `router.post('/workflows/{identity}/launch')`
-- [`confirm(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2327)
+- [`confirm(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2336)
   HTTP: `router.post('/confirmations/{identity}')`
-- [`execute_play(db, row)`](../backend/houseos/cinema.py#L2417)
-- [`own_state(db, actor_id, media_id)`](../backend/houseos/cinema.py#L2472)
-- [`observe(identity: str, body: Version, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2490)
+- [`execute_play(db, row)`](../backend/houseos/cinema.py#L2426)
+- [`own_state(db, actor_id, media_id)`](../backend/houseos/cinema.py#L2481)
+- [`observe(identity: str, body: Version, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2499)
   HTTP: `router.post('/workflows/{identity}/observe')`
-- [`stop_cinema(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2799)
+- [`stop_cinema(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2808)
   Invalidate work first; then close owned receivers, including failed loads.
   HTTP: `router.post('/stop')`
-- [`cancel_workflow(identity: str, body: Version, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2910)
+- [`cancel_workflow(identity: str, body: Version, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2919)
   HTTP: `router.post('/workflows/{identity}/cancel')`
-- [`control(identity: str, body: Control, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2935)
+- [`control(identity: str, body: Control, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L2944)
   HTTP: `router.post('/workflows/{identity}/control')`
-- [`dropped(row, device, observation)`](../backend/houseos/cinema.py#L3098)
+- [`dropped(row, device, observation)`](../backend/houseos/cinema.py#L3107)
   The Chromecast dropped a film that was playing (its Wi-Fi, a player error): our player is
-- [`long_paused(row, device)`](../backend/houseos/cinema.py#L3116)
-- [`reload_dropped(db, row, device)`](../backend/houseos/cinema.py#L3127)
+- [`long_paused(row, device)`](../backend/houseos/cinema.py#L3125)
+- [`reload_dropped(db, row, device)`](../backend/houseos/cinema.py#L3136)
   Sent again where it was (a few seconds back), as one would by hand.
-- [`reload_at(db, row, device, position)`](../backend/houseos/cinema.py#L3135)
+- [`reload_at(db, row, device, position)`](../backend/houseos/cinema.py#L3144)
   The film loaded fresh at `position`: its player closed first (as Stop does), it plays.
-- [`ran_out(row, observation)`](../backend/houseos/cinema.py#L3154)
+- [`ran_out(row, observation)`](../backend/houseos/cinema.py#L3163)
   A stream the Chromecast took for live never says "finished": at its end the player empties
-- [`seek_by_loading(db, row, device, position, prepared, reload)`](../backend/houseos/cinema.py#L3172)
+- [`seek_by_loading(db, row, device, position, prepared, reload)`](../backend/houseos/cinema.py#L3181)
   A seek the receiver can't do in place: the stream is loaded again there (complete: the
-- [`kept_place(row, observation, position)`](../backend/houseos/cinema.py#L3219)
+- [`kept_place(row, observation, position)`](../backend/houseos/cinema.py#L3228)
   Where the film really is. A stream the Chromecast takes for live (sent before it was all
-- [`settle_stream(db, row, device)`](../backend/houseos/cinema.py#L3237)
+- [`settle_stream(db, row, device)`](../backend/houseos/cinema.py#L3246)
   Once a stream the Chromecast took for live is complete, it is loaded again where it is,
-- [`still_buffering(row, observation)`](../backend/houseos/cinema.py#L3275)
+- [`still_buffering(row, observation)`](../backend/houseos/cinema.py#L3284)
   A buffering report on our own film (after a seek, or the network catching up): what was
-- [`replacement_preview(db, row)`](../backend/houseos/cinema.py#L3288)
+- [`replacement_preview(db, row)`](../backend/houseos/cinema.py#L3297)
   Keep the observed player and its delivery grant alive until replacement is approved.
-- [`change(identity: str, body: Change, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3325)
+- [`change(identity: str, body: Change, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3334)
   HTTP: `router.post('/workflows/{identity}/change')`
-- [`shift_subtitles(db, row, offset)`](../backend/houseos/cinema.py#L3368)
+- [`shift_subtitles(db, row, offset)`](../backend/houseos/cinema.py#L3377)
   The served WebVTT moves by `offset` (receiver_media); a film on the screen is loaded again
-- [`subtitle_timing(row, device)`](../backend/houseos/cinema.py#L3406)
+- [`subtitle_timing(row, device)`](../backend/houseos/cinema.py#L3415)
   Can these subtitles move? A text sidecar the house serves to a Cast screen can
-- [`resume_settings(workflow, plan)`](../backend/houseos/cinema.py#L3416)
-- [`last_resume(db, actor, identity)`](../backend/houseos/cinema.py#L3430)
-- [`resume_offer(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3476)
+- [`resume_settings(workflow, plan)`](../backend/houseos/cinema.py#L3425)
+- [`last_resume(db, actor, identity)`](../backend/houseos/cinema.py#L3439)
+- [`resume_offer(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3485)
   HTTP: `router.get('/state/{identity}/resume')`
-- [`class ResumePlayback`](../backend/houseos/cinema.py#L3501)
-- [`resume_playback(identity: str, body: ResumePlayback, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3506)
+- [`class ResumePlayback`](../backend/houseos/cinema.py#L3510)
+- [`resume_playback(identity: str, body: ResumePlayback, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3515)
   HTTP: `router.post('/state/{identity}/resume')`
-- [`media_state(filter: Literal['continue', 'watchlist', 'favorites', 'history', 'all']='all', actor: Actor=Depends(require_actor), db: Session=Depends(get_db), offset: int=0)`](../backend/houseos/cinema.py#L3570)
+- [`media_state(filter: Literal['continue', 'watchlist', 'favorites', 'history', 'all']='all', actor: Actor=Depends(require_actor), db: Session=Depends(get_db), offset: int=0)`](../backend/houseos/cinema.py#L3579)
   HTTP: `router.get('/state')`
-- [`update_media_state(identity: str, body: StateUpdate, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3626)
+- [`update_media_state(identity: str, body: StateUpdate, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3635)
   HTTP: `router.put('/state/{identity}')`
-- [`remove_history(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3643)
+- [`remove_history(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3652)
   HTTP: `router.delete('/state/{identity}/history')`
-- [`health(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3681)
+- [`health(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3690)
   HTTP: `router.get('/health')`
-- [`receiver_media(token: str, name: str, request: Request, db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3826)
-- [`cloud_id(torrent_id)`](../backend/houseos/cinema.py#L3930)
-- [`cloud_inventory(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3935)
+- [`receiver_media(token: str, name: str, request: Request, db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3835)
+- [`cloud_id(torrent_id)`](../backend/houseos/cinema.py#L3939)
+- [`cloud_inventory(actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3944)
   HTTP: `router.get('/cloud')`
-- [`subtitle_search(identity: str, language: str=Query(min_length=2, max_length=3, pattern='^[a-z]{2,3}$'), season: int | None=Query(default=None, ge=0, le=100), episode: int | None=Query(default=None, ge=1, le=1000), actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3957)
+- [`subtitle_search(identity: str, language: str=Query(min_length=2, max_length=3, pattern='^[a-z]{2,3}$'), season: int | None=Query(default=None, ge=0, le=100), episode: int | None=Query(default=None, ge=1, le=1000), actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3966)
   HTTP: `router.get('/titles/{identity}/subtitles')`
-- [`next_episode(identity: str, season: int=Query(ge=0, le=100), episode: int=Query(ge=1, le=1000), actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3990)
+- [`next_episode(identity: str, season: int=Query(ge=0, le=100), episode: int=Query(ge=1, le=1000), actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3999)
   HTTP: `router.get('/titles/{identity}/next')`
-- [`reconcile_playback(db)`](../backend/houseos/cinema.py#L4034)
+- [`reconcile_playback(db)`](../backend/houseos/cinema.py#L4043)
   Periodic read-only receiver observations/checkpoints; revocation stops new controls.
-- [`class AttachSubtitle`](../backend/houseos/cinema.py#L4084)
-- [`pick_source(row, source_id)`](../backend/houseos/cinema.py#L4089)
+- [`class AttachSubtitle`](../backend/houseos/cinema.py#L4093)
+- [`pick_source(row, source_id)`](../backend/houseos/cinema.py#L4098)
   Subtitles attach to the release the resident is looking at.
-- [`attach_subtitle(identity: str, body: AttachSubtitle, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4096)
+- [`attach_subtitle(identity: str, body: AttachSubtitle, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4105)
   HTTP: `router.post('/workflows/{identity}/subtitle')`
-- [`use_subtitle(db, row, source, subtitle_id)`](../backend/houseos/cinema.py#L4140)
+- [`use_subtitle(db, row, source, subtitle_id)`](../backend/houseos/cinema.py#L4149)
   The version on the card plays with this subtitle track (attached, found or uploaded).
-- [`class FindSubtitle`](../backend/houseos/cinema.py#L4156)
-- [`find_subtitle(identity: str, body: FindSubtitle, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4162)
+- [`class FindSubtitle`](../backend/houseos/cinema.py#L4165)
+- [`find_subtitle(identity: str, body: FindSubtitle, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4171)
   Subtitles in this language for the version on the card, found free online as the next
   HTTP: `router.post('/workflows/{identity}/subtitles/find')`
-- [`class SubtitleUpload`](../backend/houseos/cinema.py#L4194)
-- [`normalize_uploaded_subtitle(text)`](../backend/houseos/cinema.py#L4201)
-- [`upload_subtitle(identity: str, body: SubtitleUpload, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4250)
+- [`class SubtitleUpload`](../backend/houseos/cinema.py#L4203)
+- [`normalize_uploaded_subtitle(text)`](../backend/houseos/cinema.py#L4210)
+- [`upload_subtitle(identity: str, body: SubtitleUpload, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4259)
   HTTP: `router.post('/workflows/{identity}/subtitles/upload')`
-- [`current_destination(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4294)
+- [`current_destination(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4303)
   HTTP: `router.get('/devices/{identity}/current')`
-- [`class CoWatch`](../backend/houseos/cinema.py#L4311)
-- [`co_watch(identity: str, body: CoWatch, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4316)
+- [`class CoWatch`](../backend/houseos/cinema.py#L4320)
+- [`co_watch(identity: str, body: CoWatch, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4325)
   HTTP: `router.post('/workflows/{identity}/co-watch')`
-- [`checkpoint_participants(db, workflow, position, duration, plan)`](../backend/houseos/cinema.py#L4353)
-- [`poster_jpeg(content, size=(360, 540))`](../backend/houseos/cinema.py#L4391)
-- [`image_path(url)`](../backend/houseos/cinema.py#L4415)
-- [`image_on_disk(url)`](../backend/houseos/cinema.py#L4420)
-- [`cached_public_poster(url, freshness_bucket=None)`](../backend/houseos/cinema.py#L4430)
+- [`checkpoint_participants(db, workflow, position, duration, plan)`](../backend/houseos/cinema.py#L4362)
+- [`poster_jpeg(content, size=(360, 540))`](../backend/houseos/cinema.py#L4400)
+- [`image_path(url)`](../backend/houseos/cinema.py#L4424)
+- [`image_on_disk(url)`](../backend/houseos/cinema.py#L4429)
+- [`cached_public_poster(url, freshness_bucket=None)`](../backend/houseos/cinema.py#L4439)
   A public image as a sanitised JPEG, from disk or fetched once (`freshness_bucket` is
-- [`keep(path, content)`](../backend/houseos/cinema.py#L4457)
+- [`keep(path, content)`](../backend/houseos/cinema.py#L4466)
   Best effort: a cache that cannot be written only costs a fetch next time.
-- [`image_response(url, max_age=7 * 86400)`](../backend/houseos/cinema.py#L4468)
+- [`image_response(url, max_age=7 * 86400)`](../backend/houseos/cinema.py#L4477)
   Serve a public image: a disk hit at once, a miss fetched on the image threads.
-- [`poster_source(identity)`](../backend/houseos/cinema.py#L4485)
+- [`poster_source(identity)`](../backend/houseos/cinema.py#L4494)
   Where a title's poster comes from: (public URL, Jellyfin item id), or None.
-- [`jellyfin_poster(config, item)`](../backend/houseos/cinema.py#L4498)
-- [`poster(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4520)
+- [`jellyfin_poster(config, item)`](../backend/houseos/cinema.py#L4507)
+- [`poster(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4529)
   HTTP: `router.get('/titles/{identity}/poster')`
-- [`class SaveLocal`](../backend/houseos/cinema.py#L4546)
-- [`prepare_save_local(identity: str, body: SaveLocal, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4554)
+- [`class SaveLocal`](../backend/houseos/cinema.py#L4555)
+- [`prepare_save_local(identity: str, body: SaveLocal, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4563)
   HTTP: `router.post('/workflows/{identity}/save-local')`
-- [`boot_identity()`](../backend/houseos/cinema.py#L4659)
-- [`autoplay_allowed(row)`](../backend/houseos/cinema.py#L4671)
-- [`find_next(db, row, actor)`](../backend/houseos/cinema.py#L4681)
+- [`boot_identity()`](../backend/houseos/cinema.py#L4668)
+- [`autoplay_allowed(row)`](../backend/houseos/cinema.py#L4680)
+- [`find_next(db, row, actor)`](../backend/houseos/cinema.py#L4690)
   The next episode's file in the same release, inspected, with its plan: same audio and
-- [`look_ahead(db, row, actor, position)`](../backend/houseos/cinema.py#L4820)
+- [`look_ahead(db, row, actor, position)`](../backend/houseos/cinema.py#L4829)
   Near the end of an episode: find the next one now, so it starts as soon as this ends.
-- [`prepare_autoplay(db, row, actor)`](../backend/houseos/cinema.py#L4838)
+- [`prepare_autoplay(db, row, actor)`](../backend/houseos/cinema.py#L4847)
   The next episode in the same release, same screen, sound and subtitles: found ahead
-- [`process_autoplay(db)`](../backend/houseos/cinema.py#L4923)
-- [`authorize_workflow(db, workflow)`](../backend/houseos/cinema.py#L4998)
+- [`process_autoplay(db)`](../backend/houseos/cinema.py#L4932)
+- [`authorize_workflow(db, workflow)`](../backend/houseos/cinema.py#L5007)
   Independent fresh DB transaction before external side effects/after slow work.
-- [`class PlayerLink`](../backend/houseos/cinema.py#L5025)
-- [`player_link(identity: str, body: PlayerLink, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L5030)
+- [`class PlayerLink`](../backend/houseos/cinema.py#L5034)
+- [`player_link(identity: str, body: PlayerLink, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L5039)
   VLC and other players send no sign-in cookie, so the link carries its own permission:
   HTTP: `router.post('/workflows/{identity}/player-link')`
-- [`player_stream(token: str, name: str, request: Request, db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L5064)
+- [`player_stream(token: str, name: str, request: Request, db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L5073)
 
 ## cinema_adapters
 
@@ -1097,6 +1099,40 @@ Short observation/checkpoint loop; separate from slow preparation and music cont
 - [`clear_watched_copies(db)`](../backend/houseos/cinema_observer.py#L52)
   A film downloaded to watch without buffering ("Download first") goes once watched to the
 - [`main()`](../backend/houseos/cinema_observer.py#L94)
+
+## cinema_play
+
+Source: [backend/houseos/cinema_play.py](../backend/houseos/cinema_play.py)
+
+One call plays a film or an episode, for assistants (Nox, MCP clients such as Ronda).
+
+It does what the Watch page does, in order: find the title (a name, an IMDb id or the house's
+id), check the most promising versions, pick one by what was asked (original audio, subtitles in
+a language from the file or found online, a resolution, the smallest file), launch it on the
+screen, and say in one line what plays. It waits up to WAIT seconds; asked again with the same
+words, it carries on with the same versions instead of starting over.
+
+- [`class Play`](../backend/houseos/cinema_play.py#L35)
+- [`answer(status, message, **facts)`](../backend/houseos/cinema_play.py#L87)
+- [`find_title(db, actor, body)`](../backend/houseos/cinema_play.py#L91)
+  The house's title row, or an answer asking which one.
+- [`screen(db, actor, body)`](../backend/houseos/cinema_play.py#L128)
+- [`wait_for(db, workflow_id, deadline, ready)`](../backend/houseos/cinema_play.py#L139)
+  Read the workflow again until ready(row) or the deadline; no transaction held meanwhile.
+- [`inside(candidate, wanted)`](../backend/houseos/cinema_play.py#L149)
+- [`fits(candidate, body)`](../backend/houseos/cinema_play.py#L160)
+- [`choose(row, body, wanted)`](../backend/houseos/cinema_play.py#L167)
+  The checked version that best fits what was asked, or None.
+- [`worth_checking(row, body, wanted, chosen)`](../backend/houseos/cinema_play.py#L177)
+  Cached versions not checked yet that could fit better (up to three).
+- [`check_more(db, row, ids, actor)`](../backend/houseos/cinema_play.py#L203)
+- [`tracks(candidate, body, wanted)`](../backend/houseos/cinema_play.py#L216)
+  (audio id, subtitle id or "auto"/"off", language to find online or None).
+- [`describe(title, row, candidate, device, subtitle, online)`](../backend/houseos/cinema_play.py#L234)
+- [`play(body: Play, actor, db)`](../backend/houseos/cinema_play.py#L254)
+- [`class Versions`](../backend/houseos/cinema_play.py#L408)
+- [`versions(body: Versions, actor, db)`](../backend/houseos/cinema_play.py#L425)
+  Every version of a film or episode, checked or not, filtered and sorted, ten at a time.
 
 ## cinema_prepare
 

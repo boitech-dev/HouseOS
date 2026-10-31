@@ -2308,6 +2308,15 @@ def launch(identity: str, body: Launch, actor: Actor = Depends(require_actor), d
             saved.data = {**saved.data, "skip_intros": body.skip_intros}
         else:
             db.add(CinemaPreference(owner_id=actor.id, data={"skip_intros": body.skip_intros}))
+    previous = row.data.get("plan") or {}
+    if row.data.get("_prepared") and (
+        previous.get("source_id") != body.source_id
+        or (previous.get("audio") or {}).get("id") != body.audio_track
+        or (previous.get("subtitle") or {}).get("id") != tracks["subtitle_track"]
+    ):
+        # Another version or other tracks: the stream prepared for the last ones (its subtitles
+        # built in) would not show these; it is prepared again.
+        row.data = {**row.data, "_prepared": None}
     initial = row.data.get("_initial_request", row.data["request"])
     row.device_id = device.id
     row.data = {

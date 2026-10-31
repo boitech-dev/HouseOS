@@ -53,6 +53,8 @@ GROUPS = {
         "music_playlists_prepare",
     ),
     "tv": (
+        "cinema_play",
+        "cinema_versions",
         "cinema_search",
         "cinema_browse",
         "cinema_filter",
@@ -145,6 +147,7 @@ OPEN_WORLD = {
     "cinema_search",
     "cinema_cloud_inventory",
     "cinema_discover",
+    "cinema_play",
     "music_add",
     "music_add_candidates",
     "music_playlist_url_prepare",
@@ -338,8 +341,31 @@ def run(name, arguments, tools, actor, db):
         print("agent tool failed:", name, type(exc).__name__, failure_site(exc), flush=True)
         message = "That step failed on the house side and may not have completed. Check before trying again."
         result, failed = {"code": "TOOL_ERROR", "message": message}, True
-    text = json.dumps(result, ensure_ascii=False, default=str, separators=(",", ":"))
-    return (text if len(text) <= 4000 else text[:3990] + " …(cut)"), failed
+    return fitted(result), failed
+
+
+def fitted(result, limit=4000):
+    """The result as JSON within `limit` characters, still valid JSON: long lists are shortened
+    (with how many were left out) before anything is cut."""
+    dump = lambda value: json.dumps(value, ensure_ascii=False, default=str, separators=(",", ":"))  # noqa: E731
+
+    def shorten(value, keep):
+        if isinstance(value, list) and len(value) > keep:
+            return [shorten(v, keep) for v in value[:keep]] + [f"…{len(value) - keep} more"]
+        if isinstance(value, list):
+            return [shorten(v, keep) for v in value]
+        if isinstance(value, dict):
+            return {k: shorten(v, keep) for k, v in value.items()}
+        if isinstance(value, str) and len(value) > 300:
+            return value[:300] + "…"
+        return value
+
+    text = dump(result)
+    for keep in (10, 5, 3, 1):
+        if len(text) <= limit:
+            return text
+        text = dump(shorten(result, keep))
+    return text if len(text) <= limit else dump({"message": "The answer was too long; ask for less (a page, a filter)."})
 
 
 def answer(message_id, result=None, error=None):
