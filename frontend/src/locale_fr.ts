@@ -1015,6 +1015,7 @@ const french: Record<string, string> = {
     "À la télé en ce moment. Pilote-la depuis le lecteur en bas.",
   "No version is ready yet.": "Aucune version prête pour l’instant.",
   "Check other versions": "Vérifier d’autres versions",
+  "Not checked yet: checked when you pick it": "Pas encore vérifiée : vérifiée quand tu la choisis",
   original: "VO",
   "Choose a screen": "Choisir un écran",
   "in use: this replaces it": "occupé : ceci le remplace",

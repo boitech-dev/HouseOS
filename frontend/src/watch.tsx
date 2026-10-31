@@ -1214,6 +1214,29 @@ function Tonight({
       setBusy(false);
     }
   };
+  // Only the best few versions are checked when the film opens (that is the wait); more cached
+  // ones are listed as they are and checked only when picked.
+  const unchecked: Obj[] = (workflow?.provisional || [])
+    .filter((p: Obj) => p.rd_cached && !p.error)
+    .slice(0, Math.max(0, 8 - candidates.length));
+  const check = async (id: string) => {
+    setBusy(true);
+    try {
+      await api("/cinema/workflows/" + workflow!.id + "/configure", "POST", {
+        version: workflow!.version,
+        source_id: id,
+      });
+      setSourceId(id);
+      setAudio(null);
+      setSubtitle(null);
+      setError("");
+      await flow.reload();
+    } catch (e) {
+      setError(errorText(e));
+    } finally {
+      setBusy(false);
+    }
+  };
   // `forTonight`: downloaded to watch without buffering, then deleted once watched (or after a
   // week); otherwise kept in the library.
   const keepCopy = async (forTonight = false) => {
@@ -1495,6 +1518,29 @@ function Tonight({
                   setAudio(null);
                   setSubtitle(null);
                   close();
+                }}
+              />
+            ))}
+            {unchecked.map((c) => (
+              <Choice
+                key={c.id}
+                title={[
+                  origin(c),
+                  quality({ ...c, height: c.height_claim }),
+                  c.size ? bytes(c.size) : "",
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+                detail={
+                  <>
+                    <span>{t("Not checked yet: checked when you pick it")}</span>
+                    <span className="watch-release">{String(c.release).replace(FILE_ID, "")}</span>
+                  </>
+                }
+                chosen={false}
+                onPick={() => {
+                  close();
+                  void check(c.id);
                 }}
               />
             ))}
