@@ -1645,7 +1645,11 @@ function HouseLibrary({ kind }: { kind: "music" | "movies" }) {
           <Chip kind="filter" selected={!genre} onToggle={() => setGenre("")}>
             {t("All genres")}
           </Chip>
-          {facets.genres.slice(0, 14).map((g: Obj) => (
+          {/* Songs without a genre first, to sort them by hand. */}
+          {[
+            ...facets.genres.filter((g: Obj) => g.genre === "other"),
+            ...facets.genres.filter((g: Obj) => g.genre !== "other").slice(0, 14),
+          ].map((g: Obj) => (
             <Chip
               key={g.genre}
               kind="filter"
@@ -1653,7 +1657,7 @@ function HouseLibrary({ kind }: { kind: "music" | "movies" }) {
               count={g.count}
               onToggle={() => setGenre(genre === g.genre ? "" : g.genre)}
             >
-              {t(g.genre)}
+              {g.genre === "other" ? t("No genre yet") : t(g.genre)}
             </Chip>
           ))}
         </ChipGroup>

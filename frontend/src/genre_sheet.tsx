@@ -17,6 +17,51 @@ export function GenreButton({ song, onChanged }: { song: Obj; onChanged: () => u
   );
 }
 
+/** One tap files a song under one of these genres (it then leaves a "No genre yet" list);
+ *  More… opens every genre. */
+export function QuickGenres({
+  song,
+  genres,
+  onFiled,
+}: {
+  song: Obj;
+  genres: string[];
+  onFiled: () => unknown;
+}) {
+  const [busy, setBusy] = useState(false),
+    [more, setMore] = useState(false),
+    [error, setError] = useState("");
+  const file = async (genre: string) => {
+    setBusy(true);
+    setError("");
+    try {
+      await api("/music/genre", "PUT", { source_urls: [song.source_url], genre });
+      toast(t("Filed under {genre}.").replace("{genre}", t(genre)));
+      await onFiled();
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <>
+      <ChipGroup label={t("Genre") + " · " + song.title}>
+        {genres.map((g) => (
+          <Chip key={g} kind="filter" onToggle={busy ? undefined : () => void file(g)}>
+            {t(g)}
+          </Chip>
+        ))}
+        <Chip kind="filter" onToggle={() => setMore(true)}>
+          {t("More…")}
+        </Chip>
+      </ChipGroup>
+      <Problem error={error} />
+      {more && <GenreSheet songs={[song]} onClose={() => setMore(false)} onDone={onFiled} />}
+    </>
+  );
+}
+
 /** File songs under a genre by hand, and if asked every other song by their artist too. */
 export function GenreSheet({
   songs,
@@ -31,12 +76,14 @@ export function GenreSheet({
   const options = useData(
     "/music/genre" + (one ? "?source_url=" + encodeURIComponent(one.source_url) : ""),
   );
-  const [chosen, setChosen] = useState<string>(one && one.genre !== "other" ? one.genre : "");
+  // A tap on a genre files the song at once and closes.
+  const chosen = one && one.genre !== "other" ? one.genre : "";
   const [all, setAll] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   const others: number = options.data?.same_artist || 0;
   const save = async (genre: string) => {
+    if (busy) return;
     setBusy(true);
     setError("");
     try {
@@ -65,27 +112,9 @@ export function GenreSheet({
         one ? one.title || t("Genre") : t("Genre of {n} songs").replace("{n}", String(songs.length))
       }
       onClose={onClose}
-      footer={
-        <Button
-          variant="primary"
-          wide
-          busy={busy}
-          disabled={!chosen}
-          onClick={() => void save(chosen)}
-        >
-          {t("Save")}
-        </Button>
-      }
     >
       <Stack>
         <Problem error={error || options.error} />
-        <ChipGroup label={t("Genre")}>
-          {(options.data?.choices || []).map((g: string) => (
-            <Chip key={g} kind="filter" selected={chosen === g} onToggle={() => setChosen(g)}>
-              {t(g)}
-            </Chip>
-          ))}
-        </ChipGroup>
         {(others > 0 || !one) && (
           <Checkbox
             label={
@@ -101,6 +130,13 @@ export function GenreSheet({
             onChange={(e) => setAll(e.target.checked)}
           />
         )}
+        <ChipGroup label={t("Genre")}>
+          {(options.data?.choices || []).map((g: string) => (
+            <Chip key={g} kind="filter" selected={chosen === g} onToggle={() => void save(g)}>
+              {t(g)}
+            </Chip>
+          ))}
+        </ChipGroup>
         <Text style="body-s" tone="muted">
           {t("Unsorted songs by the same artist follow your choice on their own.")}
         </Text>

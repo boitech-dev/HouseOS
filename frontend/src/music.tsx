@@ -1,6 +1,6 @@
 // Listen: the house's shared music. The queue is the heart of it (everyone takes turns); around
 // it, one field to add anything, and the room's own places: My music, Radio, History, Auto play.
-import { GenreButton, GenreSheet } from "./genre_sheet";
+import { GenreButton, GenreSheet, QuickGenres } from "./genre_sheet";
 import { t, plural } from "./i18n";
 import { useState, useEffect, useRef, useSyncExternalStore, type ReactNode } from "react";
 import {
@@ -2833,6 +2833,14 @@ function HouseSongs({ music, pick }: { music?: Playback; pick?: (song: Obj) => P
     [selected, setSelected] = useState<Obj[]>([]),
     [filing, setFiling] = useState(false);
   const refresh = () => Promise.all([first.reload(), pages.reload()]);
+  // Deleting kept songs (their owner or an admin): one from its row, or the ones selected.
+  const [deleting, setDeleting] = useState<Obj[] | null>(null);
+  const removable = selected.filter((s) => s.can_delete);
+  // Sorting the songs without a genre: the house's commonest genres, one tap each.
+  const common = genres
+    .filter((g) => g.genre !== "other")
+    .slice(0, 6)
+    .map((g) => g.genre as string);
   const toggle = (song: Obj) =>
     setSelected((now) =>
       now.some((s) => s.id === song.id) ? now.filter((s) => s.id !== song.id) : [...now, song],
@@ -2859,11 +2867,20 @@ function HouseSongs({ music, pick }: { music?: Playback; pick?: (song: Obj) => P
         />
         <Select aria-label={t("Genre")} value={genre} onChange={(e) => setGenre(e.target.value)}>
           <option value="">{t("Every genre")}</option>
-          {genres.map((g) => (
-            <option key={g.genre} value={g.genre}>
-              {t(g.genre)} · {g.count}
-            </option>
-          ))}
+          {genres
+            .filter((g) => g.genre === "other")
+            .map((g) => (
+              <option key={g.genre} value="other">
+                {t("No genre yet")} · {g.count}
+              </option>
+            ))}
+          {genres
+            .filter((g) => g.genre !== "other")
+            .map((g) => (
+              <option key={g.genre} value={g.genre}>
+                {t(g.genre)} · {g.count}
+              </option>
+            ))}
         </Select>
         <Select aria-label={t("Order")} value={sort} onChange={(e) => setSort(e.target.value)}>
           <option value="recent">{t("Newest first")}</option>
@@ -2895,6 +2912,11 @@ function HouseSongs({ music, pick }: { music?: Playback; pick?: (song: Obj) => P
               {t("Set the genre of {n} songs").replace("{n}", String(selected.length))}
             </Button>
           )}
+          {selecting && removable.length > 0 && (
+            <Button size="s" variant="danger" icon="trash" onClick={() => setDeleting(removable)}>
+              {t("Delete {n} songs").replace("{n}", String(removable.length))}
+            </Button>
+          )}
         </Cluster>
       )}
       {filing && (
@@ -2907,6 +2929,27 @@ function HouseSongs({ music, pick }: { music?: Playback; pick?: (song: Obj) => P
             await refresh();
           }}
         />
+      )}
+      {deleting && (
+        <ConfirmSheet
+          title={
+            deleting.length === 1
+              ? t("Delete “{title}” from the house disk?").replace("{title}", deleting[0].title)
+              : t("Delete {n} songs from the house disk?").replace("{n}", String(deleting.length))
+          }
+          confirm={t("Delete")}
+          danger
+          onClose={() => setDeleting(null)}
+          onConfirm={async () => {
+            for (const song of deleting)
+              await api(`/files/library/music/${song.id}?version=${song.version}`, "DELETE");
+            setSelected([]);
+            setSelecting(false);
+            await refresh();
+          }}
+        >
+          <Text>{t("Whoever wants it again plays or saves it again.")}</Text>
+        </ConfirmSheet>
       )}
       <Problem error={error || first.error || pages.error} onRetry={first.reload} />
       <List label={t("On this house")}>
@@ -2968,10 +3011,21 @@ function HouseSongs({ music, pick }: { music?: Playback; pick?: (song: Obj) => P
                     label={t("Add to playlist") + " · " + song.title}
                     onClick={() => setAdding(adding === song.id ? "" : song.id)}
                   />
+                  {song.can_delete && (
+                    <IconButton
+                      icon="trash"
+                      size="s"
+                      label={t("Delete") + " · " + song.title}
+                      onClick={() => setDeleting([song])}
+                    />
+                  )}
                 </>
               )
             }
           >
+            {sorter && genre === "other" && (
+              <QuickGenres song={song} genres={common} onFiled={refresh} />
+            )}
             {adding === song.id && (
               <AddToPlaylist
                 song={song}

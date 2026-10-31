@@ -1,8 +1,9 @@
 const { chromium } = require("/usr/lib/node_modules/playwright");
 const assert = require("node:assert/strict");
 const { until } = require("./session.cjs");
-// Filing songs under a genre by hand in My music → On this house: one song (and its artist's
-// other songs), then several selected at once. The API is mocked; nothing is changed.
+// Filing songs under a genre by hand in My music → On this house: one tap on a genre files the
+// song (and its artist's other songs), then several selected at once; the songs without a genre
+// on their own; deleting one. The API is mocked; nothing is changed.
 (async () => {
   const browser = await chromium.launch({ headless: true });
   const shots = [];
@@ -24,16 +25,37 @@ const { until } = require("./session.cjs");
       genre,
       source_url: "https://www.youtube.com/watch?v=genre" + String(n).padStart(6, "0"),
     });
-    const songs = [song(1, "other"), song(2, "rap / hip-hop"), song(3, "other")];
-    await page.route(/\/api\/v1\/files\/library\?/, (route) =>
-      route.fulfill({
-        json: {
-          items: songs,
-          total: songs.length,
-          facets: { genres: [{ genre: "other", count: 2 }], types: {}, people: {} },
-          next_offset: null,
-        },
-      }),
+    const songs = [song(1, "other"), song(2, "rap / hip-hop"), song(3, "other")].map((s) => ({
+      ...s,
+      version: 1,
+      can_delete: true,
+    }));
+    const asked = [],
+      deleted = [];
+    await page.route(/\/api\/v1\/files\/library\/music\//, (route) => {
+      deleted.push(route.request().url());
+      return route.fulfill({ json: { status: "completed" } });
+    });
+    await page.route(
+      /\/api\/v1\/files\/library\?/,
+      (route) =>
+        (asked.push(route.request().url()), 0) ||
+        route.fulfill({
+          json: {
+            items: songs,
+            total: songs.length,
+            facets: {
+              genres: [
+                { genre: "rap / hip-hop", count: 9 },
+                { genre: "other", count: 2 },
+                { genre: "pop", count: 4 },
+              ],
+              types: {},
+              people: {},
+            },
+            next_offset: null,
+          },
+        }),
     );
     await page.route(/\/api\/v1\/music\/genre/, (route) => {
       if (route.request().method() === "PUT") {
@@ -54,11 +76,11 @@ const { until } = require("./session.cjs");
     // One song: its "+ Genre" opens the sheet; every genre is a button; its artist can follow.
     await page.getByRole("button", { name: "+ Genre" }).first().click();
     const sheet = page.getByRole("dialog", { name: "Song 1" });
-    await sheet.getByRole("button", { name: "Rap / hip-hop" }).click();
     await sheet.getByLabel("Also the other song by this artist").check();
     await sheet.screenshot({ path: `evidence/latest/genre-sheet-${width}.png` });
-    await sheet.getByRole("button", { name: "Save" }).click();
+    await sheet.getByRole("button", { name: "Rap / hip-hop" }).click(); // filed at once
     await until(() => puts.length >= 1);
+    await sheet.waitFor({ state: "detached" });
     assert.deepEqual(puts[0], {
       source_urls: [songs[0].source_url],
       genre: "rap / hip-hop",
@@ -71,10 +93,25 @@ const { until } = require("./session.cjs");
     await page.getByRole("button", { name: "Set the genre of 2 songs" }).click();
     const many = page.getByRole("dialog", { name: "Genre of 2 songs" });
     await many.getByRole("button", { name: "Latin" }).click();
-    await many.getByRole("button", { name: "Save" }).click();
     await until(() => puts.length >= 2);
     assert.deepEqual(puts[1].source_urls, [songs[0].source_url, songs[2].source_url]);
     assert.equal(puts[1].genre, "latin");
+    // Only the songs without a genre.
+    await page.getByRole("combobox", { name: "Genre" }).selectOption({ label: "No genre yet · 2" });
+    await until(() => asked.some((u) => u.includes("genre=other")));
+    // There, the house's commonest genres sit on each song: one tap, no sheet.
+    await page
+      .getByRole("group", { name: "Genre · Song 1" })
+      .getByRole("button", { name: "Pop" })
+      .click();
+    await until(() => puts.length >= 3);
+    assert.deepEqual(puts[2], { source_urls: [songs[0].source_url], genre: "pop" });
+    await page.screenshot({ path: `evidence/latest/genre-quick-${width}.png` });
+    // Deleting a kept song from the list, after a check.
+    await page.getByRole("button", { name: "Delete · Song 3" }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Delete", exact: true }).click();
+    await until(() => deleted.length >= 1);
+    assert(deleted[0].includes("/files/library/music/s3?version=1"));
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     await page.screenshot({ path: `evidence/latest/genre-list-${width}.png` });
     shots.push(width);

@@ -14,9 +14,12 @@ Newest first.
 - **Ideas, more varied**: one of the house's very top songs lately, a favourite not heard for
   ten days, a kept song rarely played in a genre the house likes, and a housemate's favourite
   (else one of the month's), no two by the same artist or in the same genre.
-- **Genres by hand**: tap a song's genre (or *+ Genre*) in My music → On this house or Files →
-  music: every genre is a button, with *Also the other songs by this artist*. *Select songs*
-  files several at once. Unsorted songs by the same artist follow on their own.
+- **Genres by hand**: *No genre yet* shows only the songs still unsorted, each with the house's
+  commonest genres as one-tap buttons (it then leaves the list; *More…* for the rest). Anywhere
+  else, tap a song's genre (or *+ Genre*) in My music → On this house or Files → music: one tap
+  on a genre files it, with *Also the other songs by this artist*. *Select songs* files or
+  deletes several at once, and each kept song can be deleted from its row. Unsorted songs by
+  the same artist follow on their own.
 - **Subtitle timing**: subtitles early or late move in half seconds from the player (the film
   reloads where it is); Nox does it too, and the next episodes keep the timing.
 

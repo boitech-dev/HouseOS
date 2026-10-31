@@ -4570,5 +4570,9 @@ const french: Record<string, string> = {
   "Select songs": "Choisir des morceaux",
   "Set the genre of {n} songs": "Donner un genre à {n} morceaux",
   "Also the other song by this artist": "Aussi l’autre morceau de cet artiste",
+  "No genre yet": "Sans genre pour l’instant",
+  "Delete {n} songs": "Supprimer {n} morceaux",
+  "Delete {n} songs from the house disk?": "Supprimer {n} morceaux du disque de la maison ?",
+  "More…": "Plus…",
 };
 export default french;
