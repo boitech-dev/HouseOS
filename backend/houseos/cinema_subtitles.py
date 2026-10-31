@@ -1,6 +1,7 @@
 """Bounded complete text sidecars; never read the movie to convert external SRT."""
 
 from pathlib import Path
+import re
 import subprocess
 from .integrations import integration_config
 from .playback import MEDIA_ENV, MediaError, media_command
@@ -78,3 +79,33 @@ def normalize_text(content, directory):
         ) from None
     finally:
         source.unlink(missing_ok=True)
+
+
+TIMING = re.compile(r"^((?:\d+:)?\d{2}:\d{2}\.\d{3})\s+-->\s+((?:\d+:)?\d{2}:\d{2}\.\d{3})(.*)$")
+
+
+def seconds(text):
+    *hours, minutes, rest = text.split(":")
+    return int(hours[0] if hours else 0) * 3600 + int(minutes) * 60 + float(rest)
+
+
+def stamp(value):
+    millis = round(value * 1000)
+    return f"{millis // 3600000:02}:{millis // 60000 % 60:02}:{millis // 1000 % 60:02}.{millis % 1000:03}"
+
+
+def shift_vtt(text, offset):
+    """WebVTT cues moved by `offset` seconds (positive: later). A cue that would end before the
+    start is dropped, one that would start before it starts at 0. Headers and notes stay."""
+    blocks = []
+    for block in text.replace("\r\n", "\n").split("\n\n"):
+        lines = block.split("\n")
+        at = next((i for i, line in enumerate(lines) if TIMING.match(line)), None)
+        if at is not None:
+            start, end, settings = TIMING.match(lines[at]).groups()
+            start, end = seconds(start) + offset, seconds(end) + offset
+            if end <= 0:
+                continue
+            lines[at] = stamp(max(0.0, start)) + " --> " + stamp(end) + settings
+        blocks.append("\n".join(lines))
+    return "\n\n".join(blocks)

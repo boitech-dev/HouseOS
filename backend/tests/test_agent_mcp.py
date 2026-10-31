@@ -33,6 +33,15 @@ def test_an_agent_token_lists_and_calls_only_its_groups_until_revoked(client):
     assert rpc(c, "hos_wrong", "initialize").status_code == 401
     hello = rpc(c, token, "initialize", {"protocolVersion": "2025-03-26"}).json()["result"]
     assert hello["protocolVersion"] == "2025-03-26" and hello["serverInfo"]["name"] == "houseos"
+    for asked, answered in (("2025-11-25", "2025-11-25"), ("1999-01-01", "2025-06-18")):
+        assert (
+            rpc(c, token, "initialize", {"protocolVersion": asked}).json()["result"]["protocolVersion"]
+            == answered
+        )
+    assert c.get("/mcp").status_code == 405  # no event stream here
+    later = c.post("/mcp", json={"jsonrpc": "2.0", "id": 9, "method": "ping"},
+                   headers={"Authorization": "Bearer " + token, "MCP-Protocol-Version": "2025-11-25"})  # fmt: skip
+    assert later.json()["result"] == {}
     assert c.post("/mcp", json={"jsonrpc": "2.0", "method": "notifications/initialized"},
                   headers={"Authorization": "Bearer " + token}).status_code == 202  # fmt: skip
 

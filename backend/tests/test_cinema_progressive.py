@@ -704,3 +704,104 @@ def test_a_complete_stream_the_chromecast_took_for_live_is_loaded_again_once(tmp
             assert not cinema.settle_stream(db, row, device)  # once
     finally:
         f.tearDown()
+
+
+def test_subtitle_cues_shift_later_and_earlier_dropping_those_before_the_start():
+    from houseos.cinema_subtitles import shift_vtt
+
+    text = (
+        "WEBVTT\r\nX-TIMESTAMP-MAP=MPEGTS:900000,LOCAL:00:00:00.000\r\n\r\n"
+        "1\r\n00:00:01.000 --> 00:00:02.500 line:90%\r\nHello\r\n\r\n"
+        "59:58.000 --> 01:00:01.000\r\nBye\r\n"
+    )
+    later = shift_vtt(text, 1.5)
+    assert "00:00:02.500 --> 00:00:04.000 line:90%\nHello" in later
+    assert "00:59:59.500 --> 01:00:02.500\nBye" in later
+    assert later.startswith("WEBVTT\nX-TIMESTAMP-MAP=MPEGTS:900000,LOCAL:00:00:00.000\n\n1\n")
+    earlier = shift_vtt(text, -2)
+    assert "00:00:00.000 --> 00:00:00.500 line:90%" in earlier  # starts at 0, ends where it should
+    assert "Hello" not in shift_vtt(text, -2.5)  # over before the film starts: gone
+    assert "00:59:56.000 --> 00:59:59.000\nBye" in earlier
+
+
+def test_a_subtitle_offset_reloads_the_film_where_it_is_and_the_relay_serves_moved_cues(
+    tmp_path, monkeypatch
+):
+    import asyncio
+    import hashlib
+    from datetime import timedelta
+    from unittest.mock import patch
+    from sqlalchemy.orm import Session
+    from starlette.requests import Request
+    import test_cinema
+    from houseos import cinema
+
+    f = test_cinema.CinemaTests()
+    f.setUp()
+    f.workflow()
+    monkeypatch.setattr(cinema.settings, "runtime_root", tmp_path)
+    output = tmp_path / "cinema" / "ready"
+    output.mkdir(parents=True)
+    (output / "video0.vtt").write_text("WEBVTT\n\n00:00:10.000 --> 00:00:12.000\nBonjour\n")
+    token = "fixture"
+
+    def playing(mode):
+        with Session(f.engine) as db:
+            row = db.get(cinema.CinemaWorkflow, "workflow-one")
+            row.state, row.version = "playing_observed", 1
+            row.data = {
+                **row.data,
+                "_prepared": {"streaming": True, "path": str(output / "master.m3u8"), "position_offset": 0},
+                "plan": {
+                    "duration": 120,
+                    "expected_item": "ours",
+                    "subtitle": {"id": "2"},
+                    "subtitle_mode": mode,
+                },
+                "observation": {"state": "active", "identity": "matched"},
+                "checkpoint": {"position": 30, "at": cinema.utcnow().isoformat()},
+                "_selected_source": row.data["_sources"][0]["id"],
+            }
+            device = db.get(cinema.CinemaDevice, f.device_id)
+            device.owner_workflow, device.adapter, device.observed_at = row.id, "cast", cinema.utcnow()
+            if not db.get(cinema.CinemaRelay, hashlib.sha256(token.encode()).hexdigest()):
+                db.add(
+                    cinema.CinemaRelay(
+                        token_hash=hashlib.sha256(token.encode()).hexdigest(),
+                        workflow_id=row.id,
+                        device_address="192.0.2.17",
+                        path=str(output / "master.m3u8"),
+                        mime="application/vnd.apple.mpegurl",
+                        expires_at=cinema.utcnow() + timedelta(hours=1),
+                    )
+                )
+            db.commit()
+
+    def shift(offset):
+        return f.client.post(
+            "/api/v1/cinema/workflows/workflow-one/change", json={"version": 1, "subtitle_offset": offset}
+        )
+
+    try:
+        playing("burn")
+        with patch("houseos.cinema_cast.execute_cast") as play:
+            refused = shift(1.5)
+            assert refused.status_code == 422 and refused.json()["detail"]["code"] == "SUBTITLE_FIXED"
+            play.assert_not_called()
+        playing("webvtt")
+        with patch("houseos.cinema_cast.execute_cast") as play:
+            moved = shift(1.5)
+            assert moved.status_code == 200, moved.text
+            assert moved.json()["subtitle_offset"] == 1.5 and moved.json()["state"] == "command_sent"
+            assert 30 <= play.call_args.args[4]["position"] < 32  # loaded again where it plays
+        assert f.client.get("/api/v1/cinema/current").json()["current"]["subtitle_timing"] == "adjustable"
+        with Session(f.engine) as db:
+            request = Request({"type": "http", "method": "GET", "headers": [], "client": ("192.0.2.17", 1)})
+            response = cinema.receiver_media(token, "video0.vtt", request, db)
+
+            async def read():
+                return b"".join([chunk async for chunk in response.body_iterator])
+
+            assert b"00:00:11.500 --> 00:00:13.500\nBonjour" in asyncio.run(read())
+    finally:
+        f.tearDown()

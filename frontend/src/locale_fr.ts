@@ -4548,5 +4548,13 @@ const french: Record<string, string> = {
   "Tailscale: from anywhere, on a device in the same tailnet.":
     "Tailscale : de partout, sur un appareil du même tailnet.",
   "At home: on this house's network.": "À la maison : sur le réseau de la maison.",
+  "Subtitle timing": "Décalage des sous-titres",
+  "Subtitles earlier": "Sous-titres plus tôt",
+  "Subtitles later": "Sous-titres plus tard",
+  Reset: "Réinitialiser",
+  "The film reloads where it is with this timing…":
+    "Le film se recharge au même moment avec ce décalage…",
+  "These subtitles are part of the picture or shown by the TV: their timing can’t change.":
+    "Ces sous-titres font partie de l’image ou sont affichés par la TV : leur décalage ne peut pas changer.",
 };
 export default french;

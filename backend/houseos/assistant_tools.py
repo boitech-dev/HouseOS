@@ -956,7 +956,7 @@ def tool_catalogue():
         ),
         "cinema_change": (
             CinemaChange,
-            "Prepare a track, source or screen change; returns an approval.",
+            "Prepare a track, source or screen change (returns an approval); subtitle_offset alone applies at once.",
             lambda b, a, d: cinema.change(
                 b.workflow_id, cinema.Change(**b.model_dump(exclude={"workflow_id"})), a, d
             ),

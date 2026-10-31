@@ -54,7 +54,8 @@ DOMAINS = {
   "off" only if they want none), the screen from devices_list (the resident's preferred one)
   and the position; skip_intros true if they asked to skip openings and endings. If something
   else is on that screen it returns an approval card; replace true once they said to replace it.
-- Without "play", describe the suggestion in one line (quality, audio, subtitles) and offer it.""",
+- Without "play", describe the suggestion in one line (quality, audio, subtitles) and offer it.
+- Subtitles early or late: cinema_change with subtitle_offset in seconds (positive = later, 0 resets).""",
     "tv": """TV
 - The TV targets in context give the display, its current input, inputs and state. Call
   tv_control directly with them (input label, volume percent 0-100, power); it returns a
