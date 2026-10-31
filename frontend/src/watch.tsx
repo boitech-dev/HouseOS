@@ -316,9 +316,9 @@ export function Watch() {
               {t("Open its film or episode to play exactly this file.")}
             </Notice>
           )}
-          {shelf ? (
-            <SeeAll label={shelf.label} path={shelf.path} poster={poster} onBack={leaveShelf} />
-          ) : query ? (
+          {/* A search or a filter covers the whole tab, even from a row's page; clearing it
+              returns to that page. */}
+          {query ? (
             <SearchResults
               kind={kind}
               query={query}
@@ -338,6 +338,8 @@ export function Watch() {
             />
           ) : filtering(filters) ? (
             <DiscoverResults path={discoverPath(kind, "", filters)} poster={poster} />
+          ) : shelf ? (
+            <SeeAll label={shelf.label} path={shelf.path} poster={poster} onBack={leaveShelf} />
           ) : (
             <>
               <Problem error={shelves.error} onRetry={shelves.reload} />
