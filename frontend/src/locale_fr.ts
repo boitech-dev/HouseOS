@@ -4576,5 +4576,9 @@ const french: Record<string, string> = {
   "Find subtitles in this language": "Trouver des sous-titres dans cette langue",
   "Search OpenSubtitles (API key)": "Chercher sur OpenSubtitles (clé API)",
   "{language} subtitles inside": "Sous-titres {language} dans le fichier",
+  "Subtitles inside": "Sous-titres dans le fichier",
+  "{language}, found online when it starts": "{language}, trouvés en ligne au lancement",
+  "found online for this version when it starts":
+    "trouvés en ligne pour cette version au lancement",
 };
 export default french;

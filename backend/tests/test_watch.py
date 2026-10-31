@@ -535,3 +535,27 @@ def test_find_subtitles_online_for_the_version_on_the_card_without_an_account():
         assert missing.status_code in (404, 409)
     finally:
         f.tearDown()
+
+
+def test_a_launch_can_ask_subtitles_in_another_language_for_this_viewing():
+    f = test_cinema.CinemaTests()
+    f.setUp()
+    f.workflow()
+    seen = []
+
+    def found(db, row, source, actor, audio_track=None):
+        seen.append(
+            (row.data["request"].get("subtitle_language"), row.data["request"].get("always_subtitles"))
+        )
+        return None
+
+    try:
+        with patch.object(cinema, "found_subtitle", side_effect=found), patch.object(cinema, "prepare_plan"):
+            f.client.post(
+                "/api/v1/cinema/workflows/workflow-one/launch",
+                json={"version": 1, "source_id": "source-one", "device_id": f.device_id,
+                      "subtitle_track": "auto", "subtitle_language": "fr"},
+            )  # fmt: skip
+        assert seen == [("fr", True)]  # French tonight; the next episodes read the same request
+    finally:
+        f.tearDown()

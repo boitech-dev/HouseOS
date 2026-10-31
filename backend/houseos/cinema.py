@@ -2287,6 +2287,9 @@ def launch(identity: str, body: Launch, actor: Actor = Depends(require_actor), d
     device = db.get(CinemaDevice, body.device_id)
     if not source or not device:
         raise HTTPException(404, "Release or screen not found")
+    if body.subtitle_language:  # this viewing's language: the next episodes keep it too
+        asked = {"subtitle_language": body.subtitle_language, "always_subtitles": True}
+        row.data = {**row.data, "request": {**(row.data.get("request") or {}), **asked}}
     if body.subtitle_track == "auto":  # none in the file in the viewer's language: one matched to it
         found = found_subtitle(db, row, source, actor, body.audio_track)
         body = body.model_copy(update={"subtitle_track": found or "off"})

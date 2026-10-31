@@ -94,6 +94,9 @@ const fs = require("node:fs");
         });
       return route.fulfill({ json: { status: "completed" } });
     }
+    if (path === "/preferences")
+      // English subtitles saved: French is a choice for one viewing (guests at home).
+      return route.fulfill({ json: { subtitle_language: "en", languages: ["en"] } });
     const json =
       path === "/shelves"
         ? {
@@ -191,7 +194,8 @@ const fs = require("node:fs");
   await card.getByRole("button", { name: /^Version/ }).click();
   await versions.getByText("original audio · no subtitles in the file", { exact: true }).waitFor();
   // Only versions with subtitles in your language inside: the 4K one (none) steps aside.
-  const inside = versions.getByRole("button", { name: /subtitles inside/ });
+  const inside = versions.getByRole("button", { name: "French subtitles inside" });
+  await versions.getByRole("button", { name: "English subtitles inside" }).waitFor();
   await inside.click();
   await versions.getByRole("button", { name: /4K/ }).waitFor({ state: "detached" });
   assert.equal(await versions.getByRole("button", { name: /1080p/ }).count(), 1);
@@ -236,6 +240,8 @@ const fs = require("node:fs");
     ],
     ["best", "tv", "1", "10", 2520],
   );
+  // The file's French track, chosen with English saved: the next episodes keep French too.
+  assert.equal(launch.subtitle_language, "fr");
   assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
 
   // An episode: skipping openings and endings is chosen on the card, for the streak.
@@ -247,12 +253,21 @@ const fs = require("node:fs");
   await skip.waitFor({ timeout: 10000 });
   assert(!(await skip.isChecked()), "off until the person turns it on");
   await skip.check();
+  // Guests tonight: French subtitles found online, for this episode and the next ones only.
+  await episodeCard.getByRole("button", { name: /^Subtitles/ }).click();
+  await page
+    .getByRole("dialog", { name: "Subtitles" })
+    .getByRole("button", { name: /^French.*found online/ })
+    .click();
+  await episodeCard.getByText("French, found online when it starts", { exact: true }).waitFor();
   await episodeCard.screenshot({ path: "evidence/latest/watch-tonight-episode.png" });
   await episodeCard.getByRole("button", { name: "Play on the TV", exact: true }).click();
   await episodeCard.getByRole("button", { name: "Replace", exact: true }).click();
   await page.getByText("Sending Fixture Show to Living-room TV…", { exact: true }).waitFor();
   const episodeLaunch = writes.filter((w) => w.path === "/workflows/wf/launch").pop().body;
   assert.equal(episodeLaunch.skip_intros, true);
+  assert.equal(episodeLaunch.subtitle_track, "auto");
+  assert.equal(episodeLaunch.subtitle_language, "fr");
   assert.equal(launch.skip_intros, undefined, "a film's launch sends no choice");
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto(base + "/watch");

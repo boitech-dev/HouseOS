@@ -1176,15 +1176,19 @@ function Tonight({
   });
   const workflow = flow.data;
   const candidates: Obj[] = workflow?.choice_set?.candidates || [];
-  // The version list can show only versions with subtitles in the viewer's language in the file.
-  const [inside, setInside] = useState(false);
+  // Subtitle languages on offer: yours first, then French and English (guests at home).
   const subLanguage: string = langCode(
-    preferences.data?.subtitle_language || preferences.data?.languages?.[0] || "fr",
+    preferences.data?.subtitle_language || preferences.data?.languages?.[0] || "en",
   );
-  const hasInside = (c: Obj) =>
-    (c.subtitles || []).some(
-      (s: Obj) => !s.external && !s.forced && langCode(s.language) === subLanguage,
-    );
+  const subLanguages: string[] = [
+    ...new Set([subLanguage, ...(preferences.data?.languages || []).map(langCode), "fr", "en"]),
+  ].filter(Boolean);
+  // Subtitles found online in another language for this viewing only (your saved one stays).
+  const [onlineLanguage, setOnlineLanguage] = useState<string | null>(null);
+  // The version list can show only versions with subtitles in one language in the file.
+  const [inside, setInside] = useState("");
+  const hasInside = (c: Obj, code: string) =>
+    (c.subtitles || []).some((s: Obj) => !s.external && !s.forced && langCode(s.language) === code);
   const candidate = candidates.find((c) => c.id === sourceId) || candidates[0];
   // External subtitles attach to the release; they show up on the selected summary.
   const attached =
@@ -1213,6 +1217,13 @@ function Tonight({
         device_id: deviceId,
         audio_track: audioId,
         subtitle_track: subtitleId,
+        // A language other than yours, for this viewing and the episodes after it.
+        subtitle_language:
+          subtitleId === "auto"
+            ? onlineLanguage || undefined
+            : subtitleTrack && langCode(subtitleTrack.language) !== subLanguage
+              ? langCode(subtitleTrack.language)
+              : undefined,
         position: start,
         replace,
         skip_intros: season != null ? skipIntros : undefined,
@@ -1410,7 +1421,12 @@ function Tonight({
               !candidate
                 ? "—"
                 : subtitleId === "auto"
-                  ? t("None in the file: found online when it starts, if needed")
+                  ? onlineLanguage
+                    ? t("{language}, found online when it starts").replace(
+                        "{language}",
+                        trackLanguage(onlineLanguage),
+                      )
+                    : t("None in the file: found online when it starts, if needed")
                   : subtitleName(subtitleTrack),
             )}
             {row(
@@ -1537,13 +1553,22 @@ function Tonight({
             )
           }
         >
-          {/* Only the versions that carry subtitles in your language inside the file. */}
-          <Chip kind="filter" selected={inside} onToggle={() => setInside(!inside)}>
-            {t("{language} subtitles inside").replace("{language}", trackLanguage(subLanguage))}
-          </Chip>
+          {/* Only the versions that carry subtitles in one language inside the file. */}
+          <ChipGroup label={t("Subtitles inside")}>
+            {subLanguages.map((code) => (
+              <Chip
+                key={code}
+                kind="filter"
+                selected={inside === code}
+                onToggle={() => setInside(inside === code ? "" : code)}
+              >
+                {t("{language} subtitles inside").replace("{language}", trackLanguage(code))}
+              </Chip>
+            ))}
+          </ChipGroup>
           <List label={t("Version")}>
             {candidates
-              .filter((c) => !inside || hasInside(c))
+              .filter((c) => !inside || hasInside(c, inside))
               .map((c) => (
                 <Choice
                   key={c.id}
@@ -1568,7 +1593,7 @@ function Tonight({
                 />
               ))}
             {unchecked
-              .filter((c) => !inside || SUBS_IN_NAME[subLanguage]?.test(c.release))
+              .filter((c) => !inside || SUBS_IN_NAME[inside]?.test(c.release))
               .map((c) => (
                 <Choice
                   key={c.id}
@@ -1625,6 +1650,7 @@ function Tonight({
               chosen={subtitleId === "off"}
               onPick={() => {
                 setSubtitle("off");
+                setOnlineLanguage(null);
                 close();
               }}
             />
@@ -1636,6 +1662,20 @@ function Tonight({
                 chosen={s.id === subtitleId}
                 onPick={() => {
                   setSubtitle(s.id);
+                  setOnlineLanguage(null);
+                  close();
+                }}
+              />
+            ))}
+            {subLanguages.map((code) => (
+              <Choice
+                key={"online-" + code}
+                title={trackLanguage(code)}
+                detail={t("found online for this version when it starts")}
+                chosen={subtitleId === "auto" && (onlineLanguage || subLanguage) === code}
+                onPick={() => {
+                  setSubtitle("auto");
+                  setOnlineLanguage(code === subLanguage ? null : code);
                   close();
                 }}
               />

@@ -193,6 +193,9 @@ class Launch(Version):
     replace: bool = False
     # Skip openings and endings in this episode and the ones played after it.
     skip_intros: bool | None = None
+    # Subtitles in this language for this viewing (and the episodes autoplay starts after it),
+    # without changing the viewer's saved one: French for guests tonight.
+    subtitle_language: str | None = Field(default=None, pattern="^[a-z]{2,3}$")
 
 
 class Change(Version):
