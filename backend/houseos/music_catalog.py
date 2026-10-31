@@ -18,8 +18,8 @@ from .music_genre import deezer, genre_of, youtube_thumbnail
 BATCH = 20  # songs per minute: a few Deezer requests each, far under its 50 per 5 s
 # Bumped when the matching improves: songs still "other", or filed by a guess Deezer never
 # confirmed, are looked at once more.
-MATCHER = 5  # 3: the artist's genre when Deezer lacks the song; 4: Deezer asked whatever the guess;
-# 5: the artist's genre when the song's album has none, then MusicBrainz's
+MATCHER = 6  # 3: the artist's genre when Deezer lacks the song; 4: Deezer asked whatever the guess;
+# 5: the artist's genre when the song's album has none, then MusicBrainz's; 6: cartoon themes
 state = {"idle_until": 0.0}
 
 
