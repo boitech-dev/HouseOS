@@ -2812,6 +2812,17 @@ function HouseSongs({ music, pick }: { music?: Playback; pick?: (song: Obj) => P
   const first = useData("/files/library?" + query);
   const { run, busy, error } = useAction(async () => {});
   const genres: Obj[] = first.data?.facets?.genres || [];
+  const choices: string[] = first.data?.choices || [];
+  const user = useUser();
+  const [filing, setFiling] = useState("");
+  // The house's other unsorted songs by that artist follow the genre picked here.
+  const file = (song: Obj, chosen: string) =>
+    act(song, async () => {
+      await api("/music/genre", "PUT", { source_url: song.source_url, genre: chosen });
+      setFiling("");
+      toast(t("Filed under {genre}.").replace("{genre}", t(chosen || "other")));
+      await Promise.all([first.reload(), pages.reload()]);
+    });
   const act = (song: Obj, fn: () => Promise<unknown>) =>
     void run(async () => {
       await fn();
@@ -2892,10 +2903,34 @@ function HouseSongs({ music, pick }: { music?: Playback; pick?: (song: Obj) => P
                     label={t("Add to playlist") + " · " + song.title}
                     onClick={() => setAdding(adding === song.id ? "" : song.id)}
                   />
+                  {user?.role !== "guest" && (
+                    <IconButton
+                      icon="bookmark"
+                      size="s"
+                      pressed={filing === song.id}
+                      label={t("Genre") + " · " + song.title}
+                      onClick={() => setFiling(filing === song.id ? "" : song.id)}
+                    />
+                  )}
                 </>
               )
             }
           >
+            {filing === song.id && (
+              <Select
+                aria-label={t("Genre") + " · " + song.title}
+                value={song.genre === "other" ? "" : song.genre}
+                disabled={busy}
+                onChange={(e) => file(song, e.target.value)}
+              >
+                <option value="">{t("Let the house decide")}</option>
+                {choices.map((g) => (
+                  <option key={g} value={g}>
+                    {t(g)}
+                  </option>
+                ))}
+              </Select>
+            )}
             {adding === song.id && (
               <AddToPlaylist
                 song={song}

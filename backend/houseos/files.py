@@ -1826,6 +1826,14 @@ def film_kind(title, parent):
     return "series" if top.kind in {"series", "episode"} else "film"
 
 
+def genre_choices(db):
+    """The genres a resident can file a song under: the house's own, then the built-in ones."""
+    from .house_settings import get_house_settings
+    from .music_genre import NAMES, custom_families
+
+    return [name for name, _ in custom_families(get_house_settings(db)["music_genres"])] + NAMES
+
+
 def library_songs(db):
     """Every kept song with what the house knows about it, and who played it."""
     from .music import history_key, source_metadata
@@ -2003,6 +2011,7 @@ def library(
             "types": facets["types"],
             "people": facets["people"],
         },
+        **({"choices": genre_choices(db)} if kind == "music" else {}),
         "next_offset": offset + 60 if len(items) > offset + 60 else None,
     }
 

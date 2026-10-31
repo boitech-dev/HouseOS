@@ -255,3 +255,35 @@ def test_a_failed_lookup_keeps_what_was_known_and_tries_again_in_an_hour(catalog
     evidence = row.data["evidence"]
     assert evidence["title"] == "Song" and evidence["uploader"] == "Artist"  # nothing wiped
     assert evidence["retry_at"] < (utcnow() + timedelta(hours=1, minutes=1)).isoformat() + "Z"
+
+
+def test_unsorted_songs_follow_the_house_s_songs_by_that_artist_and_a_choice(domain):
+    db, actors = domain
+    now = "2026-10-31T00:00:00Z"
+
+    def history(name, title, uploader, genres=()):
+        url = "https://www.youtube.com/watch?v=" + name.ljust(11, "x")
+        evidence = {"checked_at": now, "title": title, "uploader": uploader, "genres": list(genres)}
+        db.add(Record(id=m.history_key(url), kind="music.history", owner_id=actors[0].id, visibility="house",
+                      data={"source_url": url, "evidence": evidence, "genre": genre_of(evidence)}))  # fmt: skip
+        return url
+
+    history("beef1", "Ojos Rojos", "YUNG BEEF AKA LANA DEL REY", ["Rap/Hip Hop"])
+    history("beef2", "Gas", "YUNG BEEF AKA LANA DEL REY", ["Rap/Hip Hop"])
+    history("beef3", "Ready", "YUNG BEEF AKA LANA DEL REY", ["Pop"])
+    lone = history("beef4", "Matame", "YUNG BEEF AKA LANA DEL REY")
+    single = history("sch1", "SCH - Gomorra", "Some fan channel", ["Rap/Hip Hop"])
+    other = history("sch2", "SCH - Massimo", "Another fan")
+    db.commit()
+    assert music_catalog.from_the_house(db) == 1  # two of three say rap; one song alone isn't enough
+    genre = lambda url: db.get(Record, m.history_key(url)).data["genre"]  # noqa: E731
+    assert genre(lone) == "rap / hip-hop" and genre(other) == "other"
+    assert genre_of(db.get(Record, m.history_key(lone)).data["evidence"]) == "rap / hip-hop"  # stats agree
+    # A resident's choice counts as two: SCH's other song follows it.
+    music_catalog.choose(db, single, "rap / hip-hop")
+    assert genre(other) == "rap / hip-hop"
+    music_catalog.choose(db, other, "chanson")  # their own choice wins over the house's
+    assert genre(other) == "chanson"
+    with pytest.raises(ValueError):
+        music_catalog.choose(db, other, "made up")
+    assert genre_of({"title": "Les Mystérieuses Cités d'Or - Générique (1982)"}) == "anime"

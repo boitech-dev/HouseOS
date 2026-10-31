@@ -4524,8 +4524,8 @@ const french: Record<string, string> = {
   Token: "Jeton",
   "Shown only now. Lost? Revoke it and make another.":
     "Affiché seulement maintenant. Perdu ? Révoque-le et crées-en un autre.",
-  "It goes in the header Authorization: Bearer <token>. With this house's own certificate, tick “trust this server's certificate”.":
-    "Il va dans l’en-tête Authorization : Bearer <jeton>. Avec le certificat propre à cette maison, coche « faire confiance au certificat de ce serveur ».",
+  "It goes in the header Authorization: Bearer <token>. At the home address, with this house's own certificate, tick “trust this server's certificate”.":
+    "Il va dans l’en-tête Authorization : Bearer <jeton>. À l’adresse de la maison, avec son propre certificat, coche « faire confiance au certificat de ce serveur ».",
   "Copy the token": "Copier le jeton",
   "Copy for Claude Code": "Copier pour Claude Code",
   "used {when}": "utilisé {when}",
@@ -4543,5 +4543,10 @@ const french: Record<string, string> = {
   "The board: tasks, groceries, calendar, notes": "Le tableau : tâches, courses, agenda, notes",
   "Messages to housemates (the agent asks you first)":
     "Messages aux colocs (l’agent te demande d’abord)",
+  "Filed under {genre}.": "Rangé dans {genre}.",
+  "Let the house decide": "Laisser la maison décider",
+  "Tailscale: from anywhere, on a device in the same tailnet.":
+    "Tailscale : de partout, sur un appareil du même tailnet.",
+  "At home: on this house's network.": "À la maison : sur le réseau de la maison.",
 };
 export default french;

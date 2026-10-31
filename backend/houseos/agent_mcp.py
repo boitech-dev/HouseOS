@@ -447,9 +447,17 @@ def list_agents(actor=Depends(require_admin), db=Depends(get_db)):
     rows = db.scalars(
         select(Record).where(Record.kind == KIND, Record.deleted_at.is_(None)).order_by(Record.created_at)
     )
+    from . import access
+
     return {
         "items": [shown(row, db) for row in rows],
         "groups": {name: list(tools) for name, tools in GROUPS.items()},
+        # Every trusted HTTPS address: the home network's, and a Tailscale one for an agent
+        # on another network (it needs the same tailnet).
+        "addresses": sorted(
+            (o + "/mcp" for o in access.state()["origins"] if o.startswith("https://")),
+            key=lambda url: (".ts.net" not in url, url),
+        ),
     }
 
 

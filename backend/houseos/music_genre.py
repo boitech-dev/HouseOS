@@ -28,6 +28,9 @@ FAMILIES = [
             "ending theme",
             "full ending",
             "tv size",
+            "générique",  # a cartoon's theme song, in French
+            "generique",
+            "cabecera",  # in Spanish
             "vocaloid",
             "hatsune miku",
             r"re:(?<!\w)(op|ed)\s?\d{1,2}(?!\d)",  # "One Piece OP 7", "ED3"
@@ -146,7 +149,11 @@ def custom_families(extra):
 
 def genre_of(meta: dict, extra=()) -> str:
     """The family for what a source says: its genre, then Deezer's, then tags, then the title
-    (and uploader). A genre the house added wins wherever its words appear."""
+    (and uploader). A genre the house added wins wherever its words appear. A genre a resident
+    chose comes first; the one the house's other songs by that artist share comes last."""
+    names = NAMES + [name for name, _ in custom_families(extra)]
+    if meta.get("chosen") in names:
+        return meta["chosen"]
     texts = [str(meta.get("genre") or "")]
     texts += [str(g) for g in (meta.get("genres") or [])[:5]]
     texts += [str(t) for t in (meta.get("tags") or [])[:30]]
@@ -163,7 +170,7 @@ def genre_of(meta: dict, extra=()) -> str:
             for family, words in families:
                 if any(families is not ours or m.group(0) not in TITLE_NOISE for m in words.finditer(text)):
                     return family
-    return "other"
+    return meta["house"] if meta.get("house") in names else "other"
 
 
 # ---------- artist and title from what YouTube and SoundCloud show ----------

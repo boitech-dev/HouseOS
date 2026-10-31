@@ -174,6 +174,7 @@ def enrich(db, limit=BATCH):
 
     todo = [identity for identity, data in rows if due(data)][:limit]
     if not todo:
+        from_the_house(db, rows, house["music_genres"])
         state["idle_until"] = time.monotonic() + 600
         if sort_requested(db):
             db.get(Integration, "music_genres", with_for_update=True).config = {"sort_requested": False}
@@ -203,3 +204,80 @@ def enrich(db, limit=BATCH):
             db.commit()
             done += 1
     return done
+
+
+def names_of(data):
+    """The folded names a song goes by: its artist, the artist in its title, its channel."""
+    from .music_genre import artist_and_track, channel_artist, fold
+
+    evidence = data.get("evidence") or {}
+    title = evidence.get("title") or data.get("title") or ""
+    uploader = evidence.get("uploader") or data.get("uploader") or ""
+    found = {
+        fold(artist_and_track(title, uploader)[0]),
+        fold(channel_artist(uploader)),
+        fold(evidence.get("artist") or data.get("artist") or ""),
+    }
+    return found - {""}
+
+
+def from_the_house(db, rows=None, extra=()):
+    """Songs no lookup could sort take the genre of the house's other songs by the same artist
+    or channel: two or more of them, two thirds agreeing (underground scenes, SoundCloud uploads
+    the catalogues don't know). Only songs sorted on their own evidence vote. Commits; returns
+    how many changed."""
+    from collections import Counter, defaultdict
+
+    rows = songs(db) if rows is None else rows
+    votes = defaultdict(Counter)
+    own = {}
+    for identity, data in rows:
+        evidence = {k: v for k, v in (data.get("evidence") or {}).items() if k != "house"}
+        own[identity] = (
+            genre_of(evidence, extra) if evidence.get("checked_at") or evidence.get("chosen") else "other"
+        )
+        if own[identity] != "other":
+            for name in names_of(data):  # a resident's choice counts as two: one is enough
+                votes[name][own[identity]] += 2 if evidence.get("chosen") else 1
+    changed = 0
+    for identity, data in rows:
+        if own[identity] != "other" or not (data.get("evidence") or {}).get("checked_at"):
+            continue
+        tally = Counter()
+        for name in names_of(data):
+            tally.update(votes.get(name, {}))
+        best, count = (tally.most_common(1) or [(None, 0)])[0]
+        house = best if count >= 2 and count * 3 >= 2 * sum(tally.values()) else None
+        if (data.get("evidence") or {}).get("house") == house:
+            continue
+        row = db.get(Record, identity, with_for_update=True)
+        row.data = {
+            **row.data,
+            "evidence": {**(row.data.get("evidence") or {}), "house": house},
+            "genre": house or "other",
+        }
+        changed += 1
+    db.commit()
+    return changed
+
+
+def choose(db, url, genre, extra=()):
+    """A resident files a song under a genre (or "" to let the house decide again): kept on the
+    song's records, then the house's other songs by that artist follow. The caller checks rights."""
+    from .music_genre import NAMES, custom_families
+
+    if genre and genre not in NAMES + [name for name, _ in custom_families(extra)]:
+        raise ValueError(genre)
+    records = [db.get(Record, history_key(url), with_for_update=True)]
+    records += db.scalars(
+        select(Record)
+        .where(Record.kind == "music.download", Record.data["source_url"].as_string() == url)
+        .with_for_update()
+    ).all()
+    records = [r for r in records if r and not r.deleted_at]
+    for row in records:
+        evidence = {**(row.data.get("evidence") or {}), "chosen": genre or None}
+        row.data = {**row.data, "evidence": evidence, "genre": genre_of(evidence, extra)}
+    db.commit()
+    from_the_house(db, extra=extra)
+    return len(records)

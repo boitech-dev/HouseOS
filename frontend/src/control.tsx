@@ -719,7 +719,11 @@ function Agents() {
   const [made, setMade] = useState<Obj | null>(null),
     [revoking, setRevoking] = useState<Obj | null>(null);
   const people = items(users.data).filter((u) => u.active);
-  const url = location.origin + "/mcp";
+  // The house's trusted addresses (a Tailscale one first: it works from another network).
+  const addresses: string[] = agents.data?.addresses?.length
+    ? agents.data.addresses
+    : [location.origin + "/mcp"];
+  const url = addresses[0];
   const copied = async (text: string) => (await copyText(text)) && toast(t("Copied"));
   return (
     <Section
@@ -766,15 +770,25 @@ function Agents() {
         <Surface material="raised">
           <Stack>
             <Text style="title-m">{t("Paste these into the agent's settings.")}</Text>
-            <Field label={t("Address")}>
-              <Input readOnly value={url} onFocus={(e) => e.target.select()} />
-            </Field>
+            {addresses.map((address) => (
+              <Field
+                key={address}
+                label={t("Address")}
+                hint={
+                  address.includes(".ts.net")
+                    ? t("Tailscale: from anywhere, on a device in the same tailnet.")
+                    : t("At home: on this house's network.")
+                }
+              >
+                <Input readOnly value={address} onFocus={(e) => e.target.select()} />
+              </Field>
+            ))}
             <Field label={t("Token")} hint={t("Shown only now. Lost? Revoke it and make another.")}>
               <Input readOnly value={made.token} onFocus={(e) => e.target.select()} />
             </Field>
             <Text style="body-s" tone="muted">
               {t(
-                "It goes in the header Authorization: Bearer <token>. With this house's own certificate, tick “trust this server's certificate”.",
+                "It goes in the header Authorization: Bearer <token>. At the home address, with this house's own certificate, tick “trust this server's certificate”.",
               )}
             </Text>
             <Cluster space={2}>

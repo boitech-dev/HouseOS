@@ -9,6 +9,15 @@ Newest first.
 
 ### 2026-10-31
 
+- **Songs sorted into genres**: the house's songs list showed "other" for every kept song nobody
+  had played yet (about 400 here) though its genre was known. Songs no catalogue knows now take
+  the genre of the house's other songs by the same artist or channel (two at least, two thirds
+  agreeing), and a cartoon's *générique* or *cabecera* is filed with anime. Residents can file
+  any song themselves (My music → On this house, the bookmark button); that artist's other
+  unsorted songs follow.
+- **Agents from another network**: *Control Room → Agents* lists every address of the house,
+  its Tailscale one first.
+
 - **Connect your own assistant (MCP)**: `/mcp` serves Nox's tools to any MCP client (Streamable
   HTTP). *Control Room → Agents* makes a token per agent, acting as one person in the groups you
   pick (music, films and TV, smart home, the board, messages); it shows once and can be revoked.

@@ -218,6 +218,29 @@ def sort_genres(actor=Depends(require_actor), db=Depends(get_db)):
     return {"songs": count, "minutes": -(-count // music_catalog.BATCH)}
 
 
+class GenreChoice(Input):
+    source_url: str = Field(min_length=1, max_length=2000)
+    genre: str = Field(default="", max_length=60)  # "" lets the house decide again
+
+
+@router.put("/genre")
+def choose_genre(body: GenreChoice, actor=Depends(require_actor), db=Depends(get_db)):
+    """Residents file a kept song under a genre; the house's other unsorted songs by that artist
+    follow it."""
+    require_permission(actor, "music.control")
+    if actor.role == "guest":
+        raise HTTPException(403, "Sorting songs is for residents")
+    from .house_settings import get_house_settings
+
+    try:
+        found = music_catalog.choose(db, body.source_url, body.genre, get_house_settings(db)["music_genres"])
+    except ValueError:
+        raise HTTPException(422, {"code": "GENRE_UNKNOWN", "message": "Pick one of the house's genres"})
+    if not found:
+        raise HTTPException(404, "Song not found")
+    return {"status": "completed"}
+
+
 @router.put("/auto")
 def set_auto(body: Auto, actor=Depends(require_actor), db=Depends(get_db)):
     """Residents only: the kept songs are the house archive, and this plays for everyone."""

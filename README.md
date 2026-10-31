@@ -178,7 +178,7 @@ Why was there no sound last night?
 
 - **What:** any MCP client (your own assistant, Claude Desktop or Code, MCP Inspector) uses the house with Nox's own tools: music, films and the TV, smart home, the board, messages.
 - **A token per agent:** *Control Room → Agents* makes one, acting as one person with their permissions, in the groups you pick. It shows once; revoke it there any time.
-- **Connect:** the address is `https://<your house>:8443/mcp` (Streamable HTTP), with the header `Authorization: Bearer <token>`. From another container on the house's Docker network: `http://api:8990/mcp`. With the house's own certificate, tell the client to trust it.
+- **Connect:** the address is `https://<your house>:8443/mcp` (Streamable HTTP), with the header `Authorization: Bearer <token>`. From another network: the house's Tailscale address (see *From outside home*) with `/mcp`, the agent's computer in the same tailnet; *Control Room → Agents* lists every address. From another container on the house's Docker network: `http://api:8990/mcp`. With the house's own certificate, tell the client to trust it.
 - **What it never reaches:** settings, keys, addresses, code, files, backups, shutdown. Every tool is marked read-only, changes something, or asks you first (deleting, messaging people).
 
 ```bash
