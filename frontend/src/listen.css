@@ -120,7 +120,12 @@
     gap: var(--space-2);
     min-width: 0;
   }
-  .listen-starts > h2 {
+  .listen-starts__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .listen-starts__head > h2 {
     margin: 0;
   }
   .listen-autoline {

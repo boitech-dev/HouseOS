@@ -643,6 +643,7 @@ def remove(
     if item.status not in {"ready", "pending_metadata", "failed", "awaiting_confirmation"}:
         raise HTTPException(409, "Use playback controls for the current item")
     item.status = "removed"
+    music_auto.skip(db, item)
     q.version += 1
     emit(db, "music.queue_changed", {"version": q.version})
     db.commit()
@@ -1305,7 +1306,7 @@ def queue_favorites(db, actor, count=10):
 
 @router.get("/quick-songs")
 def quick_songs(actor=Depends(require_actor), db=Depends(get_db)):
-    """Songs to start an empty queue with, drawn anew on each visit: two of the house's most
+    """Songs to start an empty queue with, drawn anew on each visit: three of the house's most
     played of the last 3 days, and one it loved 5-10 days ago but hasn't heard since."""
     import random
     from collections import Counter
@@ -1330,7 +1331,7 @@ def quick_songs(actor=Depends(require_actor), db=Depends(get_db)):
     playable = lambda key: key in rows and rows[key].data["source_url"].startswith("http")  # noqa: E731
     top = [key for key, _ in lately.most_common(8) if playable(key)]
     back = [key for key, _ in before.most_common(10) if playable(key)]
-    picks = [(key, "lately") for key in random.sample(top, k=min(2, len(top)))]
+    picks = [(key, "lately") for key in random.sample(top, k=min(3, len(top)))]
     picks += [(key, "missed") for key in random.sample(back, k=min(1, len(back)))]
     urls = [rows[key].data["source_url"] for key, _ in picks]
     meta = source_metadata(db, urls)

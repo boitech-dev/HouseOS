@@ -160,12 +160,8 @@ def test_quick_songs_mix_lately_loved_and_missed():
         db.commit()
         picks = music.quick_songs(actor, db)["items"]
         why = {p["source_url"][-11:].rstrip("x"): p["why"] for p in picks}
-        assert len(picks) == 3 and why["old"] == "missed"  # "both" was heard lately: not missed
-        assert sorted(k for k, w in why.items() if w == "lately") in (
-            ["hot", "warm"],
-            ["both", "hot"],
-            ["both", "warm"],
-        )
+        assert len(picks) == 4 and why["old"] == "missed"  # "both" was heard lately: not missed
+        assert sorted(k for k, w in why.items() if w == "lately") == ["both", "hot", "warm"]
 
 
 def test_auto_plays_failed_picks_leave_up_next_but_requests_stay():
@@ -238,7 +234,7 @@ def test_the_list_starts_with_the_picks_already_queued_and_songs_go_quickly(monk
     fixture.setUp()
     monkeypatch.setattr(music_auto.settings, "audio_enabled", True, raising=False)
     actor = Actor("one", "One", "resident", frozenset({"music.read", "music.control", "music.queue"}))
-    urls = [f"https://www.youtube.com/watch?v=queuedpick{n}" for n in range(3)]
+    urls = [f"https://www.youtube.com/watch?v=queuedpick{n}" for n in range(4)]
     with Session(fixture.engine, expire_on_commit=False) as db:
         for url in urls:
             kept(db, url, "rock")
@@ -262,4 +258,12 @@ def test_the_list_starts_with_the_picks_already_queued_and_songs_go_quickly(monk
             if pick.id != q.current_id:
                 music.remove(pick.id, version, actor, db)
                 music.remove(pick.id, version, actor, db)  # twice is fine
-        assert not music_auto.upcoming(actor, db)["queued"]
+        shown = music_auto.upcoming(actor, db)
+        assert not shown["queued"]
+        # A removed pick stays out of the next ones too.
+        assert not {p.source_url for p in picks} & {i["source_url"] for i in shown["items"]}
+        # Removing from the list needs no version either: a pick queued meanwhile can't refuse it.
+        first, second = shown["items"][0]["source_url"], shown["items"][1]["source_url"]
+        music_auto.change_upcoming(music_auto.Plan(version=0, remove=[first]), actor, db)
+        after = music_auto.change_upcoming(music_auto.Plan(version=0, remove=[second]), actor, db)
+        assert not {first, second} & {i["source_url"] for i in after["items"]}

@@ -314,6 +314,15 @@ def fill(db, q):
     return item
 
 
+def skip(db, item):
+    """A pick already queued and removed stays out of the next ones too. The caller commits."""
+    if item.metadata_json.get("auto") != "library":
+        return
+    db.get(Integration, "music_playback", with_for_update=True)
+    current = config(db)
+    save(db, {**current, "skipped": [*(current.get("skipped") or []), item.source_url][-SKIPPED:]})
+
+
 def rotation_over(db, item, now=None):
     """An auto station has had its turn: its songs or its minutes are done, or someone asked
     for a song. Stations that never say what is on fall back to 6 minutes a song."""
@@ -407,6 +416,8 @@ class Plan(Input):
     # The whole new order (moved or trimmed); None with shuffle=True draws a new plan.
     urls: list[str] | None = Field(default=None, max_length=PLAN + 10)
     shuffle: bool = False
+    # Songs taken out of the list as it is now: no version to match, so quick removals all land.
+    remove: list[str] = Field(default_factory=list, max_length=PLAN + 10)
 
 
 @router.put("/auto/upcoming")
@@ -422,7 +433,7 @@ def change_upcoming(body: Plan, actor=Depends(require_actor), db=Depends(get_db)
         raise HTTPException(
             409, {"code": "AUTO_NOT_LIBRARY", "message": "Auto play isn't playing kept songs"}
         )
-    if body.version != current.get("plan_version", 0):
+    if body.version != current.get("plan_version", 0) and not body.remove:
         raise HTTPException(
             409, {"code": "PLAN_CHANGED", "message": "A song started meanwhile; here is the new list"}
         )
@@ -432,10 +443,12 @@ def change_upcoming(body: Plan, actor=Depends(require_actor), db=Depends(get_db)
         skipped = []
         plan = planned(db, {**current, "skipped": []}, songs, fresh=True)
     else:
-        plan = [u for u in dict.fromkeys(body.urls or []) if u in songs]
+        kept = before if body.remove else body.urls or []
+        plan = [u for u in dict.fromkeys(kept) if u in songs and u not in body.remove]
         removed = [u for u in before if u not in plan]
         skipped = [*(current.get("skipped") or []), *removed][-SKIPPED:]
-    current = {**current, "upcoming": plan, "skipped": skipped, "plan_version": body.version + 1}
+    version = current.get("plan_version", 0) + 1
+    current = {**current, "upcoming": plan, "skipped": skipped, "plan_version": version}
     save(db, current)
     db.commit()
     return plan_view(db, actor, current, plan, songs)

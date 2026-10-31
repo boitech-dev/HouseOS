@@ -1318,7 +1318,8 @@ function AutoPlaySheet({ onClose }: { onClose: () => void }) {
     try {
       await api("/music/auto/upcoming", "PUT", { version: plan.data?.version ?? 0, ...body });
     } catch (e) {
-      setError(errorText(e));
+      // A pick queued meanwhile changed the list: the fresh one shows, try the move again.
+      if ((e as { detail?: Obj }).detail?.code !== "PLAN_CHANGED") setError(errorText(e));
     } finally {
       await plan.reload();
       setBusy(false);
@@ -1349,11 +1350,12 @@ function AutoPlaySheet({ onClose }: { onClose: () => void }) {
         )}
         <Problem error={error || plan.error} onRetry={plan.reload} />
         {!plan.data && !plan.error && <State kind="loading" />}
+        {/* One list in play order: a pick moving into the queue keeps its place, so the
+            next tap lands on the song you meant. */}
         <List>
-          {queued.length > 0 && <ListHeading>{t("Already in the queue")}</ListHeading>}
           {queued.map((song, index) => (
             <ListRow
-              key={song.id}
+              key={song.source_url}
               leading={<Cover src={song.art} />}
               title={song.title}
               meta={index + 1}
@@ -1371,7 +1373,6 @@ function AutoPlaySheet({ onClose }: { onClose: () => void }) {
               }
             />
           ))}
-          {queued.length > 0 && list.length > 0 && <ListHeading>{t("Then")}</ListHeading>}
           {list.map((song, index) => (
             <ListRow
               key={song.source_url}
@@ -1406,9 +1407,7 @@ function AutoPlaySheet({ onClose }: { onClose: () => void }) {
                       size="s"
                       label={t("Remove") + " · " + song.title}
                       disabled={busy}
-                      onClick={() =>
-                        void change({ urls: urls.filter((u) => u !== song.source_url) })
-                      }
+                      onClick={() => void change({ remove: [song.source_url] })}
                     />
                   </>
                 )
@@ -1443,18 +1442,26 @@ function QuickStarts({ music }: { music: Playback }) {
       : null,
   );
   const { run, error, busy } = useAction(music.reload);
-  const stations = (
-    items(favourites.data).filter(musical).length
-      ? items(favourites.data).filter(musical)
-      : items(popular.data).filter(musical)
-  ).slice(0, 2);
+  // One station, a different one on each refresh (with the new songs).
+  const [turn, setTurn] = useState(0);
+  const pool = items(favourites.data).filter(musical).length
+    ? items(favourites.data).filter(musical)
+    : items(popular.data).filter(musical);
+  const stations = pool.length ? [pool[turn % pool.length]] : [];
+  const refresh = () => {
+    setTurn((n) => n + 1);
+    void songs.reload();
+  };
   const kept = auto.data?.kept || 0;
   const start = (fn: () => Promise<unknown>) => () => void run(fn);
   return (
     <section className="listen-starts" aria-label={t("Start the music")}>
-      <Text as="h2" style="title-s">
-        {t("Ideas")}
-      </Text>
+      <span className="listen-starts__head">
+        <Text as="h2" style="title-s">
+          {t("Ideas")}
+        </Text>
+        <IconButton icon="refresh" size="s" label={t("Other ideas")} onClick={refresh} />
+      </span>
       <List label={t("Start the music")}>
         {items(songs.data).map((song: Obj) => (
           <ListRow
