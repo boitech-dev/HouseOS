@@ -1858,7 +1858,8 @@ def library_songs(db):
                 "title": row.data.get("title") or "Song",
                 "artist": played.get("artist") or row.data.get("uploader"),
                 "uploader": row.data.get("uploader"),
-                "genre": played.get("genre") or "other",
+                # A kept song never played keeps its genre on its own record (as auto play reads it).
+                "genre": played.get("genre") or row.data.get("genre") or "other",
                 "plays": played.get("plays") or (1 if played else 0),
                 "duration": row.data.get("duration"),
                 "size": row.data.get("size", 0),
