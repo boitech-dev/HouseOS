@@ -769,49 +769,55 @@ Cinema domain: user-owned workflows, source choices, confirmations and watch sta
   Subtitles attach to the release the resident is looking at.
 - [`attach_subtitle(identity: str, body: AttachSubtitle, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4093)
   HTTP: `router.post('/workflows/{identity}/subtitle')`
-- [`class SubtitleUpload`](../backend/houseos/cinema.py#L4148)
-- [`normalize_uploaded_subtitle(text)`](../backend/houseos/cinema.py#L4155)
-- [`upload_subtitle(identity: str, body: SubtitleUpload, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4204)
+- [`use_subtitle(db, row, source, subtitle_id)`](../backend/houseos/cinema.py#L4137)
+  The version on the card plays with this subtitle track (attached, found or uploaded).
+- [`class FindSubtitle`](../backend/houseos/cinema.py#L4153)
+- [`find_subtitle(identity: str, body: FindSubtitle, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4159)
+  Subtitles in this language for the version on the card, found free online as the next
+  HTTP: `router.post('/workflows/{identity}/subtitles/find')`
+- [`class SubtitleUpload`](../backend/houseos/cinema.py#L4191)
+- [`normalize_uploaded_subtitle(text)`](../backend/houseos/cinema.py#L4198)
+- [`upload_subtitle(identity: str, body: SubtitleUpload, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4247)
   HTTP: `router.post('/workflows/{identity}/subtitles/upload')`
-- [`current_destination(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4248)
+- [`current_destination(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4291)
   HTTP: `router.get('/devices/{identity}/current')`
-- [`class CoWatch`](../backend/houseos/cinema.py#L4265)
-- [`co_watch(identity: str, body: CoWatch, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4270)
+- [`class CoWatch`](../backend/houseos/cinema.py#L4308)
+- [`co_watch(identity: str, body: CoWatch, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4313)
   HTTP: `router.post('/workflows/{identity}/co-watch')`
-- [`checkpoint_participants(db, workflow, position, duration, plan)`](../backend/houseos/cinema.py#L4307)
-- [`poster_jpeg(content, size=(360, 540))`](../backend/houseos/cinema.py#L4345)
-- [`image_path(url)`](../backend/houseos/cinema.py#L4369)
-- [`image_on_disk(url)`](../backend/houseos/cinema.py#L4374)
-- [`cached_public_poster(url, freshness_bucket=None)`](../backend/houseos/cinema.py#L4384)
+- [`checkpoint_participants(db, workflow, position, duration, plan)`](../backend/houseos/cinema.py#L4350)
+- [`poster_jpeg(content, size=(360, 540))`](../backend/houseos/cinema.py#L4388)
+- [`image_path(url)`](../backend/houseos/cinema.py#L4412)
+- [`image_on_disk(url)`](../backend/houseos/cinema.py#L4417)
+- [`cached_public_poster(url, freshness_bucket=None)`](../backend/houseos/cinema.py#L4427)
   A public image as a sanitised JPEG, from disk or fetched once (`freshness_bucket` is
-- [`keep(path, content)`](../backend/houseos/cinema.py#L4411)
+- [`keep(path, content)`](../backend/houseos/cinema.py#L4454)
   Best effort: a cache that cannot be written only costs a fetch next time.
-- [`image_response(url, max_age=7 * 86400)`](../backend/houseos/cinema.py#L4422)
+- [`image_response(url, max_age=7 * 86400)`](../backend/houseos/cinema.py#L4465)
   Serve a public image: a disk hit at once, a miss fetched on the image threads.
-- [`poster_source(identity)`](../backend/houseos/cinema.py#L4439)
+- [`poster_source(identity)`](../backend/houseos/cinema.py#L4482)
   Where a title's poster comes from: (public URL, Jellyfin item id), or None.
-- [`jellyfin_poster(config, item)`](../backend/houseos/cinema.py#L4452)
-- [`poster(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4474)
+- [`jellyfin_poster(config, item)`](../backend/houseos/cinema.py#L4495)
+- [`poster(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4517)
   HTTP: `router.get('/titles/{identity}/poster')`
-- [`class SaveLocal`](../backend/houseos/cinema.py#L4500)
-- [`prepare_save_local(identity: str, body: SaveLocal, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4508)
+- [`class SaveLocal`](../backend/houseos/cinema.py#L4543)
+- [`prepare_save_local(identity: str, body: SaveLocal, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4551)
   HTTP: `router.post('/workflows/{identity}/save-local')`
-- [`boot_identity()`](../backend/houseos/cinema.py#L4613)
-- [`autoplay_allowed(row)`](../backend/houseos/cinema.py#L4625)
-- [`find_next(db, row, actor)`](../backend/houseos/cinema.py#L4635)
+- [`boot_identity()`](../backend/houseos/cinema.py#L4656)
+- [`autoplay_allowed(row)`](../backend/houseos/cinema.py#L4668)
+- [`find_next(db, row, actor)`](../backend/houseos/cinema.py#L4678)
   The next episode's file in the same release, inspected, with its plan: same audio and
-- [`look_ahead(db, row, actor, position)`](../backend/houseos/cinema.py#L4774)
+- [`look_ahead(db, row, actor, position)`](../backend/houseos/cinema.py#L4817)
   Near the end of an episode: find the next one now, so it starts as soon as this ends.
-- [`prepare_autoplay(db, row, actor)`](../backend/houseos/cinema.py#L4792)
+- [`prepare_autoplay(db, row, actor)`](../backend/houseos/cinema.py#L4835)
   The next episode in the same release, same screen, sound and subtitles: found ahead
-- [`process_autoplay(db)`](../backend/houseos/cinema.py#L4877)
-- [`authorize_workflow(db, workflow)`](../backend/houseos/cinema.py#L4952)
+- [`process_autoplay(db)`](../backend/houseos/cinema.py#L4920)
+- [`authorize_workflow(db, workflow)`](../backend/houseos/cinema.py#L4995)
   Independent fresh DB transaction before external side effects/after slow work.
-- [`class PlayerLink`](../backend/houseos/cinema.py#L4979)
-- [`player_link(identity: str, body: PlayerLink, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L4984)
+- [`class PlayerLink`](../backend/houseos/cinema.py#L5022)
+- [`player_link(identity: str, body: PlayerLink, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L5027)
   VLC and other players send no sign-in cookie, so the link carries its own permission:
   HTTP: `router.post('/workflows/{identity}/player-link')`
-- [`player_stream(token: str, name: str, request: Request, db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L5018)
+- [`player_stream(token: str, name: str, request: Request, db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L5061)
 
 ## cinema_adapters
 
@@ -1267,11 +1273,11 @@ play it) still reject.
   The title's own language when its catalogue says it: anime (MyAnimeList) is Japanese.
 - [`best_plan(media, capabilities, request, original=None)`](../backend/houseos/cinema_suggest.py#L83)
   The most fitting plan for this source, and why. Raises MediaError only on hard limits.
-- [`consensus_language(sources)`](../backend/houseos/cinema_suggest.py#L151)
+- [`consensus_language(sources)`](../backend/houseos/cinema_suggest.py#L155)
   The original language: the one in the most releases (the original soundtrack is in
-- [`waits_for_a_copy(source, plan)`](../backend/houseos/cinema_suggest.py#L174)
+- [`waits_for_a_copy(source, plan)`](../backend/houseos/cinema_suggest.py#L178)
   Would this version need a complete copy before anything plays (not streamed as it plays)?
-- [`rank_inspected(sources, capabilities, request, original=None)`](../backend/houseos/cinema_suggest.py#L187)
+- [`rank_inspected(sources, capabilities, request, original=None)`](../backend/houseos/cinema_suggest.py#L191)
   Inspected sources ranked best first as (source, plan, score, reasons); rejects noted.
 
 ## cinema_tv
@@ -4012,7 +4018,7 @@ Source: [backend/houseos/worker.py](../backend/houseos/worker.py)
 - [games.css](../frontend/src/games.css): styles
 - [games.tsx](../frontend/src/games.tsx): `when`, `Cover`, `Games`, `findUrl`
 - [games_player.tsx](../frontend/src/games_player.tsx): `GamePlayer`
-- [genre_sheet.tsx](../frontend/src/genre_sheet.tsx): `GenreButton`, `GenreSheet`
+- [genre_sheet.tsx](../frontend/src/genre_sheet.tsx): `GenreButton`, `QuickGenres`, `GenreSheet`
 - [guest_code.tsx](../frontend/src/guest_code.tsx): `JoinCode`
 - [home.css](../frontend/src/home.css): styles
 - [home.tsx](../frontend/src/home.tsx): `Home`

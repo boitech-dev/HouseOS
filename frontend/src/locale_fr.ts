@@ -807,8 +807,6 @@ const french: Record<string, string> = {
     "Arrête les tâches de fond et les lecteurs. Le lanceur HouseOS du bureau le redémarre.",
   "Stop sharing": "Ne plus partager",
   "Storage retention": "Conservation des fichiers",
-  "Subtitles embedded in the selected release or supplied beside it work without an OpenSubtitles account. This optional fallback searches OpenSubtitles when the requested track is missing; its API requires an application key, and downloads use a provider quota.":
-    "Les sous-titres intégrés à la version choisie ou fournis avec elle fonctionnent sans compte OpenSubtitles. Cette solution de secours facultative cherche sur OpenSubtitles quand la piste demandée manque ; son API exige une clé d’application et les téléchargements consomment un quota du fournisseur.",
   "Test connection": "Tester la connexion",
   "The current destination and activity must still match this preview.":
     "L’écran et l’activité en cours doivent toujours correspondre à cet aperçu.",
@@ -4208,7 +4206,6 @@ const french: Record<string, string> = {
   Audio: "Audio",
   Preparation: "Préparation",
   "Find an external subtitle": "Chercher des sous-titres externes",
-  "Search subtitles": "Chercher les sous-titres",
   "TV power, input and volume": "Télé : allumage, entrée et volume",
   "Inspect connection": "Vérifier la connexion",
   "TV action": "Action sur la télé",
@@ -4574,5 +4571,10 @@ const french: Record<string, string> = {
   "Delete {n} songs": "Supprimer {n} morceaux",
   "Delete {n} songs from the house disk?": "Supprimer {n} morceaux du disque de la maison ?",
   "More…": "Plus…",
+  "Subtitles for this exact version, found free online (no account needed), as the next episodes get theirs.":
+    "Des sous-titres pour cette version exacte, trouvés gratuitement en ligne (sans compte), comme pour les épisodes suivants.",
+  "Find subtitles in this language": "Trouver des sous-titres dans cette langue",
+  "Search OpenSubtitles (API key)": "Chercher sur OpenSubtitles (clé API)",
+  "{language} subtitles inside": "Sous-titres {language} dans le fichier",
 };
 export default french;

@@ -184,9 +184,40 @@ export function SubtitlePicker({
     <Disclosure summary={t("Find an external subtitle")}>
       <Text style="body-s" tone="muted">
         {t(
-          "Subtitles embedded in the selected release or supplied beside it work without an OpenSubtitles account. This optional fallback searches OpenSubtitles when the requested track is missing; its API requires an application key, and downloads use a provider quota.",
+          "Subtitles for this exact version, found free online (no account needed), as the next episodes get theirs.",
         )}
       </Text>
+      <Input
+        aria-label={t("Subtitle language")}
+        value={language}
+        minLength={2}
+        maxLength={3}
+        onChange={(e) => setLanguage(e.target.value)}
+      />
+      <Button
+        variant="primary"
+        icon="search"
+        busy={busy}
+        onClick={async () => {
+          setBusy(true);
+          try {
+            onWorkflow(
+              await api("/cinema/workflows/" + workflow.id + "/subtitles/find", "POST", {
+                version: workflow.version,
+                source_id: sourceId,
+                language,
+              }),
+            );
+            setError("");
+          } catch (e) {
+            setError((e as Error).message);
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        {t("Find subtitles in this language")}
+      </Button>
       <FileButton
         label={t("Upload SRT or WebVTT")}
         accept=".srt,.vtt,text/vtt,application/x-subrip"
@@ -234,15 +265,8 @@ export function SubtitlePicker({
           }
         }}
       >
-        <Input
-          aria-label={t("Subtitle language")}
-          value={language}
-          minLength={2}
-          maxLength={3}
-          onChange={(e) => setLanguage(e.target.value)}
-        />
-        <Button type="submit" icon="search" busy={busy}>
-          {t("Search subtitles")}
+        <Button type="submit" variant="quiet" icon="search" busy={busy}>
+          {t("Search OpenSubtitles (API key)")}
         </Button>
       </form>
       {results.length > 0 && (

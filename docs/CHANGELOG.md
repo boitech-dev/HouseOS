@@ -9,6 +9,14 @@ Newest first.
 
 ### 2026-10-31
 
+- **Subtitles in the language asked for**: "VO with French subtitles" never falls back to the
+  file's English ones; without French in the file, French ones are found online for it.
+- **Find subtitles without an account**: *Find an external subtitle* → *Find subtitles in this
+  language* finds them free online for the exact version on the card (the public OpenSubtitles
+  add-on, as the next episodes get theirs). The OpenSubtitles API search stays for those with a key.
+- **Versions with your subtitles inside**: the version list has a *French subtitles inside*
+  filter (your subtitle language), for the checked versions and those whose name says so.
+
 - **Clear queue keeps the song playing**: it removes the waiting songs only; *Stop* ends the
   one playing. With nothing waiting, the button isn't shown.
 - **Ideas, more varied**: one of the house's very top songs lately, a favourite not heard for

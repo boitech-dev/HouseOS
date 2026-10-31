@@ -484,3 +484,54 @@ def test_picking_an_unchecked_cached_version_checks_only_that_one():
             assert operation.data["source_ids"] == ["r9"]  # the others stay as they are
     finally:
         f.tearDown()
+
+
+def test_subtitles_asked_in_french_never_fall_back_to_english_ones_in_the_file():
+    # VO with French subtitles, a file with English ones only: no subtitle is suggested from the
+    # file, so the house finds French ones online ("auto"), as the next episodes do.
+    sources = [source("en-subs", media(1080, subtitles=[("en", "subrip")]))]
+    request = {"languages": ["fr", "en"], "subtitle_language": "fr", "always_subtitles": True}
+    plan = rank_inspected(sources, CAPS, request)[0][1]
+    assert not plan.get("subtitle")
+    # Without a language asked for, the viewer's other language in the file still serves.
+    plan = rank_inspected(sources, CAPS, {"languages": ["fr", "en"], "always_subtitles": True})[0][1]
+    assert plan["subtitle"]["language"] == "en"
+
+
+def test_find_subtitles_online_for_the_version_on_the_card_without_an_account():
+    f = test_cinema.CinemaTests()
+    f.setUp()
+    f.workflow()
+    asked = []
+
+    def found(db, row, source, actor, audio_track=None):
+        asked.append(row.data["request"]["subtitle_language"])
+        sources = [dict(s) for s in row.data["_sources"]]
+        sources[0]["inspection"] = {**sources[0]["inspection"], "subtitles": [
+            *sources[0]["inspection"].get("subtitles", []), {"id": "online-fr", "language": "fr", "external": True}]}  # fmt: skip
+        row.data = {**row.data, "_sources": sources}
+        return "online-fr"
+
+    try:
+        with (
+            patch.object(cinema, "found_subtitle", side_effect=found),
+            patch.object(cinema, "prepare_plan") as plan,
+        ):
+            plan.side_effect = lambda db, row, source: {
+                "state": "ready",
+                "subtitle": row.data["request"]["subtitle_track"],
+            }
+            result = f.client.post(
+                "/api/v1/cinema/workflows/workflow-one/subtitles/find",
+                json={"version": 1, "source_id": "source-one", "language": "fr"},
+            )
+        assert result.status_code == 200, result.text
+        assert asked == ["fr"] and result.json()["subtitle"] == "online-fr"
+        with patch.object(cinema, "found_subtitle", return_value=None):
+            missing = f.client.post(
+                "/api/v1/cinema/workflows/workflow-one/subtitles/find",
+                json={"version": 1, "source_id": "source-one", "language": "fr"},
+            )
+        assert missing.status_code in (404, 409)
+    finally:
+        f.tearDown()

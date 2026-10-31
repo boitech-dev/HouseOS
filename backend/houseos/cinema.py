@@ -4130,10 +4130,15 @@ def attach_subtitle(
             "timing": "unverified",
         }
     )
+    row.data = {**row.data, "_sources": sources}
+    return use_subtitle(db, row, source, subtitle.id)
+
+
+def use_subtitle(db, row, source, subtitle_id):
+    """The version on the card plays with this subtitle track (attached, found or uploaded)."""
     row.data = {
         **row.data,
-        "_sources": sources,
-        "request": {**row.data["request"], "subtitles_on": True, "subtitle_track": subtitle.id},
+        "request": {**row.data["request"], "subtitles_on": True, "subtitle_track": subtitle_id},
     }
     if not row.device_id:
         return save_workflow(
@@ -4143,6 +4148,44 @@ def attach_subtitle(
             {"selected_source": source_summary(source, {"mode": "destination_not_selected", "warnings": []})},
         )
     return call(prepare_plan, db, row, source)
+
+
+class FindSubtitle(Version):
+    source_id: str | None = Field(default=None, max_length=36)  # the release shown on the card
+    language: str = Field(default="fr", pattern="^[a-z]{2,3}$")
+
+
+@router.post("/workflows/{identity}/subtitles/find")
+def find_subtitle(
+    identity: str, body: FindSubtitle, actor: Actor = Depends(require_actor), db: Session = Depends(get_db)
+):
+    """Subtitles in this language for the version on the card, found free online as the next
+    episodes' are (the public OpenSubtitles add-on: no account, matched to this exact file)."""
+    row = own_workflow(db, actor, identity, body.version)
+    if row.state == "preparing":
+        raise HTTPException(409, "Versions are still being checked; add subtitles in a moment")
+    pick_source(row, body.source_id)
+    row = replacement_preview(db, row)
+    source = next(
+        (s for s in row.data.get("_sources", []) if s["id"] == row.data.get("_selected_source")), None
+    )
+    if not source:
+        failure(MediaError("NO_SOURCES", "Select a media source before adding subtitles.", "prepare"))
+    row.data = {
+        **row.data,
+        "request": {**row.data["request"], "subtitle_language": body.language, "always_subtitles": True},
+    }
+    found = found_subtitle(db, row, source, actor)
+    if not found:
+        raise HTTPException(
+            404,
+            {
+                "code": "SUBTITLE_NOT_FOUND",
+                "message": "No subtitles in that language match this version online. Try another version, or upload a file.",
+            },
+        )
+    source = next(s for s in row.data["_sources"] if s["id"] == source["id"])
+    return use_subtitle(db, row, source, found)
 
 
 class SubtitleUpload(Version):

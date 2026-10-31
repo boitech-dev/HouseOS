@@ -1058,6 +1058,35 @@ function Choice({
   );
 }
 
+// Two-letter codes for the three-letter ones files use ("fre" → "fr").
+const LANG3: Record<string, string> = {
+  fre: "fr",
+  fra: "fr",
+  eng: "en",
+  spa: "es",
+  ger: "de",
+  deu: "de",
+  ita: "it",
+  por: "pt",
+  jpn: "ja",
+  kor: "ko",
+  chi: "zh",
+  zho: "zh",
+  rus: "ru",
+  ara: "ar",
+  dut: "nl",
+  nld: "nl",
+};
+const langCode = (code?: string) => {
+  const lower = String(code || "").toLowerCase();
+  return LANG3[lower] || lower.slice(0, 2);
+};
+// A version not checked yet says its subtitles only in its name ("VOSTFR", "MULTi SUBS").
+const SUBS_IN_NAME: Record<string, RegExp> = {
+  fr: /vostfr|subfrench|french[ ._-]?subs?|st[ ._-]?fr\b|multi[ ._-]?subs?/i,
+  en: /eng[ ._-]?subs?|english[ ._-]?subs?|multi[ ._-]?subs?/i,
+};
+
 function Tonight({
   title,
   cloudId,
@@ -1147,6 +1176,15 @@ function Tonight({
   });
   const workflow = flow.data;
   const candidates: Obj[] = workflow?.choice_set?.candidates || [];
+  // The version list can show only versions with subtitles in the viewer's language in the file.
+  const [inside, setInside] = useState(false);
+  const subLanguage: string = langCode(
+    preferences.data?.subtitle_language || preferences.data?.languages?.[0] || "fr",
+  );
+  const hasInside = (c: Obj) =>
+    (c.subtitles || []).some(
+      (s: Obj) => !s.external && !s.forced && langCode(s.language) === subLanguage,
+    );
   const candidate = candidates.find((c) => c.id === sourceId) || candidates[0];
   // External subtitles attach to the release; they show up on the selected summary.
   const attached =
@@ -1499,51 +1537,63 @@ function Tonight({
             )
           }
         >
+          {/* Only the versions that carry subtitles in your language inside the file. */}
+          <Chip kind="filter" selected={inside} onToggle={() => setInside(!inside)}>
+            {t("{language} subtitles inside").replace("{language}", trackLanguage(subLanguage))}
+          </Chip>
           <List label={t("Version")}>
-            {candidates.map((c) => (
-              <Choice
-                key={c.id}
-                title={[origin(c), quality(c), c.size ? bytes(c.size) : ""]
-                  .filter(Boolean)
-                  .join(" · ")}
-                detail={
-                  <>
-                    <span>{(c.why || []).map((w: string) => t(w)).join(" · ")}</span>
-                    <span className="watch-release">{String(c.release).replace(FILE_ID, "")}</span>
-                  </>
-                }
-                chosen={c.id === candidate?.id}
-                onPick={() => {
-                  setSourceId(c.id);
-                  setAudio(null);
-                  setSubtitle(null);
-                  close();
-                }}
-              />
-            ))}
-            {unchecked.map((c) => (
-              <Choice
-                key={c.id}
-                title={[
-                  origin(c),
-                  quality({ ...c, height: c.height_claim }),
-                  c.size ? bytes(c.size) : "",
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
-                detail={
-                  <>
-                    <span>{t("Not checked yet: checked when you pick it")}</span>
-                    <span className="watch-release">{String(c.release).replace(FILE_ID, "")}</span>
-                  </>
-                }
-                chosen={false}
-                onPick={() => {
-                  close();
-                  void check(c.id);
-                }}
-              />
-            ))}
+            {candidates
+              .filter((c) => !inside || hasInside(c))
+              .map((c) => (
+                <Choice
+                  key={c.id}
+                  title={[origin(c), quality(c), c.size ? bytes(c.size) : ""]
+                    .filter(Boolean)
+                    .join(" · ")}
+                  detail={
+                    <>
+                      <span>{(c.why || []).map((w: string) => t(w)).join(" · ")}</span>
+                      <span className="watch-release">
+                        {String(c.release).replace(FILE_ID, "")}
+                      </span>
+                    </>
+                  }
+                  chosen={c.id === candidate?.id}
+                  onPick={() => {
+                    setSourceId(c.id);
+                    setAudio(null);
+                    setSubtitle(null);
+                    close();
+                  }}
+                />
+              ))}
+            {unchecked
+              .filter((c) => !inside || SUBS_IN_NAME[subLanguage]?.test(c.release))
+              .map((c) => (
+                <Choice
+                  key={c.id}
+                  title={[
+                    origin(c),
+                    quality({ ...c, height: c.height_claim }),
+                    c.size ? bytes(c.size) : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                  detail={
+                    <>
+                      <span>{t("Not checked yet: checked when you pick it")}</span>
+                      <span className="watch-release">
+                        {String(c.release).replace(FILE_ID, "")}
+                      </span>
+                    </>
+                  }
+                  chosen={false}
+                  onPick={() => {
+                    close();
+                    void check(c.id);
+                  }}
+                />
+              ))}
           </List>
         </Sheet>
       )}

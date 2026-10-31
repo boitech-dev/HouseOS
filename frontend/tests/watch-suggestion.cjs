@@ -190,6 +190,12 @@ const fs = require("node:fs");
   // Change the version: the 4K one has no subtitles, so the card follows.
   await card.getByRole("button", { name: /^Version/ }).click();
   await versions.getByText("original audio · no subtitles in the file", { exact: true }).waitFor();
+  // Only versions with subtitles in your language inside: the 4K one (none) steps aside.
+  const inside = versions.getByRole("button", { name: /subtitles inside/ });
+  await inside.click();
+  await versions.getByRole("button", { name: /4K/ }).waitFor({ state: "detached" });
+  assert.equal(await versions.getByRole("button", { name: /1080p/ }).count(), 1);
+  await inside.click();
   await versions.getByRole("button", { name: /4K/ }).click();
   await card.getByRole("button", { name: /^Subtitles\s*None/ }).waitFor();
   // Back to the suggestion, then a custom start time.

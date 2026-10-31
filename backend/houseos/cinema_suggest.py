@@ -107,6 +107,10 @@ def best_plan(media, capabilities, request, original=None):
         score, reasons = audio_points, [audio_reason]
         spoken = language(plan["audio"].get("language")) or original
         order = subtitle_order(spoken, languages, request.get("subtitle_language"), always)
+        if request.get("subtitle_language"):
+            # Subtitles asked for in one language: another language's in the file never stands in;
+            # without them the house finds that language online (subtitle "auto").
+            order = order[:1]
         for subtitle_language in order:
             try:
                 with_subtitles = compatibility(
