@@ -127,6 +127,7 @@ export function Admin() {
           </>
         )}
         {tab === "usage" && <Usage />}
+        {tab === "agents" && <Agents />}
         {tab === "logs" && <ActivityLog />}
       </SettingsLayout>
     </Page>
@@ -695,6 +696,145 @@ function Invites() {
           }}
         >
           <Text>{t(pretty(revoking.preset))}</Text>
+        </ConfirmSheet>
+      )}
+    </Section>
+  );
+}
+
+const AGENT_GROUPS: [string, string, string][] = [
+  ["music", "Music", "Music: search, queue, skip, volume, auto play"],
+  ["tv", "Films and TV", "Films, series and the TV: find, play on a screen, pause, sleep timer"],
+  ["home", "Smart home", "Smart home: lights, plugs, heating"],
+  ["board", "The board", "The board: tasks, groceries, calendar, notes"],
+  ["messages", "Messages", "Messages to housemates (the agent asks you first)"],
+];
+const agentGroup = (id: string) => t(AGENT_GROUPS.find(([g]) => g === id)?.[1] || id);
+
+/** Other assistants (Ronda, Claude…) use the house over MCP with a token that acts as one
+ *  person, in the groups picked here. The token shows once; only its fingerprint is kept. */
+function Agents() {
+  const agents = useData("/admin/agents"),
+    users = useData("/admin/users");
+  const [made, setMade] = useState<Obj | null>(null),
+    [revoking, setRevoking] = useState<Obj | null>(null);
+  const people = items(users.data).filter((u) => u.active);
+  const url = location.origin + "/mcp";
+  const copied = async (text: string) => (await copyText(text)) && toast(t("Copied"));
+  return (
+    <Section
+      title={t("Agents")}
+      lead={t(
+        "Other assistants can use the house through MCP, with the same tools as Nox. Each token acts as one person, with their permissions, only in the groups you pick.",
+      )}
+    >
+      <Form
+        submit={t("Create a token")}
+        onSubmit={async (f) => {
+          setMade(
+            await api("/admin/agents", "POST", {
+              name: f.get("name"),
+              user_id: f.get("user_id"),
+              groups: f.getAll("groups"),
+            }),
+          );
+          await agents.reload();
+        }}
+      >
+        <div className="me-row">
+          <Field label={t("Agent's name")}>
+            <Input name="name" required maxLength={60} placeholder="Ronda" />
+          </Field>
+          <Field label={t("Acts as")}>
+            <Select name="user_id">
+              {people.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        </div>
+        <fieldset className="me-fieldset">
+          <legend>{t("What it may use")}</legend>
+          {AGENT_GROUPS.map(([id, , what]) => (
+            <Checkbox key={id} name="groups" value={id} label={t(what)} defaultChecked />
+          ))}
+        </fieldset>
+      </Form>
+      {made && (
+        <Surface material="raised">
+          <Stack>
+            <Text style="title-m">{t("Paste these into the agent's settings.")}</Text>
+            <Field label={t("Address")}>
+              <Input readOnly value={url} onFocus={(e) => e.target.select()} />
+            </Field>
+            <Field label={t("Token")} hint={t("Shown only now. Lost? Revoke it and make another.")}>
+              <Input readOnly value={made.token} onFocus={(e) => e.target.select()} />
+            </Field>
+            <Text style="body-s" tone="muted">
+              {t(
+                "It goes in the header Authorization: Bearer <token>. With this house's own certificate, tick “trust this server's certificate”.",
+              )}
+            </Text>
+            <Cluster space={2}>
+              <Button icon="copy" onClick={() => void copied(made.token)}>
+                {t("Copy the token")}
+              </Button>
+              <Button
+                variant="quiet"
+                icon="copy"
+                onClick={() =>
+                  void copied(
+                    `claude mcp add --transport http houseos ${url} --header "Authorization: Bearer ${made.token}"`,
+                  )
+                }
+              >
+                {t("Copy for Claude Code")}
+              </Button>
+            </Cluster>
+          </Stack>
+        </Surface>
+      )}
+      <Problem error={agents.error || users.error} onRetry={agents.reload} />
+      {items(agents.data).length > 0 ? (
+        <List label={t("Agents")}>
+          {items(agents.data).map((a) => (
+            <ListRow
+              key={a.id}
+              leading={<Icon name="key" />}
+              title={a.name}
+              detail={[
+                a.user.name,
+                a.groups.map(agentGroup).join(", "),
+                a.last_used_at
+                  ? t("used {when}").replace("{when}", time(a.last_used_at))
+                  : t("never used"),
+              ].join(" · ")}
+              actions={
+                <Button size="s" variant="quiet" onClick={() => setRevoking(a)}>
+                  {t("Revoke")}
+                </Button>
+              }
+            />
+          ))}
+        </List>
+      ) : (
+        agents.data && <Text tone="muted">{t("No agent has a token yet.")}</Text>
+      )}
+      {revoking && (
+        <ConfirmSheet
+          title={t("Revoke this agent's token?")}
+          confirm={t("Revoke")}
+          danger
+          onClose={() => setRevoking(null)}
+          onConfirm={async () => {
+            await api("/admin/agents/" + revoking.id, "DELETE");
+            setMade(null);
+            await agents.reload();
+          }}
+        >
+          <Text>{t("{name} stops working at once.").replace("{name}", revoking.name)}</Text>
         </ConfirmSheet>
       )}
     </Section>

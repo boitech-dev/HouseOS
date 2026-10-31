@@ -59,6 +59,7 @@ export const CONTROL_GROUPS: [string, [string, IconName, string, string][]][] = 
       ["ai", "bot", "AI", "Nox's models, sign-ins, helper updates"],
       ["integrations", "plug", "Integrations", "Home Assistant, films, YouTube, news"],
       ["usage", "trend-up", "Usage", "AI spending per person and per model"],
+      ["agents", "key", "Agents", "Other assistants using the house (MCP), their tokens"],
     ],
   ],
   [

@@ -4509,5 +4509,38 @@ const french: Record<string, string> = {
     "Aucun dans le fichier : trouvés en ligne au lancement, si besoin",
   "An update is ready: {n} changes since yours.":
     "Une mise à jour est prête : {n} changements depuis la tienne.",
+  Agents: "Agents",
+  "Other assistants using the house (MCP), their tokens":
+    "Les autres assistants qui utilisent la maison (MCP), leurs jetons",
+  "Other assistants can use the house through MCP, with the same tools as Nox. Each token acts as one person, with their permissions, only in the groups you pick.":
+    "D’autres assistants peuvent utiliser la maison par MCP, avec les mêmes outils que Nox. Chaque jeton agit comme une personne, avec ses permissions, seulement dans les groupes que tu choisis.",
+  "Create a token": "Créer un jeton",
+  "Agent's name": "Nom de l’agent",
+  "Acts as": "Agit comme",
+  "What it may use": "Ce qu’il peut utiliser",
+  "Paste these into the agent's settings.": "Colle ceci dans les réglages de l’agent.",
+  Address: "Adresse",
+  Token: "Jeton",
+  "Shown only now. Lost? Revoke it and make another.":
+    "Affiché seulement maintenant. Perdu ? Révoque-le et crées-en un autre.",
+  "It goes in the header Authorization: Bearer <token>. With this house's own certificate, tick “trust this server's certificate”.":
+    "Il va dans l’en-tête Authorization : Bearer <jeton>. Avec le certificat propre à cette maison, coche « faire confiance au certificat de ce serveur ».",
+  "Copy the token": "Copier le jeton",
+  "Copy for Claude Code": "Copier pour Claude Code",
+  "used {when}": "utilisé {when}",
+  "never used": "jamais utilisé",
+  "No agent has a token yet.": "Aucun agent n’a encore de jeton.",
+  "Revoke this agent's token?": "Révoquer le jeton de cet agent ?",
+  "{name} stops working at once.": "{name} cesse de fonctionner tout de suite.",
+  "Films and TV": "Films et télé",
+  "The board": "Le tableau",
+  "Music: search, queue, skip, volume, auto play":
+    "Musique : chercher, ajouter à la file, passer, volume, lecture auto",
+  "Films, series and the TV: find, play on a screen, pause, sleep timer":
+    "Films, séries et la télé : trouver, lancer sur un écran, pause, minuterie",
+  "Smart home: lights, plugs, heating": "Maison connectée : lumières, prises, chauffage",
+  "The board: tasks, groceries, calendar, notes": "Le tableau : tâches, courses, agenda, notes",
+  "Messages to housemates (the agent asks you first)":
+    "Messages aux colocs (l’agent te demande d’abord)",
 };
 export default french;

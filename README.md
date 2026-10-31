@@ -174,6 +174,18 @@ Why was there no sound last night?
 - **Keep or Undo:** Keep deletes the backup, Undo returns to it. Both wait while a film plays. On Docker, first `./houseos.sh buttons on`.
 </details>
 <details>
+<summary><b>🤖 Your own assistant</b> · connect an agent over MCP</summary>
+
+- **What:** any MCP client (your own assistant, Claude Desktop or Code, MCP Inspector) uses the house with Nox's own tools: music, films and the TV, smart home, the board, messages.
+- **A token per agent:** *Control Room → Agents* makes one, acting as one person with their permissions, in the groups you pick. It shows once; revoke it there any time.
+- **Connect:** the address is `https://<your house>:8443/mcp` (Streamable HTTP), with the header `Authorization: Bearer <token>`. From another container on the house's Docker network: `http://api:8990/mcp`. With the house's own certificate, tell the client to trust it.
+- **What it never reaches:** settings, keys, addresses, code, files, backups, shutdown. Every tool is marked read-only, changes something, or asks you first (deleting, messaging people).
+
+```bash
+claude mcp add --transport http houseos https://houseos.local:8443/mcp --header "Authorization: Bearer <token>"
+```
+</details>
+<details>
 <summary><b>🖌️ Themes</b> · customize every part of the look, in plain words or pictures</summary>
 
 - **Ten ship.** Each changes colours, type, shapes, pictures, Nox, every icon and the titles' medals. Themes are data, not code: they can't break a screen.

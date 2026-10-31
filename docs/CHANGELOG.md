@@ -7,6 +7,33 @@ keep landing there between version numbers. Control Room → Update (or `./house
 brings them; Control Room says when changes are waiting, with *See what changed* to read them.
 Newest first.
 
+### 2026-10-31
+
+- **Connect your own assistant (MCP)**: `/mcp` serves Nox's tools to any MCP client (Streamable
+  HTTP). *Control Room → Agents* makes a token per agent, acting as one person in the groups you
+  pick (music, films and TV, smart home, the board, messages); it shows once and can be revoked.
+  Every tool says whether it only reads, changes something or should ask first.
+- **Auto play's next songs**: one list in play order, so a song moving into the queue keeps its
+  place, and removing several quickly no longer fails; a removed song stays out.
+- **Ideas** in Listen: four songs and one station, and a button for other ideas.
+- **Search from a category** in Watch searches the whole tab, instead of showing nothing.
+- **More versions to pick from**: up to eight cached versions in the picker; one not checked
+  yet is checked when you pick it.
+- **Nox plays films as asked**: "VO with French subtitles" sets the subtitles, subtitles are
+  found online when the file has none, autoplay for a series, openings skipped when asked.
+
+### 2026-10-26 to 2026-10-30
+
+- **Switching films by hand** works on the Google TV Streamer: its player closes first, the new
+  film is checked to really play, and a film whose screen another took is closed.
+- **A film the Chromecast drops** (the cast logo on screen) is sent again a few seconds back.
+- **A paused film stays** until you remove it: after a long pause, Play loads it fresh where it was.
+- **The short reload** once a stream is complete stays where the film is.
+- **The next episode keeps its subtitles** when its file has none in that language.
+- **Versions that play only after a complete copy** rank below ones that stream at once.
+- **Faster series and anime**, anime rankings and demographics; **song genres** for more songs,
+  free (MusicBrainz).
+
 ### 2026-10-25
 
 - **Skip openings and endings**: a switch on an episode's card, kept for the episodes that play

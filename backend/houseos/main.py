@@ -63,7 +63,10 @@ async def boundaries(request: Request, call_next):
         trust = access._cache
     host = request.headers.get("host", "")
     tls_ask = request.url.path == "/api/v1/access/tls-ask"  # Caddy asks as api:8990
-    if not trust["open"] and not tls_ask and not access.host_allowed(host, trust["origins"]):
+    # An agent's bearer token can't be replayed by a rebound page, so /mcp answers under any
+    # name (api:8990 or host.docker.internal from another container).
+    agent = request.url.path == "/mcp" and "authorization" in request.headers
+    if not trust["open"] and not tls_ask and not agent and not access.host_allowed(host, trust["origins"]):
         return refused(request, access.rejection("host", host), 400)
     if request.url.path.startswith("/api/") and request.method not in {"GET", "HEAD", "OPTIONS"}:
         if (settings.runtime_root / "run/shutdown.json").exists() and not request.url.path.startswith(
@@ -189,6 +192,10 @@ for name in (
     module = importlib.import_module("houseos." + name)
     app.include_router(module.router, prefix="/api/v1")
 app.include_router(custom.admin, prefix="/api/v1")  # installing them (custom_admin.py)
+app.include_router(
+    importlib.import_module("houseos.agent_mcp").admin, prefix="/api/v1"
+)  # Control Room → Agents
+app.include_router(importlib.import_module("houseos.agent_mcp").router)  # /mcp: other assistants, by token
 custom.DISPATCH.overrides = app.dependency_overrides  # one set of overrides for the house and them
 app.mount("/api/v1/custom", custom.DISPATCH)  # their own routes, before the screens' catch-all
 app.include_router(importlib.import_module("houseos.themes").files)  # installed themes' CSS, fonts, art
