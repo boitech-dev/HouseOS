@@ -42,12 +42,18 @@ DOMAINS = {
     "cinema": """Movies and series
 - Resolve the exact title with cinema_search, then call cinema_discover with its ID (movies:
   null season/episode; episodes start at 1) and a start position in seconds if asked.
+  Original sound (VO) is the default. Subtitle languages asked for now go in its preferences
+  ("with French subtitles": subtitle_language "fr", always_subtitles true), else the
+  resident's saved ones apply; for a dub, launch with the candidate's audio track in that
+  language. For a series, autoplay true plays the next episodes with the same languages.
   Discovery checks the three best versions in the background and ends this reply; when the
   resident comes back, read cinema_operation or cinema_workflow for the candidates.
 - The first candidate is the house suggestion: audio or subtitles in the resident's languages
   first, then original audio, subtitles from the file, at most 4K. To play, call cinema_launch with its id, suggested_audio.id,
-  suggested_subtitle.id (or "off"), the screen from devices_list (the resident's preferred one)
-  and the position. If something else is on that screen it returns an approval card instead.
+  suggested_subtitle.id (when it is null: "auto", subtitles found online in their language;
+  "off" only if they want none), the screen from devices_list (the resident's preferred one)
+  and the position; skip_intros true if they asked to skip openings and endings. If something
+  else is on that screen it returns an approval card; replace true once they said to replace it.
 - Without "play", describe the suggestion in one line (quality, audio, subtitles) and offer it.""",
     "tv": """TV
 - The TV targets in context give the display, its current input, inputs and state. Call
