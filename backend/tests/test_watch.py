@@ -455,3 +455,32 @@ def test_a_version_that_plays_only_after_a_complete_copy_ranks_below_one_that_st
     ranked = rank_inspected(sources, caps, {"languages": ["fr", "en"]})
     assert [entry[0]["id"] for entry in ranked] == ["h264-1080", "av1-4k"]
     assert "starts only after a complete copy" in ranked[1][3]
+
+
+def test_picking_an_unchecked_cached_version_checks_only_that_one():
+    from houseos.models import Operation
+
+    f = test_cinema.CinemaTests()
+    f.setUp()
+    f.workflow()
+    try:
+        with Session(f.engine) as db:
+            row = db.get(cinema.CinemaWorkflow, "workflow-one")
+            extra = {"id": "r9", "info_hash": "9" * 40, "release": "E.1080p", "rd_cached": True}
+            row.data = {**row.data, "_sources": [*row.data["_sources"], extra]}
+            db.commit()
+        with (
+            patch.object(cinema, "integration_config", return_value={"enabled": True}),
+            patch.object(cinema, "RealDebrid"),
+        ):
+            result = f.client.post(
+                "/api/v1/cinema/workflows/workflow-one/configure", json={"version": 1, "source_id": "r9"}
+            )
+        assert result.status_code == 200, result.text
+        assert result.json()["state"] == "preparing"
+        with Session(f.engine) as db:
+            assert db.get(cinema.CinemaWorkflow, "workflow-one").data["_validation_selection"] == ["r9"]
+            operation = db.query(Operation).filter(Operation.kind == "cinema.validate").one()
+            assert operation.data["source_ids"] == ["r9"]  # the others stay as they are
+    finally:
+        f.tearDown()

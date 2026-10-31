@@ -920,7 +920,7 @@ def freeze_choices(row, device):
         "id": new_id(),
         "revision": row.version + 1,
         "expires_at": (utcnow() + timedelta(minutes=10)).isoformat(),
-        "candidates": [{**c, "rank": index + 1} for index, c in enumerate(candidates[:5])],
+        "candidates": [{**c, "rank": index + 1} for index, c in enumerate(candidates[:8])],
     }
 
 
