@@ -153,7 +153,7 @@ OPEN_WORLD = {
 DOES_IT = {
     "messages_send": "Send a message to a housemate: exact recipient and body.",
     "tv_control": "TV power on/off, HDMI input (exact label) or volume percent. Not a reboot.",
-    "cinema_change": "Change the audio or subtitle track, the version or the screen of a film in progress.",
+    "cinema_change": "Change the audio or subtitle track, the version or the screen of a film in progress, or shift its subtitles (subtitle_offset).",
     "cinema_save_locally": "Save the checked version of a film to the house library (quota checked).",
     "cinema_queue_clear_prepare": "Clear your whole movie queue.",
     "music_playlist_prepare": "Queue one of your saved playlists.",

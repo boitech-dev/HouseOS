@@ -4543,5 +4543,13 @@ const french: Record<string, string> = {
   "The board: tasks, groceries, calendar, notes": "Le tableau : tâches, courses, agenda, notes",
   "Messages to housemates (the agent asks you first)":
     "Messages aux colocs (l’agent te demande d’abord)",
+  "Subtitle timing": "Décalage des sous-titres",
+  "Subtitles earlier": "Sous-titres plus tôt",
+  "Subtitles later": "Sous-titres plus tard",
+  Reset: "Réinitialiser",
+  "The film reloads where it is with this timing…":
+    "Le film se recharge au même moment avec ce décalage…",
+  "These subtitles are part of the picture or shown by the TV: their timing can’t change.":
+    "Ces sous-titres font partie de l’image ou sont affichés par la TV : leur décalage ne peut pas changer.",
 };
 export default french;

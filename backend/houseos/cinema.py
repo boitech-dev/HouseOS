@@ -168,6 +168,7 @@ def public_workflow(row):
         "season",
         "episode",
         "selected_source",
+        "subtitle_offset",
     }
     payload = {
         "id": row.id,
@@ -1313,6 +1314,8 @@ def current_playback(actor: Actor = Depends(require_actor), db: Session = Depend
                 ),
                 "volume_supported": device.observation.get("volume_supported", False),
                 "volume": device.observation.get("volume"),
+                "subtitle_timing": subtitle_timing(row, device),
+                "subtitle_offset": row.data.get("subtitle_offset") or 0,
                 # Just skipped an opening or ending: the bar offers to go back and watch it.
                 "skipped": note
                 if (note := row.data.get("_skip_note"))
@@ -3317,7 +3320,13 @@ def replacement_preview(db, row):
 
 @router.post("/workflows/{identity}/change")
 def change(identity: str, body: Change, actor: Actor = Depends(require_actor), db: Session = Depends(get_db)):
+    only_offset = not (body.device_id or body.source_choice or body.preferences.model_dump(exclude_none=True))
+    if body.subtitle_offset is not None and only_offset:
+        # A value, not a step: like a control, it applies to the film as it is now.
+        return shift_subtitles(db, own_workflow(db, actor, identity), body.subtitle_offset)
     row = own_workflow(db, actor, identity, body.version)
+    if body.subtitle_offset is not None:
+        row.data = {**row.data, "subtitle_offset": round(body.subtitle_offset, 1) or None}
     if body.device_id and body.device_id != row.device_id:
         if not db.get(CinemaDevice, body.device_id):
             raise HTTPException(404, "Destination not found")
@@ -3351,6 +3360,54 @@ def change(identity: str, body: Change, actor: Actor = Depends(require_actor), d
         "request": effective_request(previous_request, body.preferences.model_dump(exclude_unset=True)),
     }
     return call(prepare_plan, db, row, source)
+
+
+def shift_subtitles(db, row, offset):
+    """The served WebVTT moves by `offset` (receiver_media); a film on the screen is loaded again
+    where it is, so the TV reads its subtitles again. Picture subtitles can't move."""
+    on_screen = row.state in {"playing_observed", "paused", "command_sent"}
+    if on_screen:
+        device = db.get(CinemaDevice, row.device_id) if row.device_id else None
+        if not device or device.owner_workflow != row.id:
+            failure(
+                MediaError(
+                    "DESTINATION_OWNERSHIP_LOST",
+                    "This workflow no longer controls that destination.",
+                    "control",
+                )
+            )
+        if subtitle_timing(row, device) != "adjustable":
+            failure(
+                MediaError(
+                    "SUBTITLE_FIXED",
+                    "These subtitles are part of the picture (or shown by the TV): their timing can't change.",
+                    "control",
+                )
+            )
+        if row.data.get("_seek_previous"):
+            raise HTTPException(409, "The film is loading at a new place. Try again in a moment.")
+    row.data = {**row.data, "subtitle_offset": round(offset, 1) or None}
+    if not on_screen:
+        return save_workflow(db, row, row.state)
+    from datetime import datetime
+
+    checkpoint = row.data.get("checkpoint") or {}
+    since = (
+        (utcnow() - datetime.fromisoformat(checkpoint["at"])).total_seconds() if checkpoint.get("at") else 0
+    )
+    playing = row.state != "paused" and (row.data.get("observation") or {}).get("state") != "paused"
+    position = float(checkpoint.get("position") or 0) + (max(0.0, min(since, 10)) if playing else 0)
+    return call(reload_at, db, row, device, position)
+
+
+def subtitle_timing(row, device):
+    """Can these subtitles move? A text sidecar the house serves to a Cast screen can
+    ("adjustable"); drawn in the picture or shown by the TV itself, not ("fixed")."""
+    plan = row.data.get("plan") or {}
+    if not plan.get("subtitle") or plan.get("subtitle_mode") == "off":
+        return None
+    adjustable = plan.get("subtitle_mode") == "webvtt" and device is not None and device.adapter == "cast"
+    return "adjustable" if adjustable else "fixed"
 
 
 def resume_settings(workflow, plan):
@@ -3834,9 +3891,19 @@ def receiver_media(token: str, name: str, request: Request, db: Session = Depend
             or not any(path.resolve().is_relative_to(root) for root in expected)
         ):
             raise HTTPException(404, "Media unavailable")
-        status, headers, chunks = call(
-            local_stream, path, request.headers.get("range"), head=request.method == "HEAD"
-        )
+        workflow = db.get(CinemaWorkflow, row.workflow_id) if name.endswith(".vtt") else None
+        offset = (workflow.data.get("subtitle_offset") if workflow else None) or 0
+        if offset:
+            # Subtitles early or late: their cues move when served, the file stays as prepared.
+            from .cinema_subtitles import shift_vtt
+
+            text = shift_vtt(path.read_text(encoding="utf-8", errors="replace"), offset).encode()
+            status, headers = 200, {"Content-Length": str(len(text))}
+            chunks = iter([] if request.method == "HEAD" else [text])
+        else:
+            status, headers, chunks = call(
+                local_stream, path, request.headers.get("range"), head=request.method == "HEAD"
+            )
     guarded = revocable_chunks(chunks, db.get_bind(), row.token_hash)
     return StreamingResponse(
         guarded,
@@ -4773,6 +4840,7 @@ def prepare_autoplay(db, row, actor):
             "_autoplay_expires_at": (utcnow() + timedelta(hours=3)).isoformat(),
             "_autoplay_depth": row.data.get("_autoplay_depth", 0) + 1,
             "_autoplay_parent": row.id,
+            "subtitle_offset": row.data.get("subtitle_offset"),  # the same release: same timing
             "preview": {
                 "action": "Autoplay next episode",
                 "title": title.title,

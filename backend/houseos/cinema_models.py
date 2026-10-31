@@ -199,6 +199,8 @@ class Change(Version):
     device_id: str | None = Field(default=None, max_length=36)
     preferences: Preferences = Field(default_factory=Preferences)
     source_choice: str | None = Field(default=None, max_length=120)
+    # Subtitles early or late, in seconds (positive: later); 0 resets. Applied at once.
+    subtitle_offset: float | None = Field(default=None, ge=-30, le=30)
 
 
 class StateUpdate(Body):

@@ -1,5 +1,5 @@
 import { t, getLanguage } from "./i18n";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   api,
   clock,
@@ -667,6 +667,7 @@ export function CinemaTransport({
           </Button>
         </form>
       )}
+      <SubtitleTiming current={current} onChanged={onChanged} />
       <CinemaStop current={current} onChanged={onChanged} />
       {/* The TV's own volume when it reports one; unknown for a moment (it just woke), the
           receiver's instead of nothing. */}
@@ -690,6 +691,89 @@ export function CinemaTransport({
             onCommit={(value) => void send("volume", value)}
           />
         )
+      )}
+      <Problem error={error} />
+    </div>
+  );
+}
+
+/** Subtitles early or late, in half seconds: taps add up, one change goes after the last. */
+function SubtitleTiming({
+  current,
+  onChanged,
+}: {
+  current: Obj;
+  onChanged: (result?: Obj) => void;
+}) {
+  const saved = Number(current.subtitle_offset || 0);
+  const [offset, setOffset] = useState<number | null>(null), // chosen, not yet on the TV
+    [busy, setBusy] = useState(false),
+    [error, setError] = useState("");
+  const timer = useRef<number | undefined>(undefined);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  useEffect(() => setOffset(null), [saved]);
+  if (current.subtitle_timing === "fixed")
+    return (
+      <Text style="caption" tone="muted">
+        {t(
+          "These subtitles are part of the picture or shown by the TV: their timing can’t change.",
+        )}
+      </Text>
+    );
+  if (current.subtitle_timing !== "adjustable") return null;
+  const shown = offset ?? saved;
+  const set = (value: number) => {
+    const next = Math.max(-30, Math.min(30, Math.round(value * 10) / 10));
+    setOffset(next);
+    clearTimeout(timer.current);
+    timer.current = window.setTimeout(async () => {
+      setBusy(true);
+      try {
+        const result = await api("/cinema/workflows/" + current.id + "/change", "POST", {
+          version: current.version,
+          subtitle_offset: next,
+        });
+        setError("");
+        onChanged(result);
+      } catch (e) {
+        setOffset(null);
+        setError((e as Error).message);
+      } finally {
+        setBusy(false);
+      }
+    }, 800);
+  };
+  const seconds =
+    shown.toLocaleString(getLanguage(), {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+      signDisplay: "exceptZero",
+    }) + "\u00a0s";
+  return (
+    <div className="watch-subtitle-timing">
+      <Text style="body-s">{t("Subtitle timing")}</Text>
+      <IconButton
+        icon="minus"
+        label={t("Subtitles earlier")}
+        disabled={shown <= -30}
+        onClick={() => set(shown - 0.5)}
+      />
+      <Text style="body-s">{seconds}</Text>
+      <IconButton
+        icon="add"
+        label={t("Subtitles later")}
+        disabled={shown >= 30}
+        onClick={() => set(shown + 0.5)}
+      />
+      {shown !== 0 && (
+        <Button size="s" variant="quiet" onClick={() => set(0)}>
+          {t("Reset")}
+        </Button>
+      )}
+      {busy && (
+        <Text style="caption" tone="muted">
+          {t("The film reloads where it is with this timing…")}
+        </Text>
       )}
       <Problem error={error} />
     </div>
