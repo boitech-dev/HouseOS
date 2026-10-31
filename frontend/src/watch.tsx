@@ -1217,7 +1217,7 @@ function Tonight({
   // Only the best few versions are checked when the film opens (that is the wait); more cached
   // ones are listed as they are and checked only when picked.
   const unchecked: Obj[] = (workflow?.provisional || [])
-    .filter((p: Obj) => p.rd_cached && !p.error)
+    .filter((p: Obj) => p.rd_cached && !p.error && !candidates.some((c) => c.id === p.id))
     .slice(0, Math.max(0, 8 - candidates.length));
   const check = async (id: string) => {
     setBusy(true);
