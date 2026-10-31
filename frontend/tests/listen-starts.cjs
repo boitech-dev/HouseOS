@@ -85,8 +85,14 @@ const { until } = require("./session.cjs");
   await starts.getByRole("button", { name: /Old love.*not heard for a while/ }).waitFor();
   assert.equal(await starts.getByRole("button", { name: /World News/ }).count(), 0);
   await starts.getByRole("button", { name: /Play the house's songs/ }).waitFor();
-  // Two stations (music only), next to the song picks and auto play.
-  assert.equal(await starts.getByRole("button", { name: /Fixture Station/ }).count(), 2);
+  // One station (music only), next to the song picks and auto play; Other ideas draws again.
+  assert.equal(await starts.getByRole("button", { name: /Fixture Station/ }).count(), 1);
+  const first = await starts.getByRole("button", { name: /Fixture Station/ }).textContent();
+  await page.getByRole("button", { name: "Other ideas" }).click();
+  await until(
+    async () =>
+      (await starts.getByRole("button", { name: /Fixture Station/ }).textContent()) !== first,
+  );
   await starts.getByRole("button", { name: /Play the house's songs/ }).click();
   await until(() => puts.length);
   assert.deepEqual(puts[0], { mode: "library", genres: [], stations: [] });

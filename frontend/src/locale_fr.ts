@@ -1500,9 +1500,6 @@ const french: Record<string, string> = {
   "Jellyfin user": "Utilisateur Jellyfin",
   // Music outputs & player (1.1)
   "Clear queue": "Vider la file",
-  "Remove 1 waiting song?": "Retirer le morceau en attente ?",
-  "Remove {n} waiting songs?": "Retirer les {n} morceaux en attente ?",
-  "Stop and clear the queue?": "Arrêter et vider la file ?",
   Keep: "Garder",
   "Play on this device": "Écouter sur cet appareil",
   "Speaker mode": "Mode enceinte",
@@ -4556,5 +4553,22 @@ const french: Record<string, string> = {
     "Le film se recharge au même moment avec ce décalage…",
   "These subtitles are part of the picture or shown by the TV: their timing can’t change.":
     "Ces sous-titres font partie de l’image ou sont affichés par la TV : leur décalage ne peut pas changer.",
+  "Remove 1 waiting song? The one playing goes on.":
+    "Retirer le morceau en attente ? Celui qui joue continue.",
+  "Remove {n} waiting songs? The one playing goes on.":
+    "Retirer les {n} morceaux en attente ? Celui qui joue continue.",
+  "kept here, rarely played": "gardé ici, peu écouté",
+  "{name} plays it a lot": "{name} l’écoute souvent",
+  "a housemate": "un coloc",
+  "a favourite this month": "un favori du mois",
+  "The house decides again.": "La maison décide à nouveau.",
+  "Genre of {n} songs": "Genre de {n} morceaux",
+  "Also the {n} other songs by this artist": "Aussi les {n} autres morceaux de cet artiste",
+  "Also every other song by their artists": "Aussi tous les autres morceaux de leurs artistes",
+  "Unsorted songs by the same artist follow your choice on their own.":
+    "Les morceaux non classés du même artiste suivent ton choix d’eux-mêmes.",
+  "Select songs": "Choisir des morceaux",
+  "Set the genre of {n} songs": "Donner un genre à {n} morceaux",
+  "Also the other song by this artist": "Aussi l’autre morceau de cet artiste",
 };
 export default french;

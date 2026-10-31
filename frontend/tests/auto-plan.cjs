@@ -35,7 +35,11 @@ const { until } = require("./session.cjs");
       const body = route.request().postDataJSON();
       puts.push(body);
       assert.equal(body.version, version);
-      plan = body.shuffle ? [...plan].reverse() : body.urls;
+      plan = body.shuffle
+        ? [...plan].reverse()
+        : body.remove
+          ? plan.filter((u) => !body.remove.includes(u))
+          : body.urls;
       version += 1;
     }
     return route.fulfill({
@@ -44,7 +48,12 @@ const { until } = require("./session.cjs");
         version,
         can_change: true,
         // Its next pick already sits in the queue: the list starts with it.
-        queued: queued.map((id) => ({ id, source_url: url(9), title: "Queued pick", removable: true })),
+        queued: queued.map((id) => ({
+          id,
+          source_url: url(9),
+          title: "Queued pick",
+          removable: true,
+        })),
         items: plan.map((u) => ({ source_url: u, title: "Song " + u.slice(-1), genre: "pop" })),
       },
     });
@@ -55,7 +64,8 @@ const { until } = require("./session.cjs");
   await page.getByRole("button", { name: "See and change the list" }).click();
   const sheet = page.getByRole("dialog", { name: "Auto play: next songs" });
   await sheet.getByText("Song 1", { exact: true }).waitFor();
-  await sheet.getByText("Already in the queue", { exact: true }).waitFor();
+  // One list in play order: the queued pick first, numbered with the rest.
+  await sheet.getByText("Queued pick", { exact: true }).waitFor();
   await sheet.screenshot({ path: "evidence/latest/auto-plan-queued.png" });
   await sheet.getByRole("button", { name: "Remove · Queued pick" }).click();
   await until(() => deletes.length >= 1);
@@ -66,7 +76,7 @@ const { until } = require("./session.cjs");
   assert.deepEqual(puts[0].urls, [url(2), url(1), url(3)]);
   await sheet.getByRole("button", { name: "Remove · Song 3" }).click();
   await until(() => puts.length >= 2);
-  assert.deepEqual(puts[1].urls, [url(2), url(1)]);
+  assert.deepEqual(puts[1].remove, [url(3)]); // no version to match: quick removals all land
   await sheet.getByRole("button", { name: "Draw a new random list" }).click();
   await until(() => puts.length >= 3);
   assert.equal(puts[2].shuffle, true);
@@ -74,7 +84,9 @@ const { until } = require("./session.cjs");
   await page.screenshot({ path: "evidence/latest/auto-plan-phone.png", fullPage: true });
   assert.deepEqual(errors, []);
   await browser.close();
-  console.log("PASS auto play's next songs: the queued pick first, moved, removed and redrawn (mocked)");
+  console.log(
+    "PASS auto play's next songs: the queued pick first, moved, removed and redrawn (mocked)",
+  );
 })().catch((e) => {
   console.error(e);
   process.exit(1);

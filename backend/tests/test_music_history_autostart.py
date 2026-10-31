@@ -362,15 +362,14 @@ def test_atomic_batch_candidates_and_idempotency(music_domain):
     assert q.current_id == result["items"][0]["item_id"]
 
 
-def test_clear_stops_current_and_late_command_preserves_new_song(music_domain, monkeypatch, tmp_path):
-    from threading import Thread, Event
+def test_clear_removes_the_waiting_songs_and_the_playing_one_goes_on(music_domain, monkeypatch, tmp_path):
     from houseos import worker
     from houseos.config import settings
     from houseos.models import Job
 
     db, (alice, _, _), q = music_domain
     entries = []
-    for status in ["playing", "ready", "pending_metadata", "awaiting_confirmation", "failed"]:
+    for status in ("playing", "ready", "pending_metadata", "failed"):
         item = m.QueueItem(
             owner_id=alice.id,
             source_url=url(),
@@ -385,7 +384,8 @@ def test_clear_stops_current_and_late_command_preserves_new_song(music_domain, m
     q.current_id, q.desired = entries[0].id, "playing"
     op = m.control_effect(db, alice, q, "clear", None)
     db.commit()
-    assert all(item.status == "removed" for item in entries) and q.desired == "paused"
+    assert entries[0].status == "playing" and q.desired == "playing" and q.current_id == entries[0].id
+    assert all(item.status == "removed" for item in entries[1:])
     job = db.scalar(select(Job).where(Job.logical_key == "control:" + op.id))
     job.state, job.generation = "running", 1
     db.commit()
@@ -412,43 +412,12 @@ def test_clear_stops_current_and_late_command_preserves_new_song(music_domain, m
     monkeypatch.setattr(settings, "runtime_root", tmp_path)
     calls = []
     monkeypatch.setattr(
-        worker,
-        "bridge",
-        lambda action, **kw: (
-            calls.append(action)
-            or ({"status": "observed", "idle": True} if action == "state" else {"status": "command_sent"})
-        ),
+        worker, "bridge", lambda action, **kw: calls.append(action) or {"status": "command_sent"}
     )
     monkeypatch.setattr(worker, "fetch", lambda *args, **kw: {"status": "completed"})
     worker.run_job((job.id, 1, job.kind, dict(job.payload)))
-    assert calls == ["stop", "state"] and q.current_id is None
-    assert db.get(Operation, op.id).result["stop_observed"]
-    # A clear waiting behind an in-flight load must recheck the newest queue identity.
-    q.current_id = entries[0].id
-    op = m.control_effect(db, alice, q, "clear", None)
-    db.commit()
-    job = db.scalar(select(Job).where(Job.logical_key == "control:" + op.id))
-    job.state, job.generation = "running", 1
-    db.commit()
-    payload = (job.id, 1, job.kind, dict(job.payload))
-    started = Event()
-    calls.clear()
-
-    def run():
-        started.set()
-        worker.run_job(payload)
-
-    with worker.PLAYER_COMMANDS:
-        thread = Thread(target=run)
-        thread.start()
-        assert started.wait(1)
-        q.current_id = "new-requested-item"
-        q.desired = "playing"
-        assert not calls
-    thread.join(3)
-    assert not thread.is_alive()
-    assert not calls and q.current_id == "new-requested-item"
-    assert db.get(Job, job.id).error_code == "PLAYBACK_GENERATION_CHANGED"
+    assert not calls and q.current_id == entries[0].id  # the player is never told to stop
+    assert db.get(Operation, op.id).state == "completed"
 
 
 def test_previous_selects_real_history_and_preserves_current(music_domain):

@@ -280,10 +280,14 @@ def test_unsorted_songs_follow_the_house_s_songs_by_that_artist_and_a_choice(dom
     assert genre(lone) == "rap / hip-hop" and genre(other) == "other"
     assert genre_of(db.get(Record, m.history_key(lone)).data["evidence"]) == "rap / hip-hop"  # stats agree
     # A resident's choice counts as two: SCH's other song follows it.
-    music_catalog.choose(db, single, "rap / hip-hop")
+    music_catalog.choose(db, [single], "rap / hip-hop")
     assert genre(other) == "rap / hip-hop"
-    music_catalog.choose(db, other, "chanson")  # their own choice wins over the house's
+    music_catalog.choose(db, [other], "chanson")  # their own choice wins over the house's
     assert genre(other) == "chanson"
     with pytest.raises(ValueError):
-        music_catalog.choose(db, other, "made up")
+        music_catalog.choose(db, [other], "made up")
     assert genre_of({"title": "Les Mystérieuses Cités d'Or - Générique (1982)"}) == "anime"
+    # Every song by the same artist, at once: Yung Beef's four, not SCH's.
+    same, artists = music_catalog.by_same_artist(db, [lone])
+    assert artists == {"yung beef aka lana del rey"} and len(same) == 4
+    assert music_catalog.choose(db, same, "latin") == 4 and genre(lone) == "latin"

@@ -18,6 +18,7 @@ import {
   type Obj,
 } from "./api";
 import { go } from "./nav";
+import { GenreButton } from "./genre_sheet";
 import { ShareButtons } from "./custom_integrations";
 import { claimIncomingShare, localStore } from "./local";
 import { PeopleFilter, SortGenres } from "./music";
@@ -1567,7 +1568,8 @@ function HouseLibrary({ kind }: { kind: "music" | "movies" }) {
     [film, setFilm] = useState<Obj | null>(null),
     [removing, setRemoving] = useState<Obj | null>(null),
     [twice, setTwice] = useState(false);
-  const admin = useUser()?.role === "admin";
+  const role = useUser()?.role;
+  const admin = role === "admin";
   // Admins: songs that may be kept twice (two links to one song), to keep one.
   const dupes = useData(admin && kind === "music" ? "/files/library/duplicates" : null);
   const doubles: number = dupes.data?.count || 0;
@@ -1684,15 +1686,22 @@ function HouseLibrary({ kind }: { kind: "music" | "movies" }) {
                   )
                 }
                 title={song.title}
-                detail={[
-                  song.artist,
-                  song.genre && song.genre !== "other" ? t(song.genre) : "",
-                  song.plays ? "×" + song.plays : "",
-                  bytes(song.size),
-                  song.first_by && t("first played by") + " " + song.first_by,
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
+                detail={
+                  <>
+                    {[
+                      song.artist,
+                      role === "guest" && song.genre !== "other" ? t(song.genre) : "",
+                      song.plays ? "×" + song.plays : "",
+                      bytes(song.size),
+                      song.first_by && t("first played by") + " " + song.first_by,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}{" "}
+                    {role !== "guest" && song.source_url && (
+                      <GenreButton song={song} onChanged={pages.reload} />
+                    )}
+                  </>
+                }
                 actions={
                   <>
                     {song.source_url && (

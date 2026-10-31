@@ -125,7 +125,7 @@ def test_the_next_songs_can_be_seen_moved_trimmed_and_reshuffled(monkeypatch):
         assert sorted(i["source_url"] for i in shuffled["items"]) == sorted(set(urls) - {order[-1]})
 
 
-def test_quick_songs_mix_lately_loved_and_missed():
+def test_quick_songs_mix_four_kinds_of_ideas():
     from datetime import timedelta
 
     from houseos.db import utcnow
@@ -136,32 +136,26 @@ def test_quick_songs_mix_lately_loved_and_missed():
     actor = Actor("one", "One", "resident", frozenset({"music.read"}))
     now = utcnow()
     with Session(fixture.engine, expire_on_commit=False) as db:
-        for name, days, plays in (
-            ("hot", 1, 5),
-            ("warm", 2, 3),
-            ("old", 7, 4),
-            ("both", 7, 2),
-            ("both", 1, 1),
+        for name, genre, who, days, plays in (
+            ("hot", "pop", "one", 1, 5),  # the top of the last 3 days
+            ("old", "rock", "one", 20, 4),  # loved, not heard for 10 days
+            ("rare", "jazz", "one", 50, 1),  # kept, rarely played…
+            ("liked", "jazz", "one", 5, 3),  # …in a genre liked lately
+            ("theirs", "reggae", "two", 4, 6),  # a housemate's favourite
         ):
             url = "https://www.youtube.com/watch?v=" + name.ljust(11, "x")
-            if not db.get(Record, music.history_key(url)):
-                kept(db, url, "pop")
-                db.flush()
+            kept(db, url, genre)
+            db.flush()
             for _ in range(plays):
-                db.add(
-                    Record(
-                        kind="music.play",
-                        owner_id="one",
-                        visibility="house",
-                        data={"key": music.history_key(url)},
-                        created_at=now - timedelta(days=days),
-                    )
-                )
+                db.add(Record(kind="music.play", owner_id=who, visibility="house",
+                              data={"key": music.history_key(url)}, created_at=now - timedelta(days=days)))  # fmt: skip
         db.commit()
         picks = music.quick_songs(actor, db)["items"]
-        why = {p["source_url"][-11:].rstrip("x"): p["why"] for p in picks}
-        assert len(picks) == 4 and why["old"] == "missed"  # "both" was heard lately: not missed
-        assert sorted(k for k, w in why.items() if w == "lately") == ["both", "hot", "warm"]
+        why = {p["why"]: p["source_url"][-11:].rstrip("x") for p in picks}
+        assert why == {"lately": why["lately"], "missed": "old", "kept": "rare", "friend": "theirs"}
+        assert why["lately"] in {"hot", "liked", "theirs"}
+        assert next(p["by"] for p in picks if p["why"] == "friend") == "two"
+        assert len({p["source_url"] for p in picks}) == 4
 
 
 def test_auto_plays_failed_picks_leave_up_next_but_requests_stay():

@@ -9,6 +9,17 @@ Newest first.
 
 ### 2026-10-31
 
+- **Clear queue keeps the song playing**: it removes the waiting songs only; *Stop* ends the
+  one playing. With nothing waiting, the button isn't shown.
+- **Ideas, more varied**: one of the house's very top songs lately, a favourite not heard for
+  ten days, a kept song rarely played in a genre the house likes, and a housemate's favourite
+  (else one of the month's), no two by the same artist or in the same genre.
+- **Genres by hand**: tap a song's genre (or *+ Genre*) in My music → On this house or Files →
+  music: every genre is a button, with *Also the other songs by this artist*. *Select songs*
+  files several at once. Unsorted songs by the same artist follow on their own.
+- **Subtitle timing**: subtitles early or late move in half seconds from the player (the film
+  reloads where it is); Nox does it too, and the next episodes keep the timing.
+
 - **Songs sorted into genres**: the house's songs list showed "other" for every kept song nobody
   had played yet (about 400 here) though its genre was known. Songs no catalogue knows now take
   the genre of the house's other songs by the same artist or channel (two at least, two thirds

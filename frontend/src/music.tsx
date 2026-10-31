@@ -1,5 +1,6 @@
 // Listen: the house's shared music. The queue is the heart of it (everyone takes turns); around
 // it, one field to add anything, and the room's own places: My music, Radio, History, Auto play.
+import { GenreButton, GenreSheet } from "./genre_sheet";
 import { t, plural } from "./i18n";
 import { useState, useEffect, useRef, useSyncExternalStore, type ReactNode } from "react";
 import {
@@ -628,10 +629,11 @@ export function StopAndClear({ music }: { music: Playback }) {
         <div role="group" aria-label={t("Clear queue")} className="listen-stopclear__ask">
           <Text style="body-s">
             {waiting === 1
-              ? t("Remove 1 waiting song?")
-              : waiting
-                ? t("Remove {n} waiting songs?").replace("{n}", String(waiting))
-                : t("Stop and clear the queue?")}
+              ? t("Remove 1 waiting song? The one playing goes on.")
+              : t("Remove {n} waiting songs? The one playing goes on.").replace(
+                  "{n}",
+                  String(waiting),
+                )}
           </Text>
           <Cluster>
             <Button variant="danger" size="s" busy={busy} onClick={() => void clear()}>
@@ -652,9 +654,11 @@ export function StopAndClear({ music }: { music: Playback }) {
           >
             {t("Stop")}
           </Button>
-          <Button size="s" variant="quiet" icon="list-clear" onClick={() => setAsking(true)}>
-            {t("Clear queue")}
-          </Button>
+          {waiting > 0 && (
+            <Button size="s" variant="quiet" icon="list-clear" onClick={() => setAsking(true)}>
+              {t("Clear queue")}
+            </Button>
+          )}
         </Cluster>
       )}
       <Problem error={error} />
@@ -1468,7 +1472,17 @@ function QuickStarts({ music }: { music: Playback }) {
             key={song.source_url}
             leading={<Cover src={song.art} />}
             title={song.title || t("Untitled song")}
-            detail={song.why === "missed" ? t("not heard for a while") : t("played a lot lately")}
+            detail={
+              song.why === "missed"
+                ? t("not heard for a while")
+                : song.why === "kept"
+                  ? t("kept here, rarely played")
+                  : song.why === "friend"
+                    ? t("{name} plays it a lot").replace("{name}", song.by || t("a housemate"))
+                    : song.why === "month"
+                      ? t("a favourite this month")
+                      : t("played a lot lately")
+            }
             onOpen={busy ? undefined : start(() => queueSong(song.source_url))}
           />
         ))}
@@ -2812,17 +2826,17 @@ function HouseSongs({ music, pick }: { music?: Playback; pick?: (song: Obj) => P
   const first = useData("/files/library?" + query);
   const { run, busy, error } = useAction(async () => {});
   const genres: Obj[] = first.data?.facets?.genres || [];
-  const choices: string[] = first.data?.choices || [];
   const user = useUser();
-  const [filing, setFiling] = useState("");
-  // The house's other unsorted songs by that artist follow the genre picked here.
-  const file = (song: Obj, chosen: string) =>
-    act(song, async () => {
-      await api("/music/genre", "PUT", { source_url: song.source_url, genre: chosen });
-      setFiling("");
-      toast(t("Filed under {genre}.").replace("{genre}", t(chosen || "other")));
-      await Promise.all([first.reload(), pages.reload()]);
-    });
+  const sorter = !pick && user?.role !== "guest";
+  // Select several songs, then file them under a genre at once.
+  const [selecting, setSelecting] = useState(false),
+    [selected, setSelected] = useState<Obj[]>([]),
+    [filing, setFiling] = useState(false);
+  const refresh = () => Promise.all([first.reload(), pages.reload()]);
+  const toggle = (song: Obj) =>
+    setSelected((now) =>
+      now.some((s) => s.id === song.id) ? now.filter((s) => s.id !== song.id) : [...now, song],
+    );
   const act = (song: Obj, fn: () => Promise<unknown>) =>
     void run(async () => {
       await fn();
@@ -2858,18 +2872,69 @@ function HouseSongs({ music, pick }: { music?: Playback; pick?: (song: Obj) => P
           <option value="artist">{t("Artist")}</option>
         </Select>
       </div>
+      {sorter && (
+        <Cluster>
+          <Button
+            size="s"
+            variant="quiet"
+            icon={selecting ? "close" : "check"}
+            onClick={() => {
+              setSelecting(!selecting);
+              setSelected([]);
+            }}
+          >
+            {selecting ? t("Done") : t("Select songs")}
+          </Button>
+          {selecting && (
+            <Button
+              size="s"
+              variant="primary"
+              disabled={!selected.length}
+              onClick={() => setFiling(true)}
+            >
+              {t("Set the genre of {n} songs").replace("{n}", String(selected.length))}
+            </Button>
+          )}
+        </Cluster>
+      )}
+      {filing && (
+        <GenreSheet
+          songs={selected}
+          onClose={() => setFiling(false)}
+          onDone={async () => {
+            setSelected([]);
+            setSelecting(false);
+            await refresh();
+          }}
+        />
+      )}
       <Problem error={error || first.error || pages.error} onRetry={first.reload} />
       <List label={t("On this house")}>
         {pages.items.map((song) => (
           <ListRow
             key={song.id}
-            leading={<Cover src={song.art} />}
             title={song.title}
             detail={
               <span className="listen-detail">
                 {song.artist && <span>{song.artist}</span>}
-                <GenreTag genre={song.genre} />
+                {sorter ? (
+                  <GenreButton song={song} onChanged={refresh} />
+                ) : (
+                  <GenreTag genre={song.genre} />
+                )}
               </span>
+            }
+            leading={
+              selecting ? (
+                <Checkbox
+                  label={song.title}
+                  hideLabel
+                  checked={selected.some((s) => s.id === song.id)}
+                  onChange={() => toggle(song)}
+                />
+              ) : (
+                <Cover src={song.art} />
+              )
             }
             actions={
               pick ? (
@@ -2903,34 +2968,10 @@ function HouseSongs({ music, pick }: { music?: Playback; pick?: (song: Obj) => P
                     label={t("Add to playlist") + " · " + song.title}
                     onClick={() => setAdding(adding === song.id ? "" : song.id)}
                   />
-                  {user?.role !== "guest" && (
-                    <IconButton
-                      icon="bookmark"
-                      size="s"
-                      pressed={filing === song.id}
-                      label={t("Genre") + " · " + song.title}
-                      onClick={() => setFiling(filing === song.id ? "" : song.id)}
-                    />
-                  )}
                 </>
               )
             }
           >
-            {filing === song.id && (
-              <Select
-                aria-label={t("Genre") + " · " + song.title}
-                value={song.genre === "other" ? "" : song.genre}
-                disabled={busy}
-                onChange={(e) => file(song, e.target.value)}
-              >
-                <option value="">{t("Let the house decide")}</option>
-                {choices.map((g) => (
-                  <option key={g} value={g}>
-                    {t(g)}
-                  </option>
-                ))}
-              </Select>
-            )}
             {adding === song.id && (
               <AddToPlaylist
                 song={song}

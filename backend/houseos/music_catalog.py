@@ -261,23 +261,46 @@ def from_the_house(db, rows=None, extra=()):
     return changed
 
 
-def choose(db, url, genre, extra=()):
-    """A resident files a song under a genre (or "" to let the house decide again): kept on the
-    song's records, then the house's other songs by that artist follow. The caller checks rights."""
+def artist_of(data):
+    """The song's own artist (named in its title, else its channel's), folded; "" if none."""
+    from .music_genre import artist_and_track, fold
+
+    evidence = data.get("evidence") or {}
+    title = evidence.get("title") or data.get("title") or ""
+    uploader = evidence.get("uploader") or data.get("uploader") or ""
+    return fold(evidence.get("artist") or artist_and_track(title, uploader)[0])
+
+
+def by_same_artist(db, urls):
+    """Every kept or played song by the artists of these songs (theirs included)."""
+    rows = songs(db)
+    wanted = {history_key(url) for url in urls}
+    artists = {artist_of(data) for identity, data in rows if identity in wanted} - {""}
+    found = {data["source_url"] for _, data in rows if artist_of(data) in artists and data.get("source_url")}
+    return found | set(urls), artists
+
+
+def choose(db, urls, genre, extra=()):
+    """Residents file songs under a genre (or "" to let the house decide again): kept on each
+    song's records, then the house's other unsorted songs by those artists follow. Returns how
+    many songs. The caller checks rights."""
     from .music_genre import NAMES, custom_families
 
     if genre and genre not in NAMES + [name for name, _ in custom_families(extra)]:
         raise ValueError(genre)
-    records = [db.get(Record, history_key(url), with_for_update=True)]
+    urls = list(dict.fromkeys([urls] if isinstance(urls, str) else urls))
+    records = list(
+        db.scalars(select(Record).where(Record.id.in_([history_key(url) for url in urls])).with_for_update())
+    )
     records += db.scalars(
         select(Record)
-        .where(Record.kind == "music.download", Record.data["source_url"].as_string() == url)
+        .where(Record.kind == "music.download", Record.data["source_url"].as_string().in_(urls))
         .with_for_update()
     ).all()
-    records = [r for r in records if r and not r.deleted_at]
+    records = [r for r in records if not r.deleted_at]
     for row in records:
         evidence = {**(row.data.get("evidence") or {}), "chosen": genre or None}
         row.data = {**row.data, "evidence": evidence, "genre": genre_of(evidence, extra)}
     db.commit()
     from_the_house(db, extra=extra)
-    return len(records)
+    return len({r.data.get("source_url") for r in records})

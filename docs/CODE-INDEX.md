@@ -103,31 +103,31 @@ permissions, in the tool groups it was given. The handlers are Nox's (tool_catal
 two never drift; the person's permission checks run inside them as for the app's screens.
 Never through here: setup, settings, secrets, addresses, code, files, backups or shutdown.
 
-- [`actor_for(db, authorization)`](../backend/houseos/agent_mcp.py#L178)
+- [`actor_for(db, authorization)`](../backend/houseos/agent_mcp.py#L179)
   (token record, Actor) for a valid bearer token, else None.
-- [`allowed_tools(row)`](../backend/houseos/agent_mcp.py#L196)
-- [`flat(schema, defs=None)`](../backend/houseos/agent_mcp.py#L204)
+- [`allowed_tools(row)`](../backend/houseos/agent_mcp.py#L197)
+- [`flat(schema, defs=None)`](../backend/houseos/agent_mcp.py#L205)
   A tool's input schema the way every model reads it: no $ref, no anyOf, only common keys.
-- [`merged(forms)`](../backend/houseos/agent_mcp.py#L230)
+- [`merged(forms)`](../backend/houseos/agent_mcp.py#L231)
   Objects: every field of every form, required only when all require it. Choices: all of
-- [`tool_list(tools)`](../backend/houseos/agent_mcp.py#L247)
-- [`carried_out(name, result, actor, db)`](../backend/houseos/agent_mcp.py#L286)
+- [`tool_list(tools)`](../backend/houseos/agent_mcp.py#L248)
+- [`carried_out(name, result, actor, db)`](../backend/houseos/agent_mcp.py#L287)
   A card waiting for the person's tap, tapped (DOES_IT tools only): the confirmation's own
-- [`run(name, arguments, tools, actor, db)`](../backend/houseos/agent_mcp.py#L303)
+- [`run(name, arguments, tools, actor, db)`](../backend/houseos/agent_mcp.py#L304)
   (text, is_error) of one call: Nox's handler, with Nox's argument handling.
-- [`answer(message_id, result=None, error=None)`](../backend/houseos/agent_mcp.py#L344)
-- [`handle(message, row, actor, db)`](../backend/houseos/agent_mcp.py#L350)
-- [`mcp(request: Request, request_body: dict | list=Body(...), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L394)
+- [`answer(message_id, result=None, error=None)`](../backend/houseos/agent_mcp.py#L345)
+- [`handle(message, row, actor, db)`](../backend/houseos/agent_mcp.py#L351)
+- [`mcp(request: Request, request_body: dict | list=Body(...), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L395)
   HTTP: `router.post('/mcp', include_in_schema=False)`
-- [`mcp_other()`](../backend/houseos/agent_mcp.py#L421)
+- [`mcp_other()`](../backend/houseos/agent_mcp.py#L422)
   No event stream and no sessions: everything is answered on the POST.
-- [`class NewAgent`](../backend/houseos/agent_mcp.py#L426)
-- [`shown(row, db)`](../backend/houseos/agent_mcp.py#L432)
-- [`list_agents(actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L446)
+- [`class NewAgent`](../backend/houseos/agent_mcp.py#L427)
+- [`shown(row, db)`](../backend/houseos/agent_mcp.py#L433)
+- [`list_agents(actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L447)
   HTTP: `admin.get('')`
-- [`create_agent(body: NewAgent, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L457)
+- [`create_agent(body: NewAgent, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L466)
   HTTP: `admin.post('')`
-- [`revoke_agent(identity: str, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L484)
+- [`revoke_agent(identity: str, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L493)
   HTTP: `admin.delete('/{identity}')`
 
 ## anime_catalog
@@ -738,7 +738,7 @@ Cinema domain: user-owned workflows, source choices, confirmations and watch sta
 - [`shift_subtitles(db, row, offset)`](../backend/houseos/cinema.py#L3365)
   The served WebVTT moves by `offset` (receiver_media); a film on the screen is loaded again
 - [`subtitle_timing(row, device)`](../backend/houseos/cinema.py#L3403)
-  "adjustable": a text sidecar the house serves to a Cast screen; "fixed": drawn in the
+  Can these subtitles move? A text sidecar the house serves to a Cast screen can
 - [`resume_settings(workflow, plan)`](../backend/houseos/cinema.py#L3413)
 - [`last_resume(db, actor, identity)`](../backend/houseos/cinema.py#L3427)
 - [`resume_offer(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/cinema.py#L3473)
@@ -1998,51 +1998,53 @@ All user paths are logical names. Bytes use opaque IDs and no-follow directory F
 - [`audio_type(head: bytes)`](../backend/houseos/files.py#L1809)
 - [`film_kind(title, parent)`](../backend/houseos/files.py#L1817)
   film, series or anime, the way Watch splits them (anime: a MyAnimeList id).
-- [`library_songs(db)`](../backend/houseos/files.py#L1829)
+- [`genre_choices(db)`](../backend/houseos/files.py#L1829)
+  The genres a resident can file a song under: the house's own, then the built-in ones.
+- [`library_songs(db)`](../backend/houseos/files.py#L1837)
   Every kept song with what the house knows about it, and who played it.
-- [`library_films(db)`](../backend/houseos/files.py#L1880)
+- [`library_films(db)`](../backend/houseos/files.py#L1888)
   Every saved film or episode, named and sorted from the cinema catalogue.
-- [`library(kind: Literal['music', 'movies']='music', q: Annotated[str, Query(max_length=100)]='', sort: Literal['recent', 'title', 'plays', 'played', 'artist', 'year', 'size']='recent', genre: Annotated[str, Query(max_length=80)]='', by: Annotated[str, Query(max_length=36)]='', type: Literal['', 'film', 'series', 'anime']='', offset: Annotated[int, Query(ge=0)]=0, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/files.py#L1952)
+- [`library(kind: Literal['music', 'movies']='music', q: Annotated[str, Query(max_length=100)]='', sort: Literal['recent', 'title', 'plays', 'played', 'artist', 'year', 'size']='recent', genre: Annotated[str, Query(max_length=80)]='', by: Annotated[str, Query(max_length=36)]='', type: Literal['', 'film', 'series', 'anime']='', offset: Annotated[int, Query(ge=0)]=0, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/files.py#L1960)
   What the house keeps on its own disk: songs saved after a first play, films saved
   HTTP: `router.get('/library')`
-- [`class NotDuplicates`](../backend/houseos/files.py#L2016)
-- [`library_duplicates(actor: Actor=Depends(require_admin), db: Session=Depends(get_db))`](../backend/houseos/files.py#L2022)
+- [`class NotDuplicates`](../backend/houseos/files.py#L2025)
+- [`library_duplicates(actor: Actor=Depends(require_admin), db: Session=Depends(get_db))`](../backend/houseos/files.py#L2031)
   Admins: kept songs that may be one song twice. Each group lists the one to keep first
   HTTP: `router.get('/library/duplicates')`
-- [`not_duplicates(body: NotDuplicates, actor: Actor=Depends(require_admin), db: Session=Depends(get_db))`](../backend/houseos/files.py#L2056)
+- [`not_duplicates(body: NotDuplicates, actor: Actor=Depends(require_admin), db: Session=Depends(get_db))`](../backend/houseos/files.py#L2065)
   Admins: these songs aren't one song; they aren't flagged together again.
   HTTP: `router.post('/library/duplicates/dismiss')`
-- [`library_song(identity: str, request: Request, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/files.py#L2074)
+- [`library_song(identity: str, request: Request, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/files.py#L2083)
   HTTP: `router.get('/library/music/{identity}/download')`
-- [`saved_film(db, actor, identity)`](../backend/houseos/files.py#L2104)
-- [`film_in_browser(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/files.py#L2115)
+- [`saved_film(db, actor, identity)`](../backend/houseos/files.py#L2113)
+- [`film_in_browser(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/files.py#L2124)
   Whether this saved film plays in a browser as it is (checked once, then remembered).
   HTTP: `router.get('/library/films/{identity}/browser')`
-- [`film_bytes(row)`](../backend/houseos/files.py#L2149)
+- [`film_bytes(row)`](../backend/houseos/files.py#L2158)
   An open, regular file for a saved film (never through a link), and its size.
-- [`film_type(path)`](../backend/houseos/files.py#L2163)
-- [`film_download(identity: str, request: Request, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/files.py#L2168)
+- [`film_type(path)`](../backend/houseos/files.py#L2172)
+- [`film_download(identity: str, request: Request, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/files.py#L2177)
   The saved file itself, to keep on this device (any format: a phone's player may play it).
   HTTP: `router.get('/library/films/{identity}/download')`
-- [`film_player_link(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/files.py#L2181)
+- [`film_player_link(identity: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/files.py#L2190)
   A link another app can open (VLC and other players send no sign-in cookie): encrypted, for
   HTTP: `router.post('/library/films/{identity}/player-link')`
-- [`film_by_link(token: str, name: str, request: Request, db: Session=Depends(get_db))`](../backend/houseos/files.py#L2197)
+- [`film_by_link(token: str, name: str, request: Request, db: Session=Depends(get_db))`](../backend/houseos/files.py#L2206)
   HTTP: `router.get('/film-link/{token}/{name}')`
-- [`film_stream(identity: str, request: Request, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/files.py#L2219)
+- [`film_stream(identity: str, request: Request, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/files.py#L2228)
   HTTP: `router.get('/library/films/{identity}/stream')`
-- [`download(file_id: str, request: Request, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/files.py#L2231)
+- [`download(file_id: str, request: Request, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/files.py#L2240)
   HTTP: `router.get('/{file_id}/download')`
-- [`thumbnail(file_id: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/files.py#L2241)
+- [`thumbnail(file_id: str, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/files.py#L2250)
   A small JPEG of a picture for the file list, made once per version and kept a month.
   HTTP: `router.get('/{file_id}/thumb')`
-- [`preview(file_id: str, request: Request, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/files.py#L2273)
+- [`preview(file_id: str, request: Request, actor: Actor=Depends(require_actor), db: Session=Depends(get_db))`](../backend/houseos/files.py#L2282)
   HTTP: `router.get('/{file_id}/preview')`
-- [`expire_uploads(db: Session)`](../backend/houseos/files.py#L2279)
+- [`expire_uploads(db: Session)`](../backend/houseos/files.py#L2288)
   Delete only expired app-owned transfer bytes, then release their reservation.
-- [`maintain_files(db: Session)`](../backend/houseos/files.py#L2322)
+- [`maintain_files(db: Session)`](../backend/houseos/files.py#L2331)
   Expiry is recoverable trash; irreversible cleanup requires explicit admin policy.
-- [`reconcile_staging(db: Session)`](../backend/houseos/files.py#L2375)
+- [`reconcile_staging(db: Session)`](../backend/houseos/files.py#L2384)
   Bounded cleanup of app staging orphans; known finalizing uploads are retained.
 
 ## film_index
@@ -2769,77 +2771,77 @@ Source: [backend/houseos/music.py](../backend/houseos/music.py)
 - [`class Control`](../backend/houseos/music.py#L843)
   Method: `check_value(self)`
 - [`control_effect(db, actor, q, action, value, aim=None)`](../backend/houseos/music.py#L865)
-- [`control(body: Control, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1016)
+- [`control(body: Control, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1018)
   HTTP: `router.post('/control')`
-- [`confirm(operation_id: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1058)
+- [`confirm(operation_id: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1060)
   HTTP: `router.post('/confirm/{operation_id}')`
-- [`history_key(source_url)`](../backend/houseos/music.py#L1076)
-- [`record_played(db, item, observation)`](../backend/houseos/music.py#L1080)
+- [`history_key(source_url)`](../backend/houseos/music.py#L1078)
+- [`record_played(db, item, observation)`](../backend/houseos/music.py#L1082)
   Called once only after the exact item is positively observed playing, under queue lock.
-- [`saved_records(db, actor)`](../backend/houseos/music.py#L1134)
-- [`source_metadata(db, sources)`](../backend/houseos/music.py#L1145)
+- [`saved_records(db, actor)`](../backend/houseos/music.py#L1136)
+- [`source_metadata(db, sources)`](../backend/houseos/music.py#L1147)
   One bounded batch; display data stays in the existing queue metadata cache.
-- [`history(offset: int=Query(0, ge=0), limit: int=Query(50, ge=1, le=100), actor=Depends(require_actor), db=Depends(get_db), by: str | None=Query(None, max_length=36), before: str | None=Query(None, max_length=200))`](../backend/houseos/music.py#L1184)
+- [`history(offset: int=Query(0, ge=0), limit: int=Query(50, ge=1, le=100), actor=Depends(require_actor), db=Depends(get_db), by: str | None=Query(None, max_length=36), before: str | None=Query(None, max_length=200))`](../backend/houseos/music.py#L1186)
   Newest first. `before` (from `next_before`) continues after a row, so plays that arrive
   HTTP: `router.get('/history')`
-- [`queue_favorites(db, actor, count=10)`](../backend/houseos/music.py#L1260)
+- [`queue_favorites(db, actor, count=10)`](../backend/houseos/music.py#L1262)
   The house's own greatest hits: `count` random picks from the 100 most played songs,
-- [`quick_songs(actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1308)
-  Songs to start an empty queue with, drawn anew on each visit: three of the house's most
+- [`quick_songs(actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1310)
+  Four songs to start the music with, drawn anew on each visit, each of another kind: one of
   HTTP: `router.get('/quick-songs')`
-- [`class Favorites`](../backend/houseos/music.py#L1351)
-- [`favorites_queue(body: Favorites, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1356)
+- [`class Favorites`](../backend/houseos/music.py#L1401)
+- [`favorites_queue(body: Favorites, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1406)
   HTTP: `router.post('/favorites/queue')`
-- [`source_genres(db, sources)`](../backend/houseos/music.py#L1361)
+- [`source_genres(db, sources)`](../backend/houseos/music.py#L1411)
   The genre the house worked out for each song lives on its history row.
-- [`saved(actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1373)
+- [`saved(actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1423)
   HTTP: `router.get('/saved')`
-- [`save_canonical_track(db, actor, url, item=None)`](../backend/houseos/music.py#L1395)
-- [`save_track(body: Add, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1415)
+- [`save_canonical_track(db, actor, url, item=None)`](../backend/houseos/music.py#L1445)
+- [`save_track(body: Add, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1465)
   HTTP: `router.post('/saved')`
-- [`current_favorite(actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1429)
+- [`current_favorite(actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1479)
   HTTP: `router.get('/current/favorite')`
-- [`class CurrentFavorite`](../backend/houseos/music.py#L1447)
-- [`favorite_current(body: CurrentFavorite, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1452)
+- [`class CurrentFavorite`](../backend/houseos/music.py#L1497)
+- [`favorite_current(body: CurrentFavorite, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1502)
   HTTP: `router.post('/current/favorite')`
-- [`search(q: str=Query(min_length=1, max_length=200), source: Literal['youtube', 'soundcloud']='youtube', actor=Depends(require_actor), db=Depends(get_db), limit: int=Query(default=5, ge=1, le=50))`](../backend/houseos/music.py#L1466)
+- [`search(q: str=Query(min_length=1, max_length=200), source: Literal['youtube', 'soundcloud']='youtube', actor=Depends(require_actor), db=Depends(get_db), limit: int=Query(default=5, ge=1, le=50))`](../backend/houseos/music.py#L1516)
   HTTP: `router.get('/search')`
-- [`kept_matches(db, query, most=3)`](../backend/houseos/music.py#L1494)
+- [`kept_matches(db, query, most=3)`](../backend/houseos/music.py#L1544)
   Songs kept on the house disk whose title or channel has every word searched (or a word
-- [`song_query(url: str, title: str, description: str)`](../backend/houseos/music.py#L1534)
+- [`song_query(url: str, title: str, description: str)`](../backend/houseos/music.py#L1584)
   Search words from a streaming service's page. Spotify's title is the song alone and its
-- [`link_song(url: str=Query(max_length=2048), actor=Depends(require_actor))`](../backend/houseos/music.py#L1545)
+- [`link_song(url: str=Query(max_length=2048), actor=Depends(require_actor))`](../backend/houseos/music.py#L1595)
   A Spotify, Apple Music, Deezer or Tidal link can't play here: the song it names, as words
   HTTP: `router.get('/link-song')`
-- [`class CandidateAdd`](../backend/houseos/music.py#L1557)
-- [`add_candidate(body: CandidateAdd, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1563)
+- [`class CandidateAdd`](../backend/houseos/music.py#L1607)
+- [`add_candidate(body: CandidateAdd, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1613)
   HTTP: `router.post('/candidates')`
-- [`class CandidateBatch`](../backend/houseos/music.py#L1578)
-- [`add_candidates(body: CandidateBatch, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1585)
+- [`class CandidateBatch`](../backend/houseos/music.py#L1628)
+- [`add_candidates(body: CandidateBatch, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1635)
   HTTP: `router.post('/candidates/batch')`
-- [`preview_playlist(body: Add, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1675)
+- [`preview_playlist(body: Add, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1725)
   HTTP: `router.post('/playlists/preview')`
-- [`queue_songs(db, q, owner_id, session_hash, role, candidates, pending, limit=500)`](../backend/houseos/music.py#L1706)
+- [`queue_songs(db, q, owner_id, session_hash, role, candidates, pending, limit=500)`](../backend/houseos/music.py#L1756)
   Queue new songs in order, skipping songs already waiting or playing. Stops at the
-- [`import_playlist(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1750)
+- [`import_playlist(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1800)
   Queue the first page now; the rest of a long playlist imports in the background.
   HTTP: `router.post('/playlists/{identity}/confirm')`
-- [`cancel_playlist_import(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1795)
+- [`cancel_playlist_import(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1845)
   Stop importing; songs already queued stay in the queue.
   HTTP: `router.post('/playlists/{identity}/cancel')`
-- [`import_playlist_page(job_id, generation, data)`](../backend/houseos/music.py#L1810)
+- [`import_playlist_page(job_id, generation, data)`](../backend/houseos/music.py#L1860)
   Worker step: fetch the next 50 songs of a playlist and queue them fairly.
-- [`unavailable(actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1879)
+- [`unavailable(actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1929)
   Your songs that turned out removed or private: they left the queue; pick another version.
   HTTP: `router.get('/unavailable')`
-- [`class Replacement`](../backend/houseos/music.py#L1891)
-- [`replace_unavailable(identity: str, body: Replacement, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1897)
+- [`class Replacement`](../backend/houseos/music.py#L1941)
+- [`replace_unavailable(identity: str, body: Replacement, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1947)
   Queue the chosen version, and put it in the gone song's place in its playlist.
   HTTP: `router.post('/unavailable/{identity}/replace')`
-- [`dismiss_unavailable(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1912)
+- [`dismiss_unavailable(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1962)
   HTTP: `router.delete('/unavailable/{identity}')`
-- [`own_unavailable(db, actor, identity)`](../backend/houseos/music.py#L1919)
-- [`delete_saved(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1927)
+- [`own_unavailable(db, actor, identity)`](../backend/houseos/music.py#L1969)
+- [`delete_saved(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music.py#L1977)
   HTTP: `router.delete('/saved/{identity}')`
 
 ## music_auto
@@ -2870,25 +2872,33 @@ each play a few songs or a few minutes. A real request always goes first. No mod
 - [`sort_genres(actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music_auto.py#L207)
   Residents: look again at every song still in "other" (Deezer, a few songs a minute).
   HTTP: `router.post('/auto/sort-genres')`
-- [`set_auto(body: Auto, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music_auto.py#L222)
+- [`class GenreChoice`](../backend/houseos/music_auto.py#L221)
+- [`can_sort(actor)`](../backend/houseos/music_auto.py#L227)
+- [`genre_options(source_url: str=Query(default='', max_length=2000), actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music_auto.py#L234)
+  What the genre sheet offers: the genres, and how many other songs share this one's artist.
+  HTTP: `router.get('/genre')`
+- [`choose_genre(body: GenreChoice, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music_auto.py#L246)
+  Residents file songs under a genre; the house's other unsorted songs by those artists
+  HTTP: `router.put('/genre')`
+- [`set_auto(body: Auto, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music_auto.py#L263)
   Residents only: the kept songs are the house archive, and this plays for everyone.
   HTTP: `router.put('/auto')`
-- [`stuck(db)`](../backend/houseos/music_auto.py#L246)
+- [`stuck(db)`](../backend/houseos/music_auto.py#L287)
   The last three picks all failed: stop rather than churn through the archive.
-- [`fill(db, q)`](../backend/houseos/music_auto.py#L252)
+- [`fill(db, q)`](../backend/houseos/music_auto.py#L293)
   Called by the worker when music should play and nothing waits: queue one pick.
-- [`skip(db, item)`](../backend/houseos/music_auto.py#L317)
+- [`skip(db, item)`](../backend/houseos/music_auto.py#L358)
   A pick already queued and removed stays out of the next ones too. The caller commits.
-- [`rotation_over(db, item, now=None)`](../backend/houseos/music_auto.py#L326)
+- [`rotation_over(db, item, now=None)`](../backend/houseos/music_auto.py#L367)
   An auto station has had its turn: its songs or its minutes are done, or someone asked
-- [`queued_picks(db, actor)`](../backend/houseos/music_auto.py#L352)
+- [`queued_picks(db, actor)`](../backend/houseos/music_auto.py#L393)
   Auto play's picks already in the queue, in play order: the list goes on from them.
-- [`plan_view(db, actor, current, plan, songs)`](../backend/houseos/music_auto.py#L374)
-- [`upcoming(actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music_auto.py#L394)
+- [`plan_view(db, actor, current, plan, songs)`](../backend/houseos/music_auto.py#L415)
+- [`upcoming(actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music_auto.py#L435)
   What auto play will pick next, in order (library mode). Asking fixes the plan, so the
   HTTP: `router.get('/auto/upcoming')`
-- [`class Plan`](../backend/houseos/music_auto.py#L414)
-- [`change_upcoming(body: Plan, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music_auto.py#L424)
+- [`class Plan`](../backend/houseos/music_auto.py#L455)
+- [`change_upcoming(body: Plan, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/music_auto.py#L465)
   Residents reorder, remove or reshuffle the next songs. A song removed stays out of the
   HTTP: `router.put('/auto/upcoming')`
 
@@ -2917,6 +2927,16 @@ played before this existed are caught up the same way; nothing runs on the play 
 - [`sort_again(db)`](../backend/houseos/music_catalog.py#L134)
   Every song still "other" is looked at once more, from the next minute (the button in
 - [`enrich(db, limit=BATCH)`](../backend/houseos/music_catalog.py#L153)
+- [`names_of(data)`](../backend/houseos/music_catalog.py#L209)
+  The folded names a song goes by: its artist, the artist in its title, its channel.
+- [`from_the_house(db, rows=None, extra=())`](../backend/houseos/music_catalog.py#L224)
+  Songs no lookup could sort take the genre of the house's other songs by the same artist
+- [`artist_of(data)`](../backend/houseos/music_catalog.py#L264)
+  The song's own artist (named in its title, else its channel's), folded; "" if none.
+- [`by_same_artist(db, urls)`](../backend/houseos/music_catalog.py#L274)
+  Every kept or played song by the artists of these songs (theirs included).
+- [`choose(db, urls, genre, extra=())`](../backend/houseos/music_catalog.py#L283)
+  Residents file songs under a genre (or "" to let the house decide again): kept on each
 
 ## music_downloads
 
@@ -2973,26 +2993,26 @@ Each song keeps its evidence (source genre, tags, Deezer's genres) in its histor
 genre the house adds later applies to everything already played, without looking anything up
 again. The families are ordered specific before broad ("synthpop" is electro before pop).
 
-- [`pattern(words)`](../backend/houseos/music_genre.py#L121)
+- [`pattern(words)`](../backend/houseos/music_genre.py#L124)
   Whole words or phrases; an entry starting with "re:" is a small regular expression.
-- [`custom_families(extra)`](../backend/houseos/music_genre.py#L137)
+- [`custom_families(extra)`](../backend/houseos/music_genre.py#L140)
   The house's own genres, [{"name", "words"}], as (name, compiled words).
-- [`genre_of(meta: dict, extra=())`](../backend/houseos/music_genre.py#L147)
+- [`genre_of(meta: dict, extra=())`](../backend/houseos/music_genre.py#L150)
   The family for what a source says: its genre, then Deezer's, then tags, then the title
-- [`clean(text)`](../backend/houseos/music_genre.py#L180)
-- [`channel_artist(uploader)`](../backend/houseos/music_genre.py#L189)
+- [`clean(text)`](../backend/houseos/music_genre.py#L187)
+- [`channel_artist(uploader)`](../backend/houseos/music_genre.py#L196)
   The artist behind a channel name: "EminemMusic", "X - Topic", "XVEVO" → the name.
-- [`artist_and_track(title, uploader='', artist='')`](../backend/houseos/music_genre.py#L197)
+- [`artist_and_track(title, uploader='', artist='')`](../backend/houseos/music_genre.py#L204)
   ("Artist", "Track") from "Artist - Track", else the channel name ("X - Topic").
-- [`fold(text)`](../backend/houseos/music_genre.py#L207)
+- [`fold(text)`](../backend/houseos/music_genre.py#L214)
   Lowercase words without accents or punctuation: "Beyoncé – Halo!" → "beyonce halo".
-- [`same(a, b)`](../backend/houseos/music_genre.py#L213)
+- [`same(a, b)`](../backend/houseos/music_genre.py#L220)
   Loosely the same name: most of the shorter one's words are in the other.
-- [`deezer(title, uploader='', artist='', client=None)`](../backend/houseos/music_genre.py#L224)
+- [`deezer(title, uploader='', artist='', client=None)`](../backend/houseos/music_genre.py#L231)
   {"genres": [...], "cover": url} for a song, {} when Deezer has no match; network errors
-- [`musicbrainz(artist, client=None)`](../backend/houseos/music_genre.py#L297)
+- [`musicbrainz(artist, client=None)`](../backend/houseos/music_genre.py#L304)
   The artist's genres on MusicBrainz (free, no key; its community tags, most voted first),
-- [`youtube_thumbnail(url)`](../backend/houseos/music_genre.py#L326)
+- [`youtube_thumbnail(url)`](../backend/houseos/music_genre.py#L333)
   YouTube's own still for a video, from its address alone.
 
 ## music_library
@@ -3949,32 +3969,32 @@ Source: [backend/houseos/worker.py](../backend/houseos/worker.py)
 - [`fail_pending_item(db, job)`](../backend/houseos/worker.py#L188)
 - [`run_job(job)`](../backend/houseos/worker.py#L196)
 - [`_run_job(job)`](../backend/houseos/worker.py#L205)
-- [`item_authorized(db, item)`](../backend/houseos/worker.py#L433)
-- [`preparation_state(item_id, state, result=None)`](../backend/houseos/worker.py#L439)
-- [`paused_itself(db, code)`](../backend/houseos/worker.py#L455)
+- [`item_authorized(db, item)`](../backend/houseos/worker.py#L419)
+- [`preparation_state(item_id, state, result=None)`](../backend/houseos/worker.py#L425)
+- [`paused_itself(db, code)`](../backend/houseos/worker.py#L441)
   The house paused the music on its own: said in the log (why, and when it played again).
-- [`prepare_audio(source, item_id)`](../backend/houseos/worker.py#L460)
-- [`ready_from_cache(source, item_id, cached)`](../backend/houseos/worker.py#L481)
-- [`preload_count(db)`](../backend/houseos/worker.py#L497)
+- [`prepare_audio(source, item_id)`](../backend/houseos/worker.py#L446)
+- [`ready_from_cache(source, item_id, cached)`](../backend/houseos/worker.py#L467)
+- [`preload_count(db)`](../backend/houseos/worker.py#L483)
   How many songs to download ahead: the house's choice (None: the whole queue), at most 3
-- [`_prepare_audio(source, item_id)`](../backend/houseos/worker.py#L507)
-- [`renew_long_stream(item_id)`](../backend/houseos/worker.py#L541)
+- [`_prepare_audio(source, item_id)`](../backend/houseos/worker.py#L493)
+- [`renew_long_stream(item_id)`](../backend/houseos/worker.py#L527)
   Keep an hours-long mix flowing: extend its one-hour pipe lease before it lapses.
-- [`radio_now_title(item_id, source_url)`](../backend/houseos/worker.py#L556)
+- [`radio_now_title(item_id, source_url)`](../backend/houseos/worker.py#L542)
   Every 30 s, ask the station what song is on so the player can show (and find) it.
-- [`prefetch_next()`](../backend/houseos/worker.py#L587)
+- [`prefetch_next()`](../backend/houseos/worker.py#L573)
   Download the next few songs (house setting music_preload) so each starts at once. Auto
-- [`advance()`](../backend/houseos/worker.py#L670)
-- [`cancel_removed_downloads()`](../backend/houseos/worker.py#L914)
-- [`class WorkerTasks`](../backend/houseos/worker.py#L945)
+- [`advance()`](../backend/houseos/worker.py#L656)
+- [`cancel_removed_downloads()`](../backend/houseos/worker.py#L900)
+- [`class WorkerTasks`](../backend/houseos/worker.py#L931)
   Independent title lookup, sequential preloading and playback observation.
   Method: `__init__(self)`
   Method: `tick(self, owner)`
   Method: `close(self)`
-- [`planned_restart()`](../backend/houseos/worker.py#L991)
+- [`planned_restart()`](../backend/houseos/worker.py#L977)
   True once after `houseos.sh update` asked for it: music that was playing comes back.
-- [`reconcile_player_restart(observation)`](../backend/houseos/worker.py#L1002)
-- [`main()`](../backend/houseos/worker.py#L1055)
+- [`reconcile_player_restart(observation)`](../backend/houseos/worker.py#L988)
+- [`main()`](../backend/houseos/worker.py#L1041)
 
 # Frontend files and exports
 
@@ -3992,6 +4012,7 @@ Source: [backend/houseos/worker.py](../backend/houseos/worker.py)
 - [games.css](../frontend/src/games.css): styles
 - [games.tsx](../frontend/src/games.tsx): `when`, `Cover`, `Games`, `findUrl`
 - [games_player.tsx](../frontend/src/games_player.tsx): `GamePlayer`
+- [genre_sheet.tsx](../frontend/src/genre_sheet.tsx): `GenreButton`, `GenreSheet`
 - [guest_code.tsx](../frontend/src/guest_code.tsx): `JoinCode`
 - [home.css](../frontend/src/home.css): styles
 - [home.tsx](../frontend/src/home.tsx): `Home`

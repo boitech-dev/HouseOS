@@ -6,7 +6,7 @@ import random
 import time
 from datetime import timedelta
 from typing import Literal
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Query
 from pydantic import Field, model_validator
 from sqlalchemy import func, select
 from .auth import Input, require_actor, require_permission, delegated_user
@@ -219,26 +219,44 @@ def sort_genres(actor=Depends(require_actor), db=Depends(get_db)):
 
 
 class GenreChoice(Input):
-    source_url: str = Field(min_length=1, max_length=2000)
+    source_urls: list[str] = Field(min_length=1, max_length=500)
     genre: str = Field(default="", max_length=60)  # "" lets the house decide again
+    same_artist: bool = False  # and every other song by their artists
+
+
+def can_sort(actor):
+    require_permission(actor, "music.control")
+    if actor.role == "guest":
+        raise HTTPException(403, "Sorting songs is for residents")
+
+
+@router.get("/genre")
+def genre_options(
+    source_url: str = Query(default="", max_length=2000), actor=Depends(require_actor), db=Depends(get_db)
+):
+    """What the genre sheet offers: the genres, and how many other songs share this one's artist."""
+    from .files import genre_choices
+
+    can_sort(actor)
+    same, artists = music_catalog.by_same_artist(db, [source_url]) if source_url else (set(), set())
+    return {"choices": genre_choices(db), "same_artist": max(0, len(same) - 1), "artists": sorted(artists)}
 
 
 @router.put("/genre")
 def choose_genre(body: GenreChoice, actor=Depends(require_actor), db=Depends(get_db)):
-    """Residents file a kept song under a genre; the house's other unsorted songs by that artist
-    follow it."""
-    require_permission(actor, "music.control")
-    if actor.role == "guest":
-        raise HTTPException(403, "Sorting songs is for residents")
+    """Residents file songs under a genre; the house's other unsorted songs by those artists
+    follow it (all of them, with same_artist)."""
     from .house_settings import get_house_settings
 
+    can_sort(actor)
+    urls = music_catalog.by_same_artist(db, body.source_urls)[0] if body.same_artist else body.source_urls
     try:
-        found = music_catalog.choose(db, body.source_url, body.genre, get_house_settings(db)["music_genres"])
+        count = music_catalog.choose(db, urls, body.genre, get_house_settings(db)["music_genres"])
     except ValueError:
         raise HTTPException(422, {"code": "GENRE_UNKNOWN", "message": "Pick one of the house's genres"})
-    if not found:
+    if not count:
         raise HTTPException(404, "Song not found")
-    return {"status": "completed"}
+    return {"status": "completed", "songs": count}
 
 
 @router.put("/auto")

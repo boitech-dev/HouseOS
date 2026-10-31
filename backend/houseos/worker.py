@@ -228,7 +228,7 @@ def _run_job(job):
                     operation.state, operation.result = "cancelled", {"code": "VOLUME_SUPERSEDED"}
                 db.commit()
                 return
-        if kind == "music.control" and data["action"] in {"skip", "seek", "play", "clear", "stop"}:
+        if kind == "music.control" and data["action"] in {"skip", "seek", "play", "stop"}:
             q = db.get(QueueState, 1)
             # A skip already took its song out of the queue (music.control_effect): stop the player.
             skipped = (
@@ -270,17 +270,8 @@ def _run_job(job):
             }
         elif action in {"sleep", "repeat"}:
             result = {"status": "completed"}
-        elif action == "clear":
-            result = bridge("stop")
-            if data.get("current_id") and result.get("status") == "command_sent":
-                fetch("live_stop", item_id=data["current_id"])
-            if result.get("status") == "command_sent":
-                observed = bridge("state")
-                result = (
-                    {"status": "completed", "stop_observed": True}
-                    if observed.get("status") == "observed" and observed.get("idle") is True
-                    else {"status": "unverified", "code": "STOP_NOT_OBSERVED"}
-                )
+        elif action == "clear":  # the queue's own change: nothing to tell the player
+            result = {"status": "completed"}
         elif action in {"skip", "stop"}:
             # A fast skip may find the next song already loaded: only the skipped one is stopped.
             loaded = bridge("state").get("item_id") if action == "skip" else data.get("current_id")
@@ -405,11 +396,6 @@ def _run_job(job):
                 "unverified" if result.get("status") == "command_sent" else result.get("status", "failed")
             )
             op.result = result
-            if data["action"] == "clear" and result.get("stop_observed"):
-                q = db.scalar(select(QueueState).where(QueueState.id == 1).with_for_update())
-                if q and q.current_id == data.get("current_id"):
-                    q.current_id = None
-                    emit(db, "music.queue_changed", {"version": q.version})
             if data["action"] == "skip" and result.get("status") in {"command_sent", "completed"}:
                 q = db.scalar(select(QueueState).where(QueueState.id == 1).with_for_update())
                 if q and q.current_id == data.get("current_id"):

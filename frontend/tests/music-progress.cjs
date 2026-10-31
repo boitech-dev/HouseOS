@@ -98,17 +98,12 @@ const { chromium } = require("/usr/lib/node_modules/playwright"),
   await page.waitForURL(base + "/listen");
   assert(await page.getByRole("slider", { name: "Volume", exact: true }).isVisible());
   await page.goto(base + "/music");
-  // Clear queue sits on the player, with a one-tap inline check.
-  await page.getByRole("button", { name: "Clear queue", exact: true }).first().click();
-  await page
-    .getByRole("group", { name: "Clear queue" })
-    .getByRole("button", { name: "Remove", exact: true })
-    .click();
-  await page.waitForFunction(() => !document.body.textContent.includes("Timeline fixture"));
-  assert.equal(await page.getByText("Timeline fixture", { exact: true }).count(), 0);
+  // Nothing waits behind the song playing: no Clear queue (it never stops the song; Stop does).
+  await page.getByRole("button", { name: "Stop", exact: true }).first().waitFor();
+  assert.equal(await page.getByRole("button", { name: "Clear queue", exact: true }).count(), 0);
   await browser.close();
   console.log(
-    "PASS smooth observed timeline, pause/seek reset, actual previous contract, banner controls, clear current UI",
+    "PASS smooth observed timeline, pause/seek reset, actual previous contract, banner controls, clear never stops the song",
   );
 })().catch((e) => {
   console.error(e.message);
