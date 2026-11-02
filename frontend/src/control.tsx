@@ -717,7 +717,8 @@ function Agents() {
   const agents = useData("/admin/agents"),
     users = useData("/admin/users");
   const [made, setMade] = useState<Obj | null>(null),
-    [revoking, setRevoking] = useState<Obj | null>(null);
+    [revoking, setRevoking] = useState<Obj | null>(null),
+    [watching, setWatching] = useState<Obj | null>(null);
   const people = items(users.data).filter((u) => u.active);
   // The house's trusted addresses (a Tailscale one first: it works from another network).
   const addresses: string[] = agents.data?.addresses?.length
@@ -740,6 +741,7 @@ function Agents() {
               name: f.get("name"),
               user_id: f.get("user_id"),
               groups: f.getAll("groups"),
+              tools: f.get("tools"),
             }),
           );
           await agents.reload();
@@ -748,6 +750,12 @@ function Agents() {
         <div className="me-row">
           <Field label={t("Agent's name")}>
             <Input name="name" required maxLength={60} placeholder="Ronda" />
+          </Field>
+          <Field label={t("Tools")}>
+            <Select name="tools">
+              <option value="essential">{t("Essentials: one call per ask, fewer tokens")}</option>
+              <option value="all">{t("All of them: every step, more tokens")}</option>
+            </Select>
           </Field>
           <Field label={t("Acts as")}>
             <Select name="user_id">
@@ -821,14 +829,37 @@ function Agents() {
               detail={[
                 a.user.name,
                 a.groups.map(agentGroup).join(", "),
+                a.tools === "all" ? t("all tools") : t("essential tools"),
                 a.last_used_at
                   ? t("used {when}").replace("{when}", time(a.last_used_at))
                   : t("never used"),
               ].join(" · ")}
+              status={
+                a.errors
+                  ? { tone: "warning", text: plural(a.errors, "{n} failed", "{n} failed") }
+                  : undefined
+              }
               actions={
-                <Button size="s" variant="quiet" onClick={() => setRevoking(a)}>
-                  {t("Revoke")}
-                </Button>
+                <>
+                  <Button size="s" variant="quiet" onClick={() => setWatching(a)}>
+                    {t("Activity")}
+                  </Button>
+                  <Button
+                    size="s"
+                    variant="quiet"
+                    onClick={async () => {
+                      await api("/admin/agents/" + a.id, "PUT", {
+                        tools: a.tools === "all" ? "essential" : "all",
+                      });
+                      await agents.reload();
+                    }}
+                  >
+                    {a.tools === "all" ? t("Use essentials") : t("Use all tools")}
+                  </Button>
+                  <Button size="s" variant="quiet" onClick={() => setRevoking(a)}>
+                    {t("Revoke")}
+                  </Button>
+                </>
               }
             />
           ))}
@@ -836,6 +867,7 @@ function Agents() {
       ) : (
         agents.data && <Text tone="muted">{t("No agent has a token yet.")}</Text>
       )}
+      {watching && <AgentCalls agent={watching} onClose={() => setWatching(null)} />}
       {revoking && (
         <ConfirmSheet
           title={t("Revoke this agent's token?")}
@@ -852,6 +884,38 @@ function Agents() {
         </ConfirmSheet>
       )}
     </Section>
+  );
+}
+
+/** An agent's last calls, newest first: when, which tool, what it asked, how long, and why one
+ *  failed. Private text (a message, a note) shows only as its length. */
+function AgentCalls({ agent, onClose }: { agent: Obj; onClose: () => void }) {
+  const calls = useData("/admin/agents/" + agent.id + "/calls", { interval: 5000 });
+  const rows = items(calls.data);
+  return (
+    <Sheet title={t("Activity") + " · " + agent.name} onClose={onClose} wide>
+      <Problem error={calls.error} onRetry={calls.reload} />
+      {calls.data && !rows.length && <Text tone="muted">{t("No calls yet.")}</Text>}
+      <List label={t("Activity")}>
+        {rows.map((c: Obj, i: number) => (
+          <ListRow
+            key={c.at + i}
+            leading={<Icon name={c.ok ? "check" : "alert"} />}
+            title={c.tool}
+            detail={[
+              time(c.at),
+              c.ms + " ms",
+              c.status,
+              c.ok ? "" : [c.code, c.error].filter(Boolean).join(": "),
+              JSON.stringify(c.args || {}).slice(0, 160),
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+            status={c.ok ? undefined : { tone: "danger", text: t("Failed") }}
+          />
+        ))}
+      </List>
+    </Sheet>
   );
 }
 

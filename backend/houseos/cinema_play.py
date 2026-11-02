@@ -36,52 +36,42 @@ class Play(Input):
     title: str = Field(
         min_length=1,
         max_length=200,
-        description="The title's name, its IMDb id (tt…) or the house's title id.",
+        description="Name, IMDb id (tt…) or title id.",
     )
-    year: int | None = Field(
-        default=None, ge=1880, le=2100, description="Release year, to tell remakes apart."
-    )
-    kind: Literal["movie", "series", "anime"] | None = Field(
-        default=None, description="Leave out unless the name is ambiguous."
-    )
+    year: int | None = Field(default=None, ge=1880, le=2100, description="For remakes.")
+    kind: Literal["movie", "series", "anime"] | None = Field(default=None, description="Only if ambiguous.")
     season: int | None = Field(default=None, ge=0, le=100, description="For an episode.")
     episode: int | None = Field(default=None, ge=1, le=1000, description="For an episode.")
     audio: str = Field(
         default="original",
         max_length=8,
-        description='"original" (VO), or a language code for a dub, e.g. "fr".',
+        description='"original" or a dub\'s code.',
     )
     subtitles: str | None = Field(
         default=None,
         max_length=8,
-        description='Language code ("fr", "en"), "off", or leave out for the person\'s usual ones.',
+        description='"fr", "en"…, "off"; omit: usual.',
     )
     subtitles_inside: bool = Field(
         default=False,
-        description="Prefer a version with these subtitles in the file (timed to it); else they are found online.",
+        description="Prefer them in the file; else found online.",
     )
-    resolution: Literal[2160, 1080, 720] | None = Field(
-        default=None, description="2160 for 4K. Leave out for the best the screen plays."
-    )
-    smallest: bool = Field(
-        default=False, description="Among fitting versions, the smallest file (starts sooner)."
-    )
+    resolution: Literal[2160, 1080, 720] | None = Field(default=None, description="2160 = 4K.")
+    smallest: bool = Field(default=False, description="Smallest fitting file.")
     device_id: str | None = Field(
         default=None,
         max_length=36,
-        description="Screen from devices_list; leave out for the person's usual one.",
+        description="Omit: usual screen.",
     )
     position: float | None = Field(
         default=None,
         ge=0,
         le=86400,
-        description="Start in seconds; 0 = from the beginning; leave out to resume.",
+        description="Seconds; 0 = start; omit: resume.",
     )
-    replace: bool = Field(
-        default=False, description="True once the person agreed to replace what plays on that screen."
-    )
-    skip_intros: bool | None = Field(default=None, description="Skip openings and endings (episodes).")
-    autoplay: bool | None = Field(default=None, description="Play the next episodes after this one.")
+    replace: bool = Field(default=False, description="Once they agreed to replace what plays.")
+    skip_intros: bool | None = Field(default=None, description="Episodes: skip openings.")
+    autoplay: bool | None = Field(default=None, description="Play the next episodes.")
 
 
 def answer(status, message, **facts):

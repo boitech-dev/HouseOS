@@ -98,6 +98,59 @@ def radio_queue(body, actor, db):
     return queue_radio(body.id, RadioAdd(idempotency_key=body.idempotency_key), actor, db)
 
 
+class MusicPlay(Input):
+    query: str = Field(
+        min_length=1,
+        max_length=300,
+        description="A song, an artist, a mood, a YouTube or SoundCloud link, or a radio station's name.",
+    )
+    count: int = Field(default=1, ge=1, le=10, description='How many songs (e.g. 5 for "five songs by X").')
+    radio: bool = Field(default=False, description="A radio station rather than songs.")
+
+
+def music_play(body, actor, db):
+    """One call from words to the queue: search, take the best results (the house's own copies
+    first), queue them, and say what was queued in one line. A link is queued as it is; radio=true
+    plays the best matching station."""
+    from . import music
+    from .db import new_id
+
+    text = body.query.strip()
+    if body.radio:
+        found = radio_search(RadioSearch(query=text), actor, db)["items"]
+        if not found:
+            return {"status": "failed", "message": f"No radio station called “{text}” was found."}
+        played = radio_queue(RadioQueue(id=found[0]["id"], idempotency_key=new_id()), actor, db)
+        return {
+            "status": played.get("status", "accepted"),
+            "message": f"Playing the radio station {found[0].get('name')}.",
+        }
+    if text.startswith(("http://", "https://")):
+        added = music.enqueue(music.Add(source_url=text, idempotency_key=new_id()), actor, db)
+        return {
+            "status": added.get("status", "accepted"),
+            "message": "Queued the link.",
+            **{k: added[k] for k in ("item_id",) if k in added},
+        }
+    found = music.search(text, "youtube", actor, db, limit=max(3, body.count)).get("items") or []
+    if not found:
+        return {"status": "failed", "message": f"Nothing was found for “{text}”."}
+    picks = found[: body.count]
+    added = music.add_candidates(
+        music.CandidateBatch(
+            candidate_ids=[p["id"] for p in picks], avoid_duplicates=True, idempotency_key=new_id()
+        ),
+        actor,
+        db,
+    )
+    titles = [i["title"] for i in added.get("items", [])]
+    if not titles:
+        return {"status": "completed", "message": "Already in the queue: nothing added."}
+    named = "“" + "”, “".join(titles[:3]) + "”" + (f" and {len(titles) - 3} more" if len(titles) > 3 else "")
+    when = "Starting now" if added.get("autoplay_requested") else "Added to the queue"
+    return {"status": "accepted", "message": f"{when}: {named}.", "items": added.get("items")}
+
+
 class MemoryId(Input):
     id: str
 
@@ -593,6 +646,7 @@ BUNDLES = {
         "tv_remote",
     ),
     "music": (
+        "music_play",
         "users_lookup",
         "household_list",
         "memory_list",
@@ -622,6 +676,7 @@ BUNDLES = {
         "music_playlists_prepare",
     ),
     "household": (
+        "board_add",
         "users_lookup",
         "household_list",
         "household_create",
@@ -756,6 +811,12 @@ def tool_catalogue():
             QueueRead,
             "What is playing, volume and ten queue entries; paginate by offset.",
             music_snapshot,
+        ),
+        "music_play": (
+            MusicPlay,
+            "Play or queue music from words in one call: a song, an artist, a mood, a link, or a "
+            "radio station (radio=true). Picks the best results itself and says what was queued.",
+            music_play,
         ),
         "music_search": (
             MusicSearch,

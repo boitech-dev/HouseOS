@@ -155,7 +155,7 @@ def test_household_file_tool_contracts_reuse_permissions(domain):
 
     db, (alice, bob, _) = domain
     bundle = tools.build_tools("household")
-    assert len(bundle) == 10
+    assert len(bundle) == 11  # board_add: the one-call way to add
     assert len(tools.build_tools("files")) == 8
     for model, _, _ in list(bundle.values()) + list(tools.build_tools("files").values()):
         assert model.model_config.get("extra") == "forbid"

@@ -241,6 +241,82 @@ def create_house(body, actor, db):
     return {"status": "completed", **summary(row)}
 
 
+class BoardAdd(Input):
+    kind: Literal["grocery", "task", "event", "note"]
+    text: str = Field(min_length=1, max_length=160, description="The item, task, event or note, in words.")
+    more: list[str] = Field(default_factory=list, max_length=30, description="More groceries at once.")
+    date: str | None = Field(
+        default=None,
+        pattern=r"^\d{4}-\d{2}-\d{2}$",
+        description="YYYY-MM-DD: a task's due day, an event's day.",
+    )
+    time: str | None = Field(
+        default=None,
+        pattern=r"^\d{2}:\d{2}$",
+        description="HH:MM: an event's start (else all day), a task's due time.",
+    )
+    minutes: int = Field(default=60, ge=5, le=1440, description="An event's length.")
+    who: str | None = Field(default=None, max_length=80, description="A task for this resident (a name).")
+
+
+def board_add(body, actor, db):
+    """One call adds to the board in plain words: groceries (several at once), a task (a day, a
+    time, someone), an event (all day, or at a time for some minutes), a note."""
+    from datetime import date as day_of, datetime, timedelta
+
+    from sqlalchemy import select
+
+    from .models import User
+
+    def add(kind, data):
+        row = household.create_record(
+            db, actor, kind, household.CreateRecord(data=data, idempotency_key=new_id())
+        )
+        return summary(row)
+
+    if body.kind == "grocery":
+        added = [add("groceries", {"label": label}) for label in [body.text, *body.more]]
+        return {"status": "completed", "message": f"Added {len(added)} to the groceries.", "items": added}
+    if body.kind == "note":
+        return {
+            "status": "completed",
+            "message": "Note pinned on the board.",
+            **add("board", {"title": body.text}),
+        }
+    if body.kind == "task":
+        data = {
+            "title": body.text,
+            **({"due_date": body.date} if body.date else {}),
+            **({"due_time": body.time} if body.time else {}),
+        }
+        if body.who:
+            people = db.scalars(select(User).where(User.active.is_(True))).all()
+            match = [u for u in people if u.name.casefold().startswith(body.who.strip().casefold())]
+            if len(match) != 1:
+                names = ", ".join(u.name for u in (match or people)[:8])
+                return {"status": "failed", "message": f"Which resident is “{body.who}”? {names}."}
+            data["assignee_id"] = match[0].id
+        return {"status": "completed", "message": "Task added.", **add("tasks", data)}
+    when = day_of.fromisoformat(body.date) if body.date else None
+    if not when:
+        return {"status": "failed", "message": "An event needs its day (date)."}
+    if body.time:
+        start = datetime.fromisoformat(f"{body.date}T{body.time}:00")
+        data = {
+            "title": body.text,
+            "start": start.isoformat(),
+            "end": (start + timedelta(minutes=body.minutes)).isoformat(),
+        }
+    else:
+        data = {
+            "title": body.text,
+            "all_day": True,
+            "start": when.isoformat(),
+            "end": (when + timedelta(days=1)).isoformat(),
+        }
+    return {"status": "completed", "message": "Added to the calendar.", **add("calendar", data)}
+
+
 def edit_house(body, actor, db):
     item = body.item
     values = item.data.model_dump(mode="json", exclude_unset=True, exclude_none=True)
@@ -324,7 +400,7 @@ def file_move(body, actor, db):
 
 
 def build_tools(context):
-    """10 household or 8 files tools; all responses are actor-scoped and compact."""
+    """11 household or 8 files tools; all responses are actor-scoped and compact."""
     if context == "household":
         return {
             "users_lookup": (
@@ -336,6 +412,12 @@ def build_tools(context):
                 HouseRead,
                 "Read a record or up to ten summaries visible to this resident.",
                 read_house,
+            ),
+            "board_add": (
+                BoardAdd,
+                "Add to the house board in one call: groceries (several at once), a task (day, "
+                "time, who), an event (a day, a time and length) or a note.",
+                board_add,
             ),
             "household_create": (
                 HouseCreate,

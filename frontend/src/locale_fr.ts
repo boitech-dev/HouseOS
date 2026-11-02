@@ -4580,5 +4580,16 @@ const french: Record<string, string> = {
   "{language}, found online when it starts": "{language}, trouvés en ligne au lancement",
   "found online for this version when it starts":
     "trouvés en ligne pour cette version au lancement",
+  Activity: "Activité",
+  "No calls yet.": "Aucun appel pour l’instant.",
+  "{n} failed": "{n} en échec",
+  Tools: "Outils",
+  "Essentials: one call per ask, fewer tokens":
+    "L’essentiel : un appel par demande, moins de jetons",
+  "All of them: every step, more tokens": "Tous : chaque étape, plus de jetons",
+  "all tools": "tous les outils",
+  "essential tools": "outils essentiels",
+  "Use essentials": "Passer à l’essentiel",
+  "Use all tools": "Passer à tous les outils",
 };
 export default french;

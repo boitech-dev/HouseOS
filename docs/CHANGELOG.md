@@ -9,6 +9,17 @@ Newest first.
 
 ### 2026-11-02
 
+- **Other assistants get a lean tool set by default**: about 20 tools instead of 67, a third of
+  the tokens on every request, each everyday ask in one call. New: `house_now` (what plays, what's
+  on each screen, today's board, with the ids to control them), `music_play` (words to queued
+  songs or a radio station, the best results picked by the house), `board_add` (groceries, a task,
+  an event, a note in plain words). A token can be switched to all tools in Control Room → Agents.
+- **Widgets for another assistant**: `/api/v1/agent/now` (a snapshot), `/api/v1/agent/stream`
+  (the same, live) and `/api/v1/agent/act` (a button), with the agent's token; see
+  docs/AGENT-WIDGETS.md.
+- **What an agent did**: Control Room → Agents → *Activity* lists its last 100 calls (when, which
+  tool, what it asked without private text, how long, and why one failed).
+
 - **Playing again after a failed try works**: it starts as clean as a new launch. What the
   failed try left (its stream, its links, a replace's bookkeeping) made every retry fail the
   same way, while a fresh launch from Watch played at once.

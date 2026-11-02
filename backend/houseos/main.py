@@ -11,6 +11,14 @@ from starlette.concurrency import run_in_threadpool
 from . import access, custom, custom_admin  # noqa: F401 (custom_admin adds the install routes)
 from .config import settings
 
+# Another assistant's widgets call the agent door from their own site with a bearer token.
+AGENT_CORS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Authorization, Content-Type, Last-Event-ID",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Max-Age": "600",
+}
+
 app = FastAPI(title="HouseOS", version=__version__, docs_url=None, redoc_url=None, openapi_url=None)
 
 
@@ -65,7 +73,13 @@ async def boundaries(request: Request, call_next):
     tls_ask = request.url.path == "/api/v1/access/tls-ask"  # Caddy asks as api:8990
     # An agent's bearer token can't be replayed by a rebound page, so /mcp answers under any
     # name (api:8990 or host.docker.internal from another container).
-    agent = request.url.path == "/mcp" and "authorization" in request.headers
+    # The widget door (/api/v1/agent/…) takes the same token, from a header or ?access_token=.
+    agent_door = request.url.path.startswith("/api/v1/agent/")
+    agent = (request.url.path == "/mcp" or agent_door) and (
+        "authorization" in request.headers or "access_token=" in request.url.query
+    )
+    if agent_door and request.method == "OPTIONS":  # a browser asking before a cross-site call
+        return Response(status_code=204, headers=AGENT_CORS)
     if not trust["open"] and not tls_ask and not agent and not access.host_allowed(host, trust["origins"]):
         return refused(request, access.rejection("host", host), 400)
     if request.url.path.startswith("/api/") and request.method not in {"GET", "HEAD", "OPTIONS"}:
@@ -85,7 +99,7 @@ async def boundaries(request: Request, call_next):
             and request.url.path.startswith("/api/v1/custom/")
             and custom.key_route(request.url.path)
         )
-        if origin not in trust["origins"] and not first_account and not custom_key:
+        if origin not in trust["origins"] and not first_account and not custom_key and not agent:
             return refused(request, access.rejection("origin", request.headers.get("origin", "")), 403)
     try:
         response = await call_next(request)
@@ -129,6 +143,8 @@ async def boundaries(request: Request, call_next):
     )
     if request.url.path.startswith("/api/"):
         response.headers["Cache-Control"] = "no-store"
+    if request.url.path.startswith("/api/v1/agent/"):  # bearer only, no cookie: any site may call
+        response.headers.update(AGENT_CORS)
     return response
 
 
@@ -196,6 +212,7 @@ app.include_router(
     importlib.import_module("houseos.agent_mcp").admin, prefix="/api/v1"
 )  # Control Room → Agents
 app.include_router(importlib.import_module("houseos.agent_mcp").router)  # /mcp: other assistants, by token
+app.include_router(importlib.import_module("houseos.agent_now").router, prefix="/api/v1")  # their widgets
 custom.DISPATCH.overrides = app.dependency_overrides  # one set of overrides for the house and them
 app.mount("/api/v1/custom", custom.DISPATCH)  # their own routes, before the screens' catch-all
 app.include_router(importlib.import_module("houseos.themes").files)  # installed themes' CSS, fonts, art

@@ -23,7 +23,10 @@ def test_an_agent_token_lists_and_calls_only_its_groups_until_revoked(client):
     db.add(admin)
     db.commit()
     app.dependency_overrides[require_actor] = lambda: Actor(admin.id, "Ada", "admin", RESIDENT)
-    made = c.post("/api/v1/admin/agents", json={"name": "Ronda", "user_id": admin.id, "groups": ["board"]})
+    made = c.post(
+        "/api/v1/admin/agents",
+        json={"name": "Ronda", "user_id": admin.id, "groups": ["board"], "tools": "all"},
+    )
     assert made.status_code == 200, made.text
     token = made.json()["token"]
     assert "token" not in json.dumps(c.get("/api/v1/admin/agents").json()["items"])  # shown once
@@ -91,3 +94,133 @@ def test_every_group_tool_is_one_of_nox_s_and_none_reaches_setup():
     assert names <= set(tool_catalogue())
     assert not names & set(BUNDLES["setup"])  # settings, keys, addresses, code: never here
     assert m.READ | m.DESTRUCTIVE | m.OPEN_WORLD | set(m.DOES_IT) <= names
+
+
+def test_calls_are_recorded_for_the_agents_screen_and_widgets_read_the_house_with_the_token(
+    client, monkeypatch
+):
+    from houseos import agent_now
+
+    monkeypatch.setattr(agent_now, "ROUNDS", 1)  # the test client reads a stream once it ends
+    c, db = client
+    admin = User(
+        id=new_id(), name="Ada", username="ada2", password_hash="x", role="admin", permissions=list(RESIDENT)
+    )
+    db.add(admin)
+    db.commit()
+    app.dependency_overrides[require_actor] = lambda: Actor(admin.id, "Ada", "admin", RESIDENT)
+    made = c.post(
+        "/api/v1/admin/agents", json={"name": "Widget", "user_id": admin.id, "groups": ["board"]}
+    ).json()
+    app.dependency_overrides.pop(require_actor)
+    token, bearer = made["token"], {"Authorization": "Bearer " + made["token"]}
+
+    # A widget's button: a tool by name, plain JSON back, from any site (bearer, no cookie).
+    done = c.post("/api/v1/agent/act", headers={**bearer, "Origin": "https://ronda.example"},
+                  json={"tool": "board_add", "arguments": {"kind": "grocery", "text": "Rice"}})  # fmt: skip
+    assert done.status_code == 200 and done.json()["ok"], done.text
+    assert done.headers["access-control-allow-origin"] == "*"
+    assert c.options("/api/v1/agent/now", headers={"Origin": "https://ronda.example"}).status_code == 204
+    refused = c.post("/api/v1/agent/act", headers=bearer, json={"tool": "music_control", "arguments": {}})
+    assert refused.status_code == 403  # not in its groups
+
+    # The snapshot: only its groups; the token also works as ?access_token= (EventSource).
+    now = c.get("/api/v1/agent/now?parts=board,music", headers=bearer).json()
+    assert "board" in now and "music" not in now and "at" in now
+    assert "Rice" in json.dumps(now["board"]["groceries"])
+    assert c.get("/api/v1/agent/now?access_token=" + token).status_code == 200
+    assert c.get("/api/v1/agent/now").status_code == 401
+    assert c.get("/api/v1/agent/now?parts=weather", headers=bearer).status_code == 422
+    lines = c.get("/api/v1/agent/stream?parts=board", headers=bearer).text.splitlines()
+    assert lines[0] == "event: now" and "Rice" in lines[1]
+
+    # What it did, for Control Room → Agents: when, which tool, a summary without private text.
+    app.dependency_overrides[require_actor] = lambda: Actor(admin.id, "Ada", "admin", RESIDENT)
+    calls = c.get(f"/api/v1/admin/agents/{made['id']}/calls").json()["items"]
+    app.dependency_overrides.pop(require_actor)
+    first = calls[-1]
+    assert first["tool"] == "board_add" and first["ok"] and isinstance(first["ms"], int)
+    assert first["args"] == {"kind": "grocery", "text": "<4 characters>"}  # words a person wrote stay out
+
+
+def test_the_lean_set_answers_everyday_asks_in_one_call_each(client):
+    c, db = client
+    admin = User(
+        id=new_id(), name="Bea", username="bea", password_hash="x", role="admin", permissions=list(RESIDENT)
+    )
+    db.add(admin)
+    db.commit()
+    app.dependency_overrides[require_actor] = lambda: Actor(admin.id, "Bea", "admin", RESIDENT)
+    made = c.post(
+        "/api/v1/admin/agents", json={"name": "Lean", "user_id": admin.id, "groups": ["board", "music"]}
+    ).json()
+    app.dependency_overrides.pop(require_actor)
+    assert made["tools"] == "essential"  # the default
+    token = made["token"]
+    hello = rpc(c, token, "initialize", {"protocolVersion": "2025-11-25"}).json()["result"]
+    assert "music_play" in hello["instructions"] and len(hello["instructions"]) < 1500
+    names = [t["name"] for t in rpc(c, token, "tools/list").json()["result"]["tools"]]
+    assert names[0] == "house_now" and {"music_play", "board_add", "music_control"} <= set(names)
+    assert "music_search" not in names and "household_create" not in names and len(names) <= 12
+
+    # Groceries, a task for someone, an event at a time: one call each, said in one line.
+    said = rpc(
+        c,
+        token,
+        "tools/call",
+        {"name": "board_add", "arguments": {"kind": "grocery", "text": "Rice", "more": ["Eggs"]}},
+    ).json()["result"]
+    assert not said["isError"] and "Added 2" in said["content"][0]["text"]
+    task = {"kind": "task", "text": "Bins out", "date": "2026-11-03", "who": "Be"}
+    assert (
+        "Task added"
+        in rpc(c, token, "tools/call", {"name": "board_add", "arguments": task}).json()["result"]["content"][
+            0
+        ]["text"]
+    )
+    event = {"kind": "event", "text": "Dinner", "date": "2026-11-03", "time": "19:30", "minutes": 90}
+    assert (
+        "calendar"
+        in rpc(c, token, "tools/call", {"name": "board_add", "arguments": event}).json()["result"]["content"][
+            0
+        ]["text"]
+    )
+    nobody = rpc(c, token, "tools/call", {"name": "board_add", "arguments": {**task, "who": "Zed"}}).json()[
+        "result"
+    ]
+    assert nobody["isError"] and "Which resident" in nobody["content"][0]["text"]
+    now = rpc(c, token, "tools/call", {"name": "house_now", "arguments": {}}).json()["result"]["content"][0][
+        "text"
+    ]
+    assert "Rice" in now and "Bins out" in now
+
+    # All of them, when the admin switches the token.
+    app.dependency_overrides[require_actor] = lambda: Actor(admin.id, "Bea", "admin", RESIDENT)
+    assert c.put("/api/v1/admin/agents/" + made["id"], json={"tools": "all"}).json()["tools"] == "all"
+    app.dependency_overrides.pop(require_actor)
+    assert "music_search" in [t["name"] for t in rpc(c, token, "tools/list").json()["result"]["tools"]]
+
+
+def test_music_play_turns_words_into_queued_songs_in_one_call(monkeypatch):
+    from houseos import assistant_tools as t, music
+
+    monkeypatch.setattr(
+        music,
+        "search",
+        lambda q, source, actor, db, limit: {
+            "items": [{"id": f"c{n}", "title": f"Song {n}"} for n in range(5)]
+        },
+    )
+    queued = []
+
+    def add(body, actor, db):
+        queued.append(body.candidate_ids)
+        return {
+            "status": "accepted",
+            "items": [{"item_id": i, "title": "Song " + i[1:]} for i in body.candidate_ids],
+            "autoplay_requested": True,
+        }
+
+    monkeypatch.setattr(music, "add_candidates", add)
+    said = t.music_play(t.MusicPlay(query="songs by Someone", count=3), None, None)
+    assert queued == [["c0", "c1", "c2"]] and said["message"].startswith("Starting now: “Song 0”")
