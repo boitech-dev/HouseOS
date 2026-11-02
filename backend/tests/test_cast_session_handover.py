@@ -417,3 +417,44 @@ def test_the_place_kept_never_runs_ahead_of_time_while_the_stream_is_live():
     assert cinema.kept_place(row, live, 1350) == 1022  # paused meanwhile: no time passed
     row.data["_seek_previous"] = {"state": "active"}
     assert cinema.kept_place(row, live, 1350) == 1350  # a seek sets the place itself
+
+
+def test_commands_to_one_chromecast_wait_their_turn_and_are_logged(monkeypatch, tmp_path):
+    import json
+    import threading
+
+    from houseos.config import settings
+
+    monkeypatch.setattr(settings, "runtime_root", tmp_path)
+    order, release = [], threading.Event()
+
+    def first():
+        with cinema_cast.device_lock("192.0.2.19"):
+            order.append("first in")
+            release.wait(2)
+            order.append("first out")
+
+    thread = threading.Thread(target=first)
+    thread.start()
+    while not order:
+        pass
+    later = threading.Thread(
+        target=lambda: cinema_cast.device_lock("192.0.2.19").__enter__() or order.append("second in")
+    )
+    later.start()
+    later.join(0.5)
+    assert order == ["first in"]  # the second command waits while the first one runs
+    release.set()
+    thread.join()
+    later.join(2)
+    assert order == ["first in", "first out", "second in"]
+    cinema_cast.cast_log("192.0.2.19", "load", workflow="w")
+    line = json.loads((tmp_path / "logs/cast.log").read_text().splitlines()[-1])
+    assert line["action"] == "load" and line["device"] == "192.0.2.19" and line["workflow"] == "w"
+
+
+def test_a_film_that_did_not_play_says_why_as_the_chromecast_told_it():
+    assert cinema_cast.not_played({"idle_reason": "ERROR"}).code == "PLAYBACK_REJECTED"
+    assert cinema_cast.not_played({"idle_reason": "INTERRUPTED"}).code == "PLAYBACK_INTERRUPTED"
+    assert cinema_cast.not_played({"app": "SPOTIFY"}).code == "PLAYBACK_INTERRUPTED"
+    assert "restart the Chromecast" in cinema_cast.not_played({"state": "PAUSED"}).message

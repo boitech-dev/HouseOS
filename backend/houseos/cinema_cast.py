@@ -1,10 +1,16 @@
 """Narrow Cast transport. HouseOS must preflight and confirm before calling execute."""
 
 from __future__ import annotations
+import fcntl
 import hashlib
 import json
+import os
 import secrets
+import sys
 import time
+import threading
+from contextlib import contextmanager
+from pathlib import Path
 from datetime import timedelta
 from uuid import NAMESPACE_URL, uuid5
 from cryptography.fernet import Fernet
@@ -33,6 +39,68 @@ def connect(address):
         raise MediaError(
             "TARGET_OFFLINE", "The configured Cast receiver did not respond.", "destination", True
         ) from None
+
+
+def cast_log(address, action, **facts):
+    """One line per command sent to a Cast receiver, in logs/cast.log: when, which service, what,
+    and what the receiver said. Read it when a screen gets stuck (kept to about 2 MB)."""
+    try:
+        folder = Path(settings.runtime_root) / "logs"
+        folder.mkdir(parents=True, exist_ok=True)
+        path = folder / "cast.log"
+        if path.exists() and path.stat().st_size > 2_000_000:
+            path.replace(folder / "cast.log.1")
+        service = Path(sys.argv[0]).stem if sys.argv and sys.argv[0] else "?"
+        line = {
+            "at": utcnow().isoformat() + "Z",
+            "service": service,
+            "pid": os.getpid(),
+            "device": address,
+            "action": action,
+        }
+        with open(path, "a", encoding="utf-8") as file:
+            file.write(json.dumps({**line, **facts}, default=str) + "\n")
+    except OSError:
+        pass  # the log never stops a film
+
+
+LOCKS: dict[str, threading.Lock] = {}
+
+
+@contextmanager
+def device_lock(address, wait=90.0):
+    """One command sequence at a time per receiver, across the house's services (the film
+    service, the playback watcher, the web app): a close landing in the middle of another's load
+    left the Chromecast on its logo, unable to play."""
+    name = hashlib.sha256(address.encode()).hexdigest()[:16]
+    try:
+        folder = Path(settings.runtime_root) / "run"
+        folder.mkdir(parents=True, exist_ok=True)
+        file = open(folder / f"cast-{name}.lock", "a")
+    except OSError:  # no run folder (a test): this process's own lock
+        with LOCKS.setdefault(name, threading.Lock()):
+            yield
+        return
+    with file:
+        deadline = time.monotonic() + wait
+        while True:
+            try:
+                fcntl.flock(file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except BlockingIOError:
+                if time.monotonic() >= deadline:
+                    cast_log(address, "busy", waited=wait)
+                    raise MediaError(
+                        "TARGET_BUSY",
+                        "Another command to this screen is still running. Try again in a moment.",
+                        "destination",
+                        True,
+                    ) from None
+                time.sleep(0.25)
+        try:
+            yield
+        finally:
+            fcntl.flock(file, fcntl.LOCK_UN)
 
 
 def fresh_media_status(cast):
@@ -228,6 +296,41 @@ def playing(cast, url, seconds=10.0):
     return True
 
 
+def seen(cast):
+    """What the receiver says now, for the log and the message."""
+    status = cast.media_controller.status
+    return {
+        "app": getattr(getattr(cast, "status", None), "app_id", None),
+        "state": getattr(status, "player_state", None),
+        "idle_reason": getattr(status, "idle_reason", None),
+        "at": getattr(status, "current_time", None),
+    }
+
+
+def not_played(facts):
+    """Why a film loaded twice didn't play, as the receiver told it."""
+    if facts.get("idle_reason") == "ERROR":
+        return MediaError(
+            "PLAYBACK_REJECTED",
+            "The Chromecast could not play this version's stream. Try another version.",
+            "play",
+            True,
+        )
+    if facts.get("idle_reason") in {"INTERRUPTED", "CANCELLED"} or facts.get("app") not in (None, "CC1AD845"):
+        return MediaError(
+            "PLAYBACK_INTERRUPTED",
+            "Something else took the Chromecast as the film started. Play it again.",
+            "play",
+            True,
+        )
+    return MediaError(
+        "PLAYBACK_NOT_OBSERVED",
+        "The Chromecast took the film but did not start it. Play it again; if it happens again, restart the Chromecast.",
+        "play",
+        True,
+    )
+
+
 def stop_current(cast, wait=5.0):
     """Whatever the screen still shows (the film being replaced) goes first, as the Stop button
     does it: the receiver app is closed, and the load opens it fresh. Only stopping its media
@@ -238,6 +341,7 @@ def stop_current(cast, wait=5.0):
         controller.status = fresh_media_status(cast)
         if controller.status.media_session_id is None or controller.status.player_state == "IDLE":
             return
+        cast_log(getattr(cast, "uri", "?"), "close", why="before a new film")
         cast.quit_app(timeout=wait)
         deadline = time.monotonic() + wait
         while time.monotonic() < deadline and cast.status.app_id == "CC1AD845":
@@ -248,6 +352,20 @@ def stop_current(cast, wait=5.0):
 
 
 def execute_cast(db, row, device, source, plan):
+    """Load the film on the receiver, one command sequence at a time, each step logged."""
+    address = getattr(device, "address", "") or ""
+    with device_lock(address):
+        cast_log(address, "start", workflow=row.id, reload=bool(row.data.get("_seek_previous")))
+        try:
+            result = load_film(db, row, device, source, plan)
+        except MediaError as exc:
+            cast_log(address, "failed", workflow=row.id, code=exc.code, message=exc.message)
+            raise
+        cast_log(address, "playing", workflow=row.id)
+        return result
+
+
+def load_film(db, row, device, source, plan):
     from sqlalchemy import select
 
     from .cinema import CinemaRelay, authorize_workflow
@@ -354,6 +472,13 @@ def execute_cast(db, row, device, source, plan):
         def load():
             # Other apps (including Spotify) share the media namespace. Explicitly
             # select the Cast media receiver before sending a HouseOS LOAD.
+            cast_log(
+                device.address,
+                "load",
+                workflow=row.id,
+                streaming=bool(streaming),
+                position=plan.get("position", 0),
+            )
             cast.start_app("CC1AD845", timeout=10)
             cast.media_controller.play_media(
                 relay_url,
@@ -452,16 +577,14 @@ def execute_cast(db, row, device, source, plan):
         if should_play and not row.data.get("_seek_previous") and not playing(cast, relay_url):
             # Loaded but not playing (ended at once, or paused at the start, the screen dark):
             # closed and loaded again, the Stop then Play that always worked by hand.
+            cast_log(
+                getattr(device, "address", ""), "close", workflow=row.id, why="not playing", **seen(cast)
+            )
             cast.quit_app(timeout=5)
             time.sleep(SETTLE + 1)
             load()
             if not playing(cast, relay_url, 20):
-                raise MediaError(
-                    "PLAYBACK_NOT_OBSERVED",
-                    "The receiver took the video but did not play it, twice. Try Stop, then Play.",
-                    "play",
-                    True,
-                )
+                raise not_played(seen(cast))
             if streaming:
                 back_to_start(cast, max(0, plan.get("position", 0) - prepared.get("position_offset", 0)))
     except MediaError:
@@ -501,6 +624,12 @@ def cast_music(address, url, mime, position, paused, live, title):
 
 
 def cast_control(address, action, position):
+    with device_lock(address, wait=20):
+        cast_log(address, action, position=position)
+        return control_now(address, action, position)
+
+
+def control_now(address, action, position):
     cast = connect(address)
     try:
         controller = cast.media_controller
@@ -555,6 +684,12 @@ def cast_control(address, action, position):
 
 def abort_cast(address, expected_items):
     """Close our receiver, including an idle failed load, without stopping another app."""
+    with device_lock(address, wait=20):
+        cast_log(address, "stop")
+        return abort_now(address, expected_items)
+
+
+def abort_now(address, expected_items):
     cast = connect(address)
     try:
         if cast.status.app_id != "CC1AD845":

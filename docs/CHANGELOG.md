@@ -7,6 +7,20 @@ keep landing there between version numbers. Control Room → Update (or `./house
 brings them; Control Room says when changes are waiting, with *See what changed* to read them.
 Newest first.
 
+### 2026-11-02
+
+- **Playing again after a failed try works**: it starts as clean as a new launch. What the
+  failed try left (its stream, its links, a replace's bookkeeping) made every retry fail the
+  same way, while a fresh launch from Watch played at once.
+- **One command at a time per Chromecast**: the film service, the playback watcher and the web
+  app wait their turn; a close landing in the middle of another load left the screen on its
+  logo.
+- **Every command to a Cast screen is logged** (`logs/cast.log` under the house's state folder:
+  load, close, stop, what the receiver answered), so a stuck screen can be explained.
+- **A film that didn't start says why**, as the Chromecast reported it: this version's stream
+  refused (try another), something else took the screen (play it again), or not started (play
+  it again; if it repeats, restart the Chromecast).
+
 ### 2026-11-01
 
 - **Assistants play a film in one call**: `cinema_play` (Nox and MCP clients) takes a title (a

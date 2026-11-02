@@ -2308,6 +2308,19 @@ def launch(identity: str, body: Launch, actor: Actor = Depends(require_actor), d
             saved.data = {**saved.data, "skip_intros": body.skip_intros}
         else:
             db.add(CinemaPreference(owner_id=actor.id, data={"skip_intros": body.skip_intros}))
+    if row.state in {"recovery_required", "failed"}:
+        # Played again after a failed try: it starts as clean as a new launch. What the failed
+        # try left (its stream, its links, a replace's bookkeeping, a seek) made every retry fail.
+        for grant in db.scalars(select(CinemaRelay).where(CinemaRelay.workflow_id == row.id)):
+            db.delete(grant)
+        row.data = {
+            **row.data,
+            "_prepared": None,
+            "_seek_previous": None,
+            "_release_after_load": None,
+            "_paused_since": None,
+            "error": None,
+        }
     previous = row.data.get("plan") or {}
     if row.data.get("_prepared") and (
         previous.get("source_id") != body.source_id

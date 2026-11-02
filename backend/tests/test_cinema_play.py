@@ -126,7 +126,9 @@ def test_a_relaunch_with_other_subtitles_prepares_the_stream_again():
         with patch.object(
             cinema,
             "prepare_plan",
-            side_effect=lambda db, row, source: seen.append(row.data["_prepared"]) or {"plan": {"interrupts": True}},
+            side_effect=lambda db, row, source: (
+                seen.append(row.data["_prepared"]) or {"plan": {"interrupts": True}}
+            ),
         ):
             f.client.post("/api/v1/cinema/workflows/workflow-one/launch", json={
                 "version": 1, "source_id": "source-one", "device_id": f.device_id,
@@ -142,3 +144,39 @@ def test_long_answers_stay_valid_json_shortening_lists_first():
     assert len(text) <= 4000
     shown = json.loads(text)  # never cut in the middle
     assert shown["total"] == 80 and shown["items"][-1].endswith("more")
+
+
+def test_playing_again_after_a_failed_try_starts_clean():
+    from houseos.cinema import CinemaRelay
+    from houseos.db import utcnow
+
+    f = test_cinema.CinemaTests()
+    f.setUp()
+    f.workflow()
+    with Session(f.engine) as db:
+        row = db.get(CinemaWorkflow, "workflow-one")
+        row.state = "recovery_required"
+        row.data = {**row.data, "_release_after_load": "the-film-before", "_seek_previous": {"state": "playing"},
+                    "_prepared": {"path": "/x/master.m3u8", "streaming": True}}  # fmt: skip
+        db.add(CinemaRelay(token_hash="t" * 64, workflow_id=row.id, device_address="192.0.2.17", path="/x/master.m3u8",
+                           mime="application/x-mpegURL", expires_at=utcnow()))  # fmt: skip
+        db.commit()
+    seen = []
+    try:
+        with patch.object(
+            cinema,
+            "prepare_plan",
+            side_effect=lambda db, row, source: (
+                seen.append(
+                    (dict(row.data), db.query(CinemaRelay).filter(CinemaRelay.workflow_id == row.id).count())
+                )
+                or {"plan": {"interrupts": True}}
+            ),
+        ):
+            f.client.post("/api/v1/cinema/workflows/workflow-one/launch", json={
+                "version": 1, "source_id": "source-one", "device_id": f.device_id})  # fmt: skip
+        data, links = seen[0]
+        assert not data["_release_after_load"] and not data["_seek_previous"] and not data["_prepared"]
+        assert links == 0  # the failed try's stream links are gone
+    finally:
+        f.tearDown()
