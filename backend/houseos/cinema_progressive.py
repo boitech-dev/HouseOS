@@ -190,6 +190,7 @@ def packaged_codecs(directory):
 
 
 CONVERTED_BYTES_PER_SECOND = 8_000_000 / 8 + 24_000  # the picture's 8 Mbit/s cap and the sound
+CONVERTING_SLOW = 1.5  # a conversion at least this fast plays as it goes
 SLOW = 4.0  # prepared at less than this many times real time: sent once complete, however long
 RATE_WINDOW = 3.0  # seconds the preparation speed is measured over, once it has started
 
@@ -209,13 +210,15 @@ def complete(directory):
         return False
 
 
-def slow(directory):
-    """Is this file prepared slower than it would be watched (with room to spare)?"""
+def slow(directory, converting=False):
+    """Is this file prepared slower than it would be watched (with room to spare)? A conversion
+    runs at a steady pace (no download stalls), so a smaller margin keeps it ahead."""
     if complete(directory):
         return False
     before = prepared_seconds(directory)
     time.sleep(RATE_WINDOW)
-    return not complete(directory) and (prepared_seconds(directory) - before) / RATE_WINDOW < SLOW
+    rate = (prepared_seconds(directory) - before) / RATE_WINDOW
+    return not complete(directory) and rate < (CONVERTING_SLOW if converting else SLOW)
 
 
 def keep_waiting(directory, slow_file):
@@ -508,7 +511,7 @@ def start(db, row, device, source, plan, job):
         row = db.get(CinemaWorkflow, workflow_id)
         # A slow file is sent once it is all prepared (the Now bar shows how far): sent unfinished,
         # the Chromecast would catch up with its end and jump ahead, again and again.
-        slow_file = slow(output)
+        slow_file = slow(output, bool(plan.get("video_conversion")))
         duration = float(plan.get("duration") or 0) or 1
         while keep_waiting(output, slow_file):
             if cancelled():

@@ -830,3 +830,15 @@ def test_a_picture_the_screen_cant_show_is_converted_to_h264_as_it_streams():
         compatibility(
             {**media, "video": {**media["video"], "height": 2160}}, {**caps, "maximum_resolution": 1080}, {}
         )
+
+
+def test_a_conversion_at_a_steady_pace_plays_as_it_goes(monkeypatch, tmp_path):
+    from houseos import cinema_progressive as p
+
+    done = iter([0.0, 9.0])  # 9 s prepared in the 3 s window: 3x real time
+    monkeypatch.setattr(p, "prepared_seconds", lambda d: next(done))
+    monkeypatch.setattr(p, "complete", lambda d: False)
+    monkeypatch.setattr(p.time, "sleep", lambda s: None)
+    assert not p.slow(tmp_path, converting=True)  # a conversion: plays at once
+    done = iter([0.0, 9.0])
+    assert p.slow(tmp_path)  # a download at that pace waits to be complete
