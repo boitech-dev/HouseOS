@@ -449,7 +449,7 @@ def test_commands_to_one_chromecast_wait_their_turn_and_are_logged(monkeypatch, 
     later.join(2)
     assert order == ["first in", "first out", "second in"]
     cinema_cast.cast_log("192.0.2.19", "load", workflow="w")
-    line = json.loads((tmp_path / "logs/cast.log").read_text().splitlines()[-1])
+    line = json.loads((tmp_path / "run/cast.log").read_text().splitlines()[-1])
     assert line["action"] == "load" and line["device"] == "192.0.2.19" and line["workflow"] == "w"
 
 

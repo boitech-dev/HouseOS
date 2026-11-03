@@ -42,10 +42,11 @@ def connect(address):
 
 
 def cast_log(address, action, **facts):
-    """One line per command sent to a Cast receiver, in logs/cast.log: when, which service, what,
-    and what the receiver said. Read it when a screen gets stuck (kept to about 2 MB)."""
+    """One line per command sent to a Cast receiver, in run/cast.log (the folder every house
+    service may write in): when, which service, what, and what the receiver said. Read it when a
+    screen gets stuck (kept to about 2 MB)."""
     try:
-        folder = Path(settings.runtime_root) / "logs"
+        folder = Path(settings.runtime_root) / "run"
         folder.mkdir(parents=True, exist_ok=True)
         path = folder / "cast.log"
         if path.exists() and path.stat().st_size > 2_000_000:
@@ -218,6 +219,10 @@ def preflight_cast(config, source, plan):
                 "prepare",
             )
         budget = int(size * (STREAM_ROOM if incremental else 2.2))
+        if plan.get("video_conversion"):  # converted: sized by its bitrate cap, not the source's
+            from .cinema_progressive import CONVERTED_BYTES_PER_SECOND
+
+            budget = max(budget, int((plan.get("duration") or 7200) * CONVERTED_BYTES_PER_SECOND * 1.3))
         free = shutil.disk_usage(settings.runtime_root).free
         if free < budget + 20 * 1024**3:
             raise MediaError(
@@ -361,7 +366,8 @@ def execute_cast(db, row, device, source, plan):
         except MediaError as exc:
             cast_log(address, "failed", workflow=row.id, code=exc.code, message=exc.message)
             raise
-        cast_log(address, "playing", workflow=row.id)
+        # False: the film is being prepared first; the service that prepares it loads it then.
+        cast_log(address, "playing" if result is not False else "preparing", workflow=row.id)
         return result
 
 

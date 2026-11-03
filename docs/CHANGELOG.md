@@ -26,7 +26,7 @@ Newest first.
 - **One command at a time per Chromecast**: the film service, the playback watcher and the web
   app wait their turn; a close landing in the middle of another load left the screen on its
   logo.
-- **Every command to a Cast screen is logged** (`logs/cast.log` under the house's state folder:
+- **Every command to a Cast screen is logged** (`run/cast.log` under the house's state folder:
   load, close, stop, what the receiver answered), so a stuck screen can be explained.
 - **A film that didn't start says why**, as the Chromecast reported it: this version's stream
   refused (try another), something else took the screen (play it again), or not started (play

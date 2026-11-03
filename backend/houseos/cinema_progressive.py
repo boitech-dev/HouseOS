@@ -67,7 +67,7 @@ def ffmpeg_args(directory, plan):
         # A picture the screen can't show (AV1, 10-bit…): 8-bit H.264 High, faster than it plays,
         # a keyframe at each 4 s segment so it starts and seeks on any segment.
         args += [
-            "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
+            "-c:v", "libx264", "-preset", "superfast", "-crf", "20", "-maxrate", "8M", "-bufsize", "16M", "-pix_fmt", "yuv420p",
             "-profile:v", "high", "-level", "4.1", "-force_key_frames", "expr:gte(t,n_forced*4)",
         ]  # fmt: skip
     else:
@@ -189,6 +189,7 @@ def packaged_codecs(directory):
     return ",".join(codecs)
 
 
+CONVERTED_BYTES_PER_SECOND = 8_000_000 / 8 + 24_000  # the picture's 8 Mbit/s cap and the sound
 SLOW = 4.0  # prepared at less than this many times real time: sent once complete, however long
 RATE_WINDOW = 3.0  # seconds the preparation speed is measured over, once it has started
 
@@ -599,6 +600,12 @@ def start(db, row, device, source, plan, job):
             ) from None
         raise
 
+    # A copied picture stays its own size; a converted one is capped at 8 Mbit/s (often bigger
+    # than an efficient AV1 source, which tripped the copy's budget 87 s in).
+    budget = int(size * 1.3) + 16 * 1024**2
+    if plan.get("video_conversion"):
+        budget = max(budget, int((plan.get("duration") or 7200) * CONVERTED_BYTES_PER_SECOND * 1.3))
+
     def monitor():
         failure = None
         try:
@@ -609,8 +616,7 @@ def start(db, row, device, source, plan, job):
                     time.monotonic() - started > max(1800, plan.get("duration") or 0) + 600
                     or errors.tell() > 1_000_000
                     or shutil.disk_usage(directory).free < 20 * 1024**3
-                    or sum(p.stat().st_size for p in output.iterdir() if p.is_file())
-                    > int(size * 1.3) + 16 * 1024**2
+                    or sum(p.stat().st_size for p in output.iterdir() if p.is_file()) > budget
                 ):
                     failure = MediaError(
                         "STREAM_RESOURCE_LIMIT",
