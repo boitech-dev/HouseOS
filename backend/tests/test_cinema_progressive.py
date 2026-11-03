@@ -821,6 +821,7 @@ def test_a_picture_the_screen_cant_show_is_converted_to_h264_as_it_streams():
     assert p.supported({}, plan)  # streams while converting, no complete copy first
     args = p.ffmpeg_args(__import__("pathlib").Path("/tmp/x"), plan)
     assert args[args.index("-c:v") + 1] == "libx264" and "yuv420p" in args
+    assert "-noaccurate_seek" not in args  # cut exactly at the asked moment: no packets to line up
     # HDR or 4K can't be converted live: still refused, with the reason.
     import pytest
     from houseos.playback import MediaError

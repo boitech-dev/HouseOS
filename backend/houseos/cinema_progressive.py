@@ -44,7 +44,7 @@ def ffmpeg_args(directory, plan):
         "http,tcp,file",
         "-format_whitelist",
         "mov,matroska,webm,mpegts,avi,mpeg",
-        "-noaccurate_seek",
+        *([] if plan.get("video_conversion") else ["-noaccurate_seek"]),
         "-ss",
         str(max(0, plan.get("position", 0))),
         "-i",
@@ -473,7 +473,10 @@ def start(db, row, device, source, plan, job):
     process = None
     try:
         socket_path = broker.__enter__()
-        plan, original = prepare_timeline(socket_path, output, plan)
+        # A converted picture is cut exactly at the asked moment (accurate seek): its first frame is
+        # that moment, so there are no copied packets to line up with the source.
+        converted = bool(plan.get("video_conversion"))
+        plan, original = (plan, None) if converted else prepare_timeline(socket_path, output, plan)
         process = subprocess.Popen(
             streaming_media_command(ffmpeg_args(output, plan), socket_path, output),
             stdin=subprocess.DEVNULL,
@@ -493,7 +496,11 @@ def start(db, row, device, source, plan, job):
                     True,
                 )
             time.sleep(0.15)
-        offset = position_offset(socket_path, output, plan, original)
+        offset = (
+            float(plan.get("position", 0))
+            if converted
+            else position_offset(socket_path, output, plan, original)
+        )
         write_master(output, plan, size)
         db.rollback()
         db.expire_all()
