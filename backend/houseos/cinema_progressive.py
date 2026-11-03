@@ -25,8 +25,10 @@ ACTIVE = set()
 def supported(source, plan):
     return (
         not source.get("jellyfin_item")
-        and plan.get("video_copied")
-        and plan["video"]["codec"] in {"h264", "hevc"}
+        and (
+            (plan.get("video_copied") and plan["video"]["codec"] in {"h264", "hevc"})
+            or plan.get("video_conversion")  # converted to H.264 as it streams (SDR, ≤1080p)
+        )
         and plan.get("subtitle_mode") in {"off", "webvtt"}
     )
 
@@ -60,10 +62,25 @@ def ffmpeg_args(directory, plan):
             "-i",
             external,
         ]
-    args += ["-map", f"0:{plan['video']['index']}", "-map", f"0:{plan['audio']['id']}", "-c:v", "copy"]
-    if plan["video"]["codec"] == "hevc":
+    args += ["-map", f"0:{plan['video']['index']}", "-map", f"0:{plan['audio']['id']}"]
+    if plan.get("video_conversion"):
+        # A picture the screen can't show (AV1, 10-bit…): 8-bit H.264 High, faster than it plays,
+        # a keyframe at each 4 s segment so it starts and seeks on any segment.
+        args += [
+            "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
+            "-profile:v", "high", "-level", "4.1", "-force_key_frames", "expr:gte(t,n_forced*4)",
+        ]  # fmt: skip
+    else:
+        args += ["-c:v", "copy"]
+    if plan["video"]["codec"] == "hevc" and not plan.get("video_conversion"):
         args += ["-tag:v", "hvc1"]
-    args += ["-c:a", plan["output_audio_codec"] if plan.get("audio_conversion") else "copy", "-threads", "2"]
+    threads = "0" if plan.get("video_conversion") else "2"  # the encoder gets every core
+    args += [
+        "-c:a",
+        plan["output_audio_codec"] if plan.get("audio_conversion") else "copy",
+        "-threads",
+        threads,
+    ]
     if plan.get("audio_conversion"):
         args += ["-ac", str(plan["output_channels"]), "-b:a", "192k"]
         if "_audio_start_pts" in plan:

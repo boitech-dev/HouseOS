@@ -293,12 +293,27 @@ def compatibility(media: dict, capabilities: dict, request: dict) -> dict:
         raise MediaError("VIDEO_MODE_UNSUPPORTED", "The request requires HDR; this source is SDR.")
     if request.get("hdr") == "avoid" and video.get("hdr") != "sdr":
         raise MediaError("VIDEO_MODE_UNSUPPORTED", "The request asks for SDR; this source is HDR.")
-    if video.get("codec") not in capabilities.get("video_codecs", []) or height > capabilities.get(
-        "maximum_resolution", 0
-    ):
+    # A picture the screen can't show as it is (its codec, profile, level, frame rate or bit
+    # depth), but SDR and up to 1080p: converted to H.264 as it streams, which every screen shows.
+    convertible = (
+        video.get("hdr") == "sdr" and height <= 1080 and "h264" in capabilities.get("video_codecs", [])
+    )
+    convert_video = False
+
+    def unsupported(message):
+        nonlocal convert_video
+        if not convertible:
+            raise MediaError("VIDEO_MODE_UNSUPPORTED", message)
+        convert_video = True
+
+    if height > capabilities.get("maximum_resolution", 0):
         raise MediaError(
             "VIDEO_MODE_UNSUPPORTED",
             "The destination cannot preserve this video codec/resolution. Choose a compatible source.",
+        )
+    if video.get("codec") not in capabilities.get("video_codecs", []):
+        unsupported(
+            "The destination cannot preserve this video codec/resolution. Choose a compatible source."
         )
     if video.get("hdr") not in capabilities.get("hdr_modes", []):
         raise MediaError(
@@ -312,20 +327,15 @@ def compatibility(media: dict, capabilities: dict, request: dict) -> dict:
         )
     limits = capabilities.get("video_profiles", {}).get(video.get("codec"), {})
     if limits.get("profiles") and video.get("profile") not in limits["profiles"]:
-        raise MediaError("VIDEO_MODE_UNSUPPORTED", "The video codec profile is not supported.")
+        unsupported("The video codec profile is not supported.")
     if limits.get("maximum_level") and (not video.get("level") or video["level"] > limits["maximum_level"]):
-        raise MediaError("VIDEO_MODE_UNSUPPORTED", "The video codec level exceeds destination capability.")
+        unsupported("The video codec level exceeds destination capability.")
     if limits.get("maximum_frame_rate") and (
         not video.get("frame_rate") or video["frame_rate"] > limits["maximum_frame_rate"]
     ):
-        raise MediaError(
-            "VIDEO_MODE_UNSUPPORTED", "The source frame rate exceeds the verified destination limit."
-        )
+        unsupported("The source frame rate exceeds the verified destination limit.")
     if limits.get("pixel_formats") and video.get("pixel_format") not in limits["pixel_formats"]:
-        raise MediaError(
-            "VIDEO_MODE_UNSUPPORTED",
-            "The source bit depth/chroma format is not verified on this destination.",
-        )
+        unsupported("The source bit depth/chroma format is not verified on this destination.")
     audio = choose_track(media["audio"], request.get("audio_track"), request.get("audio_language"))
     subtitle_tracks = media["subtitles"]
     if request.get("subtitle_track") is None:
@@ -389,9 +399,11 @@ def compatibility(media: dict, capabilities: dict, request: dict) -> dict:
         any(c in capabilities.get("containers", []) for c in media["container"].split(","))
         and media.get("video_stream_count", 1) == 1
     )
+    if convert_video:
+        warnings.append("The picture is converted to H.264 for this screen as it streams.")
     mode = (
         "video_convert"
-        if subtitle_mode == "burn"
+        if subtitle_mode == "burn" or convert_video
         else "audio_convert"
         if audio_conversion
         else "direct"
@@ -409,7 +421,8 @@ def compatibility(media: dict, capabilities: dict, request: dict) -> dict:
         "output_channels": min(audio.get("channels") or 2, capabilities.get("max_audio_channels", 2)),
         "warnings": warnings,
         "duration": media["duration"],
-        "video_copied": subtitle_mode != "burn",
+        "video_copied": subtitle_mode != "burn" and not convert_video,
+        "video_conversion": convert_video,
         "verification": {
             "physical_video": "unverified",
             "physical_audio": "unverified",

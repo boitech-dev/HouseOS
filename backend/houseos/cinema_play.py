@@ -157,6 +157,11 @@ def fits(candidate, body):
 def choose(row, body, wanted):
     """The checked version that best fits what was asked, or None."""
     checked = [c for c in (row.data.get("choice_set") or {}).get("candidates") or [] if fits(c, body)]
+    if body.audio != "original":  # a dub asked for: only versions that have it
+        dub = language(body.audio)
+        checked = [
+            c for c in checked if any(language(a.get("language")) == dub for a in c.get("audio") or [])
+        ]
     if body.smallest:
         checked.sort(key=lambda c: c.get("size") or 0)
     if wanted and body.subtitles_inside:

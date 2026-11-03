@@ -180,3 +180,16 @@ def test_playing_again_after_a_failed_try_starts_clean():
         assert links == 0  # the failed try's stream links are gone
     finally:
         f.tearDown()
+
+
+def test_a_dub_asked_for_only_picks_versions_that_have_it():
+    fr = {
+        **version("fr-av1", 1080, 2e8),
+        "audio": [{"id": "3", "language": "fr"}, {"id": "1", "language": "ja"}],
+    }
+    row = CinemaWorkflow(
+        state="awaiting_choice", data={"choice_set": {"candidates": [version("ja-only", 1080, 2e9), fr]}}
+    )
+    asked = Play(title="x", audio="fr", subtitles="off")
+    chosen = choose(row, asked, None)
+    assert chosen["id"] == "fr-av1" and tracks(chosen, asked, None) == ("3", "off", None)

@@ -94,7 +94,13 @@ def test_cropped_films_keep_their_class_for_quality_and_ranking():
 
 
 def test_hard_limits_still_reject():
+    # A codec the screen can't show is converted as it streams (SDR, up to 1080p), after the
+    # versions shown as they are; beyond what can be converted live, still refused.
     sources = [source("av1", media(1080, codec="av1")), source("fine", media(1080))]
+    ranked = rank_inspected(sources, CAPS, {"audio_language": "de", "subtitle_language": "it"})
+    assert [entry[0]["id"] for entry in ranked] == ["fine", "av1"]
+    assert "picture converted for this screen" in ranked[1][3]
+    sources = [source("av1-4k", media(2160, codec="av1")), source("fine", media(1080))]
     ranked = rank_inspected(sources, CAPS, {"audio_language": "de", "subtitle_language": "it"})
     assert [entry[0]["id"] for entry in ranked] == ["fine"]
     assert sources[0]["rejection"]["code"] == "VIDEO_MODE_UNSUPPORTED"

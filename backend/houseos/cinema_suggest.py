@@ -149,6 +149,9 @@ def best_plan(media, capabilities, request, original=None):
     score += RESOLUTION.get(resolution(plan["video"]), 0)
     if plan["mode"] == "audio_convert":
         score -= 5
+    if plan.get("video_conversion"):  # plays, converted as it streams: a version shown as it is first
+        score -= 60
+        reasons.append("picture converted for this screen")
     return plan, score, reasons
 
 

@@ -805,3 +805,27 @@ def test_a_subtitle_offset_reloads_the_film_where_it_is_and_the_relay_serves_mov
             assert b"00:00:11.500 --> 00:00:13.500\nBonjour" in asyncio.run(read())
     finally:
         f.tearDown()
+
+
+def test_a_picture_the_screen_cant_show_is_converted_to_h264_as_it_streams():
+    from houseos import cinema_progressive as p
+    from houseos.playback import compatibility
+
+    caps = {"video_codecs": ["h264", "hevc"], "maximum_resolution": 2160, "hdr_modes": ["sdr"], "containers": ["mp4"],
+            "audio_codecs": ["aac"], "max_audio_channels": 2, "external_webvtt": True, "inspected_at": "2026-11-03"}  # fmt: skip
+    media = {"container": "matroska,webm", "duration": 1400, "subtitles": [],
+             "video": {"index": 0, "codec": "av1", "height": 1080, "width": 1920, "hdr": "sdr", "pix_fmt": "yuv420p10le"},
+             "audio": [{"id": "3", "codec": "opus", "language": "fr", "channels": 2, "default": True}]}  # fmt: skip
+    plan = compatibility(media, caps, {"audio_language": "fr", "subtitles_on": False})
+    assert plan["mode"] == "video_convert" and plan["video_conversion"] and not plan["video_copied"]
+    assert p.supported({}, plan)  # streams while converting, no complete copy first
+    args = p.ffmpeg_args(__import__("pathlib").Path("/tmp/x"), plan)
+    assert args[args.index("-c:v") + 1] == "libx264" and "yuv420p" in args
+    # HDR or 4K can't be converted live: still refused, with the reason.
+    import pytest
+    from houseos.playback import MediaError
+
+    with pytest.raises(MediaError):
+        compatibility(
+            {**media, "video": {**media["video"], "height": 2160}}, {**caps, "maximum_resolution": 1080}, {}
+        )
