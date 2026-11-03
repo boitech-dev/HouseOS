@@ -134,3 +134,31 @@ print("OK")"""
                 self.assertEqual(result.returncode, 0, result.stderr.decode())
                 self.assertAlmostEqual(float(json.loads(result.stdout)["format"]["duration"]), 2)
                 self.assertTrue(any(c for c in calls))
+
+
+def test_a_reader_that_pauses_still_gets_the_whole_film():
+    """A conversion reads only as fast as it encodes: a pause of a few seconds between reads must
+    not end the film early (a 1 s send limit cut converted pictures short, as if they had ended)."""
+    with tempfile.TemporaryDirectory() as name:
+        directory = Path(name)
+        payload = b"x" * (8 * 1024 * 1024)  # more than the socket buffers hold
+        opener = lambda byte_range, head: (
+            200,
+            {"Content-Length": str(len(payload))},
+            iter([payload[i : i + 65536] for i in range(0, len(payload), 65536)]),
+        )  # noqa: E731
+        with input_broker(directory, opener) as path:
+            code = """import sys,time,urllib.request
+r=urllib.request.urlopen(sys.argv[1]);got=0
+while True:
+    part=r.read(1024*1024)
+    if not part: break
+    got+=len(part);time.sleep(1.6)
+print(got)"""
+            result = subprocess.run(
+                streaming_media_command(["/usr/bin/python3", "-c", code, "INPUT"], path, directory),
+                capture_output=True,
+                env=MEDIA_ENV,
+                timeout=60,
+            )
+            assert result.stdout.strip() == str(len(payload)).encode(), result.stderr.decode()[-300:]

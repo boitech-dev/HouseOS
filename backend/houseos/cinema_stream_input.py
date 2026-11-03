@@ -8,6 +8,8 @@ import socketserver
 import threading
 import tempfile
 
+SEND_WAIT = 300  # seconds a reader may pause between chunks
+
 _HEADERS = {"content-length", "content-range", "accept-ranges", "content-type"}
 
 
@@ -60,6 +62,10 @@ class _Handler(BaseHTTPRequestHandler):
                     self.send_header(name, str(value))
             self.send_header("Connection", "close")
             self.end_headers()
+            # The reader takes the film at its own pace: a conversion reads only as fast as it
+            # encodes, so a send may wait well over the request's 1 s (that cut a converted
+            # picture short, as if the film had ended).
+            self.connection.settimeout(SEND_WAIT)
             if self.command != "HEAD":
                 for chunk in chunks:
                     if self.server.stopping.is_set() or self.server.cancelled():

@@ -58,6 +58,8 @@ class Handler(BaseHTTPRequestHandler):
                     self.send_header(name, value)
             self.send_header("Connection", "close")
             self.end_headers()
+            # The reader's own pace: a conversion pauses between reads well over the request's 1 s.
+            self.connection.settimeout(300)
             if self.command != "HEAD":
                 while data := response.read(64 * 1024):
                     self.wfile.write(data)
