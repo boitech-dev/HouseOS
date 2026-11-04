@@ -596,6 +596,20 @@ def launch_fetched(db, row, fetching):
         position=play.get("position"),
     )
     wanted = language(body.subtitles) if body.subtitles and body.subtitles != "off" else None
+    dub = language(body.audio) if body.audio != "original" else None
+    if dub and not any(language(a.get("language")) == dub for a in chosen.get("audio") or []):
+        # Fetched, but not in the language asked for: said, never played in another one.
+        fresh = db.get(CinemaWorkflow, row.id)
+        fresh.data = {
+            **fresh.data,
+            "_fetching": {
+                **fetching,
+                "status": "failed",
+                "error": f"This version has no {dub} audio. Try another one.",
+            },
+        }
+        db.commit()
+        return None
     audio, subtitle, _ = tracks(chosen, body, wanted)
     try:
         return cinema.launch(

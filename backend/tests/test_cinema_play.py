@@ -339,3 +339,24 @@ def test_cinema_play_fetches_when_nothing_instant_fits():
         and said["retry_after"] == 60
         and said["progress"] == {"step": "fetching", "percent": 35}
     )
+
+
+def test_a_fetched_version_without_the_dub_asked_for_is_never_played_in_another_language():
+    f = test_cinema.CinemaTests()
+    f.setUp()
+    f.workflow()
+    with Session(f.engine) as db:
+        row = db.get(CinemaWorkflow, "workflow-one")
+        row.data = {**row.data, "choice_set": {"candidates": [version("got", 1080, 2e9)]}}  # English only
+        db.commit()
+        fetching = {
+            "source_id": "got",
+            "status": "done",
+            "play": {"device_id": f.device_id, "audio_language": "fr"},
+        }
+        with patch.object(cinema, "launch") as launch:
+            cinema_play.launch_fetched(db, db.get(CinemaWorkflow, "workflow-one"), fetching)
+        assert not launch.called
+        said = db.get(CinemaWorkflow, "workflow-one", populate_existing=True).data["_fetching"]
+        assert said["status"] == "failed" and "no fr audio" in said["error"]
+    f.tearDown()
