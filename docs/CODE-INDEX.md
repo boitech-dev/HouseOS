@@ -103,46 +103,47 @@ permissions, in the tool groups it was given. The handlers are Nox's (tool_catal
 two never drift; the person's permission checks run inside them as for the app's screens.
 Never through here: setup, settings, secrets, addresses, code, files, backups or shutdown.
 
-- [`actor_for(db, authorization)`](../backend/houseos/agent_mcp.py#L199)
+- [`actor_for(db, authorization)`](../backend/houseos/agent_mcp.py#L203)
   (token record, Actor) for a valid bearer token, else None.
-- [`allowed_tools(row)`](../backend/houseos/agent_mcp.py#L229)
-- [`flat(schema, defs=None)`](../backend/houseos/agent_mcp.py#L259)
+- [`allowed_tools(row)`](../backend/houseos/agent_mcp.py#L241)
+- [`flat(schema, defs=None)`](../backend/houseos/agent_mcp.py#L271)
   A tool's input schema the way every model reads it: no $ref, no anyOf, only common keys.
-- [`merged(forms)`](../backend/houseos/agent_mcp.py#L285)
+- [`merged(forms)`](../backend/houseos/agent_mcp.py#L297)
   Objects: every field of every form, required only when all require it. Choices: all of
-- [`tool_list(tools)`](../backend/houseos/agent_mcp.py#L302)
-- [`carried_out(name, result, actor, db)`](../backend/houseos/agent_mcp.py#L341)
+- [`tool_list(tools)`](../backend/houseos/agent_mcp.py#L314)
+- [`carried_out(name, result, actor, db)`](../backend/houseos/agent_mcp.py#L353)
   A card waiting for the person's tap, tapped (DOES_IT tools only): the confirmation's own
-- [`run(name, arguments, tools, actor, db)`](../backend/houseos/agent_mcp.py#L358)
+- [`run(name, arguments, tools, actor, db)`](../backend/houseos/agent_mcp.py#L370)
   (text, is_error) of one call: Nox's handler, with Nox's argument handling.
-- [`call_tool(name, arguments, tools, actor, db)`](../backend/houseos/agent_mcp.py#L364)
+- [`call_tool(name, arguments, tools, actor, db)`](../backend/houseos/agent_mcp.py#L376)
   (result, is_error) of one call, the result as a dict (the widget door sends it as is).
-- [`fitted(result, limit=4000)`](../backend/houseos/agent_mcp.py#L404)
+- [`fitted(result, limit=4000)`](../backend/houseos/agent_mcp.py#L416)
   The result as JSON within `limit` characters, still valid JSON: long lists are shortened
-- [`summary(arguments)`](../backend/houseos/agent_mcp.py#L436)
+- [`summary(arguments)`](../backend/houseos/agent_mcp.py#L448)
   What a call asked, short and without private text: ids and choices as given, a message's
-- [`note(db, row, tool, arguments, started, failed, result)`](../backend/houseos/agent_mcp.py#L453)
+- [`note(db, row, tool, arguments, started, failed, result)`](../backend/houseos/agent_mcp.py#L465)
   One call in the agent's record (the last RECENT) and in the service log.
-- [`answer(message_id, result=None, error=None)`](../backend/houseos/agent_mcp.py#L477)
-- [`handle(message, row, actor, db)`](../backend/houseos/agent_mcp.py#L483)
-- [`mcp(request: Request, request_body: dict | list=Body(...), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L533)
+- [`tools_fingerprint(row)`](../backend/houseos/agent_mcp.py#L489)
+- [`answer(message_id, result=None, error=None)`](../backend/houseos/agent_mcp.py#L496)
+- [`handle(message, row, actor, db)`](../backend/houseos/agent_mcp.py#L502)
+- [`mcp(request: Request, request_body: dict | list=Body(...), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L558)
   HTTP: `router.post('/mcp', include_in_schema=False)`
-- [`mcp_other()`](../backend/houseos/agent_mcp.py#L560)
+- [`mcp_other()`](../backend/houseos/agent_mcp.py#L585)
   No event stream and no sessions: everything is answered on the POST.
-- [`class NewAgent`](../backend/houseos/agent_mcp.py#L565)
-- [`class AgentChange`](../backend/houseos/agent_mcp.py#L572)
-- [`shown(row, db)`](../backend/houseos/agent_mcp.py#L577)
-- [`list_agents(actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L593)
+- [`class NewAgent`](../backend/houseos/agent_mcp.py#L590)
+- [`class AgentChange`](../backend/houseos/agent_mcp.py#L597)
+- [`shown(row, db)`](../backend/houseos/agent_mcp.py#L602)
+- [`list_agents(actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L618)
   HTTP: `admin.get('')`
-- [`create_agent(body: NewAgent, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L612)
+- [`create_agent(body: NewAgent, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L637)
   HTTP: `admin.post('')`
-- [`change_agent(identity: str, body: AgentChange, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L640)
+- [`change_agent(identity: str, body: AgentChange, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L665)
   Its groups or its tool set (essential or all); the agent sees them on its next list.
   HTTP: `admin.put('/{identity}')`
-- [`agent_calls(identity: str, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L657)
+- [`agent_calls(identity: str, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L682)
   The agent's last calls, newest first: when, which tool, what it asked, how long, and why it
   HTTP: `admin.get('/{identity}/calls')`
-- [`revoke_agent(identity: str, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L667)
+- [`revoke_agent(identity: str, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/agent_mcp.py#L692)
   HTTP: `admin.delete('/{identity}')`
 
 ## agent_now
@@ -472,21 +473,21 @@ Every handler calls the same permission-checked service the app's own screens us
 - [`class MusicControl`](../backend/houseos/assistant_tools.py#L598)
   Assistant music control. The queue version only guards a stale screen; a spoken
 - [`music_control(body, actor, db)`](../backend/houseos/assistant_tools.py#L610)
-- [`tool_catalogue()`](../backend/houseos/assistant_tools.py#L759)
+- [`tool_catalogue()`](../backend/houseos/assistant_tools.py#L760)
   Every assistant tool once: name -> (input model, description, handler).
-- [`tool_registry(context)`](../backend/houseos/assistant_tools.py#L1134)
-- [`class CinemaSearch`](../backend/houseos/assistant_tools.py#L1182)
-- [`class WorkflowVersion`](../backend/houseos/assistant_tools.py#L1186)
-- [`class CinemaLaunch`](../backend/houseos/assistant_tools.py#L1191)
-- [`class CinemaChange`](../backend/houseos/assistant_tools.py#L1195)
-- [`omit_default_nulls(value, schema)`](../backend/houseos/assistant_tools.py#L1199)
+- [`tool_registry(context)`](../backend/houseos/assistant_tools.py#L1141)
+- [`class CinemaSearch`](../backend/houseos/assistant_tools.py#L1189)
+- [`class WorkflowVersion`](../backend/houseos/assistant_tools.py#L1193)
+- [`class CinemaLaunch`](../backend/houseos/assistant_tools.py#L1198)
+- [`class CinemaChange`](../backend/houseos/assistant_tools.py#L1202)
+- [`omit_default_nulls(value, schema)`](../backend/houseos/assistant_tools.py#L1206)
   Undo strict-provider null placeholders, including nested union/list models.
-- [`tool_schemas(registry)`](../backend/houseos/assistant_tools.py#L1250)
+- [`tool_schemas(registry)`](../backend/houseos/assistant_tools.py#L1257)
   What a provider sees of each tool. idempotency_key is left out: execute_tool always
-- [`compact_schema(schema)`](../backend/houseos/assistant_tools.py#L1262)
+- [`compact_schema(schema)`](../backend/houseos/assistant_tools.py#L1269)
   Pydantic's schema without titles, defaults or additionalProperties (the models forbid
-- [`strict_schema(schema)`](../backend/houseos/assistant_tools.py#L1285)
-- [`action_recap(name, args, result, actor, db)`](../backend/houseos/assistant_tools.py#L1361)
+- [`strict_schema(schema)`](../backend/houseos/assistant_tools.py#L1292)
+- [`action_recap(name, args, result, actor, db)`](../backend/houseos/assistant_tools.py#L1368)
 
 ## atomic
 
@@ -1190,38 +1191,43 @@ screen, and say in one line what plays. It waits up to WAIT seconds; asked again
 words, it carries on with the same versions instead of starting over.
 
 - [`class Play`](../backend/houseos/cinema_play.py#L36)
-- [`answer(status, message, **facts)`](../backend/houseos/cinema_play.py#L78)
+- [`answer(status, message, **facts)`](../backend/houseos/cinema_play.py#L79)
   What a call says, for a model and for code: status, one line, the facts. While the house is
-- [`progress(row)`](../backend/houseos/cinema_play.py#L85)
+- [`progress(row)`](../backend/houseos/cinema_play.py#L86)
   How far a film got: versions checked, or the stream prepared (percent).
-- [`find_title(db, actor, body)`](../backend/houseos/cinema_play.py#L103)
+- [`find_title(db, actor, body)`](../backend/houseos/cinema_play.py#L104)
   The house's title row, or an answer asking which one.
-- [`screen(db, actor, body)`](../backend/houseos/cinema_play.py#L140)
-- [`wait_for(db, workflow_id, deadline, ready)`](../backend/houseos/cinema_play.py#L151)
+- [`screen(db, actor, body)`](../backend/houseos/cinema_play.py#L141)
+- [`wait_for(db, workflow_id, deadline, ready)`](../backend/houseos/cinema_play.py#L152)
   Read the workflow again until ready(row) or the deadline; no transaction held meanwhile.
-- [`inside(candidate, wanted)`](../backend/houseos/cinema_play.py#L161)
-- [`fits(candidate, body)`](../backend/houseos/cinema_play.py#L172)
-- [`choose(row, body, wanted)`](../backend/houseos/cinema_play.py#L179)
+- [`inside(candidate, wanted)`](../backend/houseos/cinema_play.py#L162)
+- [`fits(candidate, body)`](../backend/houseos/cinema_play.py#L173)
+- [`choose(row, body, wanted)`](../backend/houseos/cinema_play.py#L180)
   The checked version that best fits what was asked, or None.
-- [`worth_checking(row, body, wanted, chosen)`](../backend/houseos/cinema_play.py#L194)
+- [`worth_checking(row, body, wanted, chosen)`](../backend/houseos/cinema_play.py#L195)
   Cached versions not checked yet that could fit better (up to three).
-- [`checkable(row)`](../backend/houseos/cinema_play.py#L220)
+- [`checkable(row)`](../backend/houseos/cinema_play.py#L221)
   Still something for the house to check on its own (a found workflow with only versions to
-- [`check_more(db, row, ids, actor)`](../backend/houseos/cinema_play.py#L228)
-- [`tracks(candidate, body, wanted)`](../backend/houseos/cinema_play.py#L241)
+- [`check_more(db, row, ids, actor)`](../backend/houseos/cinema_play.py#L229)
+- [`tracks(candidate, body, wanted)`](../backend/houseos/cinema_play.py#L242)
   (audio id, subtitle id or "auto"/"off", language to find online or None).
-- [`describe(title, row, candidate, device, subtitle, online)`](../backend/houseos/cinema_play.py#L259)
-- [`play(body: Play, actor, db)`](../backend/houseos/cinema_play.py#L279)
-- [`launched(db, row, title, chosen, device, deadline, online=None)`](../backend/houseos/cinema_play.py#L456)
+- [`describe(title, row, candidate, device, subtitle, online)`](../backend/houseos/cinema_play.py#L260)
+- [`play(body: Play, actor, db)`](../backend/houseos/cinema_play.py#L280)
+- [`launched(db, row, title, chosen, device, deadline, online=None)`](../backend/houseos/cinema_play.py#L461)
   After the launch: playing, failed, or still starting (with how far it got).
-- [`class Versions`](../backend/houseos/cinema_play.py#L484)
-- [`versions(body: Versions, actor, db)`](../backend/houseos/cinema_play.py#L501)
+- [`class Versions`](../backend/houseos/cinema_play.py#L489)
+- [`versions(body: Versions, actor, db)`](../backend/houseos/cinema_play.py#L506)
   Every version of a film or episode, checked or not, filtered and sorted, ten at a time.
-- [`launch_fetched(db, row, fetching)`](../backend/houseos/cinema_play.py#L572)
+- [`launch_fetched(db, row, fetching)`](../backend/houseos/cinema_play.py#L577)
   A version the debrid service fetched is there: play it as asked, with the house's suggested
-- [`fetch_instead(db, row, body, wanted, device, title, actor)`](../backend/houseos/cinema_play.py#L631)
+- [`fetch_instead(db, row, body, wanted, device, title, actor)`](../backend/houseos/cinema_play.py#L650)
   Nothing instant fits: the best version the debrid service can fetch (its name matching the
-- [`fetching_answer(row, title, device)`](../backend/houseos/cinema_play.py#L669)
+- [`fetching_answer(row, title, device)`](../backend/houseos/cinema_play.py#L688)
+- [`class ScreenHistory`](../backend/houseos/cinema_play.py#L701)
+- [`screen_history(body: ScreenHistory, actor, db)`](../backend/houseos/cinema_play.py#L705)
+  What played on the house's screens lately, newest first: like the music history, what a
+- [`what_exists(row, body, wanted, title, chosen)`](../backend/houseos/cinema_play.py#L752)
+  check_only: the versions there are, the one it would play first, and how; nothing plays or
 
 ## cinema_prepare
 

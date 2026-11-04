@@ -158,7 +158,8 @@ def test_the_lean_set_answers_everyday_asks_in_one_call_each(client):
     assert made["tools"] == "essential"  # the default
     token = made["token"]
     hello = rpc(c, token, "initialize", {"protocolVersion": "2025-11-25"}).json()["result"]
-    assert "music_play" in hello["instructions"] and len(hello["instructions"]) < 1500
+    assert "music_play" in hello["instructions"] and len(hello["instructions"]) < 1800
+    before = hello["serverInfo"]["version"]  # ends with the tool list's fingerprint
     names = [t["name"] for t in rpc(c, token, "tools/list").json()["result"]["tools"]]
     assert names[0] == "house_now" and {"music_play", "board_add", "music_control"} <= set(names)
     assert "music_search" not in names and "household_create" not in names and len(names) <= 12
@@ -199,6 +200,10 @@ def test_the_lean_set_answers_everyday_asks_in_one_call_each(client):
     assert c.put("/api/v1/admin/agents/" + made["id"], json={"tools": "all"}).json()["tools"] == "all"
     app.dependency_overrides.pop(require_actor)
     assert "music_search" in [t["name"] for t in rpc(c, token, "tools/list").json()["result"]["tools"]]
+    after = rpc(c, token, "initialize", {"protocolVersion": "2025-11-25"}).json()["result"]["serverInfo"][
+        "version"
+    ]
+    assert after != before  # its tools changed: a client sees it at its next initialize
 
 
 def test_music_play_turns_words_into_queued_songs_in_one_call(monkeypatch):

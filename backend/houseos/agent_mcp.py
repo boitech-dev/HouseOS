@@ -57,6 +57,7 @@ GROUPS = {
     "tv": (
         "cinema_play",
         "cinema_versions",
+        "tv_history",
         "cinema_search",
         "cinema_browse",
         "cinema_filter",
@@ -105,6 +106,7 @@ GROUPS = {
     "messages": ("users_lookup", "messages_send", "inbox_list"),
 }
 READ = {
+    "tv_history",
     "music_get_state",
     "music_search",
     "radio_search",
@@ -184,6 +186,8 @@ result's message in your own words:
 - What's playing, what's on the TV, today's board: house_now (also gives the ids to control).
 - Music: music_play with their words (a song, an artist, a mood, "5 songs by X", radio=true for a
   station); music_control for play, pause, skip, volume, sleep.
+- "Is X there? in French?" before playing: cinema_play with check_only true (plays nothing; the
+  versions found, the one it would play). "What did we watch": tv_history; songs: music_history.
 - A film or an episode: cinema_play with the title and only what they asked (subtitles language,
   4K, smallest file, from the start); "working": call it again with the same arguments;
   "needs_answer": ask that question. Pause, resume, stop, seek: cinema_control with house_now's
@@ -217,8 +221,16 @@ def actor_for(db, authorization):
 # The lean set an agent gets by default: one call per everyday ask, a quarter of the tokens of
 # every tool (its token can be switched to all of them in Control Room → Agents).
 ESSENTIAL = {
-    "music": ("music_play", "music_control", "music_auto"),
-    "tv": ("cinema_play", "cinema_control", "cinema_change", "cinema_search", "tv_control", "tv_remote"),
+    "music": ("music_play", "music_control", "music_auto", "music_history"),
+    "tv": (
+        "cinema_play",
+        "cinema_control",
+        "cinema_change",
+        "cinema_search",
+        "tv_history",
+        "tv_control",
+        "tv_remote",
+    ),
     "home": ("home_list", "home_control"),
     "board": ("board_add", "household_list", "task_action", "groceries_purchase", "calendar_agenda"),
     "messages": ("messages_send", "inbox_list", "users_lookup"),
@@ -474,6 +486,13 @@ def note(db, row, tool, arguments, started, failed, result):
     db.commit()
 
 
+def tools_fingerprint(row):
+    import hashlib
+
+    listed = json.dumps(tool_list(allowed_tools(row)), sort_keys=True, default=str)
+    return hashlib.sha256(listed.encode()).hexdigest()[:10]
+
+
 def answer(message_id, result=None, error=None):
     body = {"jsonrpc": "2.0", "id": message_id}
     body.update({"error": error} if error else {"result": result})
@@ -496,7 +515,13 @@ def handle(message, row, actor, db):
             {
                 "protocolVersion": asked if asked in VERSIONS else VERSIONS[0],
                 "capabilities": {"tools": {"listChanged": False}},
-                "serverInfo": {"name": "houseos", "title": "HouseOS", "version": __version__},
+                # The version ends with the agent's tool list fingerprint: when it changes (an update,
+                # its groups or tool set changed), the client lists the tools again.
+                "serverInfo": {
+                    "name": "houseos",
+                    "title": "HouseOS",
+                    "version": f"{__version__}+{tools_fingerprint(row)}",
+                },
                 "instructions": LEAN if lean else "\n\n".join([INSTRUCTIONS, *guide]),
             },
         )

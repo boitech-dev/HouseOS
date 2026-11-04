@@ -9,6 +9,14 @@ Newest first.
 
 ### 2026-11-04
 
+- **Asking before playing**: `cinema_play` with `check_only` says which versions exist (instant or
+  to fetch, resolution, size, audio and subtitles) and the one it would play, playing nothing; "play
+  it" next reuses those checked versions. `tv_history` lists what played on the house's screens
+  lately (each person's own history stays theirs); assistants with the lean set also get
+  `music_history`.
+- **New tools reach assistants by themselves**: the MCP handshake's version ends with a fingerprint
+  of the agent's tool list; when it changes, the client lists the tools again.
+
 - **Versions Real-Debrid fetches first** (`[RD download]`, not instant) are listed after the
   instant ones, marked, and never checked on their own (that adds them to the account). Picked
   (in Watch, or by `cinema_play` when nothing instant fits), Real-Debrid fetches it: the house

@@ -360,3 +360,61 @@ def test_a_fetched_version_without_the_dub_asked_for_is_never_played_in_another_
         said = db.get(CinemaWorkflow, "workflow-one", populate_existing=True).data["_fetching"]
         assert said["status"] == "failed" and "no fr audio" in said["error"]
     f.tearDown()
+
+
+def test_check_only_says_what_exists_and_plays_nothing_then_play_reuses_it():
+    f = test_cinema.CinemaTests()
+    f.setUp()
+    f.workflow()
+    with Session(f.engine) as db:
+        row = db.get(CinemaWorkflow, "workflow-one")
+        row.data = {**row.data, "choice_set": {"candidates": [version("source-one", 1080, 4e9, ["fr"])]}}
+        db.add(Operation(id="op-look", actor_id=f.actor.id, kind="cinema.discover", state="completed",
+                         data={}, result={"workflow_id": "workflow-one"}))  # fmt: skip
+        db.commit()
+    try:
+        with (
+            Session(f.engine) as db,
+            patch.object(
+                cinema_play.cinema_jobs, "enqueue_discovery", return_value={"operation_id": "op-look"}
+            ) as found,
+            patch.object(cinema, "launch") as launch,
+            patch.object(cinema_play.time, "sleep"),
+            patch.object(cinema_play, "WAIT", 0.2),
+        ):
+            said = cinema_play.play(Play(title="tt123", device_id=f.device_id, check_only=True), f.actor, db)
+            assert said["status"] == "found" and not launch.called
+            assert "it would play 1080p, 4.0 GB, audio en, subtitles fr" in said["message"]
+            assert said["versions"][0] == {
+                "id": "source-one",
+                "instant": True,
+                "summary": "1080p, 4.0 GB, audio en, subtitles fr",
+            }
+            launch.return_value = {"state": "command_sent"}
+            cinema_play.play(Play(title="tt123", device_id=f.device_id), f.actor, db)
+            assert launch.called and found.call_count == 1  # the same checked versions, not a new search
+    finally:
+        f.tearDown()
+
+
+def test_what_played_on_the_screens_is_the_house_s_to_see():
+    from houseos.db import utcnow
+
+    f = test_cinema.CinemaTests()
+    f.setUp()
+    f.workflow()
+    with Session(f.engine) as db:
+        row = db.get(CinemaWorkflow, "workflow-one")
+        row.state = "completed"
+        row.data = {
+            **row.data,
+            "checkpoint": {"position": 3000, "duration": 6000, "at": utcnow().isoformat()},
+        }
+        db.commit()
+        items = cinema_play.screen_history(cinema_play.ScreenHistory(), f.actor, db)["items"]
+    f.tearDown()
+    assert (
+        items[0]["title"] == "Synthetic Film"
+        and items[0]["progress"] == "50%"
+        and items[0]["screen"] == "Test"
+    )

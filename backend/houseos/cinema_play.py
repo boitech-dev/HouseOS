@@ -73,6 +73,7 @@ class Play(Input):
     replace: bool = Field(default=False, description="Once they agreed to replace what plays.")
     skip_intros: bool | None = Field(default=None, description="Episodes: skip openings.")
     autoplay: bool | None = Field(default=None, description="Play the next episodes.")
+    check_only: bool = Field(default=False, description="Only say which versions exist; plays nothing.")
 
 
 def answer(status, message, **facts):
@@ -406,6 +407,8 @@ def play(body: Play, actor, db):
             workflow_id=row.id,
             progress=progress(row),
         )
+    if not chosen and body.check_only:
+        return what_exists(row, body, wanted, title, None)
     if not chosen:
         fetched = fetch_instead(db, row, body, wanted, device, title, actor)
         if fetched:
@@ -421,6 +424,8 @@ def play(body: Play, actor, db):
             error.get("message") or f"No playable version{res} was found for {title.title}.",
             workflow_id=row.id,
         )
+    if body.check_only:
+        return what_exists(row, body, wanted, title, chosen)
     audio, subtitle, online = tracks(chosen, body, wanted)
     try:
         result = cinema.launch(
@@ -691,3 +696,100 @@ def fetching_answer(row, title, device):
         progress={"step": "fetching", "percent": percent},
         retry_after=60,
     )
+
+
+class ScreenHistory(Input):
+    days: int = Field(default=14, ge=1, le=90, description="How far back.")
+
+
+def screen_history(body: ScreenHistory, actor, db):
+    """What played on the house's screens lately, newest first: like the music history, what a
+    shared screen showed is the house's to see (each person's own history and lists stay theirs)."""
+    from datetime import timedelta
+
+    from .db import utcnow
+    from .models import User
+
+    cinema.allowed(actor)
+    rows = db.scalars(
+        select(CinemaWorkflow)
+        .where(
+            CinemaWorkflow.device_id.is_not(None),
+            CinemaWorkflow.updated_at >= utcnow() - timedelta(days=body.days),
+        )
+        .order_by(CinemaWorkflow.updated_at.desc())
+        .limit(300)
+    ).all()
+    seen, items = set(), []
+    names = {u.id: u.name for u in db.scalars(select(User))}
+    devices = {d.id: d.name for d in db.scalars(select(CinemaDevice))}
+    for row in rows:
+        checkpoint = row.data.get("checkpoint") or {}
+        position, duration = (
+            checkpoint.get("position") or 0,
+            checkpoint.get("duration") or (row.data.get("plan") or {}).get("duration"),
+        )
+        if position < 60 or row.media_id in seen:  # a minute at least: not a failed start
+            continue
+        seen.add(row.media_id)
+        title = db.get(CinemaTitle, row.media_id)
+        items.append(
+            {
+                "title": title.title if title else "?",
+                "watched": str(checkpoint.get("at") or row.updated_at)[:16].replace("T", " ") + " UTC",
+                "progress": f"{round(100 * position / duration)}%"
+                if duration
+                else f"{round(position / 60)} min",
+                "by": names.get(row.owner_id),
+                "screen": devices.get(row.device_id),
+            }
+        )
+        if len(items) == 10:
+            break
+    return {"items": items}
+
+
+def what_exists(row, body, wanted, title, chosen):
+    """check_only: the versions there are, the one it would play first, and how; nothing plays or
+    is fetched. "Play it" next reuses these checked versions."""
+
+    def line(c):
+        res = {2160: "4K", 1080: "1080p", 720: "720p"}.get(c.get("resolution") or c.get("height"), "")
+        audio = "/".join(sorted({language(a.get("language")) or "?" for a in c.get("audio") or []}))
+        subs = "/".join(
+            sorted(
+                {language(s.get("language")) or "?" for s in c.get("subtitles") or [] if not s.get("forced")}
+            )
+        )
+        size = f"{(c.get('size') or 0) / 1e9:.1f} GB" if c.get("size") else ""
+        return ", ".join(
+            filter(
+                None,
+                [
+                    res,
+                    size,
+                    f"audio {audio}" if audio else "",
+                    f"subtitles {subs}" if subs else "no subtitles inside",
+                ],
+            )
+        )
+
+    checked = (row.data.get("choice_set") or {}).get("candidates") or []
+    to_fetch = [
+        s
+        for s in row.data.get("_sources", [])
+        if s.get("cache_evidence") == "rd_download" and not s.get("error")
+    ]
+    versions = [{"id": c["id"], "instant": True, "summary": line(c)} for c in checked[:5]] + [
+        {"id": s["id"], "instant": False, "summary": str(s.get("release") or "")[:90]} for s in to_fetch[:3]
+    ]
+    if chosen:
+        message = f"{title.title}: {len(checked)} checked version(s); it would play {line(chosen)}."
+    elif checked:
+        message = f"{title.title}: {len(checked)} version(s), none as asked (closest: {line(checked[0])})."
+    elif to_fetch:
+        message = f"{title.title}: nothing instant; {len(to_fetch)} version(s) Real-Debrid would fetch first."
+    else:
+        message = f"No version of {title.title} was found right now."
+    status = "found" if chosen or to_fetch or checked else "not_found"
+    return answer(status, message, workflow_id=row.id, versions=versions)

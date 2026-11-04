@@ -701,6 +701,7 @@ BUNDLES = {
     "cinema": (
         "cinema_play",
         "cinema_versions",
+        "tv_history",
         "cinema_browse",
         "cinema_search",
         "cinema_filter",
@@ -932,6 +933,12 @@ def tool_catalogue():
             "smallest file. Finds, checks, picks and launches; answers in one line what plays, or "
             'a question. Status "working": call again with the same arguments.',
             cinema_play.play,
+        ),
+        "tv_history": (
+            cinema_play.ScreenHistory,
+            "What played on the house's screens lately (title, when, how far, who started it), newest "
+            'first. For "what did we watch"; each person\'s own history stays theirs.',
+            cinema_play.screen_history,
         ),
         "cinema_versions": (
             cinema_play.Versions,
