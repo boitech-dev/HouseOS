@@ -324,7 +324,17 @@ def play(body: Play, actor, db):
         row = db.get(CinemaWorkflow, workflow_id)
         row.data = {**row.data, "_play_key": key}
         db.commit()
-    row = wait_for(db, row.id, deadline, lambda r: r.state not in WAITING)
+    # Discovered with nothing to check: no version anywhere (yet). Said at once, and the next call
+    # searches again (a source service may need a first request to find any).
+    row = wait_for(db, row.id, deadline, lambda r: r.state not in WAITING or not r.data.get("_sources"))
+    if row.state == "discovered" and not row.data.get("_sources"):
+        row.data = {**row.data, "_play_key": None}
+        db.commit()
+        return answer(
+            "not_found",
+            f"No version of {title.title} was found right now. The sources can need a minute the first "
+            "time: asking again shortly may find some.",
+        )
     chosen = choose(row, body, wanted)
     more = worth_checking(row, body, wanted, chosen) if row.state == "awaiting_choice" else []
     if more:

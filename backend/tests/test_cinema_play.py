@@ -193,3 +193,29 @@ def test_a_dub_asked_for_only_picks_versions_that_have_it():
     asked = Play(title="x", audio="fr", subtitles="off")
     chosen = choose(row, asked, None)
     assert chosen["id"] == "fr-av1" and tracks(chosen, asked, None) == ("3", "off", None)
+
+
+def test_nothing_found_is_said_at_once_and_the_next_call_searches_again():
+    f = test_cinema.CinemaTests()
+    f.setUp()
+    f.workflow()
+    with Session(f.engine) as db:
+        row = db.get(CinemaWorkflow, "workflow-one")
+        row.state, row.data = "discovered", {**row.data, "_sources": [], "choice_set": {"candidates": []}}
+        db.add(Operation(id="op-none", actor_id=f.actor.id, kind="cinema.discover", state="completed",
+                         data={}, result={"workflow_id": "workflow-one"}))  # fmt: skip
+        db.commit()
+    try:
+        with (
+            Session(f.engine) as db,
+            patch.object(
+                cinema_play.cinema_jobs, "enqueue_discovery", return_value={"operation_id": "op-none"}
+            ),
+            patch.object(cinema_play.time, "sleep"),
+        ):
+            started = cinema_play.time.monotonic()
+            said = cinema_play.play(Play(title="tt123", device_id=f.device_id), f.actor, db)
+            assert said["status"] == "not_found" and cinema_play.time.monotonic() - started < 5
+            assert db.get(CinemaWorkflow, "workflow-one").data["_play_key"] is None  # not reused
+    finally:
+        f.tearDown()
