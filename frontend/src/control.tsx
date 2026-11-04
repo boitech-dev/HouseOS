@@ -711,7 +711,7 @@ const AGENT_GROUPS: [string, string, string][] = [
 ];
 const agentGroup = (id: string) => t(AGENT_GROUPS.find(([g]) => g === id)?.[1] || id);
 
-/** Other assistants (Ronda, Claude…) use the house over MCP with a token that acts as one
+/** Other assistants (your own, Claude…) use the house over MCP with a token that acts as one
  *  person, in the groups picked here. The token shows once; only its fingerprint is kept. */
 function Agents() {
   const agents = useData("/admin/agents"),
@@ -749,7 +749,7 @@ function Agents() {
       >
         <div className="me-row">
           <Field label={t("Agent's name")}>
-            <Input name="name" required maxLength={60} placeholder="Ronda" />
+            <Input name="name" required maxLength={60} placeholder={t("My assistant")} />
           </Field>
           <Field label={t("Tools")}>
             <Select name="tools">

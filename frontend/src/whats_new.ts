@@ -4,11 +4,39 @@
 import type { GlyphName } from "./design";
 
 /** The release people are told about; bump it with a new entry below. */
-export const RELEASE = "1.1";
+export const RELEASE = "1.2";
 
 export type News = { glyph: GlyphName | "nox"; title: string; text: string; go?: string };
 
 export const WHATS_NEW: { version: string; items: News[] }[] = [
+  {
+    version: "1.2",
+    items: [
+      {
+        glyph: "room.house",
+        title: "Your own assistant and widgets",
+        text: "Connect another assistant or a widget with a token from Control Room → Agents.",
+        go: "/control?tab=agents",
+      },
+      {
+        glyph: "room.watch",
+        title: "Any version shows on the TV",
+        text: "A picture the screen can't show is converted as it plays, and Real-Debrid versions that aren't instant can be fetched.",
+        go: "/watch",
+      },
+      {
+        glyph: "room.watch",
+        title: "Subtitles your way",
+        text: "Move them earlier or later on the player, and pick French or English found online just for tonight.",
+      },
+      {
+        glyph: "room.listen",
+        title: "Genres by hand",
+        text: "In My music, tap a song's genre, or sort the songs with none in one tap each.",
+        go: "/listen?tab=library",
+      },
+    ],
+  },
   {
     version: "1.1",
     items: [

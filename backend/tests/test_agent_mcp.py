@@ -25,7 +25,7 @@ def test_an_agent_token_lists_and_calls_only_its_groups_until_revoked(client):
     app.dependency_overrides[require_actor] = lambda: Actor(admin.id, "Ada", "admin", RESIDENT)
     made = c.post(
         "/api/v1/admin/agents",
-        json={"name": "Ronda", "user_id": admin.id, "groups": ["board"], "tools": "all"},
+        json={"name": "Assistant", "user_id": admin.id, "groups": ["board"], "tools": "all"},
     )
     assert made.status_code == 200, made.text
     token = made.json()["token"]
@@ -116,11 +116,11 @@ def test_calls_are_recorded_for_the_agents_screen_and_widgets_read_the_house_wit
     token, bearer = made["token"], {"Authorization": "Bearer " + made["token"]}
 
     # A widget's button: a tool by name, plain JSON back, from any site (bearer, no cookie).
-    done = c.post("/api/v1/agent/act", headers={**bearer, "Origin": "https://ronda.example"},
+    done = c.post("/api/v1/agent/act", headers={**bearer, "Origin": "https://assistant.example"},
                   json={"tool": "board_add", "arguments": {"kind": "grocery", "text": "Rice"}})  # fmt: skip
     assert done.status_code == 200 and done.json()["ok"], done.text
     assert done.headers["access-control-allow-origin"] == "*"
-    assert c.options("/api/v1/agent/now", headers={"Origin": "https://ronda.example"}).status_code == 204
+    assert c.options("/api/v1/agent/now", headers={"Origin": "https://assistant.example"}).status_code == 204
     refused = c.post("/api/v1/agent/act", headers=bearer, json={"tool": "music_control", "arguments": {}})
     assert refused.status_code == 403  # not in its groups
 

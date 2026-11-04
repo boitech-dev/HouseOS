@@ -1,4 +1,4 @@
-"""One call plays a film or an episode, for assistants (Nox, MCP clients such as Ronda).
+"""One call plays a film or an episode, for assistants (Nox, and other assistants over MCP).
 
 It does what the Watch page does, in order: find the title (a name, an IMDb id or the house's
 id), check the most promising versions, pick one by what was asked (original audio, subtitles in

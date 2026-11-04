@@ -1,4 +1,4 @@
-"""Other assistants (Ronda, Claude Code, MCP Inspector…) use the house through Nox's own tools.
+"""Other assistants (your own, Claude Code, MCP Inspector…) use the house through Nox's own tools.
 
 POST /mcp speaks MCP's Streamable HTTP, stateless, answering in plain JSON (no event stream).
 A bearer token an admin made in Control Room → Agents acts as one person, with that person's

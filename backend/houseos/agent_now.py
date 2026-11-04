@@ -1,4 +1,4 @@
-"""The widget door: what plays and what's on, for another assistant's widgets (Ronda's now
+"""The widget door: what plays and what's on, for another assistant's widgets (its now
 playing, the TV, the board), with the same bearer token as /mcp and only the groups it holds.
 
 GET  /api/v1/agent/now?parts=music,tv,board,home   one snapshot (JSON)

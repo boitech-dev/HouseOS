@@ -103,7 +103,7 @@ const { RELEASE, settled, until } = require("./session.cjs");
   await prefs({ seen_release: "9.9" });
   await page.goto(base + "/listen");
   await dialog.waitFor();
-  assert(await dialog.getByText("Series play on by themselves", { exact: true }).isVisible());
+  assert(await dialog.getByText("Your own assistant and widgets", { exact: true }).isVisible());
   assert.equal(await dialog.getByText("Any video link on the TV", { exact: true }).count(), 0);
   await dialog.getByRole("button", { name: "Got it" }).click();
   await page.waitForFunction(() => !document.querySelector("dialog[open]"));
@@ -111,8 +111,8 @@ const { RELEASE, settled, until } = require("./session.cjs");
   await page.goto(base + "/listen");
   await dialog.waitFor();
   assert.equal(await title(), "What's new in HouseOS");
-  // Missed two releases: the newest open, the earlier one below it.
-  assert(await dialog.getByText("Series play on by themselves", { exact: true }).isVisible());
+  // Missed several releases: the newest open, the earlier ones below it.
+  assert(await dialog.getByText("Your own assistant and widgets", { exact: true }).isVisible());
   assert.equal(await dialog.getByText("Any video link on the TV", { exact: true }).count(), 1);
   await dialog.getByRole("button", { name: "Got it" }).click();
   await page.waitForFunction(() => !document.querySelector("dialog[open]"));

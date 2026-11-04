@@ -4601,5 +4601,18 @@ const french: Record<string, string> = {
     "{percent} % pour l’instant. Choisis-la à nouveau quand elle est là.",
   "Real-Debrid couldn't fetch it": "Real-Debrid n’a pas pu la récupérer",
   "Try another version.": "Essaie une autre version.",
+  "My assistant": "Mon assistant",
+  "Your own assistant and widgets": "Ton propre assistant et des widgets",
+  "Connect another assistant or a widget with a token from Control Room → Agents.":
+    "Connecte un autre assistant ou un widget avec un jeton d’Administration → Agents.",
+  "Any version shows on the TV": "Toutes les versions s’affichent sur la télé",
+  "A picture the screen can't show is converted as it plays, and Real-Debrid versions that aren't instant can be fetched.":
+    "Une image que l’écran ne sait pas afficher est convertie pendant la lecture, et les versions Real-Debrid non immédiates peuvent être récupérées.",
+  "Subtitles your way": "Des sous-titres à ta façon",
+  "Move them earlier or later on the player, and pick French or English found online just for tonight.":
+    "Avance-les ou recule-les depuis le lecteur, et choisis le français ou l’anglais trouvés en ligne, juste pour ce soir.",
+  "Genres by hand": "Les genres à la main",
+  "In My music, tap a song's genre, or sort the songs with none in one tap each.":
+    "Dans Ma musique, touche le genre d’un morceau, ou range ceux qui n’en ont pas d’une touche chacun.",
 };
 export default french;

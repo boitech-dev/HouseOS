@@ -1,11 +1,21 @@
 # Changelog
 
-## 1.1.0 — 2026-10-25
-
 HouseOS has one branch, `master`, and no separate releases: everything here is in it, and fixes
 keep landing there between version numbers. Control Room → Update (or `./houseos.sh update`)
 brings them; Control Room says when changes are waiting, with *See what changed* to read them.
 Newest first.
+
+## 1.2.0 — 2026-11-04
+
+- **Your own assistant (MCP) and widgets**: *Control Room → Agents* makes a token for another
+  assistant (one person's rights, the groups you pick, every call listed in *Activity*). It gets a
+  lean tool set, one call per ask (play a film, play music, add to the board, what's on), and
+  widgets read the house live with the same token (docs/AGENT-WIDGETS.md).
+- **Films**: pictures a screen can't show are converted as they play; Real-Debrid versions that
+  aren't instant can be fetched and play once there; switching or retrying a film starts clean;
+  subtitles move earlier or later; French or English subtitles for one viewing.
+- **Music**: genres by hand (one song, several, or a whole artist), varied ideas, Clear queue keeps
+  the song playing.
 
 ### 2026-11-04
 
@@ -131,6 +141,8 @@ Newest first.
 - **Versions that play only after a complete copy** rank below ones that stream at once.
 - **Faster series and anime**, anime rankings and demographics; **song genres** for more songs,
   free (MusicBrainz).
+
+## 1.1.0 — 2026-10-25
 
 ### 2026-10-25
 

@@ -95,7 +95,7 @@ films by title, messages and files only as "changed".
 
 Source: [backend/houseos/agent_mcp.py](../backend/houseos/agent_mcp.py)
 
-Other assistants (Ronda, Claude Code, MCP Inspector…) use the house through Nox's own tools.
+Other assistants (your own, Claude Code, MCP Inspector…) use the house through Nox's own tools.
 
 POST /mcp speaks MCP's Streamable HTTP, stateless, answering in plain JSON (no event stream).
 A bearer token an admin made in Control Room → Agents acts as one person, with that person's
@@ -150,7 +150,7 @@ Never through here: setup, settings, secrets, addresses, code, files, backups or
 
 Source: [backend/houseos/agent_now.py](../backend/houseos/agent_now.py)
 
-The widget door: what plays and what's on, for another assistant's widgets (Ronda's now
+The widget door: what plays and what's on, for another assistant's widgets (its now
 playing, the TV, the board), with the same bearer token as /mcp and only the groups it holds.
 
 GET  /api/v1/agent/now?parts=music,tv,board,home   one snapshot (JSON)
@@ -1182,7 +1182,7 @@ Short observation/checkpoint loop; separate from slow preparation and music cont
 
 Source: [backend/houseos/cinema_play.py](../backend/houseos/cinema_play.py)
 
-One call plays a film or an episode, for assistants (Nox, MCP clients such as Ronda).
+One call plays a film or an episode, for assistants (Nox, and other assistants over MCP).
 
 It does what the Watch page does, in order: find the title (a name, an IMDb id or the house's
 id), check the most promising versions, pick one by what was asked (original audio, subtitles in
