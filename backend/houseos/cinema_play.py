@@ -78,7 +78,7 @@ class Play(Input):
 def answer(status, message, **facts):
     """What a call says, for a model and for code: status, one line, the facts. While the house is
     still at it (working, starting), when to call again and how far it got."""
-    busy = {"retry_after": 5} if status in {"working", "starting"} else {}
+    busy = {"retry_after": 5} if status in {"working", "starting"} and "retry_after" not in facts else {}
     return {"status": status, "message": message, **busy, **{k: v for k, v in facts.items() if v is not None}}
 
 
@@ -217,6 +217,14 @@ def worth_checking(row, body, wanted, chosen):
     return [s["id"] for s in better[:3]]
 
 
+def checkable(row):
+    """Still something for the house to check on its own (a found workflow with only versions to
+    fetch, or none, stays "discovered": nothing more will happen without a pick)."""
+    from .cinema_suggest import rank_provisional
+
+    return row.state == "preparing" or bool(rank_provisional(row.data.get("_sources", [])))
+
+
 def check_more(db, row, ids, actor):
     row.state, row.version, row.updated_at = "preparing", row.version + 1, utcnow()
     row.data = {
@@ -309,6 +317,13 @@ def play(body: Play, actor, db):
         ),
         None,
     )
+    fetching = (row.data.get("_fetching") or {}) if row else {}
+    if row and fetching.get("status") in {"fetching", "ready"}:  # asked again while it's fetched
+        return fetching_answer(row, title, device)
+    if row and fetching.get("status") == "failed" and row.state not in LAUNCHED:
+        return answer(
+            "failed", fetching.get("error") or "The debrid service couldn't fetch it.", workflow_id=row.id
+        )
     # Asked again while it starts or plays (a launched film is "preparing" with its plan while
     # its stream is made): say how it goes, never launch it twice.
     if row and (
@@ -369,7 +384,7 @@ def play(body: Play, actor, db):
         db.commit()
     # Discovered with nothing to check: no version anywhere (yet). Said at once, and the next call
     # searches again (a source service may need a first request to find any).
-    row = wait_for(db, row.id, deadline, lambda r: r.state not in WAITING or not r.data.get("_sources"))
+    row = wait_for(db, row.id, deadline, lambda r: r.state not in WAITING or not checkable(r))
     if row.state == "discovered" and not row.data.get("_sources"):
         row.data = {**row.data, "_play_key": None}
         db.commit()
@@ -384,7 +399,7 @@ def play(body: Play, actor, db):
         check_more(db, row, more, actor)
         row = wait_for(db, row.id, deadline, lambda r: r.state not in WAITING)
         chosen = choose(row, body, wanted)
-    if row.state in WAITING:
+    if row.state in WAITING and checkable(row):
         return answer(
             "working",
             "Still checking versions: call again with the same words in a few seconds.",
@@ -392,6 +407,9 @@ def play(body: Play, actor, db):
             progress=progress(row),
         )
     if not chosen:
+        fetched = fetch_instead(db, row, body, wanted, device, title, actor)
+        if fetched:
+            return fetched
         error = row.data.get("error") or {}
         res = (
             f" in {'4K' if body.resolution == 2160 else str(body.resolution) + 'p'}"
@@ -549,3 +567,113 @@ def versions(body: Versions, actor, db):
         "next_offset": body.offset + 10 if len(items) > body.offset + 10 else None,
         "note": "Unchecked versions show their subtitles only from their name; check them to play them.",
     }
+
+
+def launch_fetched(db, row, fetching):
+    """A version the debrid service fetched is there: play it as asked, with the house's suggested
+    tracks (and the languages asked for). Never over something else playing: then it waits."""
+    from .auth import user_permissions
+    from .models import User
+
+    owner = db.get(User, row.owner_id)
+    actor = cinema.Actor(owner.id, owner.name, owner.role, user_permissions(owner))
+    play = fetching["play"]
+    chosen = next(
+        (
+            c
+            for c in (row.data.get("choice_set") or {}).get("candidates") or []
+            if c["id"] == fetching["source_id"]
+        ),
+        None,
+    )
+    if not chosen:
+        return None
+    body = Play(
+        title=row.media_id,
+        audio=play.get("audio_language") or "original",
+        subtitles="off" if play.get("subtitles_off") else play.get("subtitle_language"),
+        device_id=play["device_id"],
+        position=play.get("position"),
+    )
+    wanted = language(body.subtitles) if body.subtitles and body.subtitles != "off" else None
+    audio, subtitle, _ = tracks(chosen, body, wanted)
+    try:
+        return cinema.launch(
+            row.id,
+            cinema.Launch(
+                version=row.version,
+                source_id=chosen["id"],
+                device_id=play["device_id"],
+                audio_track=audio,
+                subtitle_track=subtitle,
+                position=play.get("position"),
+                subtitle_language=wanted,
+            ),
+            actor,
+            db,
+        )
+    except HTTPException as exc:
+        db.rollback()
+        detail = exc.detail if isinstance(exc.detail, dict) else {"message": str(exc.detail)}
+        fresh = db.get(CinemaWorkflow, row.id)
+        fresh.data = {
+            **fresh.data,
+            "_fetching": {**fetching, "status": "failed", "error": detail.get("message")},
+        }
+        db.commit()
+        return None
+
+
+# A dub or subtitles asked for, read from a release's name (versions to fetch aren't checked yet).
+NAMED = {"fr": re.compile(r"\b(vf|vff|vfq|french|truefrench|multi)\b", re.I)}
+
+
+def fetch_instead(db, row, body, wanted, device, title, actor):
+    """Nothing instant fits: the best version the debrid service can fetch (its name matching the
+    dub asked for, then the provider's order), fetched now and played once it's there."""
+    pool = [
+        s
+        for s in row.data.get("_sources", [])
+        if s.get("cache_evidence") == "rd_download"
+        and not s.get("error")
+        and (not body.resolution or s.get("height_claim") == body.resolution)
+    ]
+    if not pool:
+        return None
+    dub = language(body.audio) if body.audio != "original" else None
+    pool.sort(
+        key=lambda s: (
+            bool(dub in NAMED and not NAMED[dub].search(str(s.get("release") or ""))),
+            s.get("provider_order") or 0,
+        )
+    )
+    pick = pool[0]
+    result = cinema.fetch_version(
+        row.id,
+        cinema.Fetch(
+            version=row.version,
+            source_id=pick["id"],
+            device_id=device.id,
+            position=body.position,
+            subtitle_language=wanted,
+            audio_language=dub,
+            subtitles_off=body.subtitles == "off",
+        ),
+        actor,
+        db,
+    )
+    row = db.get(CinemaWorkflow, result.get("id") or row.id, populate_existing=True)
+    return fetching_answer(row, title, device)
+
+
+def fetching_answer(row, title, device):
+    fetching = row.data.get("_fetching") or {}
+    percent = fetching.get("progress") or 0
+    return answer(
+        "working",
+        f"Not instant on the debrid service: it is fetching {title.title} ({percent}%). It starts on "
+        f"{device.name} once it's there (minutes, or longer if few people share it).",
+        workflow_id=row.id,
+        progress={"step": "fetching", "percent": percent},
+        retry_after=60,
+    )

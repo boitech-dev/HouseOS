@@ -1171,8 +1171,9 @@ function Tonight({
   const flow = useData(workflowId ? "/cinema/workflows/" + workflowId : null, {
     interval: (data) =>
       !!data &&
-      ["preparing", "discovered", "awaiting_preparation_confirmation"].includes(data.state) &&
-      1000,
+      (["preparing", "discovered", "awaiting_preparation_confirmation"].includes(data.state)
+        ? 1000
+        : data.fetching?.status === "fetching" && 5000),
   });
   const workflow = flow.data;
   const candidates: Obj[] = workflow?.choice_set?.candidates || [];
@@ -1266,7 +1267,12 @@ function Tonight({
   // Only the best few versions are checked when the film opens (that is the wait); more cached
   // ones are listed as they are and checked only when picked.
   const unchecked: Obj[] = (workflow?.provisional || [])
-    .filter((p: Obj) => p.rd_cached && !p.error && !candidates.some((c) => c.id === p.id))
+    .filter(
+      (p: Obj) =>
+        (p.rd_cached || p.cache_evidence === "rd_download") &&
+        !p.error &&
+        !candidates.some((c) => c.id === p.id),
+    )
     .slice(0, Math.max(0, 8 - candidates.length));
   const check = async (id: string) => {
     setBusy(true);
@@ -1278,6 +1284,26 @@ function Tonight({
       setSourceId(id);
       setAudio(null);
       setSubtitle(null);
+      setError("");
+      await flow.reload();
+    } catch (e) {
+      setError(errorText(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+  // Not instant on Real-Debrid: it fetches it, and the house plays it on this screen once ready.
+  const fetchIt = async (id: string) => {
+    setBusy(true);
+    try {
+      await api("/cinema/workflows/" + workflow!.id + "/fetch", "POST", {
+        version: workflow!.version,
+        source_id: id,
+        device_id: deviceId || undefined,
+        position: start,
+        subtitle_language: subtitleId === "auto" && onlineLanguage ? onlineLanguage : undefined,
+        subtitles_off: subtitleId === "off",
+      });
       setError("");
       await flow.reload();
     } catch (e) {
@@ -1327,9 +1353,11 @@ function Tonight({
       ? t("In the house")
       : c.rd_cached
         ? "Debrid"
-        : c.cache_evidence === "p2p"
-          ? t("Torrent")
-          : t("Online");
+        : c.cache_evidence === "rd_download"
+          ? t("Debrid, to fetch")
+          : c.cache_evidence === "p2p"
+            ? t("Torrent")
+            : t("Online");
   const trackName = (track?: Obj) =>
     track
       ? [
@@ -1376,6 +1404,22 @@ function Tonight({
       )}
       {onScreen && (
         <Notice tone="success">{t("On the TV now. Control it from the player below.")}</Notice>
+      )}
+      {workflow?.fetching?.status === "fetching" && (
+        <Notice title={t("Real-Debrid is fetching it")}>
+          {(workflow.fetching.plays_when_ready && screen
+            ? t("{percent}% so far. It plays on {screen} once it's there.").replace(
+                "{screen}",
+                screen.name,
+              )
+            : t("{percent}% so far. Pick it again once it's there.")
+          ).replace("{percent}", String(workflow.fetching.progress || 0))}
+        </Notice>
+      )}
+      {workflow?.fetching?.status === "failed" && (
+        <Notice tone="warning" title={t("Real-Debrid couldn't fetch it")}>
+          {workflow.fetching.error || t("Try another version.")}
+        </Notice>
       )}
       {!checking && workflow && !candidate && (
         <div ref={noneRef}>
@@ -1606,7 +1650,13 @@ function Tonight({
                     .join(" · ")}
                   detail={
                     <>
-                      <span>{t("Not checked yet: checked when you pick it")}</span>
+                      <span>
+                        {c.cache_evidence === "rd_download"
+                          ? t(
+                              "Not instant: Real-Debrid fetches it first (minutes, or longer), then it plays",
+                            )
+                          : t("Not checked yet: checked when you pick it")}
+                      </span>
                       <span className="watch-release">
                         {String(c.release).replace(FILE_ID, "")}
                       </span>
@@ -1615,7 +1665,7 @@ function Tonight({
                   chosen={false}
                   onPick={() => {
                     close();
-                    void check(c.id);
+                    void (c.cache_evidence === "rd_download" ? fetchIt(c.id) : check(c.id));
                   }}
                 />
               ))}

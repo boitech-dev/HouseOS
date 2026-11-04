@@ -4591,5 +4591,15 @@ const french: Record<string, string> = {
   "essential tools": "outils essentiels",
   "Use essentials": "Passer à l’essentiel",
   "Use all tools": "Passer à tous les outils",
+  "Debrid, to fetch": "Debrid, à récupérer",
+  "Not instant: Real-Debrid fetches it first (minutes, or longer), then it plays":
+    "Pas immédiat : Real-Debrid la récupère d’abord (quelques minutes, ou plus), puis elle se lance",
+  "Real-Debrid is fetching it": "Real-Debrid la récupère",
+  "{percent}% so far. It plays on {screen} once it's there.":
+    "{percent} % pour l’instant. Elle se lance sur {screen} dès qu’elle est là.",
+  "{percent}% so far. Pick it again once it's there.":
+    "{percent} % pour l’instant. Choisis-la à nouveau quand elle est là.",
+  "Real-Debrid couldn't fetch it": "Real-Debrid n’a pas pu la récupérer",
+  "Try another version.": "Essaie une autre version.",
 };
 export default french;

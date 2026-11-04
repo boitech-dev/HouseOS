@@ -478,3 +478,24 @@ def test_a_failed_look_at_the_next_episode_is_tried_again(autoplay_fixture, monk
         row.data = {**row.data, "_next": {**row.data["_next"], "at": time.time() - 31}}
         cinema.look_ahead(db, row, fixture.actor, end)
         assert len(calls) == 2 and row.data["_next"] == {"end": True}
+
+
+def test_versions_to_fetch_are_kept_marked_and_never_checked_on_their_own():
+    from houseos.cinema_suggest import rank_provisional
+
+    rows = [
+        {"name": "[RD download] Add-on 1080p", "url": LINK, "title": "Show S01 VF 👤 4"},
+        {"name": "[RD+] Add-on 720p", "url": LINK.replace("/4/", "/5/")},
+    ]
+    found = sources.normalize_streams({"streams": rows}, HOST, KEY)
+    fetch, instant = found
+    assert (
+        fetch["provider"] == "rd_download"
+        and fetch["cache_evidence"] == "rd_download"
+        and not fetch["rd_cached"]
+    )
+    assert instant["provider"] == "stream_addon" and instant["rd_cached"]
+    for n, source in enumerate(found):
+        source["id"] = str(n)
+    assert [s["file_index"] for s in rank_provisional(found)] == [5]  # never added on its own
+    assert sources.normalize_streams({"streams": rows[:1]}, HOST, "") == []  # no debrid key: not offered

@@ -255,3 +255,87 @@ def test_busy_answers_say_when_to_call_again_and_a_repeat_never_launches_twice()
         assert said["status"] == "playing" and not launch.called  # reported, not launched again
     finally:
         f.tearDown()
+
+
+def test_a_version_to_fetch_is_fetched_checked_every_minute_and_played_once_there(monkeypatch):
+    from datetime import timedelta
+
+    from houseos.db import utcnow
+
+    f = test_cinema.CinemaTests()
+    f.setUp()
+    f.workflow()
+    fetchable = {"id": "fetch-me", "info_hash": "b" * 40, "release": "Show VF 1080p", "height_claim": 1080,
+                 "rd_cached": False, "cache_evidence": "rd_download", "provider": "rd_download", "provider_order": 0}  # fmt: skip
+    with Session(f.engine) as db:
+        row = db.get(CinemaWorkflow, "workflow-one")
+        row.data = {**row.data, "_sources": [fetchable], "choice_set": {"candidates": []}}
+        db.commit()
+    queued = []
+    monkeypatch.setattr(
+        "houseos.cinema_jobs.enqueue_validation", lambda db, row, ids, s: queued.append(ids) or {"id": row.id}
+    )
+    try:
+        # Picked: added to the debrid account (a check of that one), to play on the screen once there.
+        made = f.client.post("/api/v1/cinema/workflows/workflow-one/fetch",
+                             json={"version": 1, "source_id": "fetch-me", "device_id": f.device_id, "position": 0})  # fmt: skip
+        assert made.status_code == 200, made.text
+        assert queued == [["fetch-me"]]
+        with Session(f.engine) as db:
+            row = db.get(CinemaWorkflow, "workflow-one")
+            assert row.state == "preparing" and row.data["_fetching"]["play"]["device_id"] == f.device_id
+            # Still fetching: the next round (a minute later) checks it again.
+            row.state = "awaiting_choice"
+            row.data = {
+                **row.data,
+                "_fetching": {
+                    **row.data["_fetching"],
+                    "checked_at": (utcnow() - timedelta(minutes=2)).isoformat(),
+                },
+            }
+            db.commit()
+            cinema.fetch_rounds(db)
+            assert queued == [["fetch-me"], ["fetch-me"]]
+            # There: it plays as asked.
+            row = db.get(CinemaWorkflow, "workflow-one", populate_existing=True)
+            row.state = "awaiting_choice"
+            row.data = {**row.data, "_fetching": {**row.data["_fetching"], "status": "ready"}}
+            db.commit()
+            with patch.object(cinema_play, "launch_fetched") as played:
+                cinema.fetch_rounds(db)
+            assert played.called
+            # Six hours without it: given up, with why.
+            row = db.get(CinemaWorkflow, "workflow-one", populate_existing=True)
+            row.data = {
+                **row.data,
+                "_fetching": {
+                    **row.data["_fetching"],
+                    "status": "fetching",
+                    "since": (utcnow() - timedelta(hours=7)).isoformat(),
+                },
+            }
+            db.commit()
+            cinema.fetch_rounds(db)
+            assert (
+                db.get(CinemaWorkflow, "workflow-one", populate_existing=True).data["_fetching"]["status"]
+                == "failed"
+            )
+    finally:
+        f.tearDown()
+
+
+def test_cinema_play_fetches_when_nothing_instant_fits():
+    row = CinemaWorkflow(
+        state="discovered",
+        data={"_sources": [{"id": "x", "cache_evidence": "rd_download", "info_hash": "c" * 40}]},
+    )
+    from houseos.cinema_play import checkable
+
+    assert not checkable(row)  # nothing the house checks on its own: no waiting on it
+    said = cinema_play.fetching_answer(CinemaWorkflow(id="w", data={"_fetching": {"progress": 35}}),
+                                       type("T", (), {"title": "Show"})(), type("D", (), {"name": "TV"})())  # fmt: skip
+    assert (
+        said["status"] == "working"
+        and said["retry_after"] == 60
+        and said["progress"] == {"step": "fetching", "percent": 35}
+    )

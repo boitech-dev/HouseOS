@@ -192,6 +192,11 @@ def public_workflow(row):
                 {(s.get("rejection") or s.get("error") or {}).get("code") for s in checked} - {None}
             ),
         }
+    fetching = row.data.get("_fetching")
+    if fetching:  # a version the debrid service fetches first: how far, and whether it then plays
+        payload["fetching"] = {k: fetching.get(k) for k in ("source_id", "progress", "since", "status")} | {
+            "plays_when_ready": bool(fetching.get("play"))
+        }
     payload["requested_position"] = row.data.get("_requested_position")
     payload["source_total"] = len(row.data.get("_sources", []))
     payload["sleep_timer"] = row.data.get("sleep_timer")
@@ -932,7 +937,7 @@ def source_order(source):
         or source.get("height_claim")
         or 0
     )
-    if source.get("provider") == "stream_addon":
+    if source.get("provider") in {"stream_addon", "rd_download"}:
         return (
             bool(source.get("error") and not source["error"].get("retryable", False)),
             source.get("rd_cached") is False,  # debrid-cached versions first, then torrents
@@ -1691,6 +1696,117 @@ def remember_inspection(db, owner_id, source):
         )
 
 
+# The debrid service still fetching a version: checked again until it's there.
+FETCHING = {"SOURCE_DOWNLOADING", "SOURCE_METADATA_PENDING", "SOURCE_SELECTION_REQUIRED"}
+FETCH_LIMIT = timedelta(hours=6)
+
+
+class Fetch(Version):
+    source_id: str = Field(min_length=1, max_length=36)
+    # Play it once it's there: the screen, and the start; tracks follow the house's suggestion.
+    device_id: str | None = Field(default=None, max_length=36)
+    position: float | None = Field(default=None, ge=0, le=86400)
+    subtitle_language: str | None = Field(default=None, pattern="^[a-z]{2,3}$")
+    audio_language: str | None = Field(default=None, pattern="^[a-z]{2,3}$")
+    subtitles_off: bool = False
+
+
+@router.post("/workflows/{identity}/fetch")
+def fetch_version(
+    identity: str, body: Fetch, actor: Actor = Depends(require_actor), db: Session = Depends(get_db)
+):
+    """A version that isn't instant on the debrid service: it fetches it (it's added to the account),
+    the house checks again every minute, and with a screen it plays once ready."""
+    row = own_workflow(db, actor, identity, body.version)
+    if row.state not in {"awaiting_choice", "recovery_required", "discovered", "awaiting_destination"}:
+        raise HTTPException(409, "This film is busy; try again in a moment")
+    source = next((x for x in row.data.get("_sources", []) if x["id"] == body.source_id), None)
+    if not source or source.get("cache_evidence") != "rd_download":
+        raise HTTPException(
+            404, {"code": "NOT_FETCHABLE", "message": "That version isn't one the debrid service fetches."}
+        )
+    play = (
+        body.model_dump(
+            include={"device_id", "position", "subtitle_language", "audio_language", "subtitles_off"}
+        )
+        if body.device_id
+        else None
+    )
+    row.data = {
+        **row.data,
+        "_fetching": {
+            "source_id": source["id"],
+            "since": utcnow().isoformat(),
+            "status": "fetching",
+            "progress": 0,
+            "play": play,
+            "checked_at": utcnow().isoformat(),
+        },
+    }
+    return start_fetch_check(db, row, actor.session_hash)
+
+
+def start_fetch_check(db, row, session_hash):
+    """Check the fetched version now (adds it on the first go, then sees whether it's there)."""
+    from .cinema_jobs import enqueue_validation
+
+    source_id = row.data["_fetching"]["source_id"]
+    sources = copy.deepcopy(row.data["_sources"])
+    for x in sources:
+        if x["id"] == source_id:
+            x.pop("error", None)
+    row.state, row.version, row.updated_at = "preparing", row.version + 1, utcnow()
+    row.data = {**row.data, "_sources": sources, "_validation_selection": [source_id], "error": None}
+    result = enqueue_validation(db, row, [source_id], session_hash)
+    db.commit()
+    return result
+
+
+def fetch_rounds(db):
+    """Every minute: each version being fetched is checked again; ready, it plays if asked (never
+    over something else playing). Gives up after FETCH_LIMIT. Returns how many were looked at."""
+    from .cinema_play import launch_fetched
+
+    now = utcnow()
+    rows = db.scalars(
+        select(CinemaWorkflow)
+        .where(
+            CinemaWorkflow.state.in_(["awaiting_choice", "recovery_required"]),
+            CinemaWorkflow.updated_at >= now - FETCH_LIMIT - timedelta(minutes=5),
+        )
+        .with_for_update(skip_locked=True)
+    ).all()
+    looked = 0
+    for row in rows:
+        fetching = row.data.get("_fetching")
+        if not fetching or fetching.get("status") in {"failed", "done"}:
+            continue
+        looked += 1
+        if fetching.get("status") == "ready":
+            row.data = {**row.data, "_fetching": {**fetching, "status": "done"}}
+            db.commit()
+            if fetching.get("play"):
+                launch_fetched(db, row, fetching)
+            continue
+        if fetching["since"] < (now - FETCH_LIMIT).isoformat():
+            row.data = {
+                **row.data,
+                "_fetching": {
+                    **fetching,
+                    "status": "failed",
+                    "error": "The debrid service didn't finish fetching it in 6 hours.",
+                },
+            }
+            db.commit()
+            continue
+        if fetching.get("checked_at", "") <= (now - timedelta(seconds=60)).isoformat():
+            row.data = {**row.data, "_fetching": {**fetching, "checked_at": now.isoformat()}}
+            start_fetch_check(db, row, None)
+            db.commit()
+    db.rollback()
+    return looked
+
+
 def validate_rd(db, row, source_ids):
     rd_config = integration_config(db, "real_debrid")
     rd = RealDebrid(rd_config)
@@ -1850,6 +1966,16 @@ def validate_rd(db, row, source_ids):
             source["rd_status"] = "downloaded"
             source["rd_progress"] = 100
             source["rd_cached"], source["cache_evidence"] = True, "rd_resolved_probed"
+    fetching = row.data.get("_fetching")
+    if fetching:  # the version being fetched: ready now, or how far the debrid service got
+        mine = next((x for x in sources if x["id"] == fetching["source_id"]), {})
+        if mine.get("inspection") and not mine.get("error"):
+            fetching = {**fetching, "status": "ready", "progress": 100}
+        elif (mine.get("error") or {}).get("code") in FETCHING:
+            fetching = {**fetching, "status": "fetching", "progress": mine.get("rd_progress") or 0}
+        else:
+            fetching = {**fetching, "status": "failed", "error": (mine.get("error") or {}).get("message")}
+        row.data = {**row.data, "_fetching": fetching}
     row.data = {**row.data, "_sources": copy.deepcopy(sources)}
     db.commit()
     still_authorized()  # a Stop or cancel during the last probe wins; never resurrect it

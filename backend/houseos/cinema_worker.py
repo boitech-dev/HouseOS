@@ -35,6 +35,7 @@ def main():
         ThreadPoolExecutor(max_workers=1, thread_name_prefix="cinema-web") as web_pool,
     ):
         pending = downloading = None
+        next_fetch = 0.0
         while True:
             try:
                 if pending is None or pending.done():
@@ -53,6 +54,12 @@ def main():
                     downloading = web_pool.submit(web)
                 with SessionLocal() as db:
                     busy = process_one_operation(db)
+                if time.monotonic() >= next_fetch:  # versions the debrid service is fetching
+                    next_fetch = time.monotonic() + 20
+                    from .cinema import fetch_rounds
+
+                    with SessionLocal() as db:
+                        fetch_rounds(db)
                 heartbeat("cinema_worker")
             except Exception as exc:
                 busy = False

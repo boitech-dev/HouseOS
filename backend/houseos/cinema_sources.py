@@ -157,8 +157,10 @@ def plain_stream(entry):
 
 
 def normalize_streams(raw, host, key, p2p=False):
-    """The add-on's versions: the debrid-cached ones (its `[RD+]` marker), and, with the torrent player
-    on, the others too (played from their torrent: rd_cached False, cached ones rank first)."""
+    """The add-on's versions: the debrid-cached ones (its `[RD+]` marker), the ones the debrid service
+    can fetch first (`[RD download]`: never checked on their own, they'd be added to the account),
+    and, with the torrent player on, the others too (played from their torrent: rd_cached False,
+    cached ones rank first)."""
     results, seen = [], set()
     entries = raw.get("streams", []) if isinstance(raw, dict) else []
     if not isinstance(entries, list):
@@ -167,7 +169,9 @@ def normalize_streams(raw, host, key, p2p=False):
         if not isinstance(entry, dict):
             continue
         rd = "[RD+]" in str(entry.get("name", "")) and bool(key)
-        if rd:
+        # On the debrid service but not instant: it fetches it first (minutes, or longer).
+        fetch = not rd and "[RD download]" in str(entry.get("name", "")) and bool(key)
+        if rd or fetch:
             p = urlsplit(str(entry.get("url", "")))
             fields = p.path.split("/")
             if (
@@ -210,7 +214,9 @@ def normalize_streams(raw, host, key, p2p=False):
             size = int(float(claimed[1]) * (1024**3 if claimed[2] == "GB" else 1024**2)) if claimed else None
         results.append(
             {
-                "provider": "stream_addon",
+                # A version to fetch goes through the debrid account itself (add, select, wait),
+                # as an account source does; the add-on's link only serves instant ones.
+                "provider": "rd_download" if fetch else "stream_addon",
                 "provider_order": order,
                 "info_hash": identity[0],
                 "file_index": identity[1],
@@ -225,7 +231,7 @@ def normalize_streams(raw, host, key, p2p=False):
                 "binge_group": str(hints["bingeGroup"])[:200]
                 if isinstance(hints, dict) and hints.get("bingeGroup")
                 else None,
-                "cache_evidence": "addon_cached" if rd else "p2p",
+                "cache_evidence": "addon_cached" if rd else "rd_download" if fetch else "p2p",
                 "evidence": "provider_claim",
                 "state": "discovered",
             }

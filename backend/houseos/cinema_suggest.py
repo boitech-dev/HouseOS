@@ -63,7 +63,14 @@ def provisional_score(source, maximum=2160):
 
 def rank_provisional(sources, maximum=2160, count=3):
     """The sources worth probing first, best first; never ones that already failed."""
-    usable = [s for s in sources if not s.get("inspection") and not s.get("error") and s.get("info_hash")]
+    usable = [
+        s
+        for s in sources
+        if not s.get("inspection")
+        and not s.get("error")
+        and s.get("info_hash")
+        and s.get("cache_evidence") != "rd_download"  # fetched only when someone picks it
+    ]
     return sorted(usable, key=lambda s: -provisional_score(s, maximum))[:count]
 
 

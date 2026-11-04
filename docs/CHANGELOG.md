@@ -9,6 +9,13 @@ Newest first.
 
 ### 2026-11-04
 
+- **Versions Real-Debrid fetches first** (`[RD download]`, not instant) are listed after the
+  instant ones, marked, and never checked on their own (that adds them to the account). Picked
+  (in Watch, or by `cinema_play` when nothing instant fits), Real-Debrid fetches it: the house
+  checks again every minute, shows how far it got, and plays it on the screen once it's there
+  (never over something else playing; it gives up after 6 hours). Plain torrents still need the
+  torrent player turned on.
+
 - **Feedback for other assistants, in code**: `cinema_play` answers carry `retry_after` and
   `progress` while busy and report on the film already under way when asked again (never a second
   launch); it says at once when no version exists. Screens in `house_now` and the widget stream
