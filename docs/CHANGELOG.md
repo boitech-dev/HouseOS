@@ -7,6 +7,16 @@ keep landing there between version numbers. Control Room → Update (or `./house
 brings them; Control Room says when changes are waiting, with *See what changed* to read them.
 Newest first.
 
+### 2026-11-04
+
+- **Feedback for other assistants, in code**: `cinema_play` answers carry `retry_after` and
+  `progress` while busy and report on the film already under way when asked again (never a second
+  launch); it says at once when no version exists. Screens in `house_now` and the widget stream
+  show `starting` with progress and `failed` with why.
+- **Pictures a screen can't show** (AV1, 10-bit…) are converted to H.264 as they stream (SDR, up
+  to 1080p): both stream bridges no longer cut a slow reader, the stream's budget follows the
+  conversion's bitrate cap, and a conversion at 1.5x real time plays as it goes.
+
 ### 2026-11-02
 
 - **Other assistants get a lean tool set by default**: about 20 tools instead of 67, a third of

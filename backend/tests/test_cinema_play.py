@@ -219,3 +219,39 @@ def test_nothing_found_is_said_at_once_and_the_next_call_searches_again():
             assert db.get(CinemaWorkflow, "workflow-one").data["_play_key"] is None  # not reused
     finally:
         f.tearDown()
+
+
+def test_busy_answers_say_when_to_call_again_and_a_repeat_never_launches_twice():
+    from houseos.cinema_play import answer, progress
+
+    busy = answer("working", "Still checking versions.", progress={"step": "checking", "done": 1, "total": 3})
+    assert busy["retry_after"] == 5 and busy["progress"]["done"] == 1
+    assert "retry_after" not in answer("failed", "No.")
+    row = CinemaWorkflow(
+        state="preparing", data={"plan": {"source_id": "s"}, "download": {"bytes": 300, "total": 1200}}
+    )
+    assert progress(row) == {"step": "preparing", "percent": 25}
+
+    f = test_cinema.CinemaTests()
+    f.setUp()
+    f.workflow()
+    with Session(f.engine) as db:
+        row = db.get(CinemaWorkflow, "workflow-one")
+        key = ["title-one", None, None, "original", None, False, None, False, f.device_id]
+        row.state = "playing_observed"
+        row.data = {
+            **row.data,
+            "_play_key": key,
+            "plan": {"source_id": "source-one", "audio": {"language": "en"}},
+        }
+        db.commit()
+    try:
+        with (
+            Session(f.engine) as db,
+            patch.object(cinema, "launch") as launch,
+            patch.object(cinema_play.time, "sleep"),
+        ):
+            said = cinema_play.play(Play(title="tt123", device_id=f.device_id), f.actor, db)
+        assert said["status"] == "playing" and not launch.called  # reported, not launched again
+    finally:
+        f.tearDown()

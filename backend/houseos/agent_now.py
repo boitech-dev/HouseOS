@@ -23,6 +23,7 @@ from sqlalchemy.orm import Session
 
 from . import agent_mcp
 from .db import get_db, utcnow
+from .cinema_play import progress
 from .models import Event
 
 router = APIRouter(prefix="/agent", tags=["agents"])
@@ -114,7 +115,15 @@ def tv_now(actor, db):
     screens = []
     for device in db.scalars(select(CinemaDevice).order_by(CinemaDevice.name)):
         row = db.get(CinemaWorkflow, device.owner_workflow) if device.owner_workflow else None
-        live = row is not None and row.state in {"playing_observed", "paused", "command_sent", "preparing"}
+        # A film that failed on this screen in the last 10 minutes shows as failed, with why.
+        recent_failure = (
+            row is not None
+            and row.state in {"recovery_required", "failed"}
+            and row.updated_at >= utcnow() - timedelta(minutes=10)
+        )
+        live = row is not None and (
+            row.state in {"playing_observed", "paused", "command_sent", "preparing"} or recent_failure
+        )
         shown = {"device_id": device.id, "name": device.name, "state": "idle"}
         if live:
             title = db.get(CinemaTitle, row.media_id)
@@ -125,9 +134,12 @@ def tv_now(actor, db):
             )
             plan = row.data.get("plan") or {}
             checkpoint = row.data.get("checkpoint") or {}
-            state = {"playing_observed": "playing", "command_sent": "starting", "preparing": "starting"}.get(
-                row.state, row.state
-            )
+            state = {
+                "playing_observed": "playing",
+                "command_sent": "starting",
+                "preparing": "starting",
+                "recovery_required": "failed",
+            }.get(row.state, row.state)
             if (
                 row.state == "command_sent"
                 and (row.data.get("observation") or {}).get("shown_state") == "paused"
@@ -152,7 +164,10 @@ def tv_now(actor, db):
                 sleep_at=utc((row.data.get("sleep_timer") or {}).get("at")),
                 workflow_id=row.id,
                 version=row.version,
+                progress=progress(row) if state == "starting" else None,
+                error=(row.data.get("error") or {}).get("message") if state == "failed" else None,
             )
+            shown = {k: v for k, v in shown.items() if v is not None or k in {"title", "position"}}
         screens.append(shown)
     return {"screens": screens}
 

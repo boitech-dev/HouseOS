@@ -50,7 +50,17 @@ shows them without the token. `null` when there's none.
 ```
 
 `music.state` is `playing`, `paused` or `stopped`. A screen's `state` is `idle`, `starting`,
-`playing` or `paused` (only `device_id`, `name` and `state` when idle). A part the token can't see
+`playing`, `paused` or `failed` (only `device_id`, `name` and `state` when idle). While
+`starting` it has `progress` (`{"step": "checking", "done": 1, "total": 3}` or
+`{"step": "preparing", "percent": 40}`); `failed` (the last 10 minutes) has `error`, why.
+
+## Feedback without a model
+
+Every `cinema_play` answer has `status`: `playing`, `starting`, `working`, `needs_answer`,
+`not_found` or `failed`, and a one-line `message`. While `working` or `starting` it also has
+`progress` and `retry_after` (seconds): call it again with the same arguments then; it reports on
+the film already under way, never launches it twice. The screen's state in the stream says the
+rest (started, or failed and why), even after the call returned. A part the token can't see
 is left out; a part that failed has `{"error": "…"}`.
 
 ## Buttons

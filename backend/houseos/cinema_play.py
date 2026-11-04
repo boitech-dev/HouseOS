@@ -25,6 +25,7 @@ from .models import Operation
 WAIT = 45  # seconds a call may take: under the MCP client's 60 s and Nox's round
 REUSE = timedelta(minutes=20)  # a later call with the same words carries on these versions
 WAITING = {"discovered", "preparing"}
+LAUNCHED = {"command_sent", "playing_observed", "paused"}  # sent to the screen (preparing: see plan)
 # A version not checked yet says its subtitles only in its name ("VOSTFR", "MULTi SUBS").
 SUBS_IN_NAME = {
     "fr": re.compile(r"vostfr|subfrench|french[ ._-]?subs?|st[ ._-]?fr\b|multi[ ._-]?subs?", re.I),
@@ -75,7 +76,28 @@ class Play(Input):
 
 
 def answer(status, message, **facts):
-    return {"status": status, "message": message, **{k: v for k, v in facts.items() if v is not None}}
+    """What a call says, for a model and for code: status, one line, the facts. While the house is
+    still at it (working, starting), when to call again and how far it got."""
+    busy = {"retry_after": 5} if status in {"working", "starting"} else {}
+    return {"status": status, "message": message, **busy, **{k: v for k, v in facts.items() if v is not None}}
+
+
+def progress(row):
+    """How far a film got: versions checked, or the stream prepared (percent)."""
+    if row is None:
+        return {"step": "searching"}
+    download = row.data.get("download") or {}
+    if row.state == "preparing" and row.data.get("plan") and download.get("total"):
+        return {"step": "preparing", "percent": round(100 * download.get("bytes", 0) / download["total"])}
+    chosen = set(row.data.get("_validation_selection") or [])
+    if row.state in WAITING and chosen:
+        done = sum(
+            1
+            for s in row.data.get("_sources", [])
+            if s["id"] in chosen and (s.get("inspection") or s.get("error"))
+        )
+        return {"step": "checking", "done": done, "total": len(chosen)}
+    return {"step": {"command_sent": "sending"}.get(row.state, row.state)}
 
 
 def find_title(db, actor, body):
@@ -280,8 +302,27 @@ def play(body: Play, actor, db):
         .limit(20)
     ).all()
     row = next(
-        (r for r in rows if r.data.get("_play_key") == key and r.state in WAITING | {"awaiting_choice"}), None
+        (
+            r
+            for r in rows
+            if r.data.get("_play_key") == key and r.state in WAITING | {"awaiting_choice"} | LAUNCHED
+        ),
+        None,
     )
+    # Asked again while it starts or plays (a launched film is "preparing" with its plan while
+    # its stream is made): say how it goes, never launch it twice.
+    if row and (
+        row.state in LAUNCHED or (row.state == "preparing" and (row.data.get("plan") or {}).get("source_id"))
+    ):
+        chosen = next(
+            (
+                c
+                for c in (row.data.get("choice_set") or {}).get("candidates") or []
+                if c["id"] == (row.data.get("plan") or {}).get("source_id")
+            ),
+            {},
+        )
+        return launched(db, row, title, chosen, device, deadline)
     if not row:
         preferences = Preferences(
             **({"subtitle_language": wanted, "always_subtitles": True} if wanted else {}),
@@ -319,7 +360,9 @@ def play(body: Play, actor, db):
                     code=error.get("code"),
                 )
             return answer(
-                "working", "Still looking for versions: call again with the same words in a few seconds."
+                "working",
+                "Still looking for versions: call again with the same words in a few seconds.",
+                progress=progress(None),
             )
         row = db.get(CinemaWorkflow, workflow_id)
         row.data = {**row.data, "_play_key": key}
@@ -346,6 +389,7 @@ def play(body: Play, actor, db):
             "working",
             "Still checking versions: call again with the same words in a few seconds.",
             workflow_id=row.id,
+            progress=progress(row),
         )
     if not chosen:
         error = row.data.get("error") or {}
@@ -388,11 +432,19 @@ def play(body: Play, actor, db):
             f"Something else plays on {device.name}. Ask the person; if they agree, call again with replace=true.",
             workflow_id=row.id,
         )
+    return launched(db, row, title, chosen, device, deadline, online)
+
+
+def launched(db, row, title, chosen, device, deadline, online=None):
+    """After the launch: playing, failed, or still starting (with how far it got)."""
     row = wait_for(
-        db, row.id, deadline, lambda r: r.state in {"playing_observed", "recovery_required", "failed"}
+        db,
+        row.id,
+        deadline,
+        lambda r: r.state in {"playing_observed", "paused", "recovery_required", "failed"},
     )
-    line = describe(title, row, chosen, device, subtitle, online)
-    if row.state == "playing_observed":
+    line = describe(title, row, chosen, device, None, online)
+    if row.state in {"playing_observed", "paused"}:
         return answer("playing", "Playing " + line, workflow_id=row.id, version=row.version)
     error = row.data.get("error") or {}
     if row.state in {"recovery_required", "failed"}:
@@ -407,6 +459,7 @@ def play(body: Play, actor, db):
         "Sending " + line + " It may take a few more seconds to show.",
         workflow_id=row.id,
         version=row.version,
+        progress=progress(row),
     )
 
 

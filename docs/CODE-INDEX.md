@@ -162,27 +162,27 @@ position + (now - at). Pictures are public addresses (YouTube stills, catalogue 
 <img> shows them without the token. Browsers may call it from another site (CORS); EventSource
 can't send headers, so the token may also come as ?access_token= (prefer a server-side fetch).
 
-- [`agent(db, request)`](../backend/houseos/agent_now.py#L36)
+- [`agent(db, request)`](../backend/houseos/agent_now.py#L37)
   (token record, Actor) from the Authorization header or ?access_token=, else 401.
-- [`wanted(row, parts)`](../backend/houseos/agent_now.py#L47)
-- [`utc(value)`](../backend/houseos/agent_now.py#L56)
+- [`wanted(row, parts)`](../backend/houseos/agent_now.py#L48)
+- [`utc(value)`](../backend/houseos/agent_now.py#L57)
   A time as ISO 8601 UTC with its Z (the house keeps naive UTC).
-- [`picture(url)`](../backend/houseos/agent_now.py#L64)
-- [`music_now(actor, db)`](../backend/houseos/agent_now.py#L68)
-- [`tv_now(actor, db)`](../backend/houseos/agent_now.py#L110)
+- [`picture(url)`](../backend/houseos/agent_now.py#L65)
+- [`music_now(actor, db)`](../backend/houseos/agent_now.py#L69)
+- [`tv_now(actor, db)`](../backend/houseos/agent_now.py#L111)
   Every film screen and what it shows, whoever started it (a house-wide view).
-- [`board_now(row, actor, db)`](../backend/houseos/agent_now.py#L160)
+- [`board_now(row, actor, db)`](../backend/houseos/agent_now.py#L175)
   Today at home, from the board's own tools (so their permission checks run).
-- [`home_now(row, actor, db)`](../backend/houseos/agent_now.py#L191)
-- [`snapshot(row, actor, db, parts)`](../backend/houseos/agent_now.py#L199)
-- [`used(db, row)`](../backend/houseos/agent_now.py#L217)
+- [`home_now(row, actor, db)`](../backend/houseos/agent_now.py#L206)
+- [`snapshot(row, actor, db, parts)`](../backend/houseos/agent_now.py#L214)
+- [`used(db, row)`](../backend/houseos/agent_now.py#L232)
   Last use, written at most once a minute (a widget polls).
-- [`now(request: Request, parts: str=Query(default='', max_length=60), db=Depends(get_db))`](../backend/houseos/agent_now.py#L229)
+- [`now(request: Request, parts: str=Query(default='', max_length=60), db=Depends(get_db))`](../backend/houseos/agent_now.py#L244)
   HTTP: `router.get('/now')`
-- [`stream(request: Request, parts: str=Query(default='', max_length=60), db=Depends(get_db))`](../backend/houseos/agent_now.py#L236)
+- [`stream(request: Request, parts: str=Query(default='', max_length=60), db=Depends(get_db))`](../backend/houseos/agent_now.py#L251)
   The snapshot now, then again each time it changes; a comment every few seconds keeps the
   HTTP: `router.get('/stream')`
-- [`act(request: Request, body: dict=Body(...), db=Depends(get_db))`](../backend/houseos/agent_now.py#L290)
+- [`act(request: Request, body: dict=Body(...), db=Depends(get_db))`](../backend/houseos/agent_now.py#L305)
   A widget's button: one of the agent's tools by name, the answer as JSON (ok, result).
   HTTP: `router.post('/act')`
 
@@ -402,11 +402,11 @@ System prompts, tool-bundle routing and reply language for the household assista
 Hard safety limits live in code (permissions, confirmations, versions, the reboot gate);
 the prompt only explains how to be useful with the tools that are loaded.
 
-- [`system_prompt(context)`](../backend/houseos/assistant_prompt.py#L178)
-- [`initial_context(message)`](../backend/houseos/assistant_prompt.py#L289)
+- [`system_prompt(context)`](../backend/houseos/assistant_prompt.py#L179)
+- [`initial_context(message)`](../backend/houseos/assistant_prompt.py#L290)
   Tool bundle a request clearly needs, or None to keep the conversation's current one
-- [`restart_requested(message)`](../backend/houseos/assistant_prompt.py#L306)
-- [`reply_language(message, default)`](../backend/houseos/assistant_prompt.py#L437)
+- [`restart_requested(message)`](../backend/houseos/assistant_prompt.py#L307)
+- [`reply_language(message, default)`](../backend/houseos/assistant_prompt.py#L438)
   Language of the resident's latest message for deterministic replies; default when unclear.
 
 ## assistant_tools
@@ -958,37 +958,37 @@ Narrow Cast transport. HouseOS must preflight and confirm before calling execute
 - [`connect(address)`](../backend/houseos/cinema_cast.py#L23)
   `address` is the receiver's IP, or "IP:port" for a speaker group (it answers on its own
 - [`cast_log(address, action, **facts)`](../backend/houseos/cinema_cast.py#L44)
-  One line per command sent to a Cast receiver, in logs/cast.log: when, which service, what,
-- [`device_lock(address, wait=90.0)`](../backend/houseos/cinema_cast.py#L71)
+  One line per command sent to a Cast receiver, in run/cast.log (the folder every house
+- [`device_lock(address, wait=90.0)`](../backend/houseos/cinema_cast.py#L72)
   One command sequence at a time per receiver, across the house's services (the film
-- [`fresh_media_status(cast)`](../backend/houseos/cinema_cast.py#L106)
+- [`fresh_media_status(cast)`](../backend/houseos/cinema_cast.py#L107)
   GET_STATUS without pychromecast's implicit receiver-app launch.
-- [`cast_observe(address)`](../backend/houseos/cinema_cast.py#L127)
-- [`cast_config(db)`](../backend/houseos/cinema_cast.py#L160)
+- [`cast_observe(address)`](../backend/houseos/cinema_cast.py#L128)
+- [`cast_config(db)`](../backend/houseos/cinema_cast.py#L161)
   Casting works as soon as the media relay is running and knows its LAN address (it
-- [`preflight_cast(config, source, plan)`](../backend/houseos/cinema_cast.py#L170)
-- [`wake_screen(db, device)`](../backend/houseos/cinema_cast.py#L240)
+- [`preflight_cast(config, source, plan)`](../backend/houseos/cinema_cast.py#L171)
+- [`wake_screen(db, device)`](../backend/houseos/cinema_cast.py#L245)
   The TV on, and on the Chromecast's input, before the film is sent (tv_remote).
-- [`back_to_start(cast, wanted, settle=3.0)`](../backend/houseos/cinema_cast.py#L256)
+- [`back_to_start(cast, wanted, settle=3.0)`](../backend/houseos/cinema_cast.py#L261)
   A stream loaded while it is still being prepared is a live one to the Chromecast, which
-- [`playing(cast, url, seconds=10.0)`](../backend/houseos/cinema_cast.py#L273)
+- [`playing(cast, url, seconds=10.0)`](../backend/houseos/cinema_cast.py#L278)
   The film really plays: our item, its clock moving. False only for what a fresh receiver
-- [`seen(cast)`](../backend/houseos/cinema_cast.py#L299)
+- [`seen(cast)`](../backend/houseos/cinema_cast.py#L304)
   What the receiver says now, for the log and the message.
-- [`not_played(facts)`](../backend/houseos/cinema_cast.py#L310)
+- [`not_played(facts)`](../backend/houseos/cinema_cast.py#L315)
   Why a film loaded twice didn't play, as the receiver told it.
-- [`stop_current(cast, wait=5.0)`](../backend/houseos/cinema_cast.py#L334)
+- [`stop_current(cast, wait=5.0)`](../backend/houseos/cinema_cast.py#L339)
   Whatever the screen still shows (the film being replaced) goes first, as the Stop button
-- [`execute_cast(db, row, device, source, plan)`](../backend/houseos/cinema_cast.py#L354)
+- [`execute_cast(db, row, device, source, plan)`](../backend/houseos/cinema_cast.py#L359)
   Load the film on the receiver, one command sequence at a time, each step logged.
-- [`load_film(db, row, device, source, plan)`](../backend/houseos/cinema_cast.py#L368)
-- [`cast_music(address, url, mime, position, paused, live, title)`](../backend/houseos/cinema_cast.py#L604)
+- [`load_film(db, row, device, source, plan)`](../backend/houseos/cinema_cast.py#L374)
+- [`cast_music(address, url, mime, position, paused, live, title)`](../backend/houseos/cinema_cast.py#L610)
   Load one song on the Cast media receiver; the music follower keeps it on the house clock.
-- [`cast_control(address, action, position)`](../backend/houseos/cinema_cast.py#L626)
-- [`control_now(address, action, position)`](../backend/houseos/cinema_cast.py#L632)
-- [`abort_cast(address, expected_items)`](../backend/houseos/cinema_cast.py#L685)
+- [`cast_control(address, action, position)`](../backend/houseos/cinema_cast.py#L632)
+- [`control_now(address, action, position)`](../backend/houseos/cinema_cast.py#L638)
+- [`abort_cast(address, expected_items)`](../backend/houseos/cinema_cast.py#L691)
   Close our receiver, including an idle failed load, without stopping another app.
-- [`abort_now(address, expected_items)`](../backend/houseos/cinema_cast.py#L692)
+- [`abort_now(address, expected_items)`](../backend/houseos/cinema_cast.py#L698)
 
 ## cinema_cleanup
 
@@ -1181,26 +1181,31 @@ a language from the file or found online, a resolution, the smallest file), laun
 screen, and say in one line what plays. It waits up to WAIT seconds; asked again with the same
 words, it carries on with the same versions instead of starting over.
 
-- [`class Play`](../backend/houseos/cinema_play.py#L35)
-- [`answer(status, message, **facts)`](../backend/houseos/cinema_play.py#L77)
-- [`find_title(db, actor, body)`](../backend/houseos/cinema_play.py#L81)
+- [`class Play`](../backend/houseos/cinema_play.py#L36)
+- [`answer(status, message, **facts)`](../backend/houseos/cinema_play.py#L78)
+  What a call says, for a model and for code: status, one line, the facts. While the house is
+- [`progress(row)`](../backend/houseos/cinema_play.py#L85)
+  How far a film got: versions checked, or the stream prepared (percent).
+- [`find_title(db, actor, body)`](../backend/houseos/cinema_play.py#L103)
   The house's title row, or an answer asking which one.
-- [`screen(db, actor, body)`](../backend/houseos/cinema_play.py#L118)
-- [`wait_for(db, workflow_id, deadline, ready)`](../backend/houseos/cinema_play.py#L129)
+- [`screen(db, actor, body)`](../backend/houseos/cinema_play.py#L140)
+- [`wait_for(db, workflow_id, deadline, ready)`](../backend/houseos/cinema_play.py#L151)
   Read the workflow again until ready(row) or the deadline; no transaction held meanwhile.
-- [`inside(candidate, wanted)`](../backend/houseos/cinema_play.py#L139)
-- [`fits(candidate, body)`](../backend/houseos/cinema_play.py#L150)
-- [`choose(row, body, wanted)`](../backend/houseos/cinema_play.py#L157)
+- [`inside(candidate, wanted)`](../backend/houseos/cinema_play.py#L161)
+- [`fits(candidate, body)`](../backend/houseos/cinema_play.py#L172)
+- [`choose(row, body, wanted)`](../backend/houseos/cinema_play.py#L179)
   The checked version that best fits what was asked, or None.
-- [`worth_checking(row, body, wanted, chosen)`](../backend/houseos/cinema_play.py#L167)
+- [`worth_checking(row, body, wanted, chosen)`](../backend/houseos/cinema_play.py#L194)
   Cached versions not checked yet that could fit better (up to three).
-- [`check_more(db, row, ids, actor)`](../backend/houseos/cinema_play.py#L193)
-- [`tracks(candidate, body, wanted)`](../backend/houseos/cinema_play.py#L206)
+- [`check_more(db, row, ids, actor)`](../backend/houseos/cinema_play.py#L220)
+- [`tracks(candidate, body, wanted)`](../backend/houseos/cinema_play.py#L233)
   (audio id, subtitle id or "auto"/"off", language to find online or None).
-- [`describe(title, row, candidate, device, subtitle, online)`](../backend/houseos/cinema_play.py#L224)
-- [`play(body: Play, actor, db)`](../backend/houseos/cinema_play.py#L244)
-- [`class Versions`](../backend/houseos/cinema_play.py#L398)
-- [`versions(body: Versions, actor, db)`](../backend/houseos/cinema_play.py#L415)
+- [`describe(title, row, candidate, device, subtitle, online)`](../backend/houseos/cinema_play.py#L251)
+- [`play(body: Play, actor, db)`](../backend/houseos/cinema_play.py#L271)
+- [`launched(db, row, title, chosen, device, deadline, online=None)`](../backend/houseos/cinema_play.py#L438)
+  After the launch: playing, failed, or still starting (with how far it got).
+- [`class Versions`](../backend/houseos/cinema_play.py#L466)
+- [`versions(body: Versions, actor, db)`](../backend/houseos/cinema_play.py#L483)
   Every version of a film or episode, checked or not, filtered and sorted, ten at a time.
 
 ## cinema_prepare
@@ -1225,24 +1230,24 @@ Source: [backend/houseos/cinema_progressive.py](../backend/houseos/cinema_progre
 Incremental Cast packaging. Only the parent broker can access the exact source.
 
 - [`supported(source, plan)`](../backend/houseos/cinema_progressive.py#L25)
-- [`ffmpeg_args(directory, plan)`](../backend/houseos/cinema_progressive.py#L34)
-- [`ready(directory, plan)`](../backend/houseos/cinema_progressive.py#L98)
-- [`packaged_codecs(directory)`](../backend/houseos/cinema_progressive.py#L125)
+- [`ffmpeg_args(directory, plan)`](../backend/houseos/cinema_progressive.py#L36)
+- [`ready(directory, plan)`](../backend/houseos/cinema_progressive.py#L115)
+- [`packaged_codecs(directory)`](../backend/houseos/cinema_progressive.py#L142)
   RFC 6381 identifiers from the actual fMP4 initialization segment.
-- [`prepared_seconds(directory)`](../backend/houseos/cinema_progressive.py#L179)
-- [`complete(directory)`](../backend/houseos/cinema_progressive.py#L187)
-- [`slow(directory)`](../backend/houseos/cinema_progressive.py#L194)
-  Is this file prepared slower than it would be watched (with room to spare)?
-- [`keep_waiting(directory, slow_file)`](../backend/houseos/cinema_progressive.py#L203)
+- [`prepared_seconds(directory)`](../backend/houseos/cinema_progressive.py#L198)
+- [`complete(directory)`](../backend/houseos/cinema_progressive.py#L206)
+- [`slow(directory, converting=False)`](../backend/houseos/cinema_progressive.py#L213)
+  Is this file prepared slower than it would be watched (with room to spare)? A conversion
+- [`keep_waiting(directory, slow_file)`](../backend/houseos/cinema_progressive.py#L224)
   Before a film is sent: a slow file until it is all prepared (sent unfinished, the
-- [`write_master(directory, plan, size)`](../backend/houseos/cinema_progressive.py#L210)
-- [`timeline_packets(socket_path, output, args)`](../backend/houseos/cinema_progressive.py#L259)
-- [`prepare_timeline(socket_path, output, plan)`](../backend/houseos/cinema_progressive.py#L280)
-- [`position_offset(socket_path, output, plan, original=None)`](../backend/houseos/cinema_progressive.py#L322)
+- [`write_master(directory, plan, size)`](../backend/houseos/cinema_progressive.py#L231)
+- [`timeline_packets(socket_path, output, args)`](../backend/houseos/cinema_progressive.py#L280)
+- [`prepare_timeline(socket_path, output, plan)`](../backend/houseos/cinema_progressive.py#L301)
+- [`position_offset(socket_path, output, plan, original=None)`](../backend/houseos/cinema_progressive.py#L343)
   Map identical copied packets after the initial B-frame boundary.
-- [`retained_seek_buffer(workflow, directory)`](../backend/houseos/cinema_progressive.py#L372)
-- [`cleanup_stream_directory(bind, workflow_id, directory)`](../backend/houseos/cinema_progressive.py#L378)
-- [`start(db, row, device, source, plan, job)`](../backend/houseos/cinema_progressive.py#L392)
+- [`retained_seek_buffer(workflow, directory)`](../backend/houseos/cinema_progressive.py#L393)
+- [`cleanup_stream_directory(bind, workflow_id, directory)`](../backend/houseos/cinema_progressive.py#L399)
+- [`start(db, row, device, source, plan, job)`](../backend/houseos/cinema_progressive.py#L413)
 
 ## cinema_queue
 
@@ -1328,16 +1333,16 @@ Source: [backend/houseos/cinema_stream_input.py](../backend/houseos/cinema_strea
 
 One authorized, seekable media input for a network-isolated parser.
 
-- [`class _Server`](../backend/houseos/cinema_stream_input.py#L14)
+- [`class _Server`](../backend/houseos/cinema_stream_input.py#L16)
   Method: `process_request(self, request, address)`
   Method: `process_request_thread(self, request, address)`
-- [`class _Handler`](../backend/houseos/cinema_stream_input.py#L31)
+- [`class _Handler`](../backend/houseos/cinema_stream_input.py#L33)
   Method: `log_message(self, *args)`
   Method: `do_HEAD(self)`
   Method: `do_GET(self)`
-- [`input_broker(directory: Path, opener, cancelled=lambda: False)`](../backend/houseos/cinema_stream_input.py#L80)
+- [`input_broker(directory: Path, opener, cancelled=lambda: False)`](../backend/houseos/cinema_stream_input.py#L86)
   opener(range, head) returns status, headers, chunks; it owns URL validation.
-- [`streaming_media_command(args: list[str], socket_path: Path, output_directory: Path)`](../backend/houseos/cinema_stream_input.py#L111)
+- [`streaming_media_command(args: list[str], socket_path: Path, output_directory: Path)`](../backend/houseos/cinema_stream_input.py#L117)
   Replace literal INPUT with an isolated loopback URL, never a provider URL.
 
 ## cinema_subtitles
@@ -1378,11 +1383,11 @@ play it) still reject.
   The title's own language when its catalogue says it: anime (MyAnimeList) is Japanese.
 - [`best_plan(media, capabilities, request, original=None)`](../backend/houseos/cinema_suggest.py#L83)
   The most fitting plan for this source, and why. Raises MediaError only on hard limits.
-- [`consensus_language(sources)`](../backend/houseos/cinema_suggest.py#L155)
+- [`consensus_language(sources)`](../backend/houseos/cinema_suggest.py#L158)
   The original language: the one in the most releases (the original soundtrack is in
-- [`waits_for_a_copy(source, plan)`](../backend/houseos/cinema_suggest.py#L178)
+- [`waits_for_a_copy(source, plan)`](../backend/houseos/cinema_suggest.py#L181)
   Would this version need a complete copy before anything plays (not streamed as it plays)?
-- [`rank_inspected(sources, capabilities, request, original=None)`](../backend/houseos/cinema_suggest.py#L191)
+- [`rank_inspected(sources, capabilities, request, original=None)`](../backend/houseos/cinema_suggest.py#L194)
   Inspected sources ranked best first as (source, plan, score, reasons); rejects noted.
 
 ## cinema_tv
@@ -2442,66 +2447,66 @@ Smart home: the house's own Home Assistant (lights, switches, blinds, heating…
 admin exposure policy. Sensitive devices (locks, alarms…) always need a confirmed second step.
 Every answer reports the state Home Assistant shows after the command, never just "sent".
 
-- [`remote(entity_id)`](../backend/houseos/home.py#L234)
+- [`remote(entity_id)`](../backend/houseos/home.py#L229)
   (service domain, service, data, {key: name}) for this TV's arrows, or None.
-- [`available(db)`](../backend/houseos/home.py#L277)
+- [`available(db)`](../backend/houseos/home.py#L272)
   Home Assistant is connected (enabled, with a token): the Smart home room may show.
-- [`connection(db)`](../backend/houseos/home.py#L283)
-- [`ha(base, headers, path, **kwargs)`](../backend/houseos/home.py#L301)
+- [`connection(db)`](../backend/houseos/home.py#L278)
+- [`ha(base, headers, path, **kwargs)`](../backend/houseos/home.py#L296)
   One short request; failures become plain sentences without addresses or tokens.
-- [`policy(config)`](../backend/houseos/home.py#L318)
-- [`panel(config, entity_id)`](../backend/houseos/home.py#L326)
+- [`policy(config)`](../backend/houseos/home.py#L313)
+- [`panel(config, entity_id)`](../backend/houseos/home.py#L321)
   The controls an admin took off this device's panel (everything it can do shows otherwise).
-- [`sensitive(domain, attributes=None)`](../backend/houseos/home.py#L332)
+- [`sensitive(domain, attributes=None)`](../backend/houseos/home.py#L327)
   Locks and the like; also scripts (they can do anything) and garage doors, gates and doors.
-- [`number(value)`](../backend/houseos/home.py#L342)
-- [`actions(domain, attributes, entity_id='')`](../backend/houseos/home.py#L346)
-- [`kelvin_range(attributes)`](../backend/houseos/home.py#L374)
-- [`hex_color(rgb)`](../backend/houseos/home.py#L380)
-- [`controls(domain, attributes, entity_id='', hidden=())`](../backend/houseos/home.py#L386)
+- [`number(value)`](../backend/houseos/home.py#L337)
+- [`actions(domain, attributes, entity_id='')`](../backend/houseos/home.py#L341)
+- [`kelvin_range(attributes)`](../backend/houseos/home.py#L369)
+- [`hex_color(rgb)`](../backend/houseos/home.py#L375)
+- [`controls(domain, attributes, entity_id='', hidden=())`](../backend/houseos/home.py#L381)
   What the device's panel can draw, from what the device itself reports: each value control
-- [`entity_json(state, area=None, hidden_controls=())`](../backend/houseos/home.py#L407)
-- [`registry(base, token)`](../backend/houseos/home.py#L439)
+- [`entity_json(state, area=None, hidden_controls=())`](../backend/houseos/home.py#L402)
+- [`registry(base, token)`](../backend/houseos/home.py#L434)
   Each entity's area and whether Home Assistant marks it internal (a config or diagnostic
-- [`entities(base, token)`](../backend/houseos/home.py#L484)
+- [`entities(base, token)`](../backend/houseos/home.py#L479)
   Each entity's integration and device from Home Assistant's registry, read at most once
-- [`snapshot(base, headers, domains, refresh=False)`](../backend/houseos/home.py#L499)
+- [`snapshot(base, headers, domains, refresh=False)`](../backend/houseos/home.py#L494)
   Allowed states, their areas and HA's internal entities, shared for about 3 s between
-- [`fresh_snapshot(base, headers, domains, refresh, key, now)`](../backend/houseos/home.py#L514)
-- [`curated(config)`](../backend/houseos/home.py#L552)
+- [`fresh_snapshot(base, headers, domains, refresh, key, now)`](../backend/houseos/home.py#L509)
+- [`curated(config)`](../backend/houseos/home.py#L547)
   The entities an administrator chose to show, or None while nobody has chosen.
-- [`tv_twins(db, config)`](../backend/houseos/home.py#L557)
+- [`tv_twins(db, config)`](../backend/houseos/home.py#L552)
   Media players the TV section already shows: the one mapped to a HouseOS screen, and
-- [`overview(actor, db, refresh=False, choosing=False)`](../backend/houseos/home.py#L571)
+- [`overview(actor, db, refresh=False, choosing=False)`](../backend/houseos/home.py#L566)
   What the room shows: the admin's choice, else everything except Home Assistant's
-- [`home(refresh: bool=False, choose: bool=False, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/home.py#L607)
+- [`home(refresh: bool=False, choose: bool=False, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/home.py#L602)
   HTTP: `router.get('')`
-- [`class HomeAction`](../backend/houseos/home.py#L615)
-- [`exposed_domain(config, entity_id)`](../backend/houseos/home.py#L620)
-- [`service_call(state, action, value)`](../backend/houseos/home.py#L636)
+- [`class HomeAction`](../backend/houseos/home.py#L610)
+- [`exposed_domain(config, entity_id)`](../backend/houseos/home.py#L615)
+- [`service_call(state, action, value)`](../backend/houseos/home.py#L631)
   The exact Home Assistant service and data for one action, after checking the value.
-- [`reached(domain, action, value, before, after)`](../backend/houseos/home.py#L690)
+- [`reached(domain, action, value, before, after)`](../backend/houseos/home.py#L685)
   Whether the state Home Assistant now shows is the one the action asked for.
-- [`read_state(base, headers, entity_id)`](../backend/houseos/home.py#L753)
-- [`control(db, actor, entity_id, action, value=None, confirmed=False)`](../backend/houseos/home.py#L757)
+- [`read_state(base, headers, entity_id)`](../backend/houseos/home.py#L748)
+- [`control(db, actor, entity_id, action, value=None, confirmed=False)`](../backend/houseos/home.py#L752)
   Check policy and value, then either ask for a confirmation (sensitive devices) or act.
-- [`act(entity_id: str, body: HomeAction, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/home.py#L811)
+- [`act(entity_id: str, body: HomeAction, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/home.py#L806)
   HTTP: `router.post('/{entity_id}/action')`
-- [`confirm(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/home.py#L816)
+- [`confirm(identity: str, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/home.py#L811)
   HTTP: `router.post('/confirmations/{identity}')`
-- [`class Selection`](../backend/houseos/home.py#L839)
-- [`choose(body: Selection, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/home.py#L844)
+- [`class Selection`](../backend/houseos/home.py#L834)
+- [`choose(body: Selection, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/home.py#L839)
   Administrators choose exactly what the room (and Nox) shows; new devices stay out until chosen.
   HTTP: `router.put('/selection')`
-- [`inspect(entity_id: str, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/home.py#L863)
+- [`inspect(entity_id: str, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/home.py#L858)
   Look closer at one device (admins): everything it reports, and every control HouseOS can
   HTTP: `router.get('/{entity_id}/inspect')`
-- [`class PanelControls`](../backend/houseos/home.py#L887)
-- [`choose_controls(entity_id: str, body: PanelControls, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/home.py#L892)
+- [`class PanelControls`](../backend/houseos/home.py#L882)
+- [`choose_controls(entity_id: str, body: PanelControls, actor=Depends(require_admin), db=Depends(get_db))`](../backend/houseos/home.py#L887)
   Administrators choose which of a device's controls its panel shows.
   HTTP: `router.put('/{entity_id}/controls')`
-- [`class Favorites`](../backend/houseos/home.py#L913)
-- [`favorites(body: Favorites, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/home.py#L918)
+- [`class Favorites`](../backend/houseos/home.py#L900)
+- [`favorites(body: Favorites, actor=Depends(require_actor), db=Depends(get_db))`](../backend/houseos/home.py#L905)
   Each resident's own devices pinned at the top of the room.
   HTTP: `router.put('/favorites')`
 
@@ -3371,13 +3376,13 @@ Deterministic media inspection and planning. Never controls a device.
   2160, 1080 or 720, else the height. Widescreen films are cropped (1920×800, 3840×1600),
 - [`compatibility(media: dict, capabilities: dict, request: dict)`](../backend/houseos/playback.py#L280)
   No optimistic support: unknown video/HDR/capability evidence stops planning.
-- [`exact_episode_file(files: list[dict], season: int, episode: int)`](../backend/houseos/playback.py#L421)
-- [`select_candidate(candidates: list[dict], choice: str)`](../backend/houseos/playback.py#L448)
-- [`prepare_local(source: Path, directory: Path, plan: dict, *, timeout: int=120, cancelled=None)`](../backend/houseos/playback.py#L477)
+- [`exact_episode_file(files: list[dict], season: int, episode: int)`](../backend/houseos/playback.py#L434)
+- [`select_candidate(candidates: list[dict], choice: str)`](../backend/houseos/playback.py#L461)
+- [`prepare_local(source: Path, directory: Path, plan: dict, *, timeout: int=120, cancelled=None)`](../backend/houseos/playback.py#L490)
   Fixed argv, selected tracks, video copy, bounded conversion. No network demuxing.
-- [`run_media_command(args, *, timeout, cancelled=None)`](../backend/houseos/playback.py#L591)
+- [`run_media_command(args, *, timeout, cancelled=None)`](../backend/houseos/playback.py#L604)
   Bound subprocess time/error output; a revoked preparation is terminated promptly.
-- [`map_library_tracks(actual: dict, declared: dict)`](../backend/houseos/playback.py#L618)
+- [`map_library_tracks(actual: dict, declared: dict)`](../backend/houseos/playback.py#L631)
   Jellyfin may renumber streams when it inserts sidecars; prove a unique mapping.
 
 ## provider_checks
@@ -3579,7 +3584,7 @@ Sandbox-only fixed-resource HTTP bridge. No provider URLs or credentials.
   Method: `log_message(self, *args)`
   Method: `do_HEAD(self)`
   Method: `do_GET(self)`
-- [`main()`](../backend/houseos/stream_bridge.py#L70)
+- [`main()`](../backend/houseos/stream_bridge.py#L72)
 
 ## themes
 
@@ -3747,12 +3752,12 @@ equally good matches are returned for the resident to choose, never guessed.
   Everything a resident may call a device: its name, area, id and kind.
 - [`entities(actor, db)`](../backend/houseos/tool_home.py#L66)
 - [`compact(item)`](../backend/houseos/tool_home.py#L70)
-- [`class HomeList`](../backend/houseos/tool_home.py#L98)
-- [`home_list(body, actor, db)`](../backend/houseos/tool_home.py#L105)
-- [`class HomeControl`](../backend/houseos/tool_home.py#L129)
-- [`resolve(body, items)`](../backend/houseos/tool_home.py#L146)
+- [`class HomeList`](../backend/houseos/tool_home.py#L94)
+- [`home_list(body, actor, db)`](../backend/houseos/tool_home.py#L101)
+- [`class HomeControl`](../backend/houseos/tool_home.py#L125)
+- [`resolve(body, items)`](../backend/houseos/tool_home.py#L142)
   One entity, or the reason to ask the resident.
-- [`home_control(body, actor, db)`](../backend/houseos/tool_home.py#L173)
+- [`home_control(body, actor, db)`](../backend/houseos/tool_home.py#L169)
 
 ## tool_household
 
