@@ -1811,10 +1811,6 @@ const french: Record<string, string> = {
   "Start the music": "Lancer la musique",
   "Play the house's songs": "Jouer les morceaux de la maison",
   "{n} songs kept, by the whole house": "{n} morceaux gardés, par toute la maison",
-  "Pick a few songs for right now and queue them.":
-    "Choisis quelques morceaux pour maintenant et mets-les dans la file.",
-  "Let Nox pick": "Laisser Nox choisir",
-  "a few songs for the mood": "quelques morceaux selon l’ambiance",
   "A song, an artist, a playlist, a YouTube or SoundCloud link. Or just ask Nox.":
     "Un morceau, un artiste, une playlist, un lien YouTube ou SoundCloud. Ou demande simplement à Nox.",
   "More results": "Plus de résultats",
@@ -2581,8 +2577,11 @@ const french: Record<string, string> = {
     "L’entrée où est branché ton Chromecast : la télé s’allume et y passe quand un film démarre.",
   "Always subtitles in my languages, even when I understand the sound":
     "Toujours des sous-titres dans mes langues, même quand je comprends le son",
-  "not heard for a while": "pas écouté depuis un moment",
   "played a lot lately": "beaucoup écouté ces jours-ci",
+  "added to the queue": "ajouté à la file",
+  "one of your songs": "un de tes morceaux",
+  "from the house's songs": "parmi les morceaux de la maison",
+  "Back to the ideas before": "Revenir aux idées d’avant",
   "Auto play: next songs": "Lecture auto : morceaux suivants",
   "Played in this order whenever nobody has queued a song. Songs you remove stay out until you draw a new list.":
     "Joués dans cet ordre quand personne n’a mis de morceau. Ceux que tu retires restent de côté jusqu’à une nouvelle liste.",
@@ -4554,10 +4553,6 @@ const french: Record<string, string> = {
     "Retirer le morceau en attente ? Celui qui joue continue.",
   "Remove {n} waiting songs? The one playing goes on.":
     "Retirer les {n} morceaux en attente ? Celui qui joue continue.",
-  "kept here, rarely played": "gardé ici, peu écouté",
-  "{name} plays it a lot": "{name} l’écoute souvent",
-  "a housemate": "un coloc",
-  "a favourite this month": "un favori du mois",
   "The house decides again.": "La maison décide à nouveau.",
   "Genre of {n} songs": "Genre de {n} morceaux",
   "Also the {n} other songs by this artist": "Aussi les {n} autres morceaux de cet artiste",

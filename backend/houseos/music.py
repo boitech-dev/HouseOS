@@ -1308,92 +1308,83 @@ def queue_favorites(db, actor, count=10):
 
 @router.get("/quick-songs")
 def quick_songs(actor=Depends(require_actor), db=Depends(get_db)):
-    """Four songs to start the music with, drawn anew on each visit, each of another kind: one of
-    the house's very top songs of the last 3 days, one it loved but hasn't heard for 10 days, a
-    kept song it rarely plays in a genre it likes lately, and a housemate's favourite of the last
-    two weeks (else another of the month's favourites). No two by the same artist or in the same
-    genre when there's a choice; nothing already waiting or heard in the last half hour."""
+    """Five songs to start the music with, drawn anew on each visit: one of the house's 30 top
+    songs of the last two weeks (the more played, and the more lately, the likelier), then four
+    from every song the house keeps, likelier the more they're played and the more if you kept
+    them. No two by the same artist when there's a choice; nothing already waiting or heard in
+    the last half hour."""
     import random
     from collections import Counter
 
     from .music_auto import kept_songs
+    from .music_catalog import artist_of
 
     require_permission(actor, "music.read")
     now = utcnow()
+    key = Record.data["key"].as_string()
     plays = db.execute(
-        select(Record.data["key"].as_string(), Record.created_at, Record.owner_id)
-        .where(Record.kind == "music.play", Record.created_at >= now - timedelta(days=60))
-        .order_by(Record.created_at.desc())
-        .limit(20000)
+        select(key, Record.created_at).where(
+            Record.kind == "music.play", Record.created_at >= now - timedelta(days=14)
+        )
     ).all()
-    played = lambda days, who=None: Counter(  # noqa: E731
-        key for key, at, owner in plays if at >= now - timedelta(days=days) and who in (None, owner)
+    lately = Counter()  # each play counts half as much every 3 days
+    for song_key, at in plays:
+        lately[song_key] += 0.5 ** ((now - at).total_seconds() / 259200)
+    recent = {song_key for song_key, at in plays if at >= now - timedelta(minutes=30)}
+    ever = Counter(
+        dict(db.execute(select(key, func.count()).where(Record.kind == "music.play").group_by(key)).all())
     )
-    recent = {key for key, at, _ in plays if at >= now - timedelta(minutes=30)}
     waiting = set(db.scalars(select(QueueItem.source_url).where(QueueItem.status.in_(ACTIVE_QUEUE_STATUSES))))
-    heard_lately, month, two_months = set(played(10)), played(30), played(60)
-    others = Counter(key for key, at, owner in plays if at >= now - timedelta(days=14) and owner != actor.id)
-    mine = set(played(60, actor.id))
-    # Who of the others played each of their songs most.
-    fans = {}
-    for key, at, owner in plays:
-        if owner != actor.id and at >= now - timedelta(days=14):
-            fans.setdefault(key, Counter())[owner] += 1
+    mine = set(
+        db.scalars(
+            select(Record.data["source_url"].as_string()).where(
+                Record.kind == "music.download", Record.owner_id == actor.id, Record.deleted_at.is_(None)
+            )
+        )
+    )
     kept = {history_key(url): (url, genre) for url, _, genre in kept_songs(db)}
-    keys = {*two_months, *kept}
+    top = [k for k, _ in lately.most_common(30)]
     rows = {
-        row.id: row
-        for row in db.scalars(select(Record).where(Record.kind == "music.history", Record.id.in_(keys)))
+        row.id: row.data
+        for row in db.scalars(
+            select(Record).where(Record.kind == "music.history", Record.id.in_({*top, *kept}))
+        )
     }
 
-    def song(key):
-        if key in rows:
-            data = rows[key].data
-            uploader = data.get("uploader") or (data.get("evidence") or {}).get("uploader") or ""
-            return data["source_url"], data.get("genre") or "other", uploader
-        url, genre = kept.get(key, ("", "other"))
-        return url, genre or "other", ""
+    def song(k):
+        data = rows.get(k, {})
+        url, genre = kept.get(k, (data.get("source_url", ""), data.get("genre")))
+        return url, genre or "other", artist_of(data) if data else ""
 
-    house_genres = Counter(song(key)[1] for key in month.elements())
-    house_genres.pop("other", None)
-    liked = {genre for genre, _ in house_genres.most_common(4)}
-    pools = [
-        ("lately", [k for k, _ in played(3).most_common(5)]),
-        ("missed", [k for k, n in two_months.items() if n >= 3 and k not in heard_lately]),
-        ("kept", [k for k in kept if two_months[k] <= 1 and song(k)[1] in liked]),
-        ("friend", [k for k, _ in others.most_common(10) if k not in mine]),
-    ]
-    # A kind with nothing to offer gives its place to another of the month's favourites.
-    pools += [("month", [k for k, _ in month.most_common(30)])] * 2
-    picks, genres, artists = [], Counter(), set()
-    for why, pool in pools:
-        if len(picks) == 4:
-            break
-        pool = [
-            k for k in pool if song(k)[0].startswith("http") and song(k)[0] not in waiting and k not in recent
-        ]
-        random.shuffle(pool)
-        # The kind's first song by a new artist and in a genre not picked yet, else any.
-        fresh = [k for k in pool if not genres[song(k)[1]] and song(k)[2] not in artists - {""}]
-        choice = next(iter(fresh or pool), None)
-        if choice and choice not in {k for k, _ in picks}:
+    usable = lambda k: song(k)[0].startswith("http") and song(k)[0] not in waiting and k not in recent  # noqa: E731
+    picks, artists = [], set()
+
+    def draw(why, weights, count):
+        for _ in range(count):
+            pool = {k: w for k, w in weights.items() if k not in {p for p, _ in picks} and usable(k)}
+            # A new artist when there's one; weights stay as they are within it.
+            pool = {k: w for k, w in pool.items() if song(k)[2] not in artists} or pool
+            if not pool:
+                return
+            choice = random.choices(list(pool), weights=list(pool.values()))[0]
             picks.append((choice, why))
-            genres[song(choice)[1]] += 1
-            artists.add(song(choice)[2])
-    owners = {key: fans[key].most_common(1)[0][0] for key, why in picks if why == "friend"}
-    names = {u.id: u.name for u in db.scalars(select(User).where(User.id.in_(set(owners.values()))))}
-    urls = [song(key)[0] for key, _ in picks]
+            artists.add(song(choice)[2] or choice)
+
+    draw("lately", {k: lately[k] for k in top}, 1)
+    # ponytail: weights picked by ear (yours x3, sqrt of plays); tune here if the mix feels off.
+    draw("library", {k: (3 if url in mine else 1) * (1 + ever[k] ** 0.5) for k, (url, _) in kept.items()}, 4)
+    urls = [song(k)[0] for k, _ in picks]
     meta = source_metadata(db, urls)
     return {
         "items": [
             {
                 "source_url": url,
                 "why": why,
-                "by": names.get(owners.get(key)),
-                "genre": song(key)[1],
+                "mine": url in mine,
+                "genre": song(k)[1],
                 **meta.get(url, {"title": None}),
             }
-            for (key, why), url in zip(picks, urls)
+            for (k, why), url in zip(picks, urls)
         ]
     }
 

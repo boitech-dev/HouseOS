@@ -1438,7 +1438,6 @@ const musical = (station: Obj) => !NOT_MUSIC.test(`${station.name} ${station.tag
 
 function QuickStarts({ music }: { music: Playback }) {
   const auto = useData("/music/auto"),
-    songs = useData("/music/quick-songs"),
     favourites = useData("/music/radio/favorites");
   const popular = useData(
     favourites.data && !items(favourites.data).length
@@ -1446,15 +1445,27 @@ function QuickStarts({ music }: { music: Playback }) {
       : null,
   );
   const { run, error, busy } = useAction(music.reload);
-  // One station, a different one on each refresh (with the new songs).
-  const [turn, setTurn] = useState(0);
+  // The ideas stay put while you add them (the queue changing doesn't redraw them); only the
+  // refresh button draws others, and Undo brings back the last three draws.
+  const [draw, setDraw] = useState<{ songs: Obj[]; turn: number } | null>(null);
+  const [before, setBefore] = useState<{ songs: Obj[]; turn: number }[]>([]);
+  const [added, setAdded] = useState<Set<string>>(new Set());
+  const next = (turn: number) =>
+    api("/music/quick-songs").then((data) => setDraw({ songs: items(data), turn }));
+  useEffect(() => void next(0).catch(() => setDraw({ songs: [], turn: 0 })), []);
+  const turn = draw?.turn || 0;
   const pool = items(favourites.data).filter(musical).length
     ? items(favourites.data).filter(musical)
     : items(popular.data).filter(musical);
+  // One station, a different one on each refresh (with the new songs).
   const stations = pool.length ? [pool[turn % pool.length]] : [];
   const refresh = () => {
-    setTurn((n) => n + 1);
-    void songs.reload();
+    if (draw) setBefore((list) => [draw, ...list].slice(0, 3));
+    void run(() => next(turn + 1));
+  };
+  const undo = () => {
+    setDraw(before[0]);
+    setBefore((list) => list.slice(1));
   };
   const kept = auto.data?.kept || 0;
   const start = (fn: () => Promise<unknown>) => () => void run(fn);
@@ -1464,26 +1475,41 @@ function QuickStarts({ music }: { music: Playback }) {
         <Text as="h2" style="title-s">
           {t("Ideas")}
         </Text>
-        <IconButton icon="refresh" size="s" label={t("Other ideas")} onClick={refresh} />
+        <IconButton
+          icon="refresh"
+          size="s"
+          label={t("Other ideas")}
+          disabled={busy}
+          onClick={refresh}
+        />
+        {before.length > 0 && (
+          <IconButton icon="undo" size="s" label={t("Back to the ideas before")} onClick={undo} />
+        )}
       </span>
       <List label={t("Start the music")}>
-        {items(songs.data).map((song: Obj) => (
+        {(draw?.songs || []).map((song: Obj) => (
           <ListRow
             key={song.source_url}
             leading={<Cover src={song.art} />}
             title={song.title || t("Untitled song")}
             detail={
-              song.why === "missed"
-                ? t("not heard for a while")
-                : song.why === "kept"
-                  ? t("kept here, rarely played")
-                  : song.why === "friend"
-                    ? t("{name} plays it a lot").replace("{name}", song.by || t("a housemate"))
-                    : song.why === "month"
-                      ? t("a favourite this month")
-                      : t("played a lot lately")
+              added.has(song.source_url)
+                ? t("added to the queue")
+                : song.why === "lately"
+                  ? t("played a lot lately")
+                  : song.mine
+                    ? t("one of your songs")
+                    : t("from the house's songs")
             }
-            onOpen={busy ? undefined : start(() => queueSong(song.source_url))}
+            onOpen={
+              busy
+                ? undefined
+                : start(() =>
+                    queueSong(song.source_url).then(() =>
+                      setAdded((set) => new Set(set).add(song.source_url)),
+                    ),
+                  )
+            }
           />
         ))}
         {auto.data?.can_change && kept > 0 && auto.data?.mode === "off" && (
@@ -1517,18 +1543,6 @@ function QuickStarts({ music }: { music: Playback }) {
             }
           />
         ))}
-        <ListRow
-          leading={<Icon name="sparkles" />}
-          title={t("Let Nox pick")}
-          detail={t("a few songs for the mood")}
-          onOpen={() =>
-            dispatchEvent(
-              new CustomEvent("houseos:ask", {
-                detail: { message: t("Pick a few songs for right now and queue them.") },
-              }),
-            )
-          }
-        />
       </List>
       <Problem error={error} />
     </section>

@@ -5,6 +5,21 @@ keep landing there between version numbers. Control Room → Update (or `./house
 brings them; Control Room says when changes are waiting, with *See what changed* to read them.
 Newest first.
 
+## Since 1.2.0
+
+### 2026-11-06
+
+- **Ideas, rotating**: one of your house's 30 top songs of the last two weeks (the more played,
+  and the more lately, the likelier), then four from every song the house keeps, likelier the
+  more they're played and when you kept them yourself. *Let Nox pick* gave its place to a fifth song.
+- **Ideas stay put**: adding one no longer redraws the list (it says *added to the queue*), so
+  you can add several; only the refresh button draws others, and *Undo* brings back the last three.
+
+### 2026-11-05
+
+- **Film copies cleaned up**: a film replaced by another on the screen has its copy removed like
+  a finished one, and posters older than a month are deleted.
+
 ## 1.2.0 — 2026-11-04
 
 - **Your own assistant (MCP) and widgets**: *Control Room → Agents* makes a token for another

@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from houseos import music, music_auto
 from houseos.auth import Actor
 from houseos.models import Record
+from sqlalchemy import select
 
 STATION = "11111111-2222-3333-4444-555555555555"
 
@@ -125,7 +126,8 @@ def test_the_next_songs_can_be_seen_moved_trimmed_and_reshuffled(monkeypatch):
         assert sorted(i["source_url"] for i in shuffled["items"]) == sorted(set(urls) - {order[-1]})
 
 
-def test_quick_songs_mix_four_kinds_of_ideas():
+def test_quick_songs_one_top_song_then_four_kept_songs_leaning_to_yours():
+    from collections import Counter
     from datetime import timedelta
 
     from houseos.db import utcnow
@@ -135,27 +137,34 @@ def test_quick_songs_mix_four_kinds_of_ideas():
     fixture.setUp()
     actor = Actor("one", "One", "resident", frozenset({"music.read"}))
     now = utcnow()
+    name = lambda pick: pick["source_url"][-11:].rstrip("x")  # noqa: E731
     with Session(fixture.engine, expire_on_commit=False) as db:
-        for name, genre, who, days, plays in (
-            ("hot", "pop", "one", 1, 5),  # the top of the last 3 days
-            ("old", "rock", "one", 20, 4),  # loved, not heard for 10 days
-            ("rare", "jazz", "one", 50, 1),  # kept, rarely played…
-            ("liked", "jazz", "one", 5, 3),  # …in a genre liked lately
-            ("theirs", "reggae", "two", 4, 6),  # a housemate's favourite
-        ):
-            url = "https://www.youtube.com/watch?v=" + name.ljust(11, "x")
-            kept(db, url, genre)
+        for song, days, plays in (("hot", 1, 6), ("warm", 10, 6), ("cold", 30, 9)):
+            url = "https://www.youtube.com/watch?v=" + song.ljust(11, "x")
+            kept(db, url, "pop")
             db.flush()
             for _ in range(plays):
-                db.add(Record(kind="music.play", owner_id=who, visibility="house",
+                db.add(Record(kind="music.play", owner_id="two", visibility="house",
                               data={"key": music.history_key(url)}, created_at=now - timedelta(days=days)))  # fmt: skip
+        for n in range(8):
+            kept(db, f"https://www.youtube.com/watch?v=lib{n}".ljust(43, "x"), "jazz")
+        db.flush()
+        for row in db.scalars(select(Record).where(Record.kind == "music.download")):
+            row.owner_id = "one" if row.data["source_url"].endswith(("lib0xxxxxxx", "lib1xxxxxxx")) else "two"
         db.commit()
-        picks = music.quick_songs(actor, db)["items"]
-        why = {p["why"]: p["source_url"][-11:].rstrip("x") for p in picks}
-        assert why == {"lately": why["lately"], "missed": "old", "kept": "rare", "friend": "theirs"}
-        assert why["lately"] in {"hot", "liked", "theirs"}
-        assert next(p["by"] for p in picks if p["why"] == "friend") == "two"
-        assert len({p["source_url"] for p in picks}) == 4
+        top, library = Counter(), Counter()
+        for _ in range(200):
+            picks = music.quick_songs(actor, db)["items"]
+            assert [p["why"] for p in picks] == ["lately", "library", "library", "library", "library"]
+            assert len({p["source_url"] for p in picks}) == 5
+            top[name(picks[0])] += 1
+            library.update(name(p) for p in picks[1:])
+            assert all(p["mine"] == (name(p) in {"lib0", "lib1"}) for p in picks)
+        # Only the last two weeks count for the top song, and the more lately the likelier.
+        assert set(top) == {"hot", "warm"} and top["hot"] > top["warm"]
+        # Songs you kept come up more than the house's others played as little.
+        theirs = sum(library[f"lib{n}"] for n in range(2, 8)) / 6
+        assert min(library["lib0"], library["lib1"]) > 1.5 * theirs
 
 
 def test_auto_plays_failed_picks_leave_up_next_but_requests_stay():

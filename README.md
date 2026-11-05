@@ -69,7 +69,7 @@ and follow its AGENT-INSTALL.md.
 - **Likes and playlists:** like a song to keep it in *My music*, make playlists or import one from a YouTube or SoundCloud link, replay anything from the house history, keep your radio stations.
 - **Auto play:** when the queue runs dry it keeps going with the house's songs (all, or the genres you pick) or a rotation of radio stations. Its next 50 songs are a list anyone can reorder, trim or redraw; songs heard lately stay out, and a real request always goes first.
 - **Genres, free:** each song is sorted from Deezer, MusicBrainz and the house's other songs by the same artist; tap a song's genre to change it, for one song, a few at once or every song by that artist.
-- **Ideas:** an empty queue offers a top song lately, a forgotten favourite, a kept song rarely played, a housemate's favourite and a station; one tap draws others.
+- **Ideas:** an empty queue offers one of the top songs lately, four of the house's kept songs (yours more often) and a station; add several, draw others, undo the last three draws.
 - **Sleep timer:** the music stops after 15 minutes, an hour, or when you say.
 - **Plays on** the computer's speakers, Bluetooth, Cast, DLNA, Sonos, or a phone in *Speaker mode*.
 </details>
