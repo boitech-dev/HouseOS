@@ -2254,7 +2254,7 @@ def thumbnail(file_id: str, actor: Actor = Depends(require_actor), db: Session =
     row = accessible_entry(db, actor, file_id)
     if row.is_folder or row.mime not in THUMB_TYPES or row.size > 40 * 1024**2:
         raise HTTPException(404, "No thumbnail")
-    # ponytail: named by id and version, so a deleted file's thumbnail ages out after a month.
+    # Named by id and version: a deleted file's thumbnail goes after a month (prune_images).
     path = settings.runtime_root / "cinema/images" / f"file-{row.id}-{row.version}.jpg"
     headers = {"Cache-Control": "private, max-age=86400", "X-Content-Type-Options": "nosniff"}
     try:

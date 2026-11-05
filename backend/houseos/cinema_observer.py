@@ -43,9 +43,14 @@ def maintenance(db):
 
         PRUNED["web"] = time.monotonic()
         prune_web_videos(db)
+    if time.monotonic() - PRUNED["images"] > 3600:  # posters and thumbnails past their month
+        from .cinema_cleanup import prune_images
+
+        PRUNED["images"] = time.monotonic()
+        prune_images()
 
 
-PRUNED = {"web": 0.0}
+PRUNED = {"web": 0.0, "images": 0.0}
 KEEP_UNWATCHED = timedelta(days=7)
 
 

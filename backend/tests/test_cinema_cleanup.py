@@ -88,3 +88,21 @@ def test_active_and_symlink_roots_are_preserved(cache, guard):
         assert maintain_cinema_cache(db) == 0
         assert db.get(cinema.CinemaPreparation, job_id).state != "purged"
     assert directory.exists() and (saved / "movie.mp4").exists()
+
+
+def test_images_older_than_a_month_are_deleted(tmp_path, monkeypatch):
+    import os
+    import time
+
+    from houseos.cinema_cleanup import prune_images
+
+    monkeypatch.setattr(cinema.settings, "runtime_root", tmp_path)
+    images = tmp_path / "cinema" / "images"
+    images.mkdir(parents=True)
+    old, fresh = images / "old.jpg", images / "fresh.jpg"
+    old.write_bytes(b"x")
+    fresh.write_bytes(b"x")
+    month_ago = time.time() - cinema.IMAGE_KEEP - 60
+    os.utime(old, (month_ago, month_ago))
+    assert prune_images() == 1
+    assert not old.exists() and fresh.exists()

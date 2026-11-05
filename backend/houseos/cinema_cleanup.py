@@ -3,6 +3,7 @@
 import os
 from pathlib import Path
 import shutil
+import time
 from uuid import UUID
 from sqlalchemy import select
 from .config import settings
@@ -72,4 +73,21 @@ def maintain_cinema_cache(db):
             removed += 1
     finally:
         os.close(descriptor)
+    return removed
+
+
+def prune_images(now=None):
+    """Cached posters and thumbnails are good for a month (cinema.IMAGE_KEEP); older ones and
+    stale failure markers are deleted, not only refetched."""
+    from .cinema import IMAGE_KEEP
+
+    now = now or time.time()
+    removed = 0
+    for path in (Path(settings.runtime_root) / "cinema" / "images").glob("*"):
+        try:
+            if path.is_file() and not path.is_symlink() and now - path.stat().st_mtime > IMAGE_KEEP:
+                path.unlink()
+                removed += 1
+        except OSError:
+            continue
     return removed
