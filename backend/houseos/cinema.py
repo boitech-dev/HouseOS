@@ -600,7 +600,8 @@ def search(
             row = local_title(db, item)
             items[row.id] = public_title(row)
     except MediaError as exc:
-        errors.append(exc.public())
+        if exc.code != "JELLYFIN_UNCONFIGURED":  # no local library: nothing to search, not an error
+            errors.append(exc.public())
     db.commit()
     return {"items": list(items.values())[:30], "errors": errors}
 

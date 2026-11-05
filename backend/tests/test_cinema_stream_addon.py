@@ -499,3 +499,13 @@ def test_versions_to_fetch_are_kept_marked_and_never_checked_on_their_own():
         source["id"] = str(n)
     assert [s["file_index"] for s in rank_provisional(found)] == [5]  # never added on its own
     assert sources.normalize_streams({"streams": rows[:1]}, HOST, "") == []  # no debrid key: not offered
+
+
+def test_search_without_a_local_library_reports_no_error(cinema_fixture, monkeypatch):
+    from houseos import cinema
+
+    item = {"canonical_id": "tt0133093", "title": "The Matrix", "kind": "movie", "year": "1999"}
+    monkeypatch.setattr(cinema.Cinemeta, "search", lambda *_: [item])
+    search = cinema_fixture.client.get("/api/v1/cinema/search?kind=movie&q=Matrix")
+    assert search.status_code == 200, search.text
+    assert search.json()["errors"] == [] and search.json()["items"][0]["title"] == "The Matrix"
