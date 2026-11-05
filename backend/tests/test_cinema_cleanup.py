@@ -44,8 +44,12 @@ def cache(tmp_path, monkeypatch):
     fixture.tearDown()
 
 
-def test_terminal_cache_removed_saved_library_preserved(cache):
+@pytest.mark.parametrize("ended", ["completed", "superseded"])
+def test_terminal_cache_removed_saved_library_preserved(cache, ended):
     fixture, identity, job_id, directory, saved = cache
+    with Session(fixture.engine) as db:
+        db.get(cinema.CinemaWorkflow, identity).state = ended
+        db.commit()
     (directory / "link").symlink_to(saved, target_is_directory=True)
     with Session(fixture.engine) as db:
         assert maintain_cinema_cache(db) == 1

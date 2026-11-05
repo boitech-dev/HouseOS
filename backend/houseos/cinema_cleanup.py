@@ -13,7 +13,8 @@ def maintain_cinema_cache(db):
     from .cinema import CinemaWorkflow, CinemaPreparation, CinemaRelay, CinemaDevice
     from .cinema_progressive import ACTIVE
 
-    terminal = {"stopped", "completed", "cancelled", "failed", "recovery_required"}
+    # "superseded": another film took the screen; while it still plays, its TV and relay guard it below.
+    terminal = {"stopped", "completed", "cancelled", "failed", "recovery_required", "superseded"}
     candidates = (
         select(CinemaPreparation.workflow_id)
         .join(CinemaWorkflow, CinemaWorkflow.id == CinemaPreparation.workflow_id)
